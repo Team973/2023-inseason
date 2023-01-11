@@ -4,6 +4,8 @@
 
 package frc.robot;
 
+import frc.robot.subsystems.ExampleSubsystem;
+
 import edu.wpi.first.wpilibj.TimedRobot;
 import edu.wpi.first.wpilibj.smartdashboard.SendableChooser;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
@@ -20,6 +22,18 @@ public class Robot extends TimedRobot {
   private String m_autoSelected;
   private final SendableChooser<String> m_chooser = new SendableChooser<>();
 
+  private ExampleSubsystem m_exampleSubsystem = new ExampleSubsystem();
+
+  /** Update subsystems. Called me when enabled. */
+  private void updateSubsystems() {
+    m_exampleSubsystem.update();
+  }
+
+  /** Reset subsystems. Called me when initializing. */
+  private void resetSubsystems() {
+    m_exampleSubsystem.reset();
+  }
+
   /**
    * This function is run when the robot is first started up and should be used for any
    * initialization code.
@@ -29,6 +43,8 @@ public class Robot extends TimedRobot {
     m_chooser.setDefaultOption("Default Auto", kDefaultAuto);
     m_chooser.addOption("My Auto", kCustomAuto);
     SmartDashboard.putData("Auto choices", m_chooser);
+
+    this.resetSubsystems();
   }
 
   /**
@@ -39,7 +55,11 @@ public class Robot extends TimedRobot {
    * SmartDashboard integrated updating.
    */
   @Override
-  public void robotPeriodic() {}
+  public void robotPeriodic() {
+    if (this.isEnabled()) {
+      this.updateSubsystems();
+    }
+  }
 
   /**
    * This autonomous (along with the chooser code above) shows how to select between different
@@ -61,6 +81,7 @@ public class Robot extends TimedRobot {
   /** This function is called periodically during autonomous. */
   @Override
   public void autonomousPeriodic() {
+    this.updateSubsystems();
     switch (m_autoSelected) {
       case kCustomAuto:
         // Put custom auto code here
