@@ -32,6 +32,7 @@ public class Elevator implements Subsystem {
 
     // Neutral Mode
     m_elevatorMotor.setNeutralMode(NeutralMode.Coast);
+    m_elevatorMotor.setNeutralMode(NeutralMode.Brake);
 
     // Current limits
     m_elevatorMotor.configSupplyCurrentLimit(m_currentLimit);
