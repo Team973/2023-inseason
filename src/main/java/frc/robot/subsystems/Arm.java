@@ -1,6 +1,7 @@
 package frc.robot.subsystems;
 
 import frc.robot.shared.Subsystem;
+import static frc.robot.shared.RobotInfo.*;
 
 import com.ctre.phoenix.motorcontrol.ControlMode;
 import com.ctre.phoenix.motorcontrol.FeedbackDevice;
@@ -17,7 +18,7 @@ public class Arm implements Subsystem {
   private double m_armMotorOutput = 0.0;
 
   public Arm() {
-    m_armMotor = new TalonFX(0);
+    m_armMotor = new TalonFX(ARM_FX_ID);
 
     final SupplyCurrentLimitConfiguration m_currentLimit =
         new SupplyCurrentLimitConfiguration(true, 40, 50, 0.05);
