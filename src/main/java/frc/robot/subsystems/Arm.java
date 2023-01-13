@@ -33,7 +33,7 @@ public class Arm implements Subsystem {
     m_armMotor.setInverted(TalonFXInvertType.CounterClockwise);
 
     // Neutral Mode
-    m_armMotor.setNeutralMode(NeutralMode.Coast);
+    m_armMotor.setNeutralMode(NeutralMode.Brake);
 
     // Current limits
     m_armMotor.configSupplyCurrentLimit(m_currentLimit);
