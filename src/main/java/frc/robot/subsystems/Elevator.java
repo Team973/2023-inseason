@@ -1,7 +1,8 @@
 package frc.robot.subsystems;
 
-import frc.robot.shared.Subsystem;
 import static frc.robot.shared.RobotInfo.*;
+
+import frc.robot.shared.Subsystem;
 
 import com.ctre.phoenix.motorcontrol.ControlMode;
 import com.ctre.phoenix.motorcontrol.FeedbackDevice;
