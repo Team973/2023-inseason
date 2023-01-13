@@ -1,6 +1,7 @@
 package frc.robot.subsystems;
 
 import frc.robot.shared.Subsystem;
+import static frc.robot.shared.RobotInfo.*;
 
 import com.ctre.phoenix.motorcontrol.ControlMode;
 import com.ctre.phoenix.motorcontrol.FeedbackDevice;
@@ -17,7 +18,7 @@ public class Elevator implements Subsystem {
   private double m_elevatorOutput = 0.0;
 
   public Elevator() {
-    m_elevatorMotor = new TalonFX(0);
+    m_elevatorMotor = new TalonFX(ELEVATOR_FX_ID);
 
     final SupplyCurrentLimitConfiguration m_currentLimit =
         new SupplyCurrentLimitConfiguration(true, 40, 50, 0.05);
@@ -31,7 +32,6 @@ public class Elevator implements Subsystem {
     m_elevatorMotor.setInverted(TalonFXInvertType.CounterClockwise);
 
     // Neutral Mode
-    m_elevatorMotor.setNeutralMode(NeutralMode.Coast);
     m_elevatorMotor.setNeutralMode(NeutralMode.Brake);
 
     // Current limits
