@@ -4,6 +4,7 @@
 
 package frc.robot;
 
+import frc.robot.subsystems.Elevator;
 import frc.robot.subsystems.ExampleSubsystem;
 
 import edu.wpi.first.wpilibj.TimedRobot;
@@ -23,15 +24,18 @@ public class Robot extends TimedRobot {
   private final SendableChooser<String> m_chooser = new SendableChooser<>();
 
   private ExampleSubsystem m_exampleSubsystem = new ExampleSubsystem();
+  private Elevator m_elevator = new Elevator();
 
   /** Update subsystems. Called me when enabled. */
   private void updateSubsystems() {
     m_exampleSubsystem.update();
+    m_elevator.update();
   }
 
   /** Reset subsystems. Called me when initializing. */
   private void resetSubsystems() {
     m_exampleSubsystem.reset();
+    m_elevator.reset();
   }
 
   /**
