@@ -38,8 +38,12 @@ public class ConcurrentCommand extends AutoCommand {
       return;
     }
 
-    for (AutoCommand command : m_cmdList) {
-      command.run();
+    for (AutoCommand command : m_unfinishedCmds) {
+      if (!command.isCompleted()) {
+        command.run();
+      } else {
+        m_unfinishedCmds.remove(command);
+      }
     }
   }
 

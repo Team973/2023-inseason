@@ -23,10 +23,6 @@ public class SequentialCommand extends AutoCommand {
     if (m_timeout != null) {
       setTargetMsec(m_timeout);
     }
-
-    for (AutoCommand command : m_cmdList) {
-      command.init();
-    }
   }
 
   public void run() {
@@ -37,6 +33,11 @@ public class SequentialCommand extends AutoCommand {
     final AutoCommand currentCommand = m_cmdList.get(m_currentIndex);
 
     if (m_cmdNeedsInit) {
+      currentCommand.init();
+      m_cmdNeedsInit = false;
+    }
+
+    if (currentCommand.isCompleted()) {
       m_currentIndex++;
       m_cmdNeedsInit = true;
     }
