@@ -27,8 +27,8 @@ public class Robot extends TimedRobot {
 
   private final ExampleSubsystem m_exampleSubsystem = new ExampleSubsystem();
   private final Claw m_claw = new Claw();
-  private Elevator m_elevator = new Elevator();
-  private Arm m_arm = new Arm();
+  private final Elevator m_elevator = new Elevator();
+  private final Arm m_arm = new Arm();
 
   /** Update subsystems. Called me when enabled. */
   private void updateSubsystems() {
