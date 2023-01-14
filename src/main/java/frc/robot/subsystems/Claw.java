@@ -5,7 +5,7 @@ import frc.robot.shared.Subsystem;
 public class Claw implements Subsystem {
   private ClampState m_clampState;
   private IntakeState m_intakeState;
- 
+
   private enum ClampState {
     Open,
     Closed
