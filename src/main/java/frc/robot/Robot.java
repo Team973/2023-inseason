@@ -4,8 +4,8 @@
 
 package frc.robot;
 
-import frc.robot.subsystems.ExampleSubsystem;
 import frc.robot.subsystems.Claw;
+import frc.robot.subsystems.ExampleSubsystem;
 
 import edu.wpi.first.wpilibj.TimedRobot;
 import edu.wpi.first.wpilibj.smartdashboard.SendableChooser;
