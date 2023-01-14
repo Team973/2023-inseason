@@ -6,54 +6,57 @@ public class Claw implements Subsystem {
   private ClampState m_clampState;
   private IntakeState m_intakeState;
 
-  public Claw() {}
-
-  public void open() {
-    m_clampState = ClampState.OPEN;
-  }
-
-  public void close() {
-    m_clampState = ClampState.CLOSED;
-  }
-
-  public void intake() {
-    m_intakeState = IntakeState.IN;
-  }
-
-  public void outtake() {
-    m_intakeState = IntakeState.OUT;
-  }
-
-  public void stopIntake() {
-    m_intakeState = IntakeState.NEUTRAL;
-  }
-
   private enum ClampState {
-    OPEN,
-    CLOSED,
+    Open,
+    Closed
   }
 
   private enum IntakeState {
-    IN,
-    OUT,
-    NEUTRAL
+    In,
+    Out,
+    Neutral
+  }
+
+  public Claw() {
+    m_clampState = ClampState.Open;
+    m_intakeState = IntakeState.Neutral;
+  }
+
+  public void open() {
+    m_clampState = ClampState.Open;
+  }
+
+  public void close() {
+    m_clampState = ClampState.Closed;
+  }
+
+  public void intake() {
+    m_intakeState = IntakeState.In;
+  }
+
+  public void outtake() {
+    m_intakeState = IntakeState.Out;
+  }
+
+  public void stopIntake() {
+    m_intakeState = IntakeState.Neutral;
   }
 
   public void update() {
     switch (m_clampState) {
-      case OPEN:
+      case Open:
         break;
-      case CLOSED:
+      case Closed:
         break;
       default:
         break;
     }
     switch (m_intakeState) {
-      case IN:
+      case In:
         break;
-      case OUT:
+      case Out:
         break;
-      case NEUTRAL:
+      case Neutral:
         break;
       default:
         break;
@@ -61,7 +64,7 @@ public class Claw implements Subsystem {
   }
 
   public void reset() {
-    m_clampState = ClampState.OPEN;
-    m_intakeState = IntakeState.NEUTRAL;
+    m_clampState = ClampState.Open;
+    m_intakeState = IntakeState.Neutral;
   }
 }
