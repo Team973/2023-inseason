@@ -23,8 +23,8 @@ public class Robot extends TimedRobot {
   private String m_autoSelected;
   private final SendableChooser<String> m_chooser = new SendableChooser<>();
 
-  private ExampleSubsystem m_exampleSubsystem = new ExampleSubsystem();
-  private Claw m_claw = new Claw();
+  private final ExampleSubsystem m_exampleSubsystem = new ExampleSubsystem();
+  private final Claw m_claw = new Claw();
 
   /** Update subsystems. Called me when enabled. */
   private void updateSubsystems() {
