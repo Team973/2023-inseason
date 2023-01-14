@@ -5,6 +5,8 @@
 package frc.robot;
 
 import frc.robot.subsystems.Claw;
+import frc.robot.subsystems.Arm;
+import frc.robot.subsystems.Elevator;
 import frc.robot.subsystems.ExampleSubsystem;
 
 import edu.wpi.first.wpilibj.TimedRobot;
@@ -25,17 +27,23 @@ public class Robot extends TimedRobot {
 
   private final ExampleSubsystem m_exampleSubsystem = new ExampleSubsystem();
   private final Claw m_claw = new Claw();
+  private Elevator m_elevator = new Elevator();
+  private Arm m_arm = new Arm();
 
   /** Update subsystems. Called me when enabled. */
   private void updateSubsystems() {
     m_exampleSubsystem.update();
     m_claw.update();
+    m_elevator.update();
+    m_arm.update();
   }
 
   /** Reset subsystems. Called me when initializing. */
   private void resetSubsystems() {
     m_exampleSubsystem.reset();
     m_claw.reset();
+    m_elevator.reset();
+    m_arm.reset();
   }
 
   /**
