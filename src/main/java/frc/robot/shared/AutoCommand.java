@@ -1,13 +1,25 @@
 package frc.robot.shared;
 
 /** Inteface for auto commands. */
-public interface AutoCommand {
-    /** Initialize the auto command. */
-    public void init();
+public abstract class AutoCommand {
+  protected double m_targetMsec;
+  protected double m_startMsec;
 
-    /** Run the auto command. */
-    public void run();
+  public boolean hasElapsed() {
+    return Util.getMsecTime() - m_startMsec >= m_targetMsec;
+  }
 
-    /** Check if the auto command is completed. */
-    public boolean isCompleted();
+  /** Initialize the auto command. */
+  public abstract void init();
+
+  /** Run the auto command. */
+  public abstract void run();
+
+  /** Check if the auto command is completed. */
+  public abstract boolean isCompleted();
+
+  public void setTargetMsec(double target) {
+    m_targetMsec = target;
+    m_startMsec = Util.getMsecTime();
+  }
 }
