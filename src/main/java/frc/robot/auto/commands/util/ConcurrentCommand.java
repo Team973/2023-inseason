@@ -13,7 +13,7 @@ public class ConcurrentCommand extends AutoCommand {
 
   /**
    * Constructor for concurrent command class.
-   * 
+   *
    * @param commands This is the parameter for a variable amount of auto commands.
    */
   public ConcurrentCommand(AutoCommand... commands) {
@@ -25,8 +25,8 @@ public class ConcurrentCommand extends AutoCommand {
 
   /**
    * Constructor for concurrent command class with timeout parameter.
-   * 
-   * @param timeout  This sets the timeout for the commands.
+   *
+   * @param timeout This sets the timeout for the commands.
    * @param commands This is the parameter for a variable amount of auto commands.
    */
   public ConcurrentCommand(double timeout, AutoCommand... commands) {

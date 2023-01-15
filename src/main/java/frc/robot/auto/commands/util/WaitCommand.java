@@ -7,7 +7,7 @@ public class WaitCommand extends AutoCommand {
 
   /**
    * The Constructor for the Wait Command class.
-   * 
+   *
    * @param targetMsec The target millisecond amount to wait.
    */
   public WaitCommand(double targetMsec) {
@@ -18,8 +18,7 @@ public class WaitCommand extends AutoCommand {
     setTargetMsec(m_targetMsec);
   }
 
-  public void run() {
-  }
+  public void run() {}
 
   public boolean isCompleted() {
     return hasElapsed();
