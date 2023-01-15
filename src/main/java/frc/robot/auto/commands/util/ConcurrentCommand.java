@@ -11,6 +11,11 @@ public class ConcurrentCommand extends AutoCommand {
   private HashSet<AutoCommand> m_unfinishedCmds;
   private Double m_timeout = null;
 
+  /**
+   * Constructor for concurrent command class.
+   * 
+   * @param commands This is the parameter for a variable amount of auto commands.
+   */
   public ConcurrentCommand(AutoCommand... commands) {
     this.m_cmdList = ImmutableList.copyOf(commands);
     m_unfinishedCmds = new HashSet<>();
@@ -18,6 +23,12 @@ public class ConcurrentCommand extends AutoCommand {
     m_unfinishedCmds.addAll(m_cmdList);
   }
 
+  /**
+   * Constructor for concurrent command class with timeout parameter.
+   * 
+   * @param timeout  This sets the timeout for the commands.
+   * @param commands This is the parameter for a variable amount of auto commands.
+   */
   public ConcurrentCommand(double timeout, AutoCommand... commands) {
     this(commands);
     this.m_timeout = timeout;

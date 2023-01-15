@@ -10,10 +10,21 @@ public class SequentialCommand extends AutoCommand {
   private int m_currentIndex = 0;
   private Double m_timeout = null;
 
+  /**
+   * Constructor for sequential command class.
+   * 
+   * @param commands This is the parameter for a variable amount of auto commands.
+   */
   public SequentialCommand(AutoCommand... commands) {
     this.m_cmdList = ImmutableList.copyOf(commands);
   }
 
+  /**
+   * Constructor for sequential command class.
+   * 
+   * @param timeout  This sets the timeout for the commands.
+   * @param commands This is the parameter for a variable amount of auto commands.
+   */
   public SequentialCommand(double timeout, AutoCommand... commands) {
     this(commands);
     this.m_timeout = timeout;
