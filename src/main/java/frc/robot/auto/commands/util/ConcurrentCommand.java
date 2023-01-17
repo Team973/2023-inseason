@@ -26,7 +26,7 @@ public class ConcurrentCommand extends AutoCommand {
   /**
    * Constructor for concurrent command class with timeout parameter.
    *
-   * @param timeout This sets the timeout for the commands.
+   * @param timeout  This sets the timeout for the commands.
    * @param commands This is the parameter for a variable amount of auto commands.
    */
   public ConcurrentCommand(double timeout, AutoCommand... commands) {
@@ -38,6 +38,9 @@ public class ConcurrentCommand extends AutoCommand {
     if (m_timeout != null) {
       setTargetMsec(m_timeout);
     }
+
+    while (!hasElapsed())
+      ;
 
     for (AutoCommand command : m_cmdList) {
       command.init();
@@ -52,6 +55,7 @@ public class ConcurrentCommand extends AutoCommand {
     for (AutoCommand command : m_unfinishedCmds) {
       if (!command.isCompleted()) {
         command.run();
+        m_unfinishedCmds.remove(command);
       } else {
         m_unfinishedCmds.remove(command);
       }
@@ -59,14 +63,6 @@ public class ConcurrentCommand extends AutoCommand {
   }
 
   public boolean isCompleted() {
-    for (AutoCommand command : m_unfinishedCmds) {
-      if (!command.isCompleted()) {
-        return false;
-      } else {
-        m_unfinishedCmds.remove(command);
-      }
-    }
-
-    return true;
+    return m_unfinishedCmds.size() == 0;
   }
 }
