@@ -12,12 +12,18 @@ import com.ctre.phoenix.motorcontrol.SupplyCurrentLimitConfiguration;
 import com.ctre.phoenix.motorcontrol.TalonFXInvertType;
 import com.ctre.phoenix.motorcontrol.can.TalonFX;
 
+import edu.wpi.first.wpilibj.DigitalInput;
+
 public class Elevator implements Subsystem {
 
   private final TalonFX m_elevatorMotor;
   private final TalonFX m_elevatorFollowerMotor;
 
+  private final DigitalInput m_bottamHall;
+
   private double m_elevatorOutput = 0.0;
+
+  private boolean m_isZeroed = false;
 
   public Elevator() {
     m_elevatorMotor = new TalonFX(ELEVATOR_FX_ID);
@@ -25,10 +31,10 @@ public class Elevator implements Subsystem {
 
     m_elevatorFollowerMotor.follow(m_elevatorMotor);
 
-    final SupplyCurrentLimitConfiguration m_currentLimit =
-        new SupplyCurrentLimitConfiguration(true, 40, 50, 0.05);
-    final StatorCurrentLimitConfiguration m_statorLimit =
-        new StatorCurrentLimitConfiguration(true, 80, 100, 0.05);
+    m_bottamHall = new DigitalInput(ELEVATOR_BOTTOM_HALL_SENSOR_ID);
+
+    final SupplyCurrentLimitConfiguration m_currentLimit = new SupplyCurrentLimitConfiguration(true, 40, 50, 0.05);
+    final StatorCurrentLimitConfiguration m_statorLimit = new StatorCurrentLimitConfiguration(true, 80, 100, 0.05);
 
     // Factory Default
     m_elevatorMotor.configFactoryDefault();
@@ -67,6 +73,14 @@ public class Elevator implements Subsystem {
 
   public void setElevatorOutput(double percent) {
     m_elevatorOutput = percent;
+  }
+
+  public void zeroSequence() {
+    if (!m_isZeroed) {
+      if (m_bottamHall.get()) {
+        m_isZeroed = true;
+      }
+    }
   }
 
   public void update() {
