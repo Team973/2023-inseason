@@ -15,16 +15,18 @@ import com.ctre.phoenix.motorcontrol.can.TalonFX;
 public class Elevator implements Subsystem {
 
   private final TalonFX m_elevatorMotor;
+  private final TalonFX m_elevatorFollowerMotor;
 
   private double m_elevatorOutput = 0.0;
 
   public Elevator() {
     m_elevatorMotor = new TalonFX(ELEVATOR_FX_ID);
+    m_elevatorFollowerMotor = new TalonFX(ELEVATOR_FOLLOWER_FX_ID);
 
-    final SupplyCurrentLimitConfiguration m_currentLimit =
-        new SupplyCurrentLimitConfiguration(true, 40, 50, 0.05);
-    final StatorCurrentLimitConfiguration m_statorLimit =
-        new StatorCurrentLimitConfiguration(true, 80, 100, 0.05);
+    m_elevatorFollowerMotor.follow(m_elevatorMotor);
+
+    final SupplyCurrentLimitConfiguration m_currentLimit = new SupplyCurrentLimitConfiguration(true, 40, 50, 0.05);
+    final StatorCurrentLimitConfiguration m_statorLimit = new StatorCurrentLimitConfiguration(true, 80, 100, 0.05);
 
     // Factory Default
     m_elevatorMotor.configFactoryDefault();
