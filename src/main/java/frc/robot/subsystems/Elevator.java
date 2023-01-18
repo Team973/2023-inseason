@@ -25,8 +25,10 @@ public class Elevator implements Subsystem {
 
     m_elevatorFollowerMotor.follow(m_elevatorMotor);
 
-    final SupplyCurrentLimitConfiguration m_currentLimit = new SupplyCurrentLimitConfiguration(true, 40, 50, 0.05);
-    final StatorCurrentLimitConfiguration m_statorLimit = new StatorCurrentLimitConfiguration(true, 80, 100, 0.05);
+    final SupplyCurrentLimitConfiguration m_currentLimit =
+        new SupplyCurrentLimitConfiguration(true, 40, 50, 0.05);
+    final StatorCurrentLimitConfiguration m_statorLimit =
+        new StatorCurrentLimitConfiguration(true, 80, 100, 0.05);
 
     // Factory Default
     m_elevatorMotor.configFactoryDefault();
