@@ -55,6 +55,8 @@ public class Robot extends TimedRobot {
     m_chooser.setDefaultOption("Default Auto", kDefaultAuto);
     m_chooser.addOption("My Auto", kCustomAuto);
     SmartDashboard.putData("Auto choices", m_chooser);
+    // int num[] = {1, 2, 3, 4};
+    // System.out.println(num[5]);
 
     this.resetSubsystems();
   }

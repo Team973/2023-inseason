@@ -4,7 +4,15 @@
 
 package frc.robot;
 
+import java.io.FileInputStream;
+import java.io.IOException;
+
+import edu.wpi.first.wpilibj.Filesystem;
 import edu.wpi.first.wpilibj.RobotBase;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
+import org.apache.logging.log4j.core.config.ConfigurationSource;
+import org.apache.logging.log4j.core.config.Configurator;
 
 /**
  * Do NOT add any static variables to this class, or any initialization at all. Unless you know what
@@ -12,7 +20,23 @@ import edu.wpi.first.wpilibj.RobotBase;
  * call.
  */
 public final class Main {
-  private Main() {}
+  private static final Logger logger = LogManager.getLogger();
+
+  private Main() {
+    // Configure Log4j
+    try {
+      final ConfigurationSource source =
+          new ConfigurationSource(
+              new FileInputStream(Filesystem.getDeployDirectory() + "/log4j2.xml"));
+      Configurator.initialize(null, source);
+    } catch (IOException e) {
+      System.err.println(e);
+      System.exit(1);
+    }
+    Thread.setDefaultUncaughtExceptionHandler(new GlobalExceptionHandler());
+
+    logger.info("This is a test message");
+  }
 
   /**
    * Main initialization function. Do not perform any initialization here.
