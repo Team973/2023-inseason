@@ -18,12 +18,12 @@ public class Arm implements Subsystem {
 
   private final TalonFX m_wristMotor;
 
+  private final Solenoid m_armSolenoid =
+  new Solenoid(PneumaticsModuleType.CTREPCM, ARM_SOLENOID_ID);
+
   private ExtensionState m_extensionState = ExtensionState.RETRACTED;
 
   private double m_wristMotorOutput = 0.0;
-
-  private final Solenoid m_armSolenoid =
-      new Solenoid(PneumaticsModuleType.CTREPCM, ARM_SOLENOID_ID);
 
   private enum ExtensionState {
     RETRACTED,
