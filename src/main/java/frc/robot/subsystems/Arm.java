@@ -11,15 +11,27 @@ import com.ctre.phoenix.motorcontrol.StatorCurrentLimitConfiguration;
 import com.ctre.phoenix.motorcontrol.SupplyCurrentLimitConfiguration;
 import com.ctre.phoenix.motorcontrol.TalonFXInvertType;
 import com.ctre.phoenix.motorcontrol.can.TalonFX;
+import edu.wpi.first.wpilibj.PneumaticsModuleType;
+import edu.wpi.first.wpilibj.Solenoid;
 
 public class Arm implements Subsystem {
 
-  private final TalonFX m_armMotor;
+  private final TalonFX m_wristMotor;
 
-  private double m_armMotorOutput = 0.0;
+  private final Solenoid m_armSolenoid =
+      new Solenoid(PneumaticsModuleType.CTREPCM, ARM_SOLENOID_ID);
+
+  private ExtensionState m_extensionState = ExtensionState.RETRACTED;
+
+  private double m_wristMotorOutput = 0.0;
+
+  private enum ExtensionState {
+    RETRACTED,
+    EXTENDED
+  }
 
   public Arm() {
-    m_armMotor = new TalonFX(ARM_FX_ID);
+    m_wristMotor = new TalonFX(ARM_FX_ID);
 
     final SupplyCurrentLimitConfiguration m_currentLimit =
         new SupplyCurrentLimitConfiguration(true, 40, 50, 0.05);
@@ -27,49 +39,60 @@ public class Arm implements Subsystem {
         new StatorCurrentLimitConfiguration(true, 80, 100, 0.05);
 
     // Factory Default
-    m_armMotor.configFactoryDefault();
+    m_wristMotor.configFactoryDefault();
 
     // Motor Directions
-    m_armMotor.setInverted(TalonFXInvertType.CounterClockwise);
+    m_wristMotor.setInverted(TalonFXInvertType.CounterClockwise);
 
     // Neutral Mode
-    m_armMotor.setNeutralMode(NeutralMode.Brake);
+    m_wristMotor.setNeutralMode(NeutralMode.Brake);
 
     // Current limits
-    m_armMotor.configSupplyCurrentLimit(m_currentLimit);
-    m_armMotor.configStatorCurrentLimit(m_statorLimit);
+    m_wristMotor.configSupplyCurrentLimit(m_currentLimit);
+    m_wristMotor.configStatorCurrentLimit(m_statorLimit);
 
     // Deadband config
-    m_armMotor.configNeutralDeadband(0.01);
+    m_wristMotor.configNeutralDeadband(0.01);
 
     // Set motor to follow A
 
     // Motor feedback
-    m_armMotor.configSelectedFeedbackSensor(FeedbackDevice.IntegratedSensor, 0, 30);
+    m_wristMotor.configSelectedFeedbackSensor(FeedbackDevice.IntegratedSensor, 0, 30);
 
     // Ramp rate
-    m_armMotor.configClosedloopRamp(0.0);
+    m_wristMotor.configClosedloopRamp(0.0);
 
     // Voltage Compensation
-    m_armMotor.configVoltageCompSaturation(12.0);
-    m_armMotor.enableVoltageCompensation(true);
+    m_wristMotor.configVoltageCompSaturation(12.0);
+    m_wristMotor.enableVoltageCompensation(true);
 
     // Velocity PID Parameters
-    m_armMotor.config_kP(0, 0.025, 30);
-    m_armMotor.config_kI(0, 0.0, 30);
-    m_armMotor.config_kD(0, 0.000, 30);
-    m_armMotor.config_kF(0, 0.048, 30);
+    m_wristMotor.config_kP(0, 0.025, 30);
+    m_wristMotor.config_kI(0, 0.0, 30);
+    m_wristMotor.config_kD(0, 0.000, 30);
+    m_wristMotor.config_kF(0, 0.048, 30);
   }
 
-  public void setArmMotorOutput(double percent) {
-    m_armMotorOutput = percent;
+  public void setWristMotorOutput(double percent) {
+    m_wristMotorOutput = percent;
   }
 
   public void update() {
-    m_armMotor.set(ControlMode.PercentOutput, m_armMotorOutput);
+    m_wristMotor.set(ControlMode.PercentOutput, m_wristMotorOutput);
+
+    switch (m_extensionState) {
+      case RETRACTED:
+        m_armSolenoid.set(false);
+        break;
+      case EXTENDED:
+        m_armSolenoid.set(true);
+        break;
+      default:
+        break;
+    }
   }
 
   public void reset() {
-    setArmMotorOutput(0.0);
+    setWristMotorOutput(0.0);
   }
 }
