@@ -3,9 +3,6 @@ package frc.robot.subsystems;
 import static frc.robot.shared.RobotInfo.*;
 
 import frc.robot.shared.Subsystem;
-import lombok.Getter;
-import lombok.Setter;
-import lombok.experimental.Accessors;
 
 import com.ctre.phoenix.motorcontrol.ControlMode;
 import com.ctre.phoenix.motorcontrol.FeedbackDevice;
@@ -14,6 +11,9 @@ import com.ctre.phoenix.motorcontrol.StatorCurrentLimitConfiguration;
 import com.ctre.phoenix.motorcontrol.SupplyCurrentLimitConfiguration;
 import com.ctre.phoenix.motorcontrol.TalonFXInvertType;
 import com.ctre.phoenix.motorcontrol.can.TalonFX;
+import lombok.Getter;
+import lombok.Setter;
+import lombok.experimental.Accessors;
 
 @Accessors(prefix = "m_")
 public class Elevator implements Subsystem {
@@ -23,13 +23,9 @@ public class Elevator implements Subsystem {
 
   private double m_elevatorOutput = 0.0;
 
-  @Getter
-  @Setter
-  private ElevatorState m_elevatorState = ElevatorState.Idle;
+  @Getter @Setter private ElevatorState m_elevatorState = ElevatorState.Idle;
 
-  @Getter
-  @Setter
-  private ElevatorPos m_elevatorPos;
+  @Getter @Setter private ElevatorPos m_elevatorPos;
 
   public enum ElevatorState {
     /** Control the motors using position with Motion Magic. */
@@ -52,8 +48,10 @@ public class Elevator implements Subsystem {
 
     m_elevatorFollowerMotor.follow(m_elevatorMotor);
 
-    final SupplyCurrentLimitConfiguration m_currentLimit = new SupplyCurrentLimitConfiguration(true, 40, 50, 0.05);
-    final StatorCurrentLimitConfiguration m_statorLimit = new StatorCurrentLimitConfiguration(true, 80, 100, 0.05);
+    final SupplyCurrentLimitConfiguration m_currentLimit =
+        new SupplyCurrentLimitConfiguration(true, 40, 50, 0.05);
+    final StatorCurrentLimitConfiguration m_statorLimit =
+        new StatorCurrentLimitConfiguration(true, 80, 100, 0.05);
 
     // Factory Default
     m_elevatorMotor.configFactoryDefault();
