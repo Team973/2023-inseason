@@ -26,7 +26,7 @@ public class ConcurrentCommand extends AutoCommand {
   /**
    * Constructor for concurrent command class with timeout parameter.
    *
-   * @param timeout This sets the timeout for the commands.
+   * @param timeout  This sets the timeout for the commands.
    * @param commands This is the parameter for a variable amount of auto commands.
    */
   public ConcurrentCommand(double timeout, AutoCommand... commands) {
@@ -52,7 +52,6 @@ public class ConcurrentCommand extends AutoCommand {
     for (AutoCommand command : m_unfinishedCmds) {
       if (!command.isCompleted()) {
         command.run();
-        m_unfinishedCmds.remove(command);
       } else {
         m_unfinishedCmds.remove(command);
       }
