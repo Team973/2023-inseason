@@ -33,8 +33,10 @@ public class Robot extends TimedRobot {
   private final Claw m_claw = new Claw();
   private final Elevator m_elevator = new Elevator();
   private final Arm m_arm = new Arm();
+
   private final Compressor m_compressor =
       new Compressor(COMPRESSOR_ID, PneumaticsModuleType.CTREPCM);
+
   /** Update subsystems. Called me when enabled. */
   private void updateSubsystems() {
     m_exampleSubsystem.update();
