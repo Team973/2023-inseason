@@ -39,9 +39,6 @@ public class ConcurrentCommand extends AutoCommand {
       setTargetMsec(m_timeout);
     }
 
-    while (!hasElapsed())
-      ;
-
     for (AutoCommand command : m_cmdList) {
       command.init();
     }
@@ -55,7 +52,10 @@ public class ConcurrentCommand extends AutoCommand {
     for (AutoCommand command : m_unfinishedCmds) {
       if (!command.isCompleted()) {
         command.run();
-        m_unfinishedCmds.remove(command);
+
+        if (hasElapsed()) {
+          m_unfinishedCmds.remove(command);
+        }
       } else {
         m_unfinishedCmds.remove(command);
       }

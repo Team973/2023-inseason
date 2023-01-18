@@ -60,6 +60,6 @@ public class SequentialCommand extends AutoCommand {
   }
 
   public boolean isCompleted() {
-    return m_currentIndex >= m_cmdList.size();
+    return m_currentIndex >= m_cmdList.size() || hasElapsed();
   }
 }
