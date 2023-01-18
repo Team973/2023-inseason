@@ -3,6 +3,9 @@ package frc.robot.subsystems;
 import static frc.robot.shared.RobotInfo.*;
 
 import frc.robot.shared.Subsystem;
+import lombok.Getter;
+import lombok.Setter;
+import lombok.experimental.Accessors;
 
 import com.ctre.phoenix.motorcontrol.ControlMode;
 import com.ctre.phoenix.motorcontrol.FeedbackDevice;
@@ -12,6 +15,7 @@ import com.ctre.phoenix.motorcontrol.SupplyCurrentLimitConfiguration;
 import com.ctre.phoenix.motorcontrol.TalonFXInvertType;
 import com.ctre.phoenix.motorcontrol.can.TalonFX;
 
+@Accessors(prefix = "m_")
 public class Elevator implements Subsystem {
 
   private final TalonFX m_elevatorMotor;
@@ -19,16 +23,27 @@ public class Elevator implements Subsystem {
 
   private double m_elevatorOutput = 0.0;
 
+  @Getter
+  @Setter
+  private ElevatorState m_elevatorState = ElevatorState.Idle;
+
+  public enum ElevatorState {
+    /** Control the motors using position with Motion Magic. */
+    MotionMagic,
+    /** Staying in place after pressing a button. */
+    Idle,
+    /** Manually control the motors with the joystick */
+    Manual
+  }
+
   public Elevator() {
     m_elevatorMotor = new TalonFX(ELEVATOR_FX_ID);
     m_elevatorFollowerMotor = new TalonFX(ELEVATOR_FOLLOWER_FX_ID);
 
     m_elevatorFollowerMotor.follow(m_elevatorMotor);
 
-    final SupplyCurrentLimitConfiguration m_currentLimit =
-        new SupplyCurrentLimitConfiguration(true, 40, 50, 0.05);
-    final StatorCurrentLimitConfiguration m_statorLimit =
-        new StatorCurrentLimitConfiguration(true, 80, 100, 0.05);
+    final SupplyCurrentLimitConfiguration m_currentLimit = new SupplyCurrentLimitConfiguration(true, 40, 50, 0.05);
+    final StatorCurrentLimitConfiguration m_statorLimit = new StatorCurrentLimitConfiguration(true, 80, 100, 0.05);
 
     // Factory Default
     m_elevatorMotor.configFactoryDefault();
@@ -71,6 +86,15 @@ public class Elevator implements Subsystem {
 
   public void update() {
     m_elevatorMotor.set(ControlMode.PercentOutput, m_elevatorOutput);
+
+    switch (m_elevatorState) {
+      case Manual:
+        break;
+      case MotionMagic:
+        break;
+      case Idle:
+        break;
+    }
   }
 
   public void reset() {
