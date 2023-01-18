@@ -8,6 +8,7 @@ import frc.robot.subsystems.Arm;
 import frc.robot.subsystems.Claw;
 import frc.robot.subsystems.Elevator;
 import frc.robot.subsystems.ExampleSubsystem;
+import frc.robot.subsystems.Elevator.ElevatorPos;
 import frc.robot.subsystems.Elevator.ElevatorState;
 import edu.wpi.first.wpilibj.TimedRobot;
 import edu.wpi.first.wpilibj.XboxController;
@@ -142,6 +143,18 @@ public class Robot extends TimedRobot {
 
     if (m_operatorStick.getRightX() > 0.07) {
       m_elevator.setElevatorState(ElevatorState.Manual);
+    }
+
+    if (m_operatorStick.getBButton()) {
+      m_elevator.setElevatorPos(ElevatorPos.Top);
+    }
+
+    if (m_operatorStick.getXButton()) {
+      m_elevator.setElevatorPos(ElevatorPos.Middle);
+    }
+
+    if (m_operatorStick.getYButton()) {
+      m_elevator.setElevatorPos(ElevatorPos.Bottom);
     }
   }
 

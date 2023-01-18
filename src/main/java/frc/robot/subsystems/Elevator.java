@@ -27,6 +27,10 @@ public class Elevator implements Subsystem {
   @Setter
   private ElevatorState m_elevatorState = ElevatorState.Idle;
 
+  @Getter
+  @Setter
+  private ElevatorPos m_elevatorPos;
+
   public enum ElevatorState {
     /** Control the motors using position with Motion Magic. */
     MotionMagic,
@@ -34,6 +38,12 @@ public class Elevator implements Subsystem {
     Idle,
     /** Manually control the motors with the joystick */
     Manual
+  }
+
+  public enum ElevatorPos {
+    Top,
+    Middle,
+    Bottom
   }
 
   public Elevator() {
@@ -93,6 +103,15 @@ public class Elevator implements Subsystem {
       case MotionMagic:
         break;
       case Idle:
+        break;
+    }
+
+    switch (m_elevatorPos) {
+      case Top:
+        break;
+      case Middle:
+        break;
+      case Bottom:
         break;
     }
   }
