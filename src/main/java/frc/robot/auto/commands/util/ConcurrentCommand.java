@@ -52,10 +52,7 @@ public class ConcurrentCommand extends AutoCommand {
     for (AutoCommand command : m_unfinishedCmds) {
       if (!command.isCompleted()) {
         command.run();
-
-        if (hasElapsed()) {
-          m_unfinishedCmds.remove(command);
-        }
+        m_unfinishedCmds.remove(command);
       } else {
         m_unfinishedCmds.remove(command);
       }
@@ -63,6 +60,6 @@ public class ConcurrentCommand extends AutoCommand {
   }
 
   public boolean isCompleted() {
-    return m_unfinishedCmds.size() == 0;
+    return m_unfinishedCmds.size() == 0 || hasElapsed();
   }
 }

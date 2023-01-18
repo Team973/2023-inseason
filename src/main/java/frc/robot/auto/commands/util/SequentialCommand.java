@@ -34,9 +34,6 @@ public class SequentialCommand extends AutoCommand {
     if (m_timeout != null) {
       setTargetMsec(m_timeout);
     }
-
-    while (!hasElapsed())
-      ;
   }
 
   public void run() {
