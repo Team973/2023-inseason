@@ -22,7 +22,7 @@ public class SequentialCommand extends AutoCommand {
   /**
    * Constructor for sequential command class.
    *
-   * @param timeout  This sets the timeout for the commands.
+   * @param timeout This sets the timeout for the commands.
    * @param commands This is the parameter for a variable amount of auto commands.
    */
   public SequentialCommand(double timeout, AutoCommand... commands) {
