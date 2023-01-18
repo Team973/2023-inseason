@@ -6,4 +6,5 @@ public final class RobotInfo {
 
   public static final int ARM_FX_ID = 0;
   public static final int ELEVATOR_FX_ID = 1;
+  public static final int COMPRESSOR_ID = 0;
 }
