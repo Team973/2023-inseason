@@ -52,9 +52,7 @@ public class ConcurrentCommand extends AutoCommand {
     for (AutoCommand command : m_unfinishedCmds) {
       if (!command.isCompleted()) {
         command.run();
-      }
-
-      if (isCompleted()) {
+      } else {
         m_unfinishedCmds.remove(command);
       }
     }
