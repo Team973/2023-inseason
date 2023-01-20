@@ -12,7 +12,6 @@ import com.ctre.phoenix.motorcontrol.SupplyCurrentLimitConfiguration;
 import com.ctre.phoenix.motorcontrol.TalonFXControlMode;
 import com.ctre.phoenix.motorcontrol.TalonFXInvertType;
 import com.ctre.phoenix.motorcontrol.can.TalonFX;
-
 import edu.wpi.first.math.controller.PIDController;
 import lombok.Getter;
 import lombok.Setter;
@@ -30,12 +29,8 @@ public class Elevator implements Subsystem {
   private double m_translationalValue = 0.0;
   private double m_currentAngleInDegrees = 0.0;
 
-  @Getter
-  @Setter
-  private ElevatorState m_elevatorState = ElevatorState.Idle;
-  @Getter
-  @Setter
-  private ElevatorPos m_elevatorPos;
+  @Getter @Setter private ElevatorState m_elevatorState = ElevatorState.Idle;
+  @Getter @Setter private ElevatorPos m_elevatorPos;
 
   private PIDController m_elevatorPID = new PIDController(0.02, 0.0, 0.0);
 
@@ -60,8 +55,10 @@ public class Elevator implements Subsystem {
 
     m_elevatorFollowerMotor.follow(m_elevatorMotor);
 
-    final SupplyCurrentLimitConfiguration m_currentLimit = new SupplyCurrentLimitConfiguration(true, 40, 50, 0.05);
-    final StatorCurrentLimitConfiguration m_statorLimit = new StatorCurrentLimitConfiguration(true, 80, 100, 0.05);
+    final SupplyCurrentLimitConfiguration m_currentLimit =
+        new SupplyCurrentLimitConfiguration(true, 40, 50, 0.05);
+    final StatorCurrentLimitConfiguration m_statorLimit =
+        new StatorCurrentLimitConfiguration(true, 80, 100, 0.05);
 
     // Factory Default
     m_elevatorMotor.configFactoryDefault();
