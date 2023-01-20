@@ -17,12 +17,15 @@ import edu.wpi.first.math.controller.PIDController;
 import lombok.Getter;
 import lombok.Setter;
 import lombok.experimental.Accessors;
+import edu.wpi.first.wpilibj.DigitalInput;
 
 @Accessors(prefix = "m_")
 public class Elevator implements Subsystem {
 
   private final TalonFX m_elevatorMotor;
   private final TalonFX m_elevatorFollowerMotor;
+
+  private final DigitalInput m_bottomHall;
 
   private double m_elevatorOutput = 0.0;
   private double m_offset = 0.0;
@@ -56,6 +59,8 @@ public class Elevator implements Subsystem {
     Bottom
   }
 
+  private boolean m_isZeroed = false;
+
   public Elevator() {
     m_elevatorMotor = new TalonFX(ELEVATOR_FX_ID);
     m_elevatorFollowerMotor = new TalonFX(ELEVATOR_FOLLOWER_FX_ID);
@@ -64,6 +69,8 @@ public class Elevator implements Subsystem {
 
     final SupplyCurrentLimitConfiguration m_currentLimit = new SupplyCurrentLimitConfiguration(true, 40, 50, 0.05);
     final StatorCurrentLimitConfiguration m_statorLimit = new StatorCurrentLimitConfiguration(true, 80, 100, 0.05);
+
+    m_bottomHall = new DigitalInput(ELEVATOR_BOTTOM_HALL_SENSOR_ID);
 
     // Factory Default
     m_elevatorMotor.configFactoryDefault();
@@ -131,6 +138,15 @@ public class Elevator implements Subsystem {
 
   private double getHeightFromPosition(double position) {
     return position * Math.sin(ELEVATOR_ANGLE);
+
+  public void zeroSequence() {
+    if (!m_isZeroed) {
+      if (m_bottomHall.get()) {
+        m_isZeroed = true;
+        m_elevatorMotor.setNeutralMode(NeutralMode.Brake);
+        m_elevatorMotor.setSelectedSensorPosition(0.0);
+      }
+    }
   }
 
   public void update() {
