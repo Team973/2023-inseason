@@ -18,7 +18,7 @@ public class Elevator implements Subsystem {
   private final TalonFX m_elevatorMotor;
   private final TalonFX m_elevatorFollowerMotor;
 
-  private final DigitalInput m_bottamHall;
+  private final DigitalInput m_bottomHall;
 
   private double m_elevatorOutput = 0.0;
 
@@ -30,7 +30,7 @@ public class Elevator implements Subsystem {
 
     m_elevatorFollowerMotor.follow(m_elevatorMotor);
 
-    m_bottamHall = new DigitalInput(ELEVATOR_BOTTOM_HALL_SENSOR_ID);
+    m_bottomHall = new DigitalInput(ELEVATOR_BOTTOM_HALL_SENSOR_ID);
 
     final SupplyCurrentLimitConfiguration m_currentLimit =
         new SupplyCurrentLimitConfiguration(true, 40, 50, 0.05);
@@ -78,7 +78,7 @@ public class Elevator implements Subsystem {
 
   public void zeroSequence() {
     if (!m_isZeroed) {
-      if (m_bottamHall.get()) {
+      if (m_bottomHall.get()) {
         m_isZeroed = true;
         m_elevatorMotor.setNeutralMode(NeutralMode.Brake);
         m_elevatorMotor.setSelectedSensorPosition(0.0);
