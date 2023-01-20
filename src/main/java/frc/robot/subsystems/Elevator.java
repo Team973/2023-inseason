@@ -32,10 +32,8 @@ public class Elevator implements Subsystem {
 
     m_bottamHall = new DigitalInput(ELEVATOR_BOTTOM_HALL_SENSOR_ID);
 
-    final SupplyCurrentLimitConfiguration m_currentLimit =
-        new SupplyCurrentLimitConfiguration(true, 40, 50, 0.05);
-    final StatorCurrentLimitConfiguration m_statorLimit =
-        new StatorCurrentLimitConfiguration(true, 80, 100, 0.05);
+    final SupplyCurrentLimitConfiguration m_currentLimit = new SupplyCurrentLimitConfiguration(true, 40, 50, 0.05);
+    final StatorCurrentLimitConfiguration m_statorLimit = new StatorCurrentLimitConfiguration(true, 80, 100, 0.05);
 
     // Factory Default
     m_elevatorMotor.configFactoryDefault();
@@ -80,6 +78,8 @@ public class Elevator implements Subsystem {
     if (!m_isZeroed) {
       if (m_bottamHall.get()) {
         m_isZeroed = true;
+        m_elevatorMotor.setNeutralMode(NeutralMode.Brake);
+        m_elevatorMotor.setSelectedSensorPosition(0.0);
       }
     }
   }
