@@ -48,12 +48,12 @@ public class SequentialCommand extends AutoCommand {
       m_cmdNeedsInit = false;
     }
 
+    currentCommand.run();
+
     if (currentCommand.isCompleted()) {
       m_currentIndex++;
       m_cmdNeedsInit = true;
     }
-
-    currentCommand.run();
   }
 
   public boolean isCompleted() {
