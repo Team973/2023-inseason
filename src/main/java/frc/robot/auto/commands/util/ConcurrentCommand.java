@@ -11,6 +11,8 @@ public class ConcurrentCommand extends AutoCommand {
   private HashSet<AutoCommand> m_unfinishedCmds;
   private Double m_timeout = null;
 
+  private boolean m_initialized = false;
+
   /**
    * Constructor for concurrent command class.
    *
@@ -24,7 +26,7 @@ public class ConcurrentCommand extends AutoCommand {
   }
 
   /**
-   * Constructor for concurrent command class with timeout parameter.
+   * Constructor fo concurrent command class with timeout parameter.
    *
    * @param timeout This sets the timeout for the commands.
    * @param commands This is the parameter for a variable amount of auto commands.
@@ -50,9 +52,9 @@ public class ConcurrentCommand extends AutoCommand {
     }
 
     for (AutoCommand command : m_unfinishedCmds) {
-      if (!command.isCompleted()) {
-        command.run();
-      } else {
+      command.run();
+
+      if (command.isCompleted()) {
         m_unfinishedCmds.remove(command);
       }
     }
