@@ -9,8 +9,11 @@ import com.ctre.phoenix.motorcontrol.FeedbackDevice;
 import com.ctre.phoenix.motorcontrol.NeutralMode;
 import com.ctre.phoenix.motorcontrol.StatorCurrentLimitConfiguration;
 import com.ctre.phoenix.motorcontrol.SupplyCurrentLimitConfiguration;
+import com.ctre.phoenix.motorcontrol.TalonFXControlMode;
 import com.ctre.phoenix.motorcontrol.TalonFXInvertType;
 import com.ctre.phoenix.motorcontrol.can.TalonFX;
+
+import edu.wpi.first.math.controller.PIDController;
 import lombok.Getter;
 import lombok.Setter;
 import lombok.experimental.Accessors;
@@ -22,10 +25,19 @@ public class Elevator implements Subsystem {
   private final TalonFX m_elevatorFollowerMotor;
 
   private double m_elevatorOutput = 0.0;
+  private double m_offset = 0.0;
+  private double m_angularRate = 0.0;
+  private double m_translationalValue = 0.0;
+  private double m_currentAngleInDegrees = 0.0;
 
-  @Getter @Setter private ElevatorState m_elevatorState = ElevatorState.Idle;
+  @Getter
+  @Setter
+  private ElevatorState m_elevatorState = ElevatorState.Idle;
+  @Getter
+  @Setter
+  private ElevatorPos m_elevatorPos;
 
-  @Getter @Setter private ElevatorPos m_elevatorPos;
+  private PIDController m_elevatorPID = new PIDController(0.02, 0.0, 0.0);
 
   public enum ElevatorState {
     /** Control the motors using position with Motion Magic. */
@@ -48,10 +60,8 @@ public class Elevator implements Subsystem {
 
     m_elevatorFollowerMotor.follow(m_elevatorMotor);
 
-    final SupplyCurrentLimitConfiguration m_currentLimit =
-        new SupplyCurrentLimitConfiguration(true, 40, 50, 0.05);
-    final StatorCurrentLimitConfiguration m_statorLimit =
-        new StatorCurrentLimitConfiguration(true, 80, 100, 0.05);
+    final SupplyCurrentLimitConfiguration m_currentLimit = new SupplyCurrentLimitConfiguration(true, 40, 50, 0.05);
+    final StatorCurrentLimitConfiguration m_statorLimit = new StatorCurrentLimitConfiguration(true, 80, 100, 0.05);
 
     // Factory Default
     m_elevatorMotor.configFactoryDefault();
@@ -92,6 +102,13 @@ public class Elevator implements Subsystem {
     m_elevatorOutput = percent;
   }
 
+  public double motionMagicOutput(double offset, double currentAngleInDegrees) {
+    m_elevatorPID.setSetpoint(0.0);
+    double targetAngle = currentAngleInDegrees + offset;
+
+    return m_elevatorPID.calculate(offset) - m_angularRate;
+  }
+
   public void update() {
     m_elevatorMotor.set(ControlMode.PercentOutput, m_elevatorOutput);
 
@@ -99,6 +116,8 @@ public class Elevator implements Subsystem {
       case Manual:
         break;
       case MotionMagic:
+        double output = motionMagicOutput(m_offset, m_currentAngleInDegrees);
+        m_elevatorMotor.set(TalonFXControlMode.PercentOutput, output);
         break;
       case Idle:
         break;
