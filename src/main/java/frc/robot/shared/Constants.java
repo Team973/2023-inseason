@@ -46,21 +46,6 @@ public class Constants {
   public static final double TALON_FX_VELOCITY_UNIT_MS = 100.0;
 
   /** Standard TalonFX RPM (multiply by Ticks/100ms). */
-  public static final double TALON_FX_VELOCITY_RPM =
-      (MSEC_PER_SEC * SEC_PER_MIN) / (TALON_FX_TICKS_PER_REV * TALON_FX_VELOCITY_UNIT_MS);
-
-  /** Pitch Diameter of sprocket in inches */
-  public static final double ELEVATOR_SPROCKET_PD = 1.751;
-  /** Degrees from floor */
-  public static final double ELEVATOR_ANGLE = 51.519262;
-  /** Inches from floor */
-  public static final double ELEVATOR_STOW_OFFSET = 7.628521;
-  /** Inches from floor */
-  public static final double ELEVATOR_FLOOR_PRESET = 9.25;
-  /** Inches from floor */
-  public static final double ELEVATOR_MID_PRESET = 34.5;
-  /** Inches from floor */
-  public static final double ELEVATOR_HP_PRESET = 40.0;
-  /** Inches from floor */
-  public static final double ELEVATOR_HIGH_PRESET = 48.0;
+  public static final double TALON_FX_VELOCITY_RPM = (MSEC_PER_SEC * SEC_PER_MIN)
+      / (TALON_FX_TICKS_PER_REV * TALON_FX_VELOCITY_UNIT_MS);
 }
