@@ -4,10 +4,15 @@
 
 package frc.robot;
 
+import static frc.robot.shared.RobotInfo.*;
+
 import frc.robot.subsystems.Arm;
+import frc.robot.subsystems.Claw;
 import frc.robot.subsystems.Elevator;
 import frc.robot.subsystems.ExampleSubsystem;
 
+import edu.wpi.first.wpilibj.Compressor;
+import edu.wpi.first.wpilibj.PneumaticsModuleType;
 import edu.wpi.first.wpilibj.TimedRobot;
 import edu.wpi.first.wpilibj.smartdashboard.SendableChooser;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
@@ -24,13 +29,18 @@ public class Robot extends TimedRobot {
   private String m_autoSelected;
   private final SendableChooser<String> m_chooser = new SendableChooser<>();
 
-  private ExampleSubsystem m_exampleSubsystem = new ExampleSubsystem();
-  private Elevator m_elevator = new Elevator();
-  private Arm m_arm = new Arm();
+  private final ExampleSubsystem m_exampleSubsystem = new ExampleSubsystem();
+  private final Claw m_claw = new Claw();
+  private final Elevator m_elevator = new Elevator();
+  private final Arm m_arm = new Arm();
+
+  private final Compressor m_compressor =
+      new Compressor(COMPRESSOR_ID, PneumaticsModuleType.CTREPCM);
 
   /** Update subsystems. Called me when enabled. */
   private void updateSubsystems() {
     m_exampleSubsystem.update();
+    m_claw.update();
     m_elevator.update();
     m_arm.update();
   }
@@ -38,6 +48,7 @@ public class Robot extends TimedRobot {
   /** Reset subsystems. Called me when initializing. */
   private void resetSubsystems() {
     m_exampleSubsystem.reset();
+    m_claw.reset();
     m_elevator.reset();
     m_arm.reset();
   }
@@ -84,6 +95,7 @@ public class Robot extends TimedRobot {
     m_autoSelected = m_chooser.getSelected();
     // m_autoSelected = SmartDashboard.getString("Auto Selector", kDefaultAuto);
     System.out.println("Auto selected: " + m_autoSelected);
+    m_compressor.enableDigital();
   }
 
   /** This function is called periodically during autonomous. */
@@ -103,7 +115,9 @@ public class Robot extends TimedRobot {
 
   /** This function is called once when teleop is enabled. */
   @Override
-  public void teleopInit() {}
+  public void teleopInit() {
+    m_compressor.enableDigital();
+  }
 
   /** This function is called periodically during operator control. */
   @Override
@@ -111,7 +125,9 @@ public class Robot extends TimedRobot {
 
   /** This function is called once when the robot is disabled. */
   @Override
-  public void disabledInit() {}
+  public void disabledInit() {
+    m_compressor.disable();
+  }
 
   /** This function is called periodically when disabled. */
   @Override
