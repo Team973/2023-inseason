@@ -58,7 +58,6 @@ public class Elevator implements Subsystem {
   public Elevator() {
     m_elevatorMotor = new TalonFX(ELEVATOR_FX_ID);
     m_elevatorFollowerMotor = new TalonFX(ELEVATOR_FOLLOWER_FX_ID);
-
     m_bottomHall = new DigitalInput(ELEVATOR_BOTTOM_HALL_SENSOR_ID);
 
     // Factory Default
@@ -92,6 +91,10 @@ public class Elevator implements Subsystem {
     motorConfig.Slot0.kI = 0.0;
     motorConfig.Slot0.kD = 0.0;
     motorConfig.Slot0.kS = 0.0;
+
+    m_elevatorMotor.getConfigurator().apply(motorConfig);
+    m_elevatorFollowerMotor.getConfigurator().apply(new TalonFXConfiguration());
+    m_elevatorFollowerMotor.setControl(new Follower(ARM_FX_ID, true));
   }
 
   public void setElevatorOutput(double percent) {
