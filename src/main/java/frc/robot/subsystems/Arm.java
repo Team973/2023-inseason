@@ -9,11 +9,13 @@ import com.ctre.phoenixpro.hardware.TalonFX;
 import com.ctre.phoenixpro.signals.FeedbackSensorSourceValue;
 import com.ctre.phoenixpro.signals.InvertedValue;
 import com.ctre.phoenixpro.signals.NeutralModeValue;
+import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.wpilibj.PneumaticsModuleType;
 import edu.wpi.first.wpilibj.Solenoid;
 
 public class Arm implements Subsystem {
 
+  private double m_targetAngle = 0.0;
   private final TalonFX m_wristMotor;
 
   private final Solenoid m_armSolenoid =
@@ -79,6 +81,19 @@ public class Arm implements Subsystem {
       default:
         break;
     }
+  }
+
+  private final double wristGearRatio() {
+    return (1.0 / 3.0) * (1.0 / 3.0) * (22.0 / 44.0);
+  }
+
+  public double getWristAngle() {
+    double rot = m_wristMotor.getRotorPosition().getValue() * wristGearRatio();
+    return Rotation2d.fromRotations(rot).getDegrees();
+  }
+
+  public void setWristAngle(double angle) {
+    m_targetAngle = angle;
   }
 
   public void reset() {
