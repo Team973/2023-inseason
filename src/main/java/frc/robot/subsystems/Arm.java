@@ -4,13 +4,11 @@ import static frc.robot.shared.RobotInfo.*;
 
 import frc.robot.shared.Subsystem;
 
-import com.ctre.phoenix.motorcontrol.ControlMode;
-import com.ctre.phoenix.motorcontrol.FeedbackDevice;
-import com.ctre.phoenix.motorcontrol.NeutralMode;
-import com.ctre.phoenix.motorcontrol.StatorCurrentLimitConfiguration;
-import com.ctre.phoenix.motorcontrol.SupplyCurrentLimitConfiguration;
-import com.ctre.phoenix.motorcontrol.TalonFXInvertType;
-import com.ctre.phoenix.motorcontrol.can.TalonFX;
+import com.ctre.phoenixpro.configs.TalonFXConfiguration;
+import com.ctre.phoenixpro.hardware.TalonFX;
+import com.ctre.phoenixpro.signals.FeedbackSensorSourceValue;
+import com.ctre.phoenixpro.signals.InvertedValue;
+import com.ctre.phoenixpro.signals.NeutralModeValue;
 import edu.wpi.first.wpilibj.PneumaticsModuleType;
 import edu.wpi.first.wpilibj.Solenoid;
 
@@ -32,45 +30,36 @@ public class Arm implements Subsystem {
 
   public Arm() {
     m_wristMotor = new TalonFX(ARM_FX_ID);
-
-    final SupplyCurrentLimitConfiguration m_currentLimit =
-        new SupplyCurrentLimitConfiguration(true, 40, 50, 0.05);
-    final StatorCurrentLimitConfiguration m_statorLimit =
-        new StatorCurrentLimitConfiguration(true, 80, 100, 0.05);
-
-    // Factory Default
-    m_wristMotor.configFactoryDefault();
+    var motorConfig = new TalonFXConfiguration();
 
     // Motor Directions
-    m_wristMotor.setInverted(TalonFXInvertType.CounterClockwise);
+    motorConfig.MotorOutput.Inverted = InvertedValue.CounterClockwise_Positive;
 
     // Neutral Mode
-    m_wristMotor.setNeutralMode(NeutralMode.Brake);
+
+    motorConfig.MotorOutput.NeutralMode = NeutralModeValue.Brake;
 
     // Current limits
-    m_wristMotor.configSupplyCurrentLimit(m_currentLimit);
-    m_wristMotor.configStatorCurrentLimit(m_statorLimit);
 
-    // Deadband config
-    m_wristMotor.configNeutralDeadband(0.01);
-
-    // Set motor to follow A
+    motorConfig.CurrentLimits.SupplyCurrentLimit = 40;
+    motorConfig.CurrentLimits.SupplyCurrentLimitEnable = true;
+    motorConfig.CurrentLimits.StatorCurrentLimit = 80;
+    motorConfig.CurrentLimits.StatorCurrentLimitEnable = true;
 
     // Motor feedback
-    m_wristMotor.configSelectedFeedbackSensor(FeedbackDevice.IntegratedSensor, 0, 30);
+    motorConfig.Feedback.FeedbackSensorSource = FeedbackSensorSourceValue.RotorSensor;
 
     // Ramp rate
-    m_wristMotor.configClosedloopRamp(0.0);
-
-    // Voltage Compensation
-    m_wristMotor.configVoltageCompSaturation(12.0);
-    m_wristMotor.enableVoltageCompensation(true);
+    motorConfig.OpenLoopRamps.DutyCycleOpenLoopRampPeriod = 0.0;
+    motorConfig.ClosedLoopRamps.DutyCycleClosedLoopRampPeriod = 0.0;
 
     // Velocity PID Parameters
-    m_wristMotor.config_kP(0, 0.025, 30);
-    m_wristMotor.config_kI(0, 0.0, 30);
-    m_wristMotor.config_kD(0, 0.000, 30);
-    m_wristMotor.config_kF(0, 0.048, 30);
+
+    motorConfig.Slot0.kP = 0.0;
+    motorConfig.Slot0.kI = 0.0;
+    motorConfig.Slot0.kD = 0.0;
+    motorConfig.Slot0.kS = 0.0;
+    m_wristMotor.getConfigurator().apply(motorConfig);
   }
 
   public void setWristMotorOutput(double percent) {
@@ -78,7 +67,7 @@ public class Arm implements Subsystem {
   }
 
   public void update() {
-    m_wristMotor.set(ControlMode.PercentOutput, m_wristMotorOutput);
+    m_wristMotor.set(m_wristMotorOutput);
 
     switch (m_extensionState) {
       case RETRACTED:

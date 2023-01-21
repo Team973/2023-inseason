@@ -4,13 +4,12 @@ import static frc.robot.shared.RobotInfo.*;
 
 import frc.robot.shared.Subsystem;
 
-import com.ctre.phoenix.motorcontrol.ControlMode;
-import com.ctre.phoenix.motorcontrol.FeedbackDevice;
-import com.ctre.phoenix.motorcontrol.NeutralMode;
-import com.ctre.phoenix.motorcontrol.StatorCurrentLimitConfiguration;
-import com.ctre.phoenix.motorcontrol.SupplyCurrentLimitConfiguration;
-import com.ctre.phoenix.motorcontrol.TalonFXInvertType;
-import com.ctre.phoenix.motorcontrol.can.TalonFX;
+import com.ctre.phoenixpro.configs.TalonFXConfiguration;
+import com.ctre.phoenixpro.controls.Follower;
+import com.ctre.phoenixpro.hardware.TalonFX;
+import com.ctre.phoenixpro.signals.FeedbackSensorSourceValue;
+import com.ctre.phoenixpro.signals.InvertedValue;
+import com.ctre.phoenixpro.signals.NeutralModeValue;
 import edu.wpi.first.wpilibj.DigitalInput;
 
 public class Elevator implements Subsystem {
@@ -27,49 +26,41 @@ public class Elevator implements Subsystem {
   public Elevator() {
     m_elevatorMotor = new TalonFX(ELEVATOR_FX_ID);
     m_elevatorFollowerMotor = new TalonFX(ELEVATOR_FOLLOWER_FX_ID);
-
-    m_elevatorFollowerMotor.follow(m_elevatorMotor);
-
     m_bottomHall = new DigitalInput(ELEVATOR_BOTTOM_HALL_SENSOR_ID);
 
-    final SupplyCurrentLimitConfiguration m_currentLimit =
-        new SupplyCurrentLimitConfiguration(true, 40, 50, 0.05);
-    final StatorCurrentLimitConfiguration m_statorLimit =
-        new StatorCurrentLimitConfiguration(true, 80, 100, 0.05);
-
     // Factory Default
-    m_elevatorMotor.configFactoryDefault();
-
+    var motorConfig = new TalonFXConfiguration();
     // Motor Directions
-    m_elevatorMotor.setInverted(TalonFXInvertType.CounterClockwise);
+    motorConfig.MotorOutput.Inverted = InvertedValue.CounterClockwise_Positive;
 
     // Neutral Mode
-    m_elevatorMotor.setNeutralMode(NeutralMode.Brake);
+
+    motorConfig.MotorOutput.NeutralMode = NeutralModeValue.Brake;
 
     // Current limits
-    m_elevatorMotor.configSupplyCurrentLimit(m_currentLimit);
-    m_elevatorMotor.configStatorCurrentLimit(m_statorLimit);
-
-    // Deadband config
-    m_elevatorMotor.configNeutralDeadband(0.01);
+    motorConfig.CurrentLimits.SupplyCurrentLimit = 40;
+    motorConfig.CurrentLimits.SupplyCurrentLimitEnable = true;
+    motorConfig.CurrentLimits.StatorCurrentLimit = 80;
+    motorConfig.CurrentLimits.StatorCurrentLimitEnable = true;
 
     // Set motor to follow A
 
     // Motor feedback
-    m_elevatorMotor.configSelectedFeedbackSensor(FeedbackDevice.IntegratedSensor, 0, 30);
+    motorConfig.Feedback.FeedbackSensorSource = FeedbackSensorSourceValue.RotorSensor;
 
     // Ramp rate
-    m_elevatorMotor.configClosedloopRamp(0.0);
-
-    // Voltage Compensation
-    m_elevatorMotor.configVoltageCompSaturation(12.0);
-    m_elevatorMotor.enableVoltageCompensation(true);
+    motorConfig.OpenLoopRamps.DutyCycleOpenLoopRampPeriod = 0.0;
+    motorConfig.ClosedLoopRamps.DutyCycleClosedLoopRampPeriod = 0.0;
 
     // Velocity PID Parameters
-    m_elevatorMotor.config_kP(0, 0.025, 30);
-    m_elevatorMotor.config_kI(0, 0.0, 30);
-    m_elevatorMotor.config_kD(0, 0.000, 30);
-    m_elevatorMotor.config_kF(0, 0.048, 30);
+    motorConfig.Slot0.kP = 0.0;
+    motorConfig.Slot0.kI = 0.0;
+    motorConfig.Slot0.kD = 0.0;
+    motorConfig.Slot0.kS = 0.0;
+
+    m_elevatorMotor.getConfigurator().apply(motorConfig);
+    m_elevatorFollowerMotor.getConfigurator().apply(new TalonFXConfiguration());
+    m_elevatorFollowerMotor.setControl(new Follower(ARM_FX_ID, true));
   }
 
   public void setElevatorOutput(double percent) {
@@ -80,14 +71,13 @@ public class Elevator implements Subsystem {
     if (!m_isZeroed) {
       if (m_bottomHall.get()) {
         m_isZeroed = true;
-        m_elevatorMotor.setNeutralMode(NeutralMode.Brake);
-        m_elevatorMotor.setSelectedSensorPosition(0.0);
+        m_elevatorMotor.setRotorPosition(0.0);
       }
     }
   }
 
   public void update() {
-    m_elevatorMotor.set(ControlMode.PercentOutput, m_elevatorOutput);
+    m_elevatorMotor.set(m_elevatorOutput);
   }
 
   public void reset() {
