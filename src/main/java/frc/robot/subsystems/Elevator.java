@@ -1,6 +1,7 @@
 package frc.robot.subsystems;
 
 import static frc.robot.shared.RobotInfo.*;
+import static frc.robot.shared.Constants.*;
 
 import frc.robot.shared.Subsystem;
 
@@ -28,9 +29,15 @@ public class Elevator implements Subsystem {
   private double m_angularRate = 0.0;
   private double m_translationalValue = 0.0;
   private double m_currentAngleInDegrees = 0.0;
+  private double m_elevatorPosition = 0.0;
+  private double m_targetPosition = 0.0;
 
-  @Getter @Setter private ElevatorState m_elevatorState = ElevatorState.Idle;
-  @Getter @Setter private ElevatorPos m_elevatorPos;
+  @Getter
+  @Setter
+  private ElevatorState m_elevatorState = ElevatorState.Idle;
+  @Getter
+  @Setter
+  private ElevatorPos m_elevatorPos;
 
   private PIDController m_elevatorPID = new PIDController(0.02, 0.0, 0.0);
 
@@ -55,10 +62,8 @@ public class Elevator implements Subsystem {
 
     m_elevatorFollowerMotor.follow(m_elevatorMotor);
 
-    final SupplyCurrentLimitConfiguration m_currentLimit =
-        new SupplyCurrentLimitConfiguration(true, 40, 50, 0.05);
-    final StatorCurrentLimitConfiguration m_statorLimit =
-        new StatorCurrentLimitConfiguration(true, 80, 100, 0.05);
+    final SupplyCurrentLimitConfiguration m_currentLimit = new SupplyCurrentLimitConfiguration(true, 40, 50, 0.05);
+    final StatorCurrentLimitConfiguration m_statorLimit = new StatorCurrentLimitConfiguration(true, 80, 100, 0.05);
 
     // Factory Default
     m_elevatorMotor.configFactoryDefault();
@@ -106,6 +111,28 @@ public class Elevator implements Subsystem {
     return m_elevatorPID.calculate(offset) - m_angularRate;
   }
 
+  public double getHeight() {
+    // TODO: update this after converting to pheonix pro
+    return 0.0;
+  }
+
+  public double getPosition() {
+    // TODO: update this after converting to pheonix pro
+    return 0.0;
+  }
+
+  public void setHeight(double height) {
+    m_targetPosition = getPositionFromHeight(height);
+  }
+
+  private double getPositionFromHeight(double height) {
+    return height / Math.sin(ELEVATOR_ANGLE);
+  }
+
+  private double getHeightFromPosition(double position) {
+    return position * Math.sin(ELEVATOR_ANGLE);
+  }
+
   public void update() {
     m_elevatorMotor.set(ControlMode.PercentOutput, m_elevatorOutput);
 
@@ -117,15 +144,6 @@ public class Elevator implements Subsystem {
         m_elevatorMotor.set(TalonFXControlMode.PercentOutput, output);
         break;
       case Idle:
-        break;
-    }
-
-    switch (m_elevatorPos) {
-      case Top:
-        break;
-      case Middle:
-        break;
-      case Bottom:
         break;
     }
   }
