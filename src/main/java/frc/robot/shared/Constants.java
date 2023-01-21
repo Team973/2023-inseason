@@ -46,6 +46,6 @@ public class Constants {
   public static final double TALON_FX_VELOCITY_UNIT_MS = 100.0;
 
   /** Standard TalonFX RPM (multiply by Ticks/100ms). */
-  public static final double TALON_FX_VELOCITY_RPM = (MSEC_PER_SEC * SEC_PER_MIN)
-      / (TALON_FX_TICKS_PER_REV * TALON_FX_VELOCITY_UNIT_MS);
+  public static final double TALON_FX_VELOCITY_RPM =
+      (MSEC_PER_SEC * SEC_PER_MIN) / (TALON_FX_TICKS_PER_REV * TALON_FX_VELOCITY_UNIT_MS);
 }
