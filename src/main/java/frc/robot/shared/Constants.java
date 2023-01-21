@@ -63,16 +63,4 @@ public class Constants {
   public static final double ELEVATOR_HP_PRESET = 40.0;
   /** Inches from floor */
   public static final double ELEVATOR_HIGH_PRESET = 48.0;
-
-  public static final double WRIST_GEAR_RATIO = (1.0 / 5.0) * (1.0 / 5.0) * (16.0 / 44.0);
-  /** Degrees from horizontal */
-  public static final double WRIST_STOW_PRESET = 90.0;
-  /** Degrees from horizontal */
-  public static final double WRIST_CONE_INTAKE_PRESET = 45.0;
-  /** Degrees from horizontal */
-  public static final double WRIST_CUBE_INTAKE_PRESET = -8.8;
-  /** Degrees from horizontal */
-  public static final double WRIST_MID_PRESET = 28.0;
-  /** Degrees from horizontal */
-  public static final double WRIST_HIGH_PRESET = 10.0;
 }

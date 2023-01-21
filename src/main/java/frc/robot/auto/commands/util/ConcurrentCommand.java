@@ -40,14 +40,6 @@ public class ConcurrentCommand extends AutoCommand {
     if (m_timeout != null) {
       setTargetMsec(m_timeout);
     }
-
-    for (AutoCommand command : m_cmdList) {
-      if (m_cmdsNeedInit) {
-        command.init();
-      }
-    }
-
-    m_cmdsNeedInit = false;
   }
 
   public void run() {
@@ -56,12 +48,17 @@ public class ConcurrentCommand extends AutoCommand {
     }
 
     for (AutoCommand command : m_unfinishedCmds) {
+      if (m_cmdsNeedInit) {
+        command.init();
+      }
+
       command.run();
 
       if (command.isCompleted()) {
         m_unfinishedCmds.remove(command);
       }
     }
+    m_cmdsNeedInit = false;
   }
 
   public boolean isCompleted() {
