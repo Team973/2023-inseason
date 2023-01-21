@@ -11,7 +11,7 @@ public class ConcurrentCommand extends AutoCommand {
   private HashSet<AutoCommand> m_unfinishedCmds;
   private Double m_timeout = null;
 
-  private boolean m_initialized = false;
+  private boolean m_cmdsNeedInit = true;
 
   /**
    * Constructor for concurrent command class.
@@ -26,7 +26,7 @@ public class ConcurrentCommand extends AutoCommand {
   }
 
   /**
-   * Constructor fo concurrent command class with timeout parameter.
+   * Constructor for concurrent command class with timeout parameter.
    *
    * @param timeout This sets the timeout for the commands.
    * @param commands This is the parameter for a variable amount of auto commands.
@@ -42,8 +42,12 @@ public class ConcurrentCommand extends AutoCommand {
     }
 
     for (AutoCommand command : m_cmdList) {
-      command.init();
+      if (m_cmdsNeedInit) {
+        command.init();
+      }
     }
+
+    m_cmdsNeedInit = false;
   }
 
   public void run() {
