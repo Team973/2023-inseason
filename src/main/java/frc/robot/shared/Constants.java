@@ -49,8 +49,11 @@ public class Constants {
   public static final double TALON_FX_VELOCITY_RPM =
       (MSEC_PER_SEC * SEC_PER_MIN) / (TALON_FX_TICKS_PER_REV * TALON_FX_VELOCITY_UNIT_MS);
 
+  public static final double ELEVATOR_GEAR_RATIO = (12.0 / 60.0);
   /** Pitch Diameter of sprocket in inches */
   public static final double ELEVATOR_SPROCKET_PD = 1.751;
+  /** Circumference of sprocket in inches */
+  public static final double ELEVATOR_SPROCKET_CIRCUMFERENCE = Math.PI * ELEVATOR_SPROCKET_PD;
   /** Degrees from floor */
   public static final double ELEVATOR_ANGLE = 51.519262;
   /** Inches from floor */

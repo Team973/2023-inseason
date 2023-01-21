@@ -1,21 +1,21 @@
 package frc.robot.subsystems;
 
-import static frc.robot.shared.RobotInfo.*;
 import static frc.robot.shared.Constants.*;
+import static frc.robot.shared.RobotInfo.*;
 
 import frc.robot.shared.Subsystem;
 
-import edu.wpi.first.math.controller.PIDController;
-import lombok.Getter;
-import lombok.Setter;
-import lombok.experimental.Accessors;
 import com.ctre.phoenixpro.configs.TalonFXConfiguration;
 import com.ctre.phoenixpro.controls.Follower;
 import com.ctre.phoenixpro.hardware.TalonFX;
 import com.ctre.phoenixpro.signals.FeedbackSensorSourceValue;
 import com.ctre.phoenixpro.signals.InvertedValue;
 import com.ctre.phoenixpro.signals.NeutralModeValue;
+import edu.wpi.first.math.controller.PIDController;
 import edu.wpi.first.wpilibj.DigitalInput;
+import lombok.Getter;
+import lombok.Setter;
+import lombok.experimental.Accessors;
 
 @Accessors(prefix = "m_")
 public class Elevator implements Subsystem {
@@ -33,12 +33,8 @@ public class Elevator implements Subsystem {
   private double m_elevatorPosition = 0.0;
   private double m_targetPosition = 0.0;
 
-  @Getter
-  @Setter
-  private ElevatorState m_elevatorState = ElevatorState.Idle;
-  @Getter
-  @Setter
-  private ElevatorPos m_elevatorPos;
+  @Getter @Setter private ElevatorState m_elevatorState = ElevatorState.Idle;
+  @Getter @Setter private ElevatorPos m_elevatorPos;
 
   private PIDController m_elevatorPID = new PIDController(0.02, 0.0, 0.0);
 
@@ -62,8 +58,6 @@ public class Elevator implements Subsystem {
   public Elevator() {
     m_elevatorMotor = new TalonFX(ELEVATOR_FX_ID);
     m_elevatorFollowerMotor = new TalonFX(ELEVATOR_FOLLOWER_FX_ID);
-
-    m_bottomHall = new DigitalInput(ELEVATOR_BOTTOM_HALL_SENSOR_ID);
 
     m_bottomHall = new DigitalInput(ELEVATOR_BOTTOM_HALL_SENSOR_ID);
 
@@ -112,13 +106,13 @@ public class Elevator implements Subsystem {
   }
 
   public double getHeight() {
-    // TODO: update this after converting to pheonix pro
-    return 0.0;
+    return getHeightFromPosition(getPosition());
   }
 
   public double getPosition() {
-    // TODO: update this after converting to pheonix pro
-    return 0.0;
+    return m_elevatorMotor.getRotorPosition().getValue()
+        * ELEVATOR_SPROCKET_CIRCUMFERENCE
+        * ELEVATOR_GEAR_RATIO;
   }
 
   public void setHeight(double height) {
@@ -131,6 +125,7 @@ public class Elevator implements Subsystem {
 
   private double getHeightFromPosition(double position) {
     return position * Math.sin(ELEVATOR_ANGLE);
+  }
 
   public void zeroSequence() {
     if (!m_isZeroed) {
