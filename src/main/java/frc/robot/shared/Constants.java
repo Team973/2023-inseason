@@ -44,38 +44,4 @@ public class Constants {
   public static final double TALON_FX_TICKS_PER_REV = 2048.0;
   /** Ticks/100ms. */
   public static final double TALON_FX_VELOCITY_UNIT_MS = 100.0;
-
-  /** Standard TalonFX RPM (multiply by Ticks/100ms). */
-  public static final double TALON_FX_VELOCITY_RPM =
-      (MSEC_PER_SEC * SEC_PER_MIN) / (TALON_FX_TICKS_PER_REV * TALON_FX_VELOCITY_UNIT_MS);
-
-  public static final double ELEVATOR_GEAR_RATIO = (12.0 / 60.0);
-  /** Pitch Diameter of sprocket in inches */
-  public static final double ELEVATOR_SPROCKET_PD = 1.751;
-  /** Circumference of sprocket in inches */
-  public static final double ELEVATOR_SPROCKET_CIRCUMFERENCE = Math.PI * ELEVATOR_SPROCKET_PD;
-  /** Degrees from floor */
-  public static final double ELEVATOR_ANGLE = 51.519262;
-  /** Inches from floor */
-  public static final double ELEVATOR_STOW_OFFSET = 7.628521;
-  /** Inches from floor */
-  public static final double ELEVATOR_FLOOR_PRESET = 9.25;
-  /** Inches from floor */
-  public static final double ELEVATOR_MID_PRESET = 34.5;
-  /** Inches from floor */
-  public static final double ELEVATOR_HP_PRESET = 40.0;
-  /** Inches from floor */
-  public static final double ELEVATOR_HIGH_PRESET = 48.0;
-
-  public static final double WRIST_GEAR_RATIO = (1.0 / 5.0) * (1.0 / 5.0) * (16.0 / 44.0);
-  /** Degrees from horizontal */
-  public static final double WRIST_STOW_PRESET = 90.0;
-  /** Degrees from horizontal */
-  public static final double WRIST_CONE_INTAKE_PRESET = 45.0;
-  /** Degrees from horizontal */
-  public static final double WRIST_CUBE_INTAKE_PRESET = -8.8;
-  /** Degrees from horizontal */
-  public static final double WRIST_MID_PRESET = 28.0;
-  /** Degrees from horizontal */
-  public static final double WRIST_HIGH_PRESET = 10.0;
 }

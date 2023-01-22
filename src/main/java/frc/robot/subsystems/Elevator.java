@@ -7,11 +7,11 @@ import frc.robot.shared.Subsystem;
 
 import com.ctre.phoenixpro.configs.TalonFXConfiguration;
 import com.ctre.phoenixpro.controls.Follower;
+import com.ctre.phoenixpro.controls.MotionMagicDutyCycle;
 import com.ctre.phoenixpro.hardware.TalonFX;
 import com.ctre.phoenixpro.signals.FeedbackSensorSourceValue;
 import com.ctre.phoenixpro.signals.InvertedValue;
 import com.ctre.phoenixpro.signals.NeutralModeValue;
-import edu.wpi.first.math.controller.PIDController;
 import edu.wpi.first.wpilibj.DigitalInput;
 import lombok.Getter;
 import lombok.Setter;
@@ -26,31 +26,28 @@ public class Elevator implements Subsystem {
   private final DigitalInput m_bottomHall;
 
   private double m_elevatorOutput = 0.0;
-  private double m_offset = 0.0;
-  private double m_angularRate = 0.0;
-  private double m_translationalValue = 0.0;
-  private double m_currentAngleInDegrees = 0.0;
-  private double m_elevatorPosition = 0.0;
   private double m_targetPosition = 0.0;
+  private double m_targetAngleInDegrees = 0.0;
 
-  @Getter @Setter private ElevatorState m_elevatorState = ElevatorState.Idle;
-  @Getter @Setter private ElevatorPos m_elevatorPos;
+  private static final double ELEVATOR_GEAR_RATIO = (12.0 / 60.0);
+  /** Pitch Diameter of sprocket in inches */
+  private static final double ELEVATOR_SPROCKET_PD = 1.751;
+  /** Circumference of sprocket in inches */
+  private static final double ELEVATOR_SPROCKET_CIRCUMFERENCE = Math.PI * ELEVATOR_SPROCKET_PD;
+  /** Degrees from floor */
+  private static final double ELEVATOR_ANGLE = 51.519262;
+  /** Sin of Elevator Angle. */
+  public static final double SIN_OF_ELEVATOR_ANGLE = Math.sin(ELEVATOR_ANGLE);
 
-  private PIDController m_elevatorPID = new PIDController(0.02, 0.0, 0.0);
+  @Getter
+  @Setter
+  private ElevatorState m_elevatorState;
 
   public enum ElevatorState {
-    /** Control the motors using position with Motion Magic. */
-    MotionMagic,
-    /** Staying in place after pressing a button. */
-    Idle,
     /** Manually control the motors with the joystick */
-    Manual
-  }
-
-  public enum ElevatorPos {
-    Top,
-    Middle,
-    Bottom
+    Manual,
+    /** Control the motors using position with Motion Magic. */
+    ClosedLoop
   }
 
   private boolean m_isZeroed = false;
@@ -101,18 +98,11 @@ public class Elevator implements Subsystem {
     m_elevatorOutput = percent;
   }
 
-  public double motionMagicOutput(double offset, double currentAngleInDegrees) {
-    m_elevatorPID.setSetpoint(0.0);
-    double targetAngle = currentAngleInDegrees + offset;
-
-    return m_elevatorPID.calculate(offset) - m_angularRate;
-  }
-
   public double getHeight() {
     return getHeightFromPosition(getPosition());
   }
 
-  public double getPosition() {
+  private double getPosition() {
     return m_elevatorMotor.getRotorPosition().getValue()
         * ELEVATOR_SPROCKET_CIRCUMFERENCE
         * ELEVATOR_GEAR_RATIO;
@@ -144,12 +134,11 @@ public class Elevator implements Subsystem {
 
     switch (m_elevatorState) {
       case Manual:
+        m_elevatorMotor.set(m_targetAngleInDegrees);
         break;
-      case MotionMagic:
-        double output = motionMagicOutput(m_offset, m_currentAngleInDegrees);
-        m_elevatorMotor.set(output);
-        break;
-      case Idle:
+      case ClosedLoop:
+        MotionMagicDutyCycle motionMagic = new MotionMagicDutyCycle(m_targetPosition);
+        m_elevatorMotor.setControl(motionMagic);
         break;
     }
   }
