@@ -24,20 +24,21 @@ public class Elevator implements Subsystem {
   private final TalonFX m_elevatorFollowerMotor;
 
   private final DigitalInput m_bottomHall;
+  private final DigitalInput m_topHall;
 
   private double m_elevatorOutput = 0.0;
   private double m_targetPosition = 0.0;
-  private double m_targetAngleInDegrees = 0.0;
+  private double m_elevatorSpeed = 0.0;
 
-  private static final double ELEVATOR_GEAR_RATIO = (12.0 / 60.0);
+  private static final double GEAR_RATIO = (12.0 / 60.0);
   /** Pitch Diameter of sprocket in inches */
-  private static final double ELEVATOR_SPROCKET_PD = 1.751;
+  private static final double SPROCKET_PD = 1.751;
   /** Circumference of sprocket in inches */
-  private static final double ELEVATOR_SPROCKET_CIRCUMFERENCE = Math.PI * ELEVATOR_SPROCKET_PD;
+  private static final double SPROCKET_CIRCUMFERENCE = Math.PI * SPROCKET_PD;
   /** Degrees from floor */
-  private static final double ELEVATOR_ANGLE = 51.519262;
+  private static final double ANGLE = 51.519262;
   /** Sin of Elevator Angle. */
-  public static final double SIN_OF_ELEVATOR_ANGLE = Math.sin(ELEVATOR_ANGLE);
+  public static final double SIN_OF_ANGLE = Math.sin(ANGLE);
 
   @Getter @Setter private ElevatorState m_elevatorState;
 
@@ -54,6 +55,7 @@ public class Elevator implements Subsystem {
     m_elevatorMotor = new TalonFX(ELEVATOR_FX_ID);
     m_elevatorFollowerMotor = new TalonFX(ELEVATOR_FOLLOWER_FX_ID);
     m_bottomHall = new DigitalInput(ELEVATOR_BOTTOM_HALL_SENSOR_ID);
+    m_topHall = new DigitalInput(ELEVATOR_TOP_HALL_SENSOR_ID);
 
     // Factory Default
     var motorConfig = new TalonFXConfiguration();
@@ -101,9 +103,7 @@ public class Elevator implements Subsystem {
   }
 
   private double getPosition() {
-    return m_elevatorMotor.getRotorPosition().getValue()
-        * ELEVATOR_SPROCKET_CIRCUMFERENCE
-        * ELEVATOR_GEAR_RATIO;
+    return m_elevatorMotor.getRotorPosition().getValue() * SPROCKET_CIRCUMFERENCE * GEAR_RATIO;
   }
 
   public void setHeight(double height) {
@@ -111,32 +111,28 @@ public class Elevator implements Subsystem {
   }
 
   private double getPositionFromHeight(double height) {
-    return height / Math.sin(ELEVATOR_ANGLE);
+    return height / SIN_OF_ANGLE;
   }
 
   private double getHeightFromPosition(double position) {
-    return position * Math.sin(ELEVATOR_ANGLE);
+    return position * SIN_OF_ANGLE;
   }
 
-  public void zeroSequence() {
-    if (!m_isZeroed) {
-      if (m_bottomHall.get()) {
-        m_isZeroed = true;
-        m_elevatorMotor.setRotorPosition(0.0);
-      }
-    }
+  private void setManual(double speed) {
+    m_elevatorMotor.set(speed);
   }
 
   public void update() {
-    m_elevatorMotor.set(m_elevatorOutput);
+    if (!m_bottomHall.get() || !m_topHall.get()) {
+      m_elevatorMotor.set(m_elevatorOutput);
+    }
 
     switch (m_elevatorState) {
       case Manual:
-        m_elevatorMotor.set(m_targetAngleInDegrees);
+        setManual(m_elevatorSpeed);
         break;
       case ClosedLoop:
-        MotionMagicDutyCycle motionMagic = new MotionMagicDutyCycle(m_targetPosition);
-        m_elevatorMotor.setControl(motionMagic);
+        m_elevatorMotor.setControl(new MotionMagicDutyCycle(m_targetPosition));
         break;
     }
   }
