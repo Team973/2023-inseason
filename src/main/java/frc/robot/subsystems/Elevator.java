@@ -39,9 +39,7 @@ public class Elevator implements Subsystem {
   /** Sin of Elevator Angle. */
   public static final double SIN_OF_ELEVATOR_ANGLE = Math.sin(ELEVATOR_ANGLE);
 
-  @Getter
-  @Setter
-  private ElevatorState m_elevatorState;
+  @Getter @Setter private ElevatorState m_elevatorState;
 
   public enum ElevatorState {
     /** Manually control the motors with the joystick */
