@@ -20,6 +20,17 @@ import lombok.experimental.Accessors;
 @Accessors(prefix = "m_")
 public class Elevator implements Subsystem {
 
+  public static class Presets {
+    /** Inches from floor */
+    public static final double floor = 9.25;
+    /** Inches from floor */
+    public static final double mid = 34.5;
+    /** Inches from floor */
+    public static final double hp = 40.0;
+    /** Inches from floor */
+    public static final double high = 48.0;
+  }
+
   private final TalonFX m_elevatorMotor;
   private final TalonFX m_elevatorFollowerMotor;
 
@@ -28,7 +39,7 @@ public class Elevator implements Subsystem {
 
   private double m_elevatorOutput = 0.0;
   private double m_targetPosition = 0.0;
-  private double m_elevatorSpeed = 0.0;
+  private double m_manualSpeed = 0.0;
 
   private static final double GEAR_RATIO = (12.0 / 60.0);
   /** Pitch Diameter of sprocket in inches */
@@ -40,7 +51,9 @@ public class Elevator implements Subsystem {
   /** Sin of Elevator Angle. */
   public static final double SIN_OF_ANGLE = Math.sin(ANGLE);
 
-  @Getter @Setter private ElevatorState m_elevatorState;
+  @Getter
+  @Setter
+  private ElevatorState m_elevatorState;
 
   public enum ElevatorState {
     /** Manually control the motors with the joystick */
@@ -74,7 +87,7 @@ public class Elevator implements Subsystem {
     // Set motor to follow A
     m_elevatorMotor.getConfigurator().apply(motorConfig);
     m_elevatorFollowerMotor.getConfigurator().apply(new TalonFXConfiguration());
-    m_elevatorFollowerMotor.setControl(new Follower(ARM_FX_ID, true));
+    m_elevatorFollowerMotor.setControl(new Follower(ELEVATOR_FX_ID, true));
 
     // Motor feedback
     motorConfig.Feedback.FeedbackSensorSource = FeedbackSensorSourceValue.RotorSensor;
@@ -88,10 +101,6 @@ public class Elevator implements Subsystem {
     motorConfig.Slot0.kI = 0.0;
     motorConfig.Slot0.kD = 0.0;
     motorConfig.Slot0.kS = 0.0;
-
-    m_elevatorMotor.getConfigurator().apply(motorConfig);
-    m_elevatorFollowerMotor.getConfigurator().apply(new TalonFXConfiguration());
-    m_elevatorFollowerMotor.setControl(new Follower(ARM_FX_ID, true));
   }
 
   public void setElevatorOutput(double percent) {
@@ -118,22 +127,23 @@ public class Elevator implements Subsystem {
     return position * SIN_OF_ANGLE;
   }
 
-  private void setManual(double speed) {
-    m_elevatorMotor.set(speed);
+  public void setManualSpeed(double speed) {
+    m_manualSpeed = speed;
+    setElevatorState(ElevatorState.Manual);
   }
 
   public void update() {
-    if (!m_bottomHall.get() || !m_topHall.get()) {
+    if (!m_bottomHall.get() && !m_topHall.get()) {
       m_elevatorMotor.set(m_elevatorOutput);
-    }
 
-    switch (m_elevatorState) {
-      case Manual:
-        setManual(m_elevatorSpeed);
-        break;
-      case ClosedLoop:
-        m_elevatorMotor.setControl(new MotionMagicDutyCycle(m_targetPosition));
-        break;
+      switch (m_elevatorState) {
+        case Manual:
+          m_elevatorMotor.set(m_manualSpeed);
+          break;
+        case ClosedLoop:
+          m_elevatorMotor.setControl(new MotionMagicDutyCycle(m_targetPosition));
+          break;
+      }
     }
   }
 
