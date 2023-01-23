@@ -42,7 +42,7 @@ public class Robot extends TimedRobot {
 
   private void logException(Exception e) {
     try {
-      FileWriter fileWriter = new FileWriter("exception_log.txt", true);
+      FileWriter fileWriter = new FileWriter("/home/lvuser/exception_log.txt", true);
       PrintWriter printWriter = new PrintWriter(fileWriter);
       e.printStackTrace(printWriter);
       printWriter.close();
@@ -93,15 +93,6 @@ public class Robot extends TimedRobot {
     try {
       if (this.isEnabled()) {
         this.updateSubsystems();
-      }
-
-      // create array of 5 size
-      int[] a = new int[] {1, 2, 3, 4, 5};
-
-      // execute for loop
-      for (int i = 0; i < 6; i++) {
-        // print the value of array
-        System.out.println(a[i]);
       }
     } catch (Exception e) {
       logException(e);
