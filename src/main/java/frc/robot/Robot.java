@@ -6,6 +6,9 @@ package frc.robot;
 
 import static frc.robot.shared.RobotInfo.*;
 
+import java.io.FileWriter;
+import java.io.PrintWriter;
+
 import frc.robot.subsystems.Arm;
 import frc.robot.subsystems.Claw;
 import frc.robot.subsystems.Elevator;
@@ -36,6 +39,18 @@ public class Robot extends TimedRobot {
 
   private final Compressor m_compressor =
       new Compressor(COMPRESSOR_ID, PneumaticsModuleType.CTREPCM);
+
+  private void logException(Exception e) {
+    try {
+      FileWriter fileWriter = new FileWriter("/home/lvuser/exception_log.txt", true);
+      PrintWriter printWriter = new PrintWriter(fileWriter);
+      e.printStackTrace(printWriter);
+      printWriter.close();
+      fileWriter.close();
+    } catch (Exception ie) {
+      throw new RuntimeException("could not write to exception log file", ie);
+    }
+  }
 
   /** Update subsystems. Called me when enabled. */
   private void updateSubsystems() {
@@ -75,11 +90,14 @@ public class Robot extends TimedRobot {
    */
   @Override
   public void robotPeriodic() {
-    if (this.isEnabled()) {
-      this.updateSubsystems();
+    try {
+      if (this.isEnabled()) {
+        this.updateSubsystems();
+      }
+    } catch (Exception e) {
+      logException(e);
     }
   }
-
   /**
    * This autonomous (along with the chooser code above) shows how to select between different
    * autonomous modes using the dashboard. The sendable chooser code works with the Java
@@ -101,15 +119,19 @@ public class Robot extends TimedRobot {
   /** This function is called periodically during autonomous. */
   @Override
   public void autonomousPeriodic() {
-    this.updateSubsystems();
-    switch (m_autoSelected) {
-      case kCustomAuto:
-        // Put custom auto code here
-        break;
-      case kDefaultAuto:
-      default:
-        // Put default auto code here
-        break;
+    try {
+      this.updateSubsystems();
+      switch (m_autoSelected) {
+        case kCustomAuto:
+          // Put custom auto code here
+          break;
+        case kDefaultAuto:
+        default:
+          // Put default auto code here
+          break;
+      }
+    } catch (Exception e) {
+      logException(e);
     }
   }
 
@@ -121,7 +143,12 @@ public class Robot extends TimedRobot {
 
   /** This function is called periodically during operator control. */
   @Override
-  public void teleopPeriodic() {}
+  public void teleopPeriodic() {
+    try {
+    } catch (Exception e) {
+      logException(e);
+    }
+  }
 
   /** This function is called once when the robot is disabled. */
   @Override
@@ -131,7 +158,12 @@ public class Robot extends TimedRobot {
 
   /** This function is called periodically when disabled. */
   @Override
-  public void disabledPeriodic() {}
+  public void disabledPeriodic() {
+    try {
+    } catch (Exception e) {
+      logException(e);
+    }
+  }
 
   /** This function is called once when test mode is enabled. */
   @Override
@@ -139,7 +171,12 @@ public class Robot extends TimedRobot {
 
   /** This function is called periodically during test mode. */
   @Override
-  public void testPeriodic() {}
+  public void testPeriodic() {
+    try {
+    } catch (Exception e) {
+      logException(e);
+    }
+  }
 
   /** This function is called once when the robot is first started up. */
   @Override
@@ -147,5 +184,10 @@ public class Robot extends TimedRobot {
 
   /** This function is called periodically whilst in simulation. */
   @Override
-  public void simulationPeriodic() {}
+  public void simulationPeriodic() {
+    try {
+    } catch (Exception e) {
+      logException(e);
+    }
+  }
 }
