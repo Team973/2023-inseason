@@ -83,16 +83,12 @@ public class Arm implements Subsystem {
     }
   }
 
-  private final double wristGearRatio() {
-    return (1.0 / 3.0) * (1.0 / 3.0) * (22.0 / 44.0);
-  }
-
-  public double getWristAngle() {
+  public double getWristCurrentAngle() {
     double rot = m_wristMotor.getRotorPosition().getValue() * wristGearRatio();
     return Rotation2d.fromRotations(rot).getDegrees();
   }
 
-  public void setWristAngle(double angle) {
+  public void setWristTargetAngle(double angle) {
     m_targetAngle = angle;
   }
 

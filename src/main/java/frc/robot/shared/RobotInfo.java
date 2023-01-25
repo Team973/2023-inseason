@@ -12,4 +12,8 @@ public final class RobotInfo {
   public static final int ELEVATOR_BOTTOM_HALL_SENSOR_ID = 3;
 
   public static final int COMPRESSOR_ID = 4;
+
+  public static final double wristGearRatio() {
+    return (1.0 / 3.0) * (1.0 / 3.0) * (22.0 / 44.0);
+  }
 }
