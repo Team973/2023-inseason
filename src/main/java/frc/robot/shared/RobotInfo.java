@@ -13,5 +13,5 @@ public final class RobotInfo {
 
   public static final int COMPRESSOR_ID = 4;
 
-  public static final double wristGearRatio = (1.0 / 3.0) * (1.0 / 3.0) * (22.0 / 44.0);
+  public static final double WRIST_GEAR_RATIO = (1.0 / 3.0) * (1.0 / 3.0) * (22.0 / 44.0);
 }
