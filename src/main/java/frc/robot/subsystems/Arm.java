@@ -84,7 +84,7 @@ public class Arm implements Subsystem {
   }
 
   public double getWristCurrentAngle() {
-    double rot = m_wristMotor.getRotorPosition().getValue() * wristGearRatio();
+    double rot = m_wristMotor.getRotorPosition().getValue() * wristGearRatio;
     return Rotation2d.fromRotations(rot).getDegrees();
   }
 
