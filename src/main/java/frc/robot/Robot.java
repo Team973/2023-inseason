@@ -35,7 +35,7 @@ public class Robot extends TimedRobot {
   private final Elevator m_elevator = new Elevator();
   private final Arm m_arm = new Arm();
 
-  private final XboxController m_operatorStick = new XboxController(0);
+  private final XboxController m_operatorStick = new XboxController(1);
 
   private final Compressor m_compressor =
       new Compressor(COMPRESSOR_ID, PneumaticsModuleType.CTREPCM);

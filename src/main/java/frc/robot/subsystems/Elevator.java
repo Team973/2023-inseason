@@ -60,8 +60,6 @@ public class Elevator implements Subsystem {
     ClosedLoop
   }
 
-  private boolean m_isZeroed = false;
-
   public Elevator() {
     m_elevatorMotor = new TalonFX(ELEVATOR_FX_ID);
     m_elevatorFollowerMotor = new TalonFX(ELEVATOR_FOLLOWER_FX_ID);
@@ -131,17 +129,15 @@ public class Elevator implements Subsystem {
   }
 
   public void update() {
-    if (!m_bottomHall.get() && !m_topHall.get()) {
-      m_elevatorMotor.set(m_elevatorOutput);
+    m_elevatorMotor.set(m_elevatorOutput);
 
-      switch (m_elevatorState) {
-        case Manual:
-          m_elevatorMotor.set(m_manualSpeed);
-          break;
-        case ClosedLoop:
-          m_elevatorMotor.setControl(new MotionMagicDutyCycle(m_targetPosition));
-          break;
-      }
+    switch (m_elevatorState) {
+      case Manual:
+        m_elevatorMotor.set(m_manualSpeed);
+        break;
+      case ClosedLoop:
+        m_elevatorMotor.setControl(new MotionMagicDutyCycle(m_targetPosition));
+        break;
     }
   }
 
