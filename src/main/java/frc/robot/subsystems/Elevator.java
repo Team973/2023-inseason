@@ -129,6 +129,18 @@ public class Elevator implements Subsystem {
   }
 
   public void update() {
+    if (m_topHall.get()) {
+      if (m_elevatorMotor.get() > 0.0) {
+        m_elevatorMotor.set(0.0);
+      }
+    }
+
+    if (m_bottomHall.get()) {
+      if (m_elevatorMotor.get() < 0.0) {
+        m_elevatorMotor.set(0.0);
+      }
+    }
+
     m_elevatorMotor.set(m_elevatorOutput);
 
     switch (m_elevatorState) {
