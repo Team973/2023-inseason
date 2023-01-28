@@ -128,6 +128,22 @@ public class Elevator implements Subsystem {
     setElevatorState(ElevatorState.Manual);
   }
 
+  public void setHpPreset() {
+    setHeight(Presets.hp);
+  }
+
+  public void setHighPreset() {
+    setHeight(Presets.high);
+  }
+
+  public void setMidPreset() {
+    setHeight(Presets.mid);
+  }
+
+  public void setFloorPreset() {
+    setHeight(Presets.floor);
+  }
+
   public void update() {
     if ((m_elevatorOutput > 0.0 && m_topHall.get())
         || (m_elevatorOutput < 0.0 && m_bottomHall.get())) {

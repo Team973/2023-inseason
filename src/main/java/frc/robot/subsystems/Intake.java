@@ -2,32 +2,29 @@ package frc.robot.subsystems;
 
 import frc.robot.shared.Subsystem;
 
-public class Claw implements Subsystem {
-  private ClampState m_clampState;
-  private IntakeState m_intakeState;
+import lombok.Getter;
+import lombok.Setter;
+import lombok.experimental.Accessors;
 
-  private enum ClampState {
-    Open,
-    Closed
+@Accessors(prefix = "m_")
+public class Intake implements Subsystem {
+  @Setter private IntakeState m_intakeState;
+
+  @Setter @Getter private GamePiece m_currentGamePiece;
+
+  public enum GamePiece {
+    Cube,
+    Cone
   }
 
-  private enum IntakeState {
+  public enum IntakeState {
     In,
     Out,
     Neutral
   }
 
-  public Claw() {
-    m_clampState = ClampState.Open;
+  public Intake() {
     m_intakeState = IntakeState.Neutral;
-  }
-
-  public void open() {
-    m_clampState = ClampState.Open;
-  }
-
-  public void close() {
-    m_clampState = ClampState.Closed;
   }
 
   public void intake() {
@@ -43,14 +40,6 @@ public class Claw implements Subsystem {
   }
 
   public void update() {
-    switch (m_clampState) {
-      case Open:
-        break;
-      case Closed:
-        break;
-      default:
-        break;
-    }
     switch (m_intakeState) {
       case In:
         break;
@@ -64,7 +53,6 @@ public class Claw implements Subsystem {
   }
 
   public void reset() {
-    m_clampState = ClampState.Open;
     m_intakeState = IntakeState.Neutral;
   }
 }
