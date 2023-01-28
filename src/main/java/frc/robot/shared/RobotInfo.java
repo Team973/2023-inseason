@@ -10,12 +10,14 @@ public final class RobotInfo {
   public static final int ARM_FX_ID = 0;
   public static final int ARM_SOLENOID_ID = 1;
 
-  public static final int ELEVATOR_FX_ID = 1;
-  public static final int ELEVATOR_FOLLOWER_FX_ID = 2;
-  public static final int ELEVATOR_BOTTOM_HALL_SENSOR_ID = 3;
-  public static final int ELEVATOR_TOP_HALL_SENSOR_ID = 4;
+  public static final int ELEVATOR_FX_ID = 2;
+  public static final int ELEVATOR_FOLLOWER_FX_ID = 3;
+  public static final int ELEVATOR_BOTTOM_HALL_SENSOR_ID = 4;
+  public static final int ELEVATOR_TOP_HALL_SENSOR_ID = 5;
 
-  public static final int COMPRESSOR_ID = 4;
+  public static final int INTAKE_FX_ID = 6;
+
+  public static final int COMPRESSOR_ID = 7;
 
   public static final double WRIST_GEAR_RATIO = (1.0 / 3.0) * (1.0 / 3.0) * (22.0 / 44.0);
 
