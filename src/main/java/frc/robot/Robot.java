@@ -44,6 +44,8 @@ public class Robot extends TimedRobot {
   private final Drive m_drive = new Drive();
 
   private final XboxController m_driverStick = new XboxController(0);
+  private final XboxController m_operatorStick = new XboxController(1);
+
   private final SlewRateLimiter m_rotLimiter = new SlewRateLimiter(3);
 
   private final Compressor m_compressor =
@@ -109,6 +111,7 @@ public class Robot extends TimedRobot {
       logException(e);
     }
   }
+
   /**
    * This autonomous (along with the chooser code above) shows how to select between different
    * autonomous modes using the dashboard. The sendable chooser code works with the Java
