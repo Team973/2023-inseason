@@ -1,18 +1,18 @@
 package frc.robot.auto.commands;
 
-import edu.wpi.first.math.geometry.Rotation2d;
-import edu.wpi.first.math.trajectory.Trajectory;
 import frc.robot.shared.AutoCommand;
-import frc.robot.shared.Conversions.Time;
-import frc.robot.shared.RobotInfo.DriveConstants;
+import frc.robot.shared.Util;
 import frc.robot.subsystems.Drive;
 
-public class DriveTrajectoryCommand extends AutoCommand {
-    private boolean autoStarted = false;
-    private double startTimeSeconds = 0.0;
+import edu.wpi.first.math.geometry.Rotation2d;
+import edu.wpi.first.math.trajectory.Trajectory;
 
-    private final Drive m_drive;
-    private final Trajectory m_trajectory;
+public class DriveTrajectoryCommand extends AutoCommand {
+  private boolean m_autoStarted = false;
+  private double m_startTimeSeconds = 0.0;
+
+  private final Drive m_drive;
+  private final Trajectory m_trajectory;
 
   public DriveTrajectoryCommand(Drive drive, Trajectory trajectory) {
     m_drive = drive;
@@ -25,18 +25,18 @@ public class DriveTrajectoryCommand extends AutoCommand {
   }
 
   public void run() {
-    if (!autoStarted) {
-        startTimeSeconds = Time.getSecTime();
-        autoStarted = true;
-  
-      double dtSeconds = Time.getSecTime() - startTimeSeconds;
-  
-      var goal = m_trajectory.sample(dtSeconds);
+    if (!m_autoStarted) {
+      m_startTimeSeconds = Util.getSecTime();
+      m_autoStarted = true;
     }
+    double dtSeconds = Util.getSecTime() - m_startTimeSeconds;
+
+    var goal = m_trajectory.sample(dtSeconds);
+    m_drive.driveInput(goal, Rotation2d.fromDegrees(0.0));
   }
 
   public boolean isCompleted() {
-    // TODO Auto-generated method stub
-    return false;
+    double dtSeconds = Util.getSecTime() - m_startTimeSeconds;
+    return m_trajectory.getTotalTimeSeconds() >= dtSeconds;
   }
 }

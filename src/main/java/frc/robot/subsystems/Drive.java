@@ -7,7 +7,6 @@ import frc.robot.subsystems.swerve.SwerveModule;
 
 import com.ctre.phoenixpro.configs.Pigeon2Configuration;
 import com.ctre.phoenixpro.hardware.Pigeon2;
-
 import edu.wpi.first.math.controller.HolonomicDriveController;
 import edu.wpi.first.math.controller.PIDController;
 import edu.wpi.first.math.controller.ProfiledPIDController;
@@ -19,9 +18,8 @@ import edu.wpi.first.math.kinematics.SwerveDriveKinematics;
 import edu.wpi.first.math.kinematics.SwerveDriveOdometry;
 import edu.wpi.first.math.kinematics.SwerveModulePosition;
 import edu.wpi.first.math.kinematics.SwerveModuleState;
-import edu.wpi.first.math.trajectory.Trajectory;
-import edu.wpi.first.math.trajectory.TrapezoidProfile;
 import edu.wpi.first.math.trajectory.Trajectory.State;
+import edu.wpi.first.math.trajectory.TrapezoidProfile;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 
 public class Drive implements Subsystem {
@@ -53,16 +51,16 @@ public class Drive implements Subsystem {
         new SwerveDriveOdometry(
             DriveConstants.SWERVE_KINEMATICS, getGyroscopeRotation(), getPositions());
 
-            m_controller =
-            new HolonomicDriveController(
-                new PIDController(1.0, 0.0, 0.0),
-                new PIDController(1.0, 0.0, 0.0),
-                new ProfiledPIDController(
-                    5.0,
-                    0.0,
-                    0.0,
-                    new TrapezoidProfile.Constraints(
-                        DriveConstants.MAX_ANGULAR_VELOCITY_RADIANS_PER_SECOND, 7.0)));
+    m_controller =
+        new HolonomicDriveController(
+            new PIDController(1.0, 0.0, 0.0),
+            new PIDController(1.0, 0.0, 0.0),
+            new ProfiledPIDController(
+                5.0,
+                0.0,
+                0.0,
+                new TrapezoidProfile.Constraints(
+                    DriveConstants.MAX_ANGULAR_VELOCITY_RADIANS_PER_SECOND, 7.0)));
   }
 
   public void driveInput(Translation2d translation, double rotation, boolean fieldRelative) {
