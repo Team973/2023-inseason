@@ -16,14 +16,14 @@ public class Intake implements Subsystem {
 
   @Setter private IntakeState m_intakeState;
 
-  private final TalonFX m_intakeMotor;
-
   @Setter @Getter private GamePiece m_currentGamePiece;
 
   public enum GamePiece {
     Cube,
     Cone
   }
+
+  private final TalonFX m_intakeMotor;
 
   public enum IntakeState {
     In,
@@ -41,7 +41,7 @@ public class Intake implements Subsystem {
     motorConfig.MotorOutput.Inverted = InvertedValue.CounterClockwise_Positive;
 
     // Neutral Mode
-    motorConfig.MotorOutput.NeutralMode = NeutralModeValue.Brake;
+    motorConfig.MotorOutput.NeutralMode = NeutralModeValue.Coast;
 
     // Current limits
     motorConfig.CurrentLimits.SupplyCurrentLimit = 40;
@@ -81,10 +81,10 @@ public class Intake implements Subsystem {
   public void update() {
     switch (m_intakeState) {
       case In:
-        m_intakeMotor.set(m_currentGamePiece == GamePiece.Cone ? 1.0 : -1.0);
+        m_intakeMotor.set(m_currentGamePiece == GamePiece.Cube ? 1.0 : -1.0);
         break;
       case Out:
-        m_intakeMotor.set(m_currentGamePiece == GamePiece.Cone ? -1.0 : 1.0);
+        m_intakeMotor.set(m_currentGamePiece == GamePiece.Cube ? -1.0 : 1.0);
         break;
       case Neutral:
         m_intakeMotor.set(0.0);
