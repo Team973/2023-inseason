@@ -62,7 +62,7 @@ public class Conversions {
     public static final double METERS_PER_INCH = 1.0 / INCHES_PER_METER;
   }
 
-  public static class Value {
+  public static class MathHelpers {
 
     /**
      * Square the value while retaining the original sign.

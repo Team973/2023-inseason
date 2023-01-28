@@ -1,7 +1,7 @@
 package frc.robot.auto.commands;
 
 import frc.robot.shared.AutoCommand;
-import frc.robot.shared.Util;
+import frc.robot.shared.Conversions;
 import frc.robot.subsystems.Drive;
 
 import edu.wpi.first.math.geometry.Rotation2d;
@@ -26,17 +26,17 @@ public class DriveTrajectoryCommand extends AutoCommand {
 
   public void run() {
     if (!m_autoStarted) {
-      m_startTimeSeconds = Util.getSecTime();
+      m_startTimeSeconds = Conversions.Time.getSecTime();
       m_autoStarted = true;
     }
-    double dtSeconds = Util.getSecTime() - m_startTimeSeconds;
+    double dtSeconds = Conversions.Time.getSecTime() - m_startTimeSeconds;
 
     var goal = m_trajectory.sample(dtSeconds);
     m_drive.driveInput(goal, Rotation2d.fromDegrees(0.0));
   }
 
   public boolean isCompleted() {
-    double dtSeconds = Util.getSecTime() - m_startTimeSeconds;
+    double dtSeconds = Conversions.Time.getSecTime() - m_startTimeSeconds;
     return m_trajectory.getTotalTimeSeconds() >= dtSeconds;
   }
 }

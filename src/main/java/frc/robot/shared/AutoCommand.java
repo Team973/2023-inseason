@@ -11,7 +11,7 @@ public abstract class AutoCommand {
    * @return True if the target time has passed
    */
   public boolean hasElapsed() {
-    return Util.getMsecTime() - m_startMsec >= m_targetMsec;
+    return Conversions.Time.getMsecTime() - m_startMsec >= m_targetMsec;
   }
 
   /** Initialize the auto command. */
@@ -34,6 +34,6 @@ public abstract class AutoCommand {
    */
   public void setTargetMsec(double target) {
     m_targetMsec = target;
-    m_startMsec = Util.getMsecTime();
+    m_startMsec = Conversions.Time.getMsecTime();
   }
 }
