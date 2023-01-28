@@ -10,10 +10,14 @@ import java.io.FileWriter;
 import java.io.PrintWriter;
 
 import frc.robot.subsystems.Arm;
-import frc.robot.subsystems.Claw;
+import frc.robot.subsystems.Arm.ExtensionState;
 import frc.robot.subsystems.Drive;
 import frc.robot.subsystems.Elevator;
+import frc.robot.subsystems.Elevator.ElevatorState;
 import frc.robot.subsystems.ExampleSubsystem;
+import frc.robot.subsystems.Intake;
+import frc.robot.subsystems.Intake.GamePiece;
+import frc.robot.subsystems.Intake.IntakeState;
 
 import edu.wpi.first.math.MathUtil;
 import edu.wpi.first.math.filter.SlewRateLimiter;
@@ -24,6 +28,7 @@ import edu.wpi.first.wpilibj.TimedRobot;
 import edu.wpi.first.wpilibj.XboxController;
 import edu.wpi.first.wpilibj.smartdashboard.SendableChooser;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
+import lombok.experimental.Accessors;
 
 /**
  * The VM is configured to automatically run this class, and to call the functions corresponding to
@@ -31,6 +36,7 @@ import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
  * the package after creating this project, you must also update the build.gradle file in the
  * project.
  */
+@Accessors(prefix = "m_")
 public class Robot extends TimedRobot {
   private static final String kDefaultAuto = "Default";
   private static final String kCustomAuto = "My Auto";
@@ -38,7 +44,7 @@ public class Robot extends TimedRobot {
   private final SendableChooser<String> m_chooser = new SendableChooser<>();
 
   private final ExampleSubsystem m_exampleSubsystem = new ExampleSubsystem();
-  private final Claw m_claw = new Claw();
+  private final Intake m_intake = new Intake();
   private final Elevator m_elevator = new Elevator();
   private final Arm m_arm = new Arm();
   private final Drive m_drive = new Drive();
@@ -66,7 +72,7 @@ public class Robot extends TimedRobot {
   /** Update subsystems. Called me when enabled. */
   private void updateSubsystems() {
     m_exampleSubsystem.update();
-    m_claw.update();
+    m_intake.update();
     m_elevator.update();
     m_arm.update();
     m_drive.update();
@@ -75,7 +81,7 @@ public class Robot extends TimedRobot {
   /** Reset subsystems. Called me when initializing. */
   private void resetSubsystems() {
     m_exampleSubsystem.reset();
-    m_claw.reset();
+    m_intake.reset();
     m_elevator.reset();
     m_arm.reset();
     m_drive.reset();
@@ -177,6 +183,60 @@ public class Robot extends TimedRobot {
     } catch (Exception e) {
       logException(e);
     }
+
+    // Arm extension
+    if (m_operatorStick.getLeftBumper()) {
+      m_arm.setExtensionState(ExtensionState.RETRACTED);
+    } else if (m_operatorStick.getRightBumper()) {
+      m_arm.setExtensionState(ExtensionState.EXTENDED);
+    }
+
+    // Elevator height preset
+    switch (m_operatorStick.getPOV()) {
+      case 0:
+        m_elevator.setHighPreset();
+        break;
+      case 90:
+        m_elevator.setMidPreset();
+        break;
+      case 180:
+        m_elevator.setFloorPreset();
+        break;
+      case 270:
+        m_elevator.setHpPreset();
+        break;
+    }
+
+    double operatorStickRightY = MathUtil.applyDeadband(m_operatorStick.getRawAxis(0), 0.1);
+    double operatorStickRightX = MathUtil.applyDeadband(m_operatorStick.getRawAxis(1), 0.1);
+
+    // Manual Elevator
+    if (operatorStickRightY != 0.0) {
+      m_elevator.setElevatorState(ElevatorState.Manual);
+      m_elevator.setElevatorOutput(operatorStickRightY);
+    } else if (m_elevator.getElevatorState() == ElevatorState.Manual) {
+      m_elevator.setHeight(m_elevator.getHeight());
+      m_elevator.setElevatorState(ElevatorState.ClosedLoop);
+    } else {
+      m_elevator.setElevatorState(ElevatorState.ClosedLoop);
+    }
+
+    // Intake
+    if (operatorStickRightX < 0.0) {
+      m_intake.setIntakeState(IntakeState.In);
+    } else if (operatorStickRightX > 0.0) {
+      m_intake.setIntakeState(IntakeState.Out);
+    }
+
+    // Select Game Piece
+    if (m_operatorStick.getBButton()) {
+      m_intake.setCurrentGamePiece(GamePiece.Cube);
+    } else if (m_operatorStick.getXButton()) {
+      m_intake.setCurrentGamePiece(GamePiece.Cone);
+    }
+
+    // Set Wrist Angle
+    m_arm.setWristTargetAngle(MathUtil.applyDeadband(m_operatorStick.getRawAxis(1), 0.09));
   }
 
   /** This function is called once when the robot is disabled. */

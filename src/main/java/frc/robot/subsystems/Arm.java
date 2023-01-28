@@ -12,7 +12,10 @@ import com.ctre.phoenixpro.signals.NeutralModeValue;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.wpilibj.PneumaticsModuleType;
 import edu.wpi.first.wpilibj.Solenoid;
+import lombok.Setter;
+import lombok.experimental.Accessors;
 
+@Accessors(prefix = "m_")
 public class Arm implements Subsystem {
 
   private double m_targetAngle = 0.0;
@@ -21,11 +24,11 @@ public class Arm implements Subsystem {
   private final Solenoid m_armSolenoid =
       new Solenoid(PneumaticsModuleType.CTREPCM, ARM_SOLENOID_ID);
 
-  private ExtensionState m_extensionState = ExtensionState.RETRACTED;
+  @Setter private ExtensionState m_extensionState = ExtensionState.RETRACTED;
 
   private double m_wristMotorOutput = 0.0;
 
-  private enum ExtensionState {
+  public enum ExtensionState {
     RETRACTED,
     EXTENDED
   }
