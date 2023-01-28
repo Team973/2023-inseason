@@ -1,7 +1,5 @@
 package frc.robot.subsystems;
 
-import static frc.robot.shared.RobotInfo.*;
-
 import frc.robot.shared.Subsystem;
 
 import com.ctre.phoenixpro.configs.TalonFXConfiguration;
