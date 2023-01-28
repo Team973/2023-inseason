@@ -8,7 +8,6 @@ import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.trajectory.Trajectory;
 
 public class DriveTrajectoryCommand extends AutoCommand {
-  private boolean m_autoStarted = false;
   private double m_startTimeSeconds = 0.0;
 
   private final Drive m_drive;
@@ -20,15 +19,10 @@ public class DriveTrajectoryCommand extends AutoCommand {
   }
 
   public void init() {
-    // TODO Auto-generated method stub
-
+    m_startTimeSeconds = Conversions.Time.getSecTime();
   }
 
   public void run() {
-    if (!m_autoStarted) {
-      m_startTimeSeconds = Conversions.Time.getSecTime();
-      m_autoStarted = true;
-    }
     double dtSeconds = Conversions.Time.getSecTime() - m_startTimeSeconds;
 
     var goal = m_trajectory.sample(dtSeconds);
