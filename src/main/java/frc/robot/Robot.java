@@ -214,6 +214,9 @@ public class Robot extends TimedRobot {
     if (operatorStickRightY != 0.0) {
       m_elevator.setElevatorState(ElevatorState.Manual);
       m_elevator.setElevatorOutput(operatorStickRightY);
+    } else if (m_elevator.getElevatorState() == ElevatorState.Manual) {
+      m_elevator.setHeight(m_elevator.getHeight());
+      m_elevator.setElevatorState(ElevatorState.ClosedLoop);
     } else {
       m_elevator.setElevatorState(ElevatorState.ClosedLoop);
     }

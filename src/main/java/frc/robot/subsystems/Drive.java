@@ -7,6 +7,9 @@ import frc.robot.subsystems.swerve.SwerveModule;
 
 import com.ctre.phoenixpro.configs.Pigeon2Configuration;
 import com.ctre.phoenixpro.hardware.Pigeon2;
+import edu.wpi.first.math.controller.HolonomicDriveController;
+import edu.wpi.first.math.controller.PIDController;
+import edu.wpi.first.math.controller.ProfiledPIDController;
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.geometry.Translation2d;
@@ -15,6 +18,8 @@ import edu.wpi.first.math.kinematics.SwerveDriveKinematics;
 import edu.wpi.first.math.kinematics.SwerveDriveOdometry;
 import edu.wpi.first.math.kinematics.SwerveModulePosition;
 import edu.wpi.first.math.kinematics.SwerveModuleState;
+import edu.wpi.first.math.trajectory.Trajectory.State;
+import edu.wpi.first.math.trajectory.TrapezoidProfile;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 
 public class Drive implements Subsystem {
@@ -23,6 +28,8 @@ public class Drive implements Subsystem {
 
   private final Pigeon2 m_pigeon;
   private double m_gyroOffsetDegrees;
+
+  private final HolonomicDriveController m_controller;
 
   public Drive() {
     m_pigeon = new Pigeon2(DriveConstants.PIGEON_ID, RobotInfo.CANIVORE_NAME);
@@ -43,6 +50,17 @@ public class Drive implements Subsystem {
     swerveOdometry =
         new SwerveDriveOdometry(
             DriveConstants.SWERVE_KINEMATICS, getGyroscopeRotation(), getPositions());
+
+    m_controller =
+        new HolonomicDriveController(
+            new PIDController(1.0, 0.0, 0.0),
+            new PIDController(1.0, 0.0, 0.0),
+            new ProfiledPIDController(
+                5.0,
+                0.0,
+                0.0,
+                new TrapezoidProfile.Constraints(
+                    DriveConstants.MAX_ANGULAR_VELOCITY_RADIANS_PER_SECOND, 7.0)));
   }
 
   public void driveInput(Translation2d translation, double rotation, boolean fieldRelative) {
@@ -71,6 +89,11 @@ public class Drive implements Subsystem {
     // SWERVE_DRIVE_KINEMATICS.toSwerveModuleStates(updated_chassis_speeds);
 
     setModuleStates(swerveModuleStates);
+  }
+
+  public void driveInput(State state, Rotation2d rotation) {
+    var desiredStates = m_controller.calculate(getPose(), state, rotation);
+    setModuleStates(DriveConstants.SWERVE_KINEMATICS.toSwerveModuleStates(desiredStates));
   }
 
   public double getGyroYaw() {

@@ -13,17 +13,14 @@ import lombok.experimental.Accessors;
 
 @Accessors(prefix = "m_")
 public class Intake implements Subsystem {
-
   @Setter private IntakeState m_intakeState;
-
   @Setter @Getter private GamePiece m_currentGamePiece;
+  private final TalonFX m_intakeMotor;
 
   public enum GamePiece {
     Cube,
     Cone
   }
-
-  private final TalonFX m_intakeMotor;
 
   public enum IntakeState {
     In,
