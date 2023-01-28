@@ -9,6 +9,7 @@ import static frc.robot.shared.RobotInfo.*;
 import java.io.FileWriter;
 import java.io.PrintWriter;
 
+import frc.robot.greydash.GreyDashClient;
 import frc.robot.subsystems.Arm;
 import frc.robot.subsystems.Claw;
 import frc.robot.subsystems.Drive;
@@ -22,7 +23,6 @@ import edu.wpi.first.wpilibj.Compressor;
 import edu.wpi.first.wpilibj.PneumaticsModuleType;
 import edu.wpi.first.wpilibj.TimedRobot;
 import edu.wpi.first.wpilibj.XboxController;
-import edu.wpi.first.wpilibj.smartdashboard.SendableChooser;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 
 /**
@@ -34,8 +34,7 @@ import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 public class Robot extends TimedRobot {
   private static final String kDefaultAuto = "Default";
   private static final String kCustomAuto = "My Auto";
-  private String m_autoSelected;
-  private final SendableChooser<String> m_chooser = new SendableChooser<>();
+  private static String m_autoSelected;
 
   private final ExampleSubsystem m_exampleSubsystem = new ExampleSubsystem();
   private final Claw m_claw = new Claw();
@@ -85,9 +84,7 @@ public class Robot extends TimedRobot {
    */
   @Override
   public void robotInit() {
-    m_chooser.setDefaultOption("Default Auto", kDefaultAuto);
-    m_chooser.addOption("My Auto", kCustomAuto);
-    SmartDashboard.putData("Auto choices", m_chooser);
+    GreyDashClient.setAvailableAutoModes(kDefaultAuto, kCustomAuto);
 
     this.resetSubsystems();
   }
@@ -102,6 +99,7 @@ public class Robot extends TimedRobot {
   @Override
   public void robotPeriodic() {
     try {
+      GreyDashClient.update();
       if (this.isEnabled()) {
         this.updateSubsystems();
       }
@@ -109,6 +107,7 @@ public class Robot extends TimedRobot {
       logException(e);
     }
   }
+
   /**
    * This autonomous (along with the chooser code above) shows how to select between different
    * autonomous modes using the dashboard. The sendable chooser code works with the Java
@@ -121,8 +120,7 @@ public class Robot extends TimedRobot {
    */
   @Override
   public void autonomousInit() {
-    m_autoSelected = m_chooser.getSelected();
-    // m_autoSelected = SmartDashboard.getString("Auto Selector", kDefaultAuto);
+    m_autoSelected = GreyDashClient.getAutoSelected();
     System.out.println("Auto selected: " + m_autoSelected);
     m_compressor.enableDigital();
   }
