@@ -11,9 +11,13 @@ import java.io.PrintWriter;
 
 import frc.robot.subsystems.Arm;
 import frc.robot.subsystems.Claw;
+import frc.robot.subsystems.Drive;
 import frc.robot.subsystems.Elevator;
 import frc.robot.subsystems.ExampleSubsystem;
 
+import edu.wpi.first.math.MathUtil;
+import edu.wpi.first.math.filter.SlewRateLimiter;
+import edu.wpi.first.math.geometry.Translation2d;
 import edu.wpi.first.wpilibj.Compressor;
 import edu.wpi.first.wpilibj.PneumaticsModuleType;
 import edu.wpi.first.wpilibj.TimedRobot;
@@ -37,6 +41,10 @@ public class Robot extends TimedRobot {
   private final Claw m_claw = new Claw();
   private final Elevator m_elevator = new Elevator();
   private final Arm m_arm = new Arm();
+  private final Drive m_drive = new Drive();
+
+  private final XboxController m_driverStick = new XboxController(0);
+  private final SlewRateLimiter m_rotLimiter = new SlewRateLimiter(3);
 
   private final XboxController m_operatorStick = new XboxController(1);
 
@@ -61,6 +69,7 @@ public class Robot extends TimedRobot {
     m_claw.update();
     m_elevator.update();
     m_arm.update();
+    m_drive.update();
   }
 
   /** Reset subsystems. Called me when initializing. */
@@ -69,6 +78,7 @@ public class Robot extends TimedRobot {
     m_claw.reset();
     m_elevator.reset();
     m_arm.reset();
+    m_drive.reset();
   }
 
   /**
@@ -148,6 +158,21 @@ public class Robot extends TimedRobot {
   @Override
   public void teleopPeriodic() {
     try {
+      final double xSpeed = -MathUtil.applyDeadband(m_driverStick.getRawAxis(1), 0.09);
+      final double ySpeed = -MathUtil.applyDeadband(m_driverStick.getRawAxis(0), 0.09);
+
+      final double rot =
+          -m_rotLimiter.calculate(MathUtil.applyDeadband(m_driverStick.getRawAxis(4), 0.09))
+              * DriveConstants.MAX_ANGULAR_VELOCITY_RADIANS_PER_SECOND;
+
+      SmartDashboard.putNumber("drive/swerve/inputs/xspeed", xSpeed);
+      SmartDashboard.putNumber("drive/swerve/inputs/yspeed", ySpeed);
+      SmartDashboard.putNumber("drive/swerve/inputs/rot", rot);
+
+      Translation2d translation =
+          new Translation2d(xSpeed, ySpeed).times(DriveConstants.MAX_VELOCITY_METERS_PER_SECOND);
+
+      m_drive.driveInput(translation, rot, true);
     } catch (Exception e) {
       logException(e);
     }
