@@ -1,5 +1,7 @@
 package frc.robot.subsystems;
 
+import static frc.robot.shared.RobotInfo.*;
+
 import frc.robot.shared.Subsystem;
 
 import com.ctre.phoenixpro.configs.TalonFXConfiguration;
@@ -30,7 +32,7 @@ public class Intake implements Subsystem {
 
   public Intake() {
     m_intakeState = IntakeState.Neutral;
-    m_intakeMotor = new TalonFX(1);
+    m_intakeMotor = new TalonFX(INTAKE_FX_ID);
 
     // Factory Default
     var motorConfig = new TalonFXConfiguration();
