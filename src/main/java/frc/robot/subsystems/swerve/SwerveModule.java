@@ -1,7 +1,7 @@
 package frc.robot.subsystems.swerve;
 
 import frc.robot.shared.RobotInfo;
-import frc.robot.shared.RobotInfo.DriveConstants;
+import frc.robot.shared.RobotInfo.DriveInfo;
 import frc.robot.shared.SwerveModuleConfig;
 
 import com.ctre.phoenixpro.BaseStatusSignalValue;
@@ -29,9 +29,8 @@ public class SwerveModule {
   private CANcoder m_angleEncoder;
   private Rotation2d lastAngle;
 
-  SimpleMotorFeedforward feedforward =
-      new SimpleMotorFeedforward(
-          DriveConstants.driveKS, DriveConstants.driveKV, DriveConstants.driveKA);
+  SimpleMotorFeedforward feedforward = new SimpleMotorFeedforward(
+      DriveInfo.driveKS, DriveInfo.driveKV, DriveInfo.driveKA);
 
   public SwerveModule(int moduleNumber, SwerveModuleConfig moduleConfig) {
     this.moduleNumber = moduleNumber;
@@ -69,10 +68,10 @@ public class SwerveModule {
     motorConfig.MotorOutput.NeutralMode = NeutralModeValue.Coast;
     motorConfig.Feedback.FeedbackSensorSource = FeedbackSensorSourceValue.RotorSensor;
 
-    motorConfig.Slot0.kP = DriveConstants.ANGLE_KP;
-    motorConfig.Slot0.kI = DriveConstants.ANGLE_KI;
-    motorConfig.Slot0.kD = DriveConstants.ANGLE_KD;
-    motorConfig.Slot0.kS = DriveConstants.ANGLE_KF;
+    motorConfig.Slot0.kP = DriveInfo.ANGLE_KP;
+    motorConfig.Slot0.kI = DriveInfo.ANGLE_KI;
+    motorConfig.Slot0.kD = DriveInfo.ANGLE_KD;
+    motorConfig.Slot0.kS = DriveInfo.ANGLE_KF;
 
     motorConfig.CurrentLimits.StatorCurrentLimit = 40.0;
     motorConfig.CurrentLimits.StatorCurrentLimitEnable = false;
@@ -113,18 +112,16 @@ public class SwerveModule {
   }
 
   public void resetToAbsolute() {
-    double absolutePosition =
-        (getCanCoder().minus(angleOffset).getRotations()) * DriveConstants.ANGLE_GEAR_RATIO;
+    double absolutePosition = (getCanCoder().minus(angleOffset).getRotations()) * DriveInfo.ANGLE_GEAR_RATIO;
     m_angleMotor.setRotorPosition(absolutePosition);
   }
 
   public SwerveModuleState getState() {
-    double wheelRPS = m_driveMotor.getRotorVelocity().getValue() / DriveConstants.DRIVE_GEAR_RATIO;
-    double velocityInMPS = wheelRPS * DriveConstants.WHEEL_CIRCUMFRENCE_METERS;
+    double wheelRPS = m_driveMotor.getRotorVelocity().getValue() / DriveInfo.DRIVE_GEAR_RATIO;
+    double velocityInMPS = wheelRPS * DriveInfo.WHEEL_CIRCUMFRENCE_METERS;
 
-    Rotation2d angle =
-        Rotation2d.fromRotations(
-            m_angleMotor.getRotorPosition().getValue() / DriveConstants.ANGLE_GEAR_RATIO);
+    Rotation2d angle = Rotation2d.fromRotations(
+        m_angleMotor.getRotorPosition().getValue() / DriveInfo.ANGLE_GEAR_RATIO);
 
     return new SwerveModuleState(velocityInMPS, angle);
   }
@@ -134,40 +131,35 @@ public class SwerveModule {
   }
 
   public SwerveModulePosition getPosition() {
-    double wheelRotations =
-        m_driveMotor.getRotorPosition().getValue() / DriveConstants.DRIVE_GEAR_RATIO;
-    double wheelDistanceMeters = wheelRotations * DriveConstants.WHEEL_CIRCUMFRENCE_METERS;
+    double wheelRotations = m_driveMotor.getRotorPosition().getValue() / DriveInfo.DRIVE_GEAR_RATIO;
+    double wheelDistanceMeters = wheelRotations * DriveInfo.WHEEL_CIRCUMFRENCE_METERS;
     return new SwerveModulePosition(wheelDistanceMeters, getState().angle);
   }
 
   public void setDesiredState(SwerveModuleState desiredState) {
-    desiredState =
-        CTREModuleState.optimize(
-            desiredState,
-            getState().angle); // Custom optimize command, since default WPILib optimize assumes
+    desiredState = CTREModuleState.optimize(
+        desiredState,
+        getState().angle); // Custom optimize command, since default WPILib optimize assumes
     // continuous controller which CTRE is not
 
-    double desiredWheelVelocityInRPS =
-        desiredState.speedMetersPerSecond / DriveConstants.WHEEL_CIRCUMFRENCE_METERS;
-    double desiredFalconVelocityInRPS = desiredWheelVelocityInRPS * DriveConstants.DRIVE_GEAR_RATIO;
-    var velocityControlReq =
-        new VelocityDutyCycle(
-            desiredFalconVelocityInRPS,
-            true,
-            feedforward.calculate(desiredState.speedMetersPerSecond),
-            0,
-            false);
+    double desiredWheelVelocityInRPS = desiredState.speedMetersPerSecond / DriveInfo.WHEEL_CIRCUMFRENCE_METERS;
+    double desiredFalconVelocityInRPS = desiredWheelVelocityInRPS * DriveInfo.DRIVE_GEAR_RATIO;
+    var velocityControlReq = new VelocityDutyCycle(
+        desiredFalconVelocityInRPS,
+        true,
+        feedforward.calculate(desiredState.speedMetersPerSecond),
+        0,
+        false);
     m_driveMotor.setControl(velocityControlReq);
 
     // Prevent rotating module if speed is less then 1%. Prevents jittering.
-    Rotation2d angle =
-        (Math.abs(desiredState.speedMetersPerSecond)
-                <= (DriveConstants.MAX_VELOCITY_METERS_PER_SECOND * 0.01))
+    Rotation2d angle = (Math
+        .abs(desiredState.speedMetersPerSecond) <= (DriveInfo.MAX_VELOCITY_METERS_PER_SECOND * 0.01))
             ? lastAngle
             : desiredState.angle;
 
     m_angleMotor.setControl(
-        new PositionDutyCycle(angle.getRotations() * DriveConstants.ANGLE_GEAR_RATIO));
+        new PositionDutyCycle(angle.getRotations() * DriveInfo.ANGLE_GEAR_RATIO));
 
     lastAngle = angle;
   }
