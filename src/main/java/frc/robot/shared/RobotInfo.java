@@ -10,19 +10,19 @@ public final class RobotInfo {
   public static final int COMPRESSOR_ID = 0;
 
   public static class IntakeInfo {
-    public static final int FX_ID = 0;
+    public static final int FX_ID = 14;
   }
 
   public static class ArmInfo {
     public static final int SOLENOID_ID = 0;
-    public static final int FX_ID = 1;
+    public static final int FX_ID = 15;
   }
 
   public static class ElevatorInfo {
     public static final int BOTTOM_HALL_SENSOR_ID = 0;
     public static final int TOP_HALL_SENSOR_ID = 1;
-    public static final int FX_ID = 2;
-    public static final int FOLLOWER_FX_ID = 3;
+    public static final int FX_ID = 16;
+    public static final int FOLLOWER_FX_ID = 17;
   }
 
   public static class WristInfo {
