@@ -21,10 +21,10 @@ public class Arm implements Subsystem {
   private double m_targetAngle = 0.0;
   private final TalonFX m_wristMotor;
 
-  private final Solenoid m_armSolenoid = new Solenoid(PneumaticsModuleType.CTREPCM, ArmInfo.SOLENOID_ID);
+  private final Solenoid m_armSolenoid =
+      new Solenoid(PneumaticsModuleType.CTREPCM, ArmInfo.SOLENOID_ID);
 
-  @Setter
-  private ExtensionState m_extensionState = ExtensionState.RETRACTED;
+  @Setter private ExtensionState m_extensionState = ExtensionState.RETRACTED;
 
   private double m_wristMotorOutput = 0.0;
 

@@ -29,8 +29,8 @@ public class SwerveModule {
   private CANcoder m_angleEncoder;
   private Rotation2d lastAngle;
 
-  SimpleMotorFeedforward feedforward = new SimpleMotorFeedforward(
-      DriveInfo.driveKS, DriveInfo.driveKV, DriveInfo.driveKA);
+  SimpleMotorFeedforward feedforward =
+      new SimpleMotorFeedforward(DriveInfo.driveKS, DriveInfo.driveKV, DriveInfo.driveKA);
 
   public SwerveModule(int moduleNumber, SwerveModuleConfig moduleConfig) {
     this.moduleNumber = moduleNumber;
@@ -112,7 +112,8 @@ public class SwerveModule {
   }
 
   public void resetToAbsolute() {
-    double absolutePosition = (getCanCoder().minus(angleOffset).getRotations()) * DriveInfo.ANGLE_GEAR_RATIO;
+    double absolutePosition =
+        (getCanCoder().minus(angleOffset).getRotations()) * DriveInfo.ANGLE_GEAR_RATIO;
     m_angleMotor.setRotorPosition(absolutePosition);
   }
 
@@ -120,8 +121,9 @@ public class SwerveModule {
     double wheelRPS = m_driveMotor.getRotorVelocity().getValue() / DriveInfo.DRIVE_GEAR_RATIO;
     double velocityInMPS = wheelRPS * DriveInfo.WHEEL_CIRCUMFRENCE_METERS;
 
-    Rotation2d angle = Rotation2d.fromRotations(
-        m_angleMotor.getRotorPosition().getValue() / DriveInfo.ANGLE_GEAR_RATIO);
+    Rotation2d angle =
+        Rotation2d.fromRotations(
+            m_angleMotor.getRotorPosition().getValue() / DriveInfo.ANGLE_GEAR_RATIO);
 
     return new SwerveModuleState(velocityInMPS, angle);
   }
@@ -137,24 +139,28 @@ public class SwerveModule {
   }
 
   public void setDesiredState(SwerveModuleState desiredState) {
-    desiredState = CTREModuleState.optimize(
-        desiredState,
-        getState().angle); // Custom optimize command, since default WPILib optimize assumes
+    desiredState =
+        CTREModuleState.optimize(
+            desiredState,
+            getState().angle); // Custom optimize command, since default WPILib optimize assumes
     // continuous controller which CTRE is not
 
-    double desiredWheelVelocityInRPS = desiredState.speedMetersPerSecond / DriveInfo.WHEEL_CIRCUMFRENCE_METERS;
+    double desiredWheelVelocityInRPS =
+        desiredState.speedMetersPerSecond / DriveInfo.WHEEL_CIRCUMFRENCE_METERS;
     double desiredFalconVelocityInRPS = desiredWheelVelocityInRPS * DriveInfo.DRIVE_GEAR_RATIO;
-    var velocityControlReq = new VelocityDutyCycle(
-        desiredFalconVelocityInRPS,
-        true,
-        feedforward.calculate(desiredState.speedMetersPerSecond),
-        0,
-        false);
+    var velocityControlReq =
+        new VelocityDutyCycle(
+            desiredFalconVelocityInRPS,
+            true,
+            feedforward.calculate(desiredState.speedMetersPerSecond),
+            0,
+            false);
     m_driveMotor.setControl(velocityControlReq);
 
     // Prevent rotating module if speed is less then 1%. Prevents jittering.
-    Rotation2d angle = (Math
-        .abs(desiredState.speedMetersPerSecond) <= (DriveInfo.MAX_VELOCITY_METERS_PER_SECOND * 0.01))
+    Rotation2d angle =
+        (Math.abs(desiredState.speedMetersPerSecond)
+                <= (DriveInfo.MAX_VELOCITY_METERS_PER_SECOND * 0.01))
             ? lastAngle
             : desiredState.angle;
 

@@ -39,32 +39,36 @@ public class Drive implements Subsystem {
 
     resetGyro();
 
-    m_swerveModules = new SwerveModule[] {
-        new SwerveModule(0, DriveInfo.FRONT_LEFT_CONSTANTS),
-        new SwerveModule(1, DriveInfo.FRONT_RIGHT_CONSTANTS),
-        new SwerveModule(2, DriveInfo.BACK_LEFT_CONSTANTS),
-        new SwerveModule(3, DriveInfo.BACK_RIGHT_CONSTANTS)
-    };
+    m_swerveModules =
+        new SwerveModule[] {
+          new SwerveModule(0, DriveInfo.FRONT_LEFT_CONSTANTS),
+          new SwerveModule(1, DriveInfo.FRONT_RIGHT_CONSTANTS),
+          new SwerveModule(2, DriveInfo.BACK_LEFT_CONSTANTS),
+          new SwerveModule(3, DriveInfo.BACK_RIGHT_CONSTANTS)
+        };
 
-    swerveOdometry = new SwerveDriveOdometry(
-        DriveInfo.SWERVE_KINEMATICS, getGyroscopeRotation(), getPositions());
+    swerveOdometry =
+        new SwerveDriveOdometry(
+            DriveInfo.SWERVE_KINEMATICS, getGyroscopeRotation(), getPositions());
 
-    m_controller = new HolonomicDriveController(
-        new PIDController(1.0, 0.0, 0.0),
-        new PIDController(1.0, 0.0, 0.0),
-        new ProfiledPIDController(
-            5.0,
-            0.0,
-            0.0,
-            new TrapezoidProfile.Constraints(
-                DriveInfo.MAX_ANGULAR_VELOCITY_RADIANS_PER_SECOND, 7.0)));
+    m_controller =
+        new HolonomicDriveController(
+            new PIDController(1.0, 0.0, 0.0),
+            new PIDController(1.0, 0.0, 0.0),
+            new ProfiledPIDController(
+                5.0,
+                0.0,
+                0.0,
+                new TrapezoidProfile.Constraints(
+                    DriveInfo.MAX_ANGULAR_VELOCITY_RADIANS_PER_SECOND, 7.0)));
   }
 
   public void driveInput(Translation2d translation, double rotation, boolean fieldRelative) {
-    ChassisSpeeds des_chassis_speeds = fieldRelative
-        ? ChassisSpeeds.fromFieldRelativeSpeeds(
-            translation.getX(), translation.getY(), rotation, getGyroscopeRotation())
-        : new ChassisSpeeds(translation.getX(), translation.getY(), rotation);
+    ChassisSpeeds des_chassis_speeds =
+        fieldRelative
+            ? ChassisSpeeds.fromFieldRelativeSpeeds(
+                translation.getX(), translation.getY(), rotation, getGyroscopeRotation())
+            : new ChassisSpeeds(translation.getX(), translation.getY(), rotation);
     /*
      * TODO: Test this 254 code to handle drift in spinning translation
      * Pose2d robot_pose_vel =
@@ -80,9 +84,10 @@ public class Drive implements Subsystem {
      * twist_vel.dx / Constants.kLooperDt,
      * twist_vel.dy / Constants.kLooperDt,
      * twist_vel.dtheta / Constants.kLooperDt);
-     * 
+     *
      */
-    SwerveModuleState[] swerveModuleStates = DriveInfo.SWERVE_KINEMATICS.toSwerveModuleStates(des_chassis_speeds);
+    SwerveModuleState[] swerveModuleStates =
+        DriveInfo.SWERVE_KINEMATICS.toSwerveModuleStates(des_chassis_speeds);
     // SWERVE_DRIVE_KINEMATICS.toSwerveModuleStates(updated_chassis_speeds);
 
     setModuleStates(swerveModuleStates);
