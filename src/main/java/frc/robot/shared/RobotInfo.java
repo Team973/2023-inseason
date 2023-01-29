@@ -7,22 +7,31 @@ import edu.wpi.first.math.kinematics.SwerveDriveKinematics;
 public final class RobotInfo {
   public static final String CANIVORE_NAME = "Canivore";
 
-  public static final int ARM_FX_ID = 0;
-  public static final int ARM_SOLENOID_ID = 1;
+  public static final int COMPRESSOR_ID = 0;
 
-  public static final int ELEVATOR_FX_ID = 2;
-  public static final int ELEVATOR_FOLLOWER_FX_ID = 3;
-  public static final int ELEVATOR_BOTTOM_HALL_SENSOR_ID = 4;
-  public static final int ELEVATOR_TOP_HALL_SENSOR_ID = 5;
+  public static class IntakeInfo {
+    public static final int FX_ID = 14;
+  }
 
-  public static final int INTAKE_FX_ID = 6;
+  public static class ArmInfo {
+    public static final int SOLENOID_ID = 0;
+    public static final int FX_ID = 15;
+  }
 
-  public static final int COMPRESSOR_ID = 7;
   public static final int CANDLE_ID = 8;
 
-  public static final double WRIST_GEAR_RATIO = (1.0 / 3.0) * (1.0 / 3.0) * (22.0 / 44.0);
+  public static class ElevatorInfo {
+    public static final int BOTTOM_HALL_SENSOR_ID = 0;
+    public static final int TOP_HALL_SENSOR_ID = 1;
+    public static final int FX_ID = 16;
+    public static final int FOLLOWER_FX_ID = 17;
+  }
 
-  public static class DriveConstants {
+  public static class WristInfo {
+    public static final double GEAR_RATIO = (1.0 / 3.0) * (1.0 / 3.0) * (22.0 / 44.0);
+  }
+
+  public static class DriveInfo {
     public static final int PIGEON_ID = 1;
 
     public static final int FRONT_LEFT_MODULE_DRIVE_MOTOR = 2;

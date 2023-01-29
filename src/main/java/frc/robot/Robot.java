@@ -175,14 +175,14 @@ public class Robot extends TimedRobot {
 
       final double rot =
           -m_rotLimiter.calculate(MathUtil.applyDeadband(m_driverStick.getRawAxis(4), 0.09))
-              * DriveConstants.MAX_ANGULAR_VELOCITY_RADIANS_PER_SECOND;
+              * DriveInfo.MAX_ANGULAR_VELOCITY_RADIANS_PER_SECOND;
 
       SmartDashboard.putNumber("drive/swerve/inputs/xspeed", xSpeed);
       SmartDashboard.putNumber("drive/swerve/inputs/yspeed", ySpeed);
       SmartDashboard.putNumber("drive/swerve/inputs/rot", rot);
 
       Translation2d translation =
-          new Translation2d(xSpeed, ySpeed).times(DriveConstants.MAX_VELOCITY_METERS_PER_SECOND);
+          new Translation2d(xSpeed, ySpeed).times(DriveInfo.MAX_VELOCITY_METERS_PER_SECOND);
 
       m_drive.driveInput(translation, rot, true);
 

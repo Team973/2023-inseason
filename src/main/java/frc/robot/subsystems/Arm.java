@@ -22,7 +22,7 @@ public class Arm implements Subsystem {
   private final TalonFX m_wristMotor;
 
   private final Solenoid m_armSolenoid =
-      new Solenoid(PneumaticsModuleType.CTREPCM, ARM_SOLENOID_ID);
+      new Solenoid(PneumaticsModuleType.CTREPCM, ArmInfo.SOLENOID_ID);
 
   @Setter private ExtensionState m_extensionState = ExtensionState.RETRACTED;
 
@@ -34,7 +34,7 @@ public class Arm implements Subsystem {
   }
 
   public Arm() {
-    m_wristMotor = new TalonFX(ARM_FX_ID);
+    m_wristMotor = new TalonFX(ArmInfo.FX_ID);
     var motorConfig = new TalonFXConfiguration();
 
     // Motor Directions
@@ -87,7 +87,7 @@ public class Arm implements Subsystem {
   }
 
   public double getWristCurrentAngle() {
-    double rot = m_wristMotor.getRotorPosition().getValue() * WRIST_GEAR_RATIO;
+    double rot = m_wristMotor.getRotorPosition().getValue() * WristInfo.GEAR_RATIO;
     return Rotation2d.fromRotations(rot).getDegrees();
   }
 
