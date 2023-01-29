@@ -18,6 +18,7 @@ public final class RobotInfo {
   public static final int INTAKE_FX_ID = 6;
 
   public static final int COMPRESSOR_ID = 7;
+  public static final int CANDLE_ID = 8;
 
   public static final double WRIST_GEAR_RATIO = (1.0 / 3.0) * (1.0 / 3.0) * (22.0 / 44.0);
 
