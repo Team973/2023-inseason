@@ -36,8 +36,10 @@ public class CANdleManager implements Subsystem {
   public void update() {
     switch (m_lightState) {
       case Cone:
+        m_candle.setLEDs(252, 218, 49); // set the CANdle LEDs to yellow
         break;
       case Cube:
+        m_candle.setLEDs(165, 44, 209); // set the CANdle LEDs to purple
         break;
       case Off:
         break;
