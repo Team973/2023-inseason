@@ -166,7 +166,6 @@ public class SwerveModule {
 
     m_angleMotor.setControl(
         new PositionDutyCycle(angle.getRotations() * DriveInfo.ANGLE_GEAR_RATIO));
-
     lastAngle = angle;
   }
 }
