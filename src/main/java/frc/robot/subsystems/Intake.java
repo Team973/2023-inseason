@@ -32,7 +32,7 @@ public class Intake implements Subsystem {
 
   public Intake() {
     m_intakeState = IntakeState.Neutral;
-    m_intakeMotor = new TalonFX(INTAKE_FX_ID);
+    m_intakeMotor = new TalonFX(IntakeInfo.FX_ID);
 
     // Factory Default
     var motorConfig = new TalonFXConfiguration();

@@ -61,10 +61,10 @@ public class Elevator implements Subsystem {
   }
 
   public Elevator() {
-    m_elevatorMotor = new TalonFX(ELEVATOR_FX_ID);
-    m_elevatorFollowerMotor = new TalonFX(ELEVATOR_FOLLOWER_FX_ID);
-    m_bottomHall = new DigitalInput(ELEVATOR_BOTTOM_HALL_SENSOR_ID);
-    m_topHall = new DigitalInput(ELEVATOR_TOP_HALL_SENSOR_ID);
+    m_elevatorMotor = new TalonFX(ElevatorInfo.FX_ID);
+    m_elevatorFollowerMotor = new TalonFX(ElevatorInfo.FOLLOWER_FX_ID);
+    m_bottomHall = new DigitalInput(ElevatorInfo.BOTTOM_HALL_SENSOR_ID);
+    m_topHall = new DigitalInput(ElevatorInfo.TOP_HALL_SENSOR_ID);
 
     // Factory Default
     var motorConfig = new TalonFXConfiguration();
@@ -83,7 +83,7 @@ public class Elevator implements Subsystem {
     // Set motor to follow A
     m_elevatorMotor.getConfigurator().apply(motorConfig);
     m_elevatorFollowerMotor.getConfigurator().apply(new TalonFXConfiguration());
-    m_elevatorFollowerMotor.setControl(new Follower(ELEVATOR_FX_ID, true));
+    m_elevatorFollowerMotor.setControl(new Follower(ElevatorInfo.FX_ID, true));
 
     // Motor feedback
     motorConfig.Feedback.FeedbackSensorSource = FeedbackSensorSourceValue.RotorSensor;
