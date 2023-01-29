@@ -21,7 +21,7 @@ public class CANdleManager implements Subsystem {
   }
 
   @Setter @Getter private LightState m_lightState = LightState.Off;
-  private final CANdle m_candle = new CANdle(CANDLE_ID, "rio");
+  private final CANdle m_candle = new CANdle(CANdleInfo.ID, "rio");
 
   public CANdleManager() {
     CANdleConfiguration configAll = new CANdleConfiguration();
@@ -42,6 +42,7 @@ public class CANdleManager implements Subsystem {
         m_candle.setLEDs(165, 44, 209); // set the CANdle LEDs to purple
         break;
       case Off:
+        m_candle.setLEDs(0, 0, 0); // set the CANdle LEDs to be offs  
         break;
       default:
         break;
