@@ -18,8 +18,8 @@ public final class RobotInfo {
     public static final int FX_ID = 15;
   }
 
-  public static class CANdleInfo{
-  public static final int ID = 18;
+  public static class CANdleInfo {
+    public static final int ID = 18;
   }
 
   public static class ElevatorInfo {

@@ -42,7 +42,7 @@ public class CANdleManager implements Subsystem {
         m_candle.setLEDs(165, 44, 209); // set the CANdle LEDs to purple
         break;
       case Off:
-        m_candle.setLEDs(0, 0, 0); // set the CANdle LEDs to be offs  
+        m_candle.setLEDs(0, 0, 0); // set the CANdle LEDs to be offs
         break;
       default:
         break;
