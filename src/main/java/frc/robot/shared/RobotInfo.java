@@ -18,6 +18,10 @@ public final class RobotInfo {
     public static final int FX_ID = 15;
   }
 
+  public static class CANdleInfo {
+    public static final int ID = 18;
+  }
+
   public static class ElevatorInfo {
     public static final int BOTTOM_HALL_SENSOR_ID = 0;
     public static final int TOP_HALL_SENSOR_ID = 1;
