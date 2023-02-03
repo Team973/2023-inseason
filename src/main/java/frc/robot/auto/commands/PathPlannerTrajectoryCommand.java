@@ -10,13 +10,13 @@ import com.pathplanner.lib.PathPlannerTrajectory;
 public class PathPlannerTrajectoryCommand extends AutoCommand {
   private final Drive m_drive;
 
-  private PathPlannerTrajectory m_path = PathPlanner.loadPath("Path", new PathConstraints(4, 3));
+  private final PathPlannerTrajectory m_path;
 
-  private DriveTrajectoryCommand m_trajectoryCommand;
+  private final DriveTrajectoryCommand m_trajectoryCommand;
 
-  public PathPlannerTrajectoryCommand(Drive drive) {
+  public PathPlannerTrajectoryCommand(Drive drive, String path, PathConstraints constraints) {
     m_drive = drive;
-
+    m_path = PathPlanner.loadPath(path, constraints);
     m_trajectoryCommand = new DriveTrajectoryCommand(m_drive, m_path);
   }
 
