@@ -12,6 +12,7 @@ import java.io.PrintWriter;
 import frc.robot.subsystems.CANdleManager;
 import frc.robot.subsystems.CANdleManager.LightState;
 import frc.robot.subsystems.Claw;
+import frc.robot.subsystems.Claw.ClawState;
 import frc.robot.subsystems.Claw.GamePiece;
 import frc.robot.subsystems.Drive;
 import frc.robot.subsystems.Elevator;
@@ -211,12 +212,20 @@ public class Robot extends TimedRobot {
       }
 
       // Select Game Piece
-      if (m_operatorStick.getBButton()) {
+      if (m_operatorStick.getLeftBumper()) {
         m_candle.setLightState(LightState.Cube);
         m_claw.setCurrentGamePiece(GamePiece.Cube);
-      } else if (m_operatorStick.getXButton()) {
+      } else if (m_operatorStick.getRightBumper()) {
         m_candle.setLightState(LightState.Cone);
         m_claw.setCurrentGamePiece(GamePiece.Cone);
+      }
+
+      if (m_operatorStick.getLeftTriggerAxis() > 0.5) {
+        m_claw.setClawState(ClawState.In);
+      }
+
+      if (m_operatorStick.getRightTriggerAxis() > 0.5) {
+        m_claw.setClawState(ClawState.Out);
       }
 
       // Set Wrist Angle

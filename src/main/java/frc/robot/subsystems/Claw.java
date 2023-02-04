@@ -16,7 +16,7 @@ import lombok.experimental.Accessors;
 
 @Accessors(prefix = "m_")
 public class Claw implements Subsystem {
-  @Setter private ClawState m_clawState;
+  @Setter @Getter private ClawState m_clawState;
 
   @Setter @Getter private GamePiece m_currentGamePiece;
 
@@ -70,7 +70,7 @@ public class Claw implements Subsystem {
     m_clawMotor.getConfigurator().apply(motorConfig);
   }
 
-  public void setclawMotorOutput(double percent) {
+  public void setClawMotorOutput(double percent) {
     m_clawMotorOutput = percent;
   }
 
@@ -81,18 +81,25 @@ public class Claw implements Subsystem {
       case In:
         switch (m_currentGamePiece) {
           case Cone:
+            setClawMotorOutput(-0.5);
             break;
           case Cube:
+            setClawMotorOutput(0.5);
             break;
         }
         break;
       case Out:
         switch (m_currentGamePiece) {
           case Cone:
+            setClawMotorOutput(0.5);
             break;
           case Cube:
+            setClawMotorOutput(-0.5);
             break;
         }
+        break;
+      case Neutral:
+        setClawMotorOutput(0.0);
         break;
     }
   }
@@ -107,6 +114,6 @@ public class Claw implements Subsystem {
   }
 
   public void reset() {
-    setclawMotorOutput(0.0);
+    setClawMotorOutput(0.0);
   }
 }
