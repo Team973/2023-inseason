@@ -17,6 +17,7 @@ import lombok.experimental.Accessors;
 @Accessors(prefix = "m_")
 public class Claw implements Subsystem {
   @Setter private ClawState m_clawState;
+
   @Setter @Getter private GamePiece m_currentGamePiece;
 
   private double m_targetAngle = 0.0;
@@ -30,10 +31,8 @@ public class Claw implements Subsystem {
   }
 
   public enum ClawState {
-    CubeIn,
-    CubeOut,
-    ConeIn,
-    ConeOut,
+    In,
+    Out,
     Neutral
   }
 
@@ -77,6 +76,25 @@ public class Claw implements Subsystem {
 
   public void update() {
     m_clawMotor.set(m_clawMotorOutput);
+
+    switch (m_clawState) {
+      case In:
+        switch (m_currentGamePiece) {
+          case Cone:
+            break;
+          case Cube:
+            break;
+        }
+        break;
+      case Out:
+        switch (m_currentGamePiece) {
+          case Cone:
+            break;
+          case Cube:
+            break;
+        }
+        break;
+    }
   }
 
   public double getclawCurrentAngle() {
