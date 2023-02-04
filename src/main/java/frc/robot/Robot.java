@@ -222,10 +222,14 @@ public class Robot extends TimedRobot {
 
       if (m_operatorStick.getLeftTriggerAxis() > 0.5) {
         m_claw.setClawState(ClawState.In);
+      } else {
+        m_claw.setClawState(ClawState.Neutral);
       }
 
       if (m_operatorStick.getRightTriggerAxis() > 0.5) {
         m_claw.setClawState(ClawState.Out);
+      } else {
+        m_claw.setClawState(ClawState.Neutral);
       }
 
       // Set Wrist Angle
