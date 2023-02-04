@@ -10,15 +10,32 @@ import com.ctre.phoenixpro.signals.FeedbackSensorSourceValue;
 import com.ctre.phoenixpro.signals.InvertedValue;
 import com.ctre.phoenixpro.signals.NeutralModeValue;
 import edu.wpi.first.math.geometry.Rotation2d;
+import lombok.Getter;
+import lombok.Setter;
 import lombok.experimental.Accessors;
 
 @Accessors(prefix = "m_")
 public class Claw implements Subsystem {
+  @Setter private ClawState m_clawState;
+  @Setter @Getter private GamePiece m_currentGamePiece;
 
   private double m_targetAngle = 0.0;
   private final TalonFX m_clawMotor;
 
   private double m_clawMotorOutput = 0.0;
+
+  public enum GamePiece {
+    Cube,
+    Cone
+  }
+
+  public enum ClawState {
+    CubeIn,
+    CubeOut,
+    ConeIn,
+    ConeOut,
+    Neutral
+  }
 
   public Claw() {
     m_clawMotor = new TalonFX(ClawInfo.FX_ID);

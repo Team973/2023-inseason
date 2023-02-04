@@ -12,13 +12,11 @@ import java.io.PrintWriter;
 import frc.robot.subsystems.CANdleManager;
 import frc.robot.subsystems.CANdleManager.LightState;
 import frc.robot.subsystems.Claw;
+import frc.robot.subsystems.Claw.GamePiece;
 import frc.robot.subsystems.Drive;
 import frc.robot.subsystems.Elevator;
 import frc.robot.subsystems.Elevator.ElevatorState;
 import frc.robot.subsystems.ExampleSubsystem;
-import frc.robot.subsystems.Intake;
-import frc.robot.subsystems.Intake.GamePiece;
-import frc.robot.subsystems.Intake.IntakeState;
 
 import edu.wpi.first.math.MathUtil;
 import edu.wpi.first.math.filter.SlewRateLimiter;
@@ -45,7 +43,6 @@ public class Robot extends TimedRobot {
   private final SendableChooser<String> m_chooser = new SendableChooser<>();
 
   private final ExampleSubsystem m_exampleSubsystem = new ExampleSubsystem();
-  private final Intake m_intake = new Intake();
   private final Elevator m_elevator = new Elevator();
   private final Claw m_claw = new Claw();
   private final Drive m_drive = new Drive();
@@ -74,7 +71,6 @@ public class Robot extends TimedRobot {
   /** Update subsystems. Called me when enabled. */
   private void updateSubsystems() {
     m_exampleSubsystem.update();
-    m_intake.update();
     m_elevator.update();
     m_claw.update();
     m_drive.update();
@@ -84,7 +80,6 @@ public class Robot extends TimedRobot {
   /** Reset subsystems. Called me when initializing. */
   private void resetSubsystems() {
     m_exampleSubsystem.reset();
-    m_intake.reset();
     m_elevator.reset();
     m_claw.reset();
     m_drive.reset();
@@ -215,20 +210,13 @@ public class Robot extends TimedRobot {
         m_elevator.setElevatorState(ElevatorState.ClosedLoop);
       }
 
-      // Intake
-      if (operatorStickRightX < 0.0) {
-        m_intake.setIntakeState(IntakeState.In);
-      } else if (operatorStickRightX > 0.0) {
-        m_intake.setIntakeState(IntakeState.Out);
-      }
-
       // Select Game Piece
       if (m_operatorStick.getBButton()) {
         m_candle.setLightState(LightState.Cube);
-        m_intake.setCurrentGamePiece(GamePiece.Cube);
+        m_claw.setCurrentGamePiece(GamePiece.Cube);
       } else if (m_operatorStick.getXButton()) {
         m_candle.setLightState(LightState.Cone);
-        m_intake.setCurrentGamePiece(GamePiece.Cone);
+        m_claw.setCurrentGamePiece(GamePiece.Cone);
       }
 
       // Set Wrist Angle
