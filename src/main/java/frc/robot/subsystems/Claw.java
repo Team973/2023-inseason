@@ -10,31 +10,18 @@ import com.ctre.phoenixpro.signals.FeedbackSensorSourceValue;
 import com.ctre.phoenixpro.signals.InvertedValue;
 import com.ctre.phoenixpro.signals.NeutralModeValue;
 import edu.wpi.first.math.geometry.Rotation2d;
-import edu.wpi.first.wpilibj.PneumaticsModuleType;
-import edu.wpi.first.wpilibj.Solenoid;
-import lombok.Setter;
 import lombok.experimental.Accessors;
 
 @Accessors(prefix = "m_")
-public class Arm implements Subsystem {
+public class Claw implements Subsystem {
 
   private double m_targetAngle = 0.0;
-  private final TalonFX m_wristMotor;
+  private final TalonFX m_clawMotor;
 
-  private final Solenoid m_armSolenoid =
-      new Solenoid(PneumaticsModuleType.CTREPCM, ArmInfo.SOLENOID_ID);
+  private double m_clawMotorOutput = 0.0;
 
-  @Setter private ExtensionState m_extensionState = ExtensionState.RETRACTED;
-
-  private double m_wristMotorOutput = 0.0;
-
-  public enum ExtensionState {
-    RETRACTED,
-    EXTENDED
-  }
-
-  public Arm() {
-    m_wristMotor = new TalonFX(ArmInfo.FX_ID);
+  public Claw() {
+    m_clawMotor = new TalonFX(ClawInfo.FX_ID);
     var motorConfig = new TalonFXConfiguration();
 
     // Motor Directions
@@ -64,38 +51,27 @@ public class Arm implements Subsystem {
     motorConfig.Slot0.kI = 0.0;
     motorConfig.Slot0.kD = 0.0;
     motorConfig.Slot0.kS = 0.0;
-    m_wristMotor.getConfigurator().apply(motorConfig);
+    m_clawMotor.getConfigurator().apply(motorConfig);
   }
 
-  public void setWristMotorOutput(double percent) {
-    m_wristMotorOutput = percent;
+  public void setclawMotorOutput(double percent) {
+    m_clawMotorOutput = percent;
   }
 
   public void update() {
-    m_wristMotor.set(m_wristMotorOutput);
-
-    switch (m_extensionState) {
-      case RETRACTED:
-        m_armSolenoid.set(false);
-        break;
-      case EXTENDED:
-        m_armSolenoid.set(true);
-        break;
-      default:
-        break;
-    }
+    m_clawMotor.set(m_clawMotorOutput);
   }
 
-  public double getWristCurrentAngle() {
-    double rot = m_wristMotor.getRotorPosition().getValue() * WristInfo.GEAR_RATIO;
+  public double getclawCurrentAngle() {
+    double rot = m_clawMotor.getRotorPosition().getValue() * ClawInfo.GEAR_RATIO;
     return Rotation2d.fromRotations(rot).getDegrees();
   }
 
-  public void setWristTargetAngle(double angle) {
+  public void setClawTargetAngle(double angle) {
     m_targetAngle = angle;
   }
 
   public void reset() {
-    setWristMotorOutput(0.0);
+    setclawMotorOutput(0.0);
   }
 }

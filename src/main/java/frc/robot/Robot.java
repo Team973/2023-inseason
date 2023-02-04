@@ -9,10 +9,9 @@ import static frc.robot.shared.RobotInfo.*;
 import java.io.FileWriter;
 import java.io.PrintWriter;
 
-import frc.robot.subsystems.Arm;
-import frc.robot.subsystems.Arm.ExtensionState;
 import frc.robot.subsystems.CANdleManager;
 import frc.robot.subsystems.CANdleManager.LightState;
+import frc.robot.subsystems.Claw;
 import frc.robot.subsystems.Drive;
 import frc.robot.subsystems.Elevator;
 import frc.robot.subsystems.Elevator.ElevatorState;
@@ -48,7 +47,7 @@ public class Robot extends TimedRobot {
   private final ExampleSubsystem m_exampleSubsystem = new ExampleSubsystem();
   private final Intake m_intake = new Intake();
   private final Elevator m_elevator = new Elevator();
-  private final Arm m_arm = new Arm();
+  private final Claw m_claw = new Claw();
   private final Drive m_drive = new Drive();
   private final CANdleManager m_candle = new CANdleManager();
 
@@ -77,7 +76,7 @@ public class Robot extends TimedRobot {
     m_exampleSubsystem.update();
     m_intake.update();
     m_elevator.update();
-    m_arm.update();
+    m_claw.update();
     m_drive.update();
     m_candle.update();
   }
@@ -87,7 +86,7 @@ public class Robot extends TimedRobot {
     m_exampleSubsystem.reset();
     m_intake.reset();
     m_elevator.reset();
-    m_arm.reset();
+    m_claw.reset();
     m_drive.reset();
     m_candle.reset();
   }
@@ -186,13 +185,6 @@ public class Robot extends TimedRobot {
 
       m_drive.driveInput(translation, rot, true);
 
-      // Arm extension
-      if (m_operatorStick.getLeftBumper()) {
-        m_arm.setExtensionState(ExtensionState.RETRACTED);
-      } else if (m_operatorStick.getRightBumper()) {
-        m_arm.setExtensionState(ExtensionState.EXTENDED);
-      }
-
       // Elevator height preset
       switch (m_operatorStick.getPOV()) {
         case 0:
@@ -240,7 +232,7 @@ public class Robot extends TimedRobot {
       }
 
       // Set Wrist Angle
-      m_arm.setWristTargetAngle(MathUtil.applyDeadband(m_operatorStick.getRawAxis(1), 0.09));
+      m_claw.setClawTargetAngle(MathUtil.applyDeadband(m_operatorStick.getRawAxis(1), 0.09));
     } catch (Exception e) {
       logException(e);
     }
