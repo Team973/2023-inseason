@@ -23,8 +23,8 @@ public final class RobotInfo {
   }
 
   public static class ElevatorInfo {
-    public static final int BOTTOM_HALL_SENSOR_ID = 0;
-    public static final int TOP_HALL_SENSOR_ID = 1;
+    public static final int BOTTOM_HALL_SENSOR_ID = 2;
+    public static final int TOP_HALL_SENSOR_ID = 3;
     public static final int FX_ID = 16;
     public static final int FOLLOWER_FX_ID = 17;
   }
