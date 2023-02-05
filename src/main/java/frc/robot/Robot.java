@@ -10,6 +10,9 @@ import java.io.FileWriter;
 import java.io.PrintWriter;
 
 import frc.robot.greydash.GreyDashClient;
+import frc.robot.subsystems.Claw;
+import frc.robot.subsystems.Claw.ClawState;
+import frc.robot.subsystems.Claw.GamePiece;
 import frc.robot.subsystems.Drive;
 import frc.robot.subsystems.Elevator;
 import frc.robot.subsystems.Elevator.ElevatorState;
@@ -37,6 +40,7 @@ public class Robot extends TimedRobot {
   private static String m_autoSelected;
 
   private final Elevator m_elevator = new Elevator();
+  private final Claw m_claw = new Claw();
   private final Drive m_drive = new Drive();
 
   private final XboxController m_driverStick = new XboxController(0);
@@ -62,12 +66,14 @@ public class Robot extends TimedRobot {
   /** Update subsystems. Called me when enabled. */
   private void updateSubsystems() {
     m_elevator.update();
+    m_claw.update();
     m_drive.update();
   }
 
   /** Reset subsystems. Called me when initializing. */
   private void resetSubsystems() {
     m_elevator.reset();
+    m_claw.reset();
     m_drive.reset();
   }
 
@@ -200,7 +206,27 @@ public class Robot extends TimedRobot {
         m_elevator.setElevatorState(ElevatorState.ClosedLoop);
       }
 
+      // Select Game Piece
+      if (m_operatorStick.getLeftBumper()) {
+        m_claw.setCurrentGamePiece(GamePiece.Cube);
+      } else if (m_operatorStick.getRightBumper()) {
+        m_claw.setCurrentGamePiece(GamePiece.Cone);
+      }
+
+      if (m_operatorStick.getLeftTriggerAxis() > 0.5) {
+        m_claw.setClawState(ClawState.In);
+      } else {
+        m_claw.setClawState(ClawState.Neutral);
+      }
+
+      if (m_operatorStick.getRightTriggerAxis() > 0.5) {
+        m_claw.setClawState(ClawState.Out);
+      } else {
+        m_claw.setClawState(ClawState.Neutral);
+      }
+
       // Set Wrist Angle
+      m_claw.setClawTargetAngle(MathUtil.applyDeadband(m_operatorStick.getRawAxis(1), 0.09));
     } catch (Exception e) {
       logException(e);
     }

@@ -13,9 +13,10 @@ public final class RobotInfo {
     public static final int FX_ID = 14;
   }
 
-  public static class ArmInfo {
+  public static class ClawInfo {
     public static final int SOLENOID_ID = 0;
     public static final int FX_ID = 15;
+    public static final double GEAR_RATIO = (1.0 / 4.0) * (1.0 / 4.0) * (1.0 / 4.0) * (22.0 / 44.0);
   }
 
   public static class CANdleInfo {
@@ -27,10 +28,6 @@ public final class RobotInfo {
     public static final int TOP_HALL_SENSOR_ID = 3;
     public static final int FX_ID = 16;
     public static final int FOLLOWER_FX_ID = 17;
-  }
-
-  public static class WristInfo {
-    public static final double GEAR_RATIO = (1.0 / 3.0) * (1.0 / 3.0) * (22.0 / 44.0);
   }
 
   public static class DriveInfo {
