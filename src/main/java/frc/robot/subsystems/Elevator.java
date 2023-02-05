@@ -26,11 +26,11 @@ public class Elevator implements Subsystem {
     /** Inches from floor */
     public static final double floor = 9.25;
     /** Inches from floor */
-    public static final double mid = 34.5;
+    public static final double mid = 17.8;
     /** Inches from floor */
-    public static final double hp = 40.0;
+    public static final double hp = 22.3;
     /** Inches from floor */
-    public static final double high = 48.0;
+    public static final double high = 26.9;
   }
 
   private final TalonFX m_elevatorMotor;
@@ -50,9 +50,11 @@ public class Elevator implements Subsystem {
   /** Degrees from floor */
   private static final double ANGLE = 51.519262;
   /** Sin of Elevator Angle. */
-  public static final double SIN_OF_ANGLE = Math.sin(Math.toRadians(ANGLE));
+  private static final double SIN_OF_ANGLE = Math.sin(Math.toRadians(ANGLE));
 
-  public static final double STOW_OFFSET = 7.628;
+  private static final double STOW_OFFSET = 7.628;
+
+  private static final double MAX_HEIGHT = 27.0;
 
   @Getter @Setter private ElevatorState m_elevatorState;
 
@@ -96,7 +98,7 @@ public class Elevator implements Subsystem {
     motorConfig.Slot0.kD = 0.0;
     motorConfig.Slot0.kS = 0.0;
 
-    motorConfig.MotionMagic.MotionMagicCruiseVelocity = 50.0;
+    motorConfig.MotionMagic.MotionMagicCruiseVelocity = 10.0;
     motorConfig.MotionMagic.MotionMagicAcceleration = 600.0;
     // motorConfig.MotionMagic.MotionMagicJerk = 50.0;
 
@@ -121,6 +123,7 @@ public class Elevator implements Subsystem {
   }
 
   public void setHeight(double height) {
+    height = clamp(height, MAX_HEIGHT, STOW_OFFSET);
     m_targetPosition = getPositionFromHeight(height - STOW_OFFSET);
   }
 
@@ -136,18 +139,26 @@ public class Elevator implements Subsystem {
     return Math.min(max, Math.max(num, min));
   }
 
+  public boolean getTopHall() {
+    return !m_topHall.get();
+  }
+
+  public boolean getBottomHall() {
+    return !m_bottomHall.get();
+  }
+
   public void update() {
-    if (m_targetPosition > 23.0) {
-      m_targetPosition = 23.0;
-    }
-
-    if (m_bottomHall.get()) {
-      m_elevatorMotor.setRotorPosition(0.0);
-    }
-
     switch (m_elevatorState) {
       case Manual:
-        m_elevatorMotor.set(clamp(m_elevatorOutput, 0.1, -0.1));
+        if (getTopHall()) {
+          m_elevatorOutput = clamp(m_elevatorOutput, 0.04, -0.1);
+        } else if (getBottomHall()) {
+          m_elevatorOutput = clamp(m_elevatorOutput, 1.0, 0.0);
+        } else {
+          m_elevatorOutput = clamp(m_elevatorOutput, 0.1, -0.1);
+        }
+
+        m_elevatorMotor.set(m_elevatorOutput);
         break;
       case ClosedLoop:
         double motorPosition = m_targetPosition / SPROCKET_CIRCUMFERENCE / GEAR_RATIO;

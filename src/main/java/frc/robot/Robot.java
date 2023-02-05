@@ -100,6 +100,8 @@ public class Robot extends TimedRobot {
       }
       SmartDashboard.putNumber("Elevator Height", m_elevator.getHeight());
       SmartDashboard.putNumber("Elevator Position", m_elevator.getPosition());
+      SmartDashboard.putBoolean("Elevator Bottom Hall", m_elevator.getBottomHall());
+      SmartDashboard.putBoolean("Elevator Top Hall", m_elevator.getTopHall());
     } catch (Exception e) {
       logException(e);
     }
@@ -168,7 +170,7 @@ public class Robot extends TimedRobot {
 
       // m_drive.driveInput(translation, rot, true);
 
-      double operatorStickRightY = MathUtil.applyDeadband(m_operatorStick.getRawAxis(0), 0.09);
+      double operatorStickRightY = -MathUtil.applyDeadband(m_operatorStick.getRawAxis(5), 0.1);
 
       // Elevator height preset
       switch (m_operatorStick.getPOV()) {
@@ -184,6 +186,10 @@ public class Robot extends TimedRobot {
         case 270:
           m_elevator.setHeight(Elevator.Presets.hp);
           break;
+      }
+
+      if (m_operatorStick.getBButton()) {
+        m_elevator.setHeight(0.0);
       }
 
       // Manual Elevator
