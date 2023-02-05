@@ -9,15 +9,13 @@ import static frc.robot.shared.RobotInfo.*;
 import java.io.FileWriter;
 import java.io.PrintWriter;
 
-import frc.robot.subsystems.CANdleManager;
-import frc.robot.subsystems.CANdleManager.LightState;
+import frc.robot.greydash.GreyDashClient;
 import frc.robot.subsystems.Claw;
 import frc.robot.subsystems.Claw.ClawState;
 import frc.robot.subsystems.Claw.GamePiece;
 import frc.robot.subsystems.Drive;
 import frc.robot.subsystems.Elevator;
 import frc.robot.subsystems.Elevator.ElevatorState;
-import frc.robot.subsystems.ExampleSubsystem;
 
 import edu.wpi.first.math.MathUtil;
 import edu.wpi.first.math.filter.SlewRateLimiter;
@@ -26,7 +24,6 @@ import edu.wpi.first.wpilibj.Compressor;
 import edu.wpi.first.wpilibj.PneumaticsModuleType;
 import edu.wpi.first.wpilibj.TimedRobot;
 import edu.wpi.first.wpilibj.XboxController;
-import edu.wpi.first.wpilibj.smartdashboard.SendableChooser;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import lombok.experimental.Accessors;
 
@@ -40,14 +37,11 @@ import lombok.experimental.Accessors;
 public class Robot extends TimedRobot {
   private static final String kDefaultAuto = "Default";
   private static final String kCustomAuto = "My Auto";
-  private String m_autoSelected;
-  private final SendableChooser<String> m_chooser = new SendableChooser<>();
+  private static String m_autoSelected;
 
-  private final ExampleSubsystem m_exampleSubsystem = new ExampleSubsystem();
   private final Elevator m_elevator = new Elevator();
   private final Claw m_claw = new Claw();
   private final Drive m_drive = new Drive();
-  private final CANdleManager m_candle = new CANdleManager();
 
   private final XboxController m_driverStick = new XboxController(0);
   private final XboxController m_operatorStick = new XboxController(1);
@@ -71,20 +65,16 @@ public class Robot extends TimedRobot {
 
   /** Update subsystems. Called me when enabled. */
   private void updateSubsystems() {
-    m_exampleSubsystem.update();
     m_elevator.update();
     m_claw.update();
     m_drive.update();
-    m_candle.update();
   }
 
   /** Reset subsystems. Called me when initializing. */
   private void resetSubsystems() {
-    m_exampleSubsystem.reset();
     m_elevator.reset();
     m_claw.reset();
     m_drive.reset();
-    m_candle.reset();
   }
 
   /**
@@ -93,9 +83,7 @@ public class Robot extends TimedRobot {
    */
   @Override
   public void robotInit() {
-    m_chooser.setDefaultOption("Default Auto", kDefaultAuto);
-    m_chooser.addOption("My Auto", kCustomAuto);
-    SmartDashboard.putData("Auto choices", m_chooser);
+    GreyDashClient.setAvailableAutoModes(kDefaultAuto, kCustomAuto);
 
     this.resetSubsystems();
   }
@@ -110,9 +98,14 @@ public class Robot extends TimedRobot {
   @Override
   public void robotPeriodic() {
     try {
+      GreyDashClient.update();
       if (this.isEnabled()) {
         this.updateSubsystems();
       }
+      SmartDashboard.putNumber("Elevator Height", m_elevator.getHeight());
+      SmartDashboard.putNumber("Elevator Position", m_elevator.getPosition());
+      SmartDashboard.putBoolean("Elevator Bottom Hall", m_elevator.getBottomHall());
+      SmartDashboard.putBoolean("Elevator Top Hall", m_elevator.getTopHall());
     } catch (Exception e) {
       logException(e);
     }
@@ -130,8 +123,7 @@ public class Robot extends TimedRobot {
    */
   @Override
   public void autonomousInit() {
-    m_autoSelected = m_chooser.getSelected();
-    // m_autoSelected = SmartDashboard.getString("Auto Selector", kDefaultAuto);
+    m_autoSelected = GreyDashClient.getAutoSelected();
     System.out.println("Auto selected: " + m_autoSelected);
     m_compressor.enableDigital();
   }
@@ -181,24 +173,27 @@ public class Robot extends TimedRobot {
 
       m_drive.driveInput(translation, rot, true);
 
+      double operatorStickRightY = -MathUtil.applyDeadband(m_operatorStick.getRawAxis(5), 0.1);
+
       // Elevator height preset
       switch (m_operatorStick.getPOV()) {
         case 0:
-          m_elevator.setHighPreset();
+          m_elevator.setHeight(Elevator.Presets.high);
           break;
         case 90:
-          m_elevator.setMidPreset();
+          m_elevator.setHeight(Elevator.Presets.mid);
           break;
         case 180:
-          m_elevator.setFloorPreset();
+          m_elevator.setHeight(Elevator.Presets.floor);
           break;
         case 270:
-          m_elevator.setHpPreset();
+          m_elevator.setHeight(Elevator.Presets.hp);
           break;
       }
 
-      double operatorStickRightY = MathUtil.applyDeadband(m_operatorStick.getRawAxis(0), 0.1);
-      double operatorStickRightX = MathUtil.applyDeadband(m_operatorStick.getRawAxis(1), 0.1);
+      if (m_operatorStick.getBButton()) {
+        m_elevator.setHeight(0.0);
+      }
 
       // Manual Elevator
       if (operatorStickRightY != 0.0) {
@@ -213,10 +208,8 @@ public class Robot extends TimedRobot {
 
       // Select Game Piece
       if (m_operatorStick.getLeftBumper()) {
-        m_candle.setLightState(LightState.Cube);
         m_claw.setCurrentGamePiece(GamePiece.Cube);
       } else if (m_operatorStick.getRightBumper()) {
-        m_candle.setLightState(LightState.Cone);
         m_claw.setCurrentGamePiece(GamePiece.Cone);
       }
 
