@@ -41,7 +41,6 @@ public class Elevator implements Subsystem {
 
   private double m_elevatorOutput = 0.0;
   private double m_targetPosition = 0.0;
-  private double m_manualSpeed = 0.0;
 
   private static final double GEAR_RATIO = (11.0 / 60.0);
   /** Pitch Diameter of sprocket in inches */
@@ -133,46 +132,26 @@ public class Elevator implements Subsystem {
     return position * SIN_OF_ANGLE;
   }
 
-  public void setManualSpeed(double speed) {
-    m_manualSpeed = speed;
-    setElevatorState(ElevatorState.Manual);
-  }
-
-  public void setHpPreset() {
-    setHeight(Presets.hp);
-  }
-
-  public void setHighPreset() {
-    setHeight(Presets.high);
-  }
-
-  public void setMidPreset() {
-    setHeight(Presets.mid);
-  }
-
-  public void setFloorPreset() {
-    setHeight(Presets.floor);
+  private double clamp(double num, double max, double min) {
+    return Math.min(max, Math.max(num, min));
   }
 
   public void update() {
-    /*
-    if ((m_elevatorOutput > 0.0 && m_topHall.get())
-        || (m_elevatorOutput < 0.0 && m_bottomHall.get())) {
-      m_elevatorOutput = 0.0;
-    }
-    */
-
     if (m_targetPosition > 23.0) {
       m_targetPosition = 23.0;
     }
 
+    if (m_bottomHall.get()) {
+      m_elevatorMotor.setRotorPosition(0.0);
+    }
+
     switch (m_elevatorState) {
       case Manual:
-        m_elevatorMotor.set(m_manualSpeed);
+        m_elevatorMotor.set(clamp(m_elevatorOutput, 0.1, -0.1));
         break;
       case ClosedLoop:
-        m_elevatorMotor.setControl(
-            new MotionMagicDutyCycle(m_targetPosition, false, 0.04, 0, true));
+        double motorPosition = m_targetPosition / SPROCKET_CIRCUMFERENCE / GEAR_RATIO;
+        m_elevatorMotor.setControl(new MotionMagicDutyCycle(motorPosition, false, 0.04, 0, true));
         break;
     }
 

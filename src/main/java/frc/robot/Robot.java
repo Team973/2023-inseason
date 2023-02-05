@@ -168,26 +168,23 @@ public class Robot extends TimedRobot {
 
       // m_drive.driveInput(translation, rot, true);
 
-      double operatorStickRightY = MathUtil.applyDeadband(m_operatorStick.getRawAxis(0), 0.1);
-      double operatorStickRightX = MathUtil.applyDeadband(m_operatorStick.getRawAxis(1), 0.1);
+      double operatorStickRightY = MathUtil.applyDeadband(m_operatorStick.getRawAxis(0), 0.09);
 
       // Elevator height preset
-      /*
       switch (m_operatorStick.getPOV()) {
         case 0:
-          m_elevator.setHighPreset();
+          m_elevator.setHeight(Elevator.Presets.high);
           break;
         case 90:
-          m_elevator.setMidPreset();
+          m_elevator.setHeight(Elevator.Presets.mid);
           break;
         case 180:
-          m_elevator.setFloorPreset();
+          m_elevator.setHeight(Elevator.Presets.floor);
           break;
         case 270:
-          m_elevator.setHpPreset();
+          m_elevator.setHeight(Elevator.Presets.hp);
           break;
       }
-
 
       // Manual Elevator
       if (operatorStickRightY != 0.0) {
@@ -198,12 +195,6 @@ public class Robot extends TimedRobot {
         m_elevator.setElevatorState(ElevatorState.ClosedLoop);
       } else {
         m_elevator.setElevatorState(ElevatorState.ClosedLoop);
-      }
-      */
-
-      if (m_operatorStick.getYButton()) {
-        m_elevator.setElevatorState(ElevatorState.ClosedLoop);
-        m_elevator.setHeight(20.0);
       }
 
       // Set Wrist Angle
