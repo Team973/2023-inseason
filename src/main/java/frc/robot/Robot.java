@@ -165,7 +165,7 @@ public class Robot extends TimedRobot {
       Translation2d translation =
           new Translation2d(xSpeed, ySpeed).times(DriveInfo.MAX_VELOCITY_METERS_PER_SECOND);
 
-      // m_drive.driveInput(translation, rot, true);
+      m_drive.driveInput(translation, rot, true);
 
       double operatorStickRightY = -MathUtil.applyDeadband(m_operatorStick.getRawAxis(5), 0.1);
 
