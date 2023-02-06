@@ -10,6 +10,7 @@ import java.io.FileWriter;
 import java.io.PrintWriter;
 
 import frc.robot.greydash.GreyDashClient;
+import frc.robot.greydash.GreyDashServer;
 import frc.robot.subsystems.Claw;
 import frc.robot.subsystems.Claw.ClawState;
 import frc.robot.subsystems.Claw.GamePiece;
@@ -84,6 +85,9 @@ public class Robot extends TimedRobot {
   @Override
   public void robotInit() {
     GreyDashClient.setAvailableAutoModes(kDefaultAuto, kCustomAuto);
+
+    GreyDashServer greyDashServer = new GreyDashServer(8080);
+    greyDashServer.run();
 
     this.resetSubsystems();
   }
