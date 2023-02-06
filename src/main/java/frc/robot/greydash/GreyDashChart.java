@@ -8,14 +8,16 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import edu.wpi.first.networktables.NetworkTable;
 import edu.wpi.first.networktables.StringPublisher;
 import lombok.Getter;
+import lombok.experimental.Accessors;
 
 /** A chart that can be displayed on the GreyDash dashboard. */
+@Accessors(prefix = "m_")
 public class GreyDashChart {
-  @Getter private final String name;
-  @Getter private final HashMap<String, Series> seriesMap;
-  private int numIdx = 0;
+  @Getter private final String m_name;
+  @Getter private final HashMap<String, Series> m_seriesMap;
+  private int m_numIdx = 0;
 
-  private final StringPublisher publisher;
+  private final StringPublisher m_publisher;
 
   /**
    * Creates a new chart with the given name. You probably want to use the static method in
@@ -25,9 +27,9 @@ public class GreyDashChart {
    * @param name The name of the chart.
    */
   public GreyDashChart(final NetworkTable chartsTable, final String name) {
-    this.publisher = chartsTable.getStringTopic(name).publish();
-    seriesMap = new HashMap<>();
-    this.name = name;
+    m_publisher = chartsTable.getStringTopic(name).publish();
+    m_seriesMap = new HashMap<>();
+    m_name = name;
   }
 
   /**
@@ -37,11 +39,11 @@ public class GreyDashChart {
    * @param value The value of the data point.
    */
   public void addDataToSeries(final String label, final double value) {
-    if (!seriesMap.containsKey(label)) {
-      seriesMap.put(label, new Series(numIdx));
-      numIdx++;
+    if (!m_seriesMap.containsKey(label)) {
+      m_seriesMap.put(label, new Series(m_numIdx));
+      m_numIdx++;
     }
-    Series series = seriesMap.get(label);
+    Series series = m_seriesMap.get(label);
     series.updateValue(value, new Date());
 
     updateNT();
@@ -49,9 +51,9 @@ public class GreyDashChart {
 
   /** A data series on a chart. */
   private class Series {
-    @Getter private final int index;
-    @Getter private Double latestValue;
-    @Getter private Date timestamp;
+    @Getter private final int m_index;
+    @Getter private Double m_latestValue;
+    @Getter private Date m_timestamp;
 
     /**
      * Creates a new data series.
@@ -59,7 +61,7 @@ public class GreyDashChart {
      * @param index The index of the series.
      */
     public Series(int index) {
-      this.index = index;
+      m_index = index;
     }
 
     /**
@@ -69,8 +71,8 @@ public class GreyDashChart {
      * @param timestamp The timestamp of the value.
      */
     public void updateValue(double value, Date timestamp) {
-      this.latestValue = value;
-      this.timestamp = timestamp;
+      m_latestValue = value;
+      m_timestamp = timestamp;
     }
   }
 
@@ -88,7 +90,7 @@ public class GreyDashChart {
   /** Updates the NetworkTable with the current chart data. */
   public void updateNT() {
     try {
-      publisher.set(toJson());
+      m_publisher.set(toJson());
     } catch (IOException e) {
       System.err.println(e);
     }
