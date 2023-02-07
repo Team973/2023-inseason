@@ -16,7 +16,7 @@ import lombok.experimental.Accessors;
 
 @Accessors(prefix = "m_")
 public class Claw implements Subsystem {
-  @Setter @Getter private ClawState m_clawState;
+  @Setter @Getter private ClawState m_clawState = ClawState.Neutral;
 
   @Setter @Getter private GamePiece m_currentGamePiece;
 
@@ -86,6 +86,8 @@ public class Claw implements Subsystem {
           case Cube:
             setClawMotorOutput(0.5);
             break;
+          default:
+            break;
         }
         break;
       case Out:
@@ -96,10 +98,14 @@ public class Claw implements Subsystem {
           case Cube:
             setClawMotorOutput(-0.5);
             break;
+          default:
+            break;
         }
         break;
       case Neutral:
         setClawMotorOutput(0.0);
+        break;
+      default:
         break;
     }
   }

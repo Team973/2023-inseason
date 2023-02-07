@@ -1,6 +1,5 @@
 package frc.robot.subsystems;
 
-import static frc.robot.shared.Constants.*;
 import static frc.robot.shared.RobotInfo.*;
 
 import frc.robot.shared.RobotInfo;
@@ -56,7 +55,7 @@ public class Elevator implements Subsystem {
 
   private static final double MAX_HEIGHT = 27.0;
 
-  @Getter @Setter private ElevatorState m_elevatorState;
+  @Getter @Setter private ElevatorState m_elevatorState = ElevatorState.Manual;
 
   public enum ElevatorState {
     /** Manually control the motors with the joystick */
@@ -162,6 +161,8 @@ public class Elevator implements Subsystem {
       case ClosedLoop:
         double motorPosition = m_targetPosition / SPROCKET_CIRCUMFERENCE / GEAR_RATIO;
         m_elevatorMotor.setControl(new MotionMagicDutyCycle(motorPosition, false, 0.04, 0, true));
+        break;
+      default:
         break;
     }
 
