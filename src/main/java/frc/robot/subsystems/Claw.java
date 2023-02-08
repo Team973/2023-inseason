@@ -21,7 +21,7 @@ import lombok.experimental.Accessors;
 public class Claw implements Subsystem {
   @Setter @Getter private IntakeState m_intakeState;
   @Setter @Getter private GamePiece m_currentGamePiece;
-  @Setter @Getter private WristState m_wristState;
+  @Setter @Getter private WristState m_wristState = WristState.Manual;
 
   private final TalonFX m_intakeMotor;
   private final TalonFX m_wristMotor;
@@ -29,7 +29,7 @@ public class Claw implements Subsystem {
   private double m_targetAngle = 0.0;
   private double m_intakeStator = 0.0;
   private double m_intakeMotorOutput = 0.0;
-  private double m_wristMotorOutput = 0.0;
+  @Setter private double m_wristMotorOutput = 0.0;
   private double m_statorCurrentLimit = 60.0;
 
   public enum GamePiece {

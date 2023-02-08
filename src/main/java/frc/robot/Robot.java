@@ -219,8 +219,8 @@ public class Robot extends TimedRobot {
         m_claw.setIntakeState(IntakeState.Neutral);
       }
 
-      // Set Wrist Angle
-      m_claw.setWristTargetAngle(MathUtil.applyDeadband(m_operatorStick.getRawAxis(1), 0.09));
+      // Manually Control Wrist
+      m_claw.setWristMotorOutput(-MathUtil.applyDeadband(m_operatorStick.getLeftY(), 0.09) * 0.3);
     } catch (Exception e) {
       logException(e);
     }
