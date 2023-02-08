@@ -157,11 +157,11 @@ task packageGreyDash() {
 }
 
 task deployGreyDash() {
+  dependsOn packageGreyDash
+
   // Copy the GreyDash files to the deploy directory
   inputs.files(fileTree("${greydashDir}/dist/apps/greydash/exported"))
   outputs.dir("${project.projectDir}/src/main/deploy/greydash")
-
-  dependsOn packageGreyDash
 
   doLast {
     copy {

@@ -162,6 +162,3 @@ bin/
 *-window.json
 simgui-ds.json
 simgui.json
-
-# GreyDash Deploy
-src/main/deploy/greydash
