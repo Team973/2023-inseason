@@ -11,7 +11,6 @@ import java.io.PrintWriter;
 
 import frc.robot.greydash.GreyDashClient;
 import frc.robot.subsystems.Claw;
-import frc.robot.subsystems.Claw.GamePiece;
 import frc.robot.subsystems.Claw.IntakeState;
 import frc.robot.subsystems.Drive;
 import frc.robot.subsystems.Elevator;
@@ -206,17 +205,12 @@ public class Robot extends TimedRobot {
         m_elevator.setElevatorState(ElevatorState.ClosedLoop);
       }
 
-      // Select Game Piece
-      if (m_operatorStick.getLeftBumper()) {
-        m_claw.setCurrentGamePiece(GamePiece.Cube);
-      } else if (m_operatorStick.getRightBumper()) {
-        m_claw.setCurrentGamePiece(GamePiece.Cone);
-      }
-
-      if (m_operatorStick.getLeftTriggerAxis() > 0.5) {
-        m_claw.setIntakeState(IntakeState.In);
+      if (m_operatorStick.getXButton()) {
+        m_claw.setClawMotorOutput(-0.5);
+      } else if (m_operatorStick.getYButton()) {
+        m_claw.setClawMotorOutput(0.5);
       } else {
-        m_claw.setIntakeState(IntakeState.Neutral);
+        m_claw.setClawMotorOutput(0.0);
       }
 
       if (m_operatorStick.getRightTriggerAxis() > 0.5) {

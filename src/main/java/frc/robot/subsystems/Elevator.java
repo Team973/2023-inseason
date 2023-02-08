@@ -1,6 +1,5 @@
 package frc.robot.subsystems;
 
-import static frc.robot.shared.Constants.*;
 import static frc.robot.shared.RobotInfo.*;
 
 import frc.robot.shared.RobotInfo;
