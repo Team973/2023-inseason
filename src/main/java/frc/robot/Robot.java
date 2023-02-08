@@ -226,7 +226,7 @@ public class Robot extends TimedRobot {
       }
 
       // Set Wrist Angle
-      m_claw.setClawTargetAngle(MathUtil.applyDeadband(m_operatorStick.getRawAxis(1), 0.09));
+      m_claw.setWristTargetAngle(MathUtil.applyDeadband(m_operatorStick.getRawAxis(1), 0.09));
     } catch (Exception e) {
       logException(e);
     }
