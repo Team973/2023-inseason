@@ -36,7 +36,7 @@ import lombok.experimental.Accessors;
 public class Robot extends TimedRobot {
   private static final String kDefaultAuto = "Default";
   private static final String kCustomAuto = "My Auto";
-  private static String m_autoSelected;
+  private static String m_autoSelected = kDefaultAuto;
 
   private final Elevator m_elevator = new Elevator();
   private final Claw m_claw = new Claw();
@@ -57,8 +57,10 @@ public class Robot extends TimedRobot {
       e.printStackTrace(printWriter);
       printWriter.close();
       fileWriter.close();
+
+      System.err.println(e);
     } catch (Exception ie) {
-      throw new RuntimeException("could not write to exception log file", ie);
+      throw new RuntimeException("Could not write to exception log file", ie);
     }
   }
 
@@ -187,6 +189,8 @@ public class Robot extends TimedRobot {
           break;
         case 270:
           m_elevator.setHeight(Elevator.Presets.hp);
+          break;
+        default:
           break;
       }
 
