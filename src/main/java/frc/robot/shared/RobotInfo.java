@@ -14,8 +14,7 @@ public final class RobotInfo {
   }
 
   public static class ClawInfo {
-    public static final int SOLENOID_ID = 0;
-    public static final int FX_ID = 15;
+    public static final int INTAKE_FX_ID = 15;
     public static final double GEAR_RATIO = (1.0 / 4.0) * (1.0 / 4.0) * (1.0 / 4.0) * (22.0 / 44.0);
   }
 
@@ -64,12 +63,12 @@ public final class RobotInfo {
      * The left-to-right distance between the drivetrain wheels Should be measured from center to
      * center.
      */
-    public static final double TRACKWIDTH_METERS = 0.6033;
+    public static final double TRACKWIDTH_METERS = 0.53975;
     /**
      * The front-to-back distance between the drivetrain wheels. Should be measured from center to
      * center.
      */
-    public static final double WHEELBASE_METERS = 0.6033;
+    public static final double WHEELBASE_METERS = 0.53975;
 
     public static final double OPENLOOP_RAMP = 0.0;
     public static final double CLOSEDLOOP_RAMP = 0.0;

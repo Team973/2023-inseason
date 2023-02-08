@@ -15,41 +15,41 @@ import edu.wpi.first.wpilibj.DriverStation;
 /** The client for GreyDash. */
 public final class GreyDashClient {
 
-  private static final NetworkTableInstance ntCore = NetworkTableInstance.getDefault();
-  private static final NetworkTable greyDashTable = ntCore.getTable(GREYDASH_TABLE);
+  private static final NetworkTableInstance m_ntCore = NetworkTableInstance.getDefault();
+  private static final NetworkTable m_greyDashTable = m_ntCore.getTable(GREYDASH_TABLE);
 
-  private static final NetworkTable autoTable = greyDashTable.getSubTable(AUTO_TABLE);
-  private static final NetworkTable matchTable = greyDashTable.getSubTable(MATCH_TABLE);
-  private static final NetworkTable devicesTable = greyDashTable.getSubTable(DEVICES_TABLE);
-  private static final NetworkTable chartsTable = greyDashTable.getSubTable(CHARTS_TABLE);
+  private static final NetworkTable m_autoTable = m_greyDashTable.getSubTable(AUTO_TABLE);
+  private static final NetworkTable m_matchTable = m_greyDashTable.getSubTable(MATCH_TABLE);
+  private static final NetworkTable m_devicesTable = m_greyDashTable.getSubTable(DEVICES_TABLE);
+  private static final NetworkTable m_chartsTable = m_greyDashTable.getSubTable(CHARTS_TABLE);
 
   // Device Tables
-  private static final NetworkTable gyroTable = devicesTable.getSubTable(GYRO_TABLE);
+  private static final NetworkTable m_gyroTable = m_devicesTable.getSubTable(GYRO_TABLE);
 
   // Auto Topics
-  private static final StringArrayPublisher autoModes =
-      autoTable.getStringArrayTopic(AUTO_MODES_TOPIC).publish();
-  private static final StringSubscriber autoSelected =
-      autoTable.getStringTopic(AUTO_SELECTED_TOPIC).subscribe("No Auto");
+  private static final StringArrayPublisher m_autoModes =
+      m_autoTable.getStringArrayTopic(AUTO_MODES_TOPIC).publish();
+  private static final StringSubscriber m_autoSelected =
+      m_autoTable.getStringTopic(AUTO_SELECTED_TOPIC).subscribe("No Auto");
 
   // Match Topics
-  private static final DoublePublisher matchTime =
-      matchTable.getDoubleTopic(MATCH_TIME_TOPIC).publish();
-  private static final StringPublisher matchMode =
-      matchTable.getStringTopic(MATCH_MODE_TOPIC).publish();
+  private static final DoublePublisher m_matchTime =
+      m_matchTable.getDoubleTopic(MATCH_TIME_TOPIC).publish();
+  private static final StringPublisher m_matchMode =
+      m_matchTable.getStringTopic(MATCH_MODE_TOPIC).publish();
 
   // Gyro Topics
-  private static final DoublePublisher gyroAngle =
-      gyroTable.getDoubleTopic(GYRO_ANGLE_TOPIC).publish();
+  private static final DoublePublisher m_gyroAngle =
+      m_gyroTable.getDoubleTopic(GYRO_ANGLE_TOPIC).publish();
 
   public static void setGyroAngle(double angle) {
-    gyroAngle.set(angle);
+    m_gyroAngle.set(angle);
   }
 
   // Charts publisher
-  private static final StringArrayPublisher charts =
-      chartsTable.getStringArrayTopic(CHARTS_TOPIC).publish();
-  private static final HashSet<String> chartSet = new HashSet<>();
+  private static final StringArrayPublisher m_charts =
+      m_chartsTable.getStringArrayTopic(CHARTS_TOPIC).publish();
+  private static final HashSet<String> m_chartSet = new HashSet<>();
 
   /** Creates a new chart with the given name. */
   public static GreyDashChart createChart(final String name) {
@@ -57,10 +57,10 @@ public final class GreyDashClient {
       throw new Error("Reserved chart name: " + CHARTS_TOPIC);
     }
 
-    chartSet.add(name);
-    charts.set(chartSet.toArray(new String[0]));
+    m_chartSet.add(name);
+    m_charts.set(m_chartSet.toArray(new String[0]));
 
-    return new GreyDashChart(chartsTable, name);
+    return new GreyDashChart(m_chartsTable, name);
   }
 
   /**
@@ -70,7 +70,7 @@ public final class GreyDashClient {
    * @see #getAutoSelected()
    */
   public static void setAvailableAutoModes(final String... modes) {
-    autoModes.set(modes);
+    m_autoModes.set(modes);
   }
 
   /**
@@ -80,12 +80,12 @@ public final class GreyDashClient {
    * @see #setAvailableAutoModes(String...)
    */
   public static String getAutoSelected() {
-    return autoSelected.get();
+    return m_autoSelected.get();
   }
 
   /** Periodic update method. This should be called periodically to update the dashboard. */
   public static void update() {
-    matchTime.set(DriverStation.getMatchTime());
-    matchMode.set(getModeString());
+    m_matchTime.set(DriverStation.getMatchTime());
+    m_matchMode.set(getModeString());
   }
 }
