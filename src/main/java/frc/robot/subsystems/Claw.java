@@ -16,28 +16,28 @@ import lombok.experimental.Accessors;
 
 @Accessors(prefix = "m_")
 public class Claw implements Subsystem {
-  @Setter @Getter private ClawState m_clawState;
+  @Setter @Getter private IntakeState m_intakeState;
 
   @Setter @Getter private GamePiece m_currentGamePiece;
 
   private double m_targetAngle = 0.0;
-  private final TalonFX m_clawMotor;
+  private final TalonFX m_intakeMotor;
 
-  private double m_clawMotorOutput = 0.0;
+  private double m_intakeMotorOutput = 0.0;
 
   public enum GamePiece {
     Cube,
     Cone
   }
 
-  public enum ClawState {
+  public enum IntakeState {
     In,
     Out,
     Neutral
   }
 
   public Claw() {
-    m_clawMotor = new TalonFX(ClawInfo.FX_ID);
+    m_intakeMotor = new TalonFX(ClawInfo.INTAKE_FX_ID);
     var motorConfig = new TalonFXConfiguration();
 
     // Motor Directions
@@ -67,45 +67,45 @@ public class Claw implements Subsystem {
     motorConfig.Slot0.kI = 0.0;
     motorConfig.Slot0.kD = 0.0;
     motorConfig.Slot0.kS = 0.0;
-    m_clawMotor.getConfigurator().apply(motorConfig);
+    m_intakeMotor.getConfigurator().apply(motorConfig);
   }
 
-  public void setClawMotorOutput(double percent) {
-    m_clawMotorOutput = percent;
+  public void setIntakeMotorOutput(double percent) {
+    m_intakeMotorOutput = percent;
   }
 
   public void update() {
-    m_clawMotor.set(m_clawMotorOutput);
+    m_intakeMotor.set(m_intakeMotorOutput);
 
-    switch (m_clawState) {
+    switch (m_intakeState) {
       case In:
         switch (m_currentGamePiece) {
           case Cone:
-            setClawMotorOutput(-0.5);
+            setIntakeMotorOutput(-0.5);
             break;
           case Cube:
-            setClawMotorOutput(0.5);
+            setIntakeMotorOutput(0.5);
             break;
         }
         break;
       case Out:
         switch (m_currentGamePiece) {
           case Cone:
-            setClawMotorOutput(0.5);
+            setIntakeMotorOutput(0.5);
             break;
           case Cube:
-            setClawMotorOutput(-0.5);
+            setIntakeMotorOutput(-0.5);
             break;
         }
         break;
       case Neutral:
-        setClawMotorOutput(0.0);
+        setIntakeMotorOutput(0.0);
         break;
     }
   }
 
   public double getclawCurrentAngle() {
-    double rot = m_clawMotor.getRotorPosition().getValue() * ClawInfo.GEAR_RATIO;
+    double rot = m_intakeMotor.getRotorPosition().getValue() * ClawInfo.GEAR_RATIO;
     return Rotation2d.fromRotations(rot).getDegrees();
   }
 
@@ -114,6 +114,6 @@ public class Claw implements Subsystem {
   }
 
   public void reset() {
-    setClawMotorOutput(0.0);
+    setIntakeMotorOutput(0.0);
   }
 }

@@ -11,8 +11,8 @@ import java.io.PrintWriter;
 
 import frc.robot.greydash.GreyDashClient;
 import frc.robot.subsystems.Claw;
-import frc.robot.subsystems.Claw.ClawState;
 import frc.robot.subsystems.Claw.GamePiece;
+import frc.robot.subsystems.Claw.IntakeState;
 import frc.robot.subsystems.Drive;
 import frc.robot.subsystems.Elevator;
 import frc.robot.subsystems.Elevator.ElevatorState;
@@ -214,15 +214,15 @@ public class Robot extends TimedRobot {
       }
 
       if (m_operatorStick.getLeftTriggerAxis() > 0.5) {
-        m_claw.setClawState(ClawState.In);
+        m_claw.setIntakeState(IntakeState.In);
       } else {
-        m_claw.setClawState(ClawState.Neutral);
+        m_claw.setIntakeState(IntakeState.Neutral);
       }
 
       if (m_operatorStick.getRightTriggerAxis() > 0.5) {
-        m_claw.setClawState(ClawState.Out);
+        m_claw.setIntakeState(IntakeState.Out);
       } else {
-        m_claw.setClawState(ClawState.Neutral);
+        m_claw.setIntakeState(IntakeState.Neutral);
       }
 
       // Set Wrist Angle
