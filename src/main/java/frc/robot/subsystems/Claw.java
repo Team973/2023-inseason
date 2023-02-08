@@ -18,21 +18,16 @@ import lombok.experimental.Accessors;
 
 @Accessors(prefix = "m_")
 public class Claw implements Subsystem {
-  @Setter
-  @Getter
-  private IntakeState m_intakeState;
+  @Setter @Getter private IntakeState m_intakeState;
 
-  @Setter
-  @Getter
-  private GamePiece m_currentGamePiece;
+  @Setter @Getter private GamePiece m_currentGamePiece;
 
-  private double m_targetAngle = 0.0;
   private final TalonFX m_intakeMotor;
 
-  public double m_intakeStator = 0.0;
-
-  private boolean m_hasGamePiece = false;
+  private double m_targetAngle = 0.0;
+  private double m_intakeStator = 0.0;
   private double m_intakeMotorOutput = 0.0;
+  private double m_statorCurrentLimit = 60.0;
 
   public enum GamePiece {
     Cube,
@@ -60,7 +55,7 @@ public class Claw implements Subsystem {
 
     motorConfig.CurrentLimits.SupplyCurrentLimit = 100;
     motorConfig.CurrentLimits.SupplyCurrentLimitEnable = true;
-    motorConfig.CurrentLimits.StatorCurrentLimit = 100;
+    motorConfig.CurrentLimits.StatorCurrentLimit = m_statorCurrentLimit;
     motorConfig.CurrentLimits.StatorCurrentLimitEnable = true;
 
     // Motor feedback
@@ -84,7 +79,7 @@ public class Claw implements Subsystem {
     m_intakeMotorOutput = percent;
   }
 
-  public double getclawCurrentAngle() {
+  public double getClawCurrentAngle() {
     double rot = m_intakeMotor.getRotorPosition().getValue() * ClawInfo.GEAR_RATIO;
     return Rotation2d.fromRotations(rot).getDegrees();
   }
@@ -95,6 +90,10 @@ public class Claw implements Subsystem {
 
   public void setClawMotorOutput(double percent) {
     m_intakeMotorOutput = percent;
+  }
+
+  public boolean checkForGamePiece() {
+    return m_intakeStator < m_statorCurrentLimit;
   }
 
   public void update() {
@@ -128,7 +127,7 @@ public class Claw implements Subsystem {
 
     m_intakeMotor.set(m_intakeMotorOutput);
 
-    SmartDashboard.putNumber("Intake Stator", m_intakeMotor.getStatorCurrent().getValue());
+    SmartDashboard.putNumber("Intake Stator", m_intakeStator);
     SmartDashboard.putNumber("Intake Supply", m_intakeMotor.getSupplyCurrent().getValue());
     SmartDashboard.putNumber("Intake Velocity", m_intakeMotor.getVelocity().getValue());
   }
