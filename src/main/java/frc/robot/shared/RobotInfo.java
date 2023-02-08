@@ -64,12 +64,12 @@ public final class RobotInfo {
      * The left-to-right distance between the drivetrain wheels Should be measured from center to
      * center.
      */
-    public static final double TRACKWIDTH_METERS = 0.6033;
+    public static final double TRACKWIDTH_METERS = 0.53975;
     /**
      * The front-to-back distance between the drivetrain wheels. Should be measured from center to
      * center.
      */
-    public static final double WHEELBASE_METERS = 0.6033;
+    public static final double WHEELBASE_METERS = 0.53975;
 
     public static final double OPENLOOP_RAMP = 0.0;
     public static final double CLOSEDLOOP_RAMP = 0.0;
