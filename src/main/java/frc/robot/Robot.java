@@ -205,25 +205,6 @@ public class Robot extends TimedRobot {
         m_elevator.setElevatorState(ElevatorState.ClosedLoop);
       }
 
-      // Select Game Piece
-      // if (m_operatorStick.getLeftBumper()) {
-      // m_claw.setCurrentGamePiece(GamePiece.Cube);
-      // } else if (m_operatorStick.getRightBumper()) {
-      // m_claw.setCurrentGamePiece(GamePiece.Cone);
-      // }
-
-      // if (m_operatorStick.getLeftTriggerAxis() > 0.5) {
-      // m_claw.setClawState(ClawState.In);
-      // } else {
-      // m_claw.setClawState(ClawState.Neutral);
-      // }
-
-      // if (m_operatorStick.getRightTriggerAxis() > 0.5) {
-      // m_claw.setClawState(ClawState.Out);
-      // } else {
-      // m_claw.setClawState(ClawState.Neutral);
-      // }
-
       if (m_operatorStick.getXButton()) {
         m_claw.setClawMotorOutput(-0.5);
       } else if (m_operatorStick.getYButton()) {
@@ -231,12 +212,6 @@ public class Robot extends TimedRobot {
       } else {
         m_claw.setClawMotorOutput(0.0);
       }
-
-      // if (m_operatorStick.getLeftTriggerAxis() > 0.5) {
-      // m_claw.setIntakeState(IntakeState.In);
-      // } else {
-      // m_claw.setIntakeState(IntakeState.Neutral);
-      // }
 
       if (m_operatorStick.getRightTriggerAxis() > 0.5) {
         m_claw.setIntakeState(IntakeState.Out);

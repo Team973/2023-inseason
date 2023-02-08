@@ -97,32 +97,6 @@ public class Claw implements Subsystem {
   }
 
   public void update() {
-    // switch (m_intakeState) {
-    // case In:
-    // switch (m_currentGamePiece) {
-    // case Cone:
-    // setIntakeMotorOutput(-0.5);
-    // break;
-    // case Cube:
-    // setIntakeMotorOutput(0.5);
-    // break;
-    // }
-    // break;
-    // case Out:
-    // switch (m_currentGamePiece) {
-    // case Cone:
-    // setIntakeMotorOutput(0.5);
-    // break;
-    // case Cube:
-    // setIntakeMotorOutput(-0.5);
-    // break;
-    // }
-    // break;
-    // case Neutral:
-    // setIntakeMotorOutput(0.0);
-    // break;
-    // }
-
     m_intakeStator = m_intakeMotor.getStatorCurrent().getValue();
 
     m_intakeMotor.set(m_intakeMotorOutput);
