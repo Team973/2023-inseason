@@ -2,6 +2,7 @@ package frc.robot.subsystems;
 
 import static frc.robot.shared.RobotInfo.*;
 
+import frc.robot.shared.RobotInfo;
 import frc.robot.shared.Subsystem;
 
 import com.ctre.phoenixpro.configs.TalonFXConfiguration;
@@ -10,6 +11,7 @@ import com.ctre.phoenixpro.signals.FeedbackSensorSourceValue;
 import com.ctre.phoenixpro.signals.InvertedValue;
 import com.ctre.phoenixpro.signals.NeutralModeValue;
 import edu.wpi.first.math.geometry.Rotation2d;
+import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import lombok.Getter;
 import lombok.Setter;
 import lombok.experimental.Accessors;
@@ -24,6 +26,9 @@ public class Claw implements Subsystem {
   private final TalonFX m_clawMotor;
 
   private double m_clawMotorOutput = 0.0;
+  public double m_clawStator = 0.0;
+
+  private boolean m_hasGamePiece = false;
 
   public enum GamePiece {
     Cube,
@@ -37,7 +42,7 @@ public class Claw implements Subsystem {
   }
 
   public Claw() {
-    m_clawMotor = new TalonFX(ClawInfo.FX_ID);
+    m_clawMotor = new TalonFX(ClawInfo.FX_ID, RobotInfo.CANIVORE_NAME);
     var motorConfig = new TalonFXConfiguration();
 
     // Motor Directions
@@ -49,9 +54,9 @@ public class Claw implements Subsystem {
 
     // Current limits
 
-    motorConfig.CurrentLimits.SupplyCurrentLimit = 40;
+    motorConfig.CurrentLimits.SupplyCurrentLimit = 100;
     motorConfig.CurrentLimits.SupplyCurrentLimitEnable = true;
-    motorConfig.CurrentLimits.StatorCurrentLimit = 80;
+    motorConfig.CurrentLimits.StatorCurrentLimit = 100;
     motorConfig.CurrentLimits.StatorCurrentLimitEnable = true;
 
     // Motor feedback
@@ -61,47 +66,7 @@ public class Claw implements Subsystem {
     motorConfig.OpenLoopRamps.DutyCycleOpenLoopRampPeriod = 0.0;
     motorConfig.ClosedLoopRamps.DutyCycleClosedLoopRampPeriod = 0.0;
 
-    // Velocity PID Parameters
-
-    motorConfig.Slot0.kP = 0.0;
-    motorConfig.Slot0.kI = 0.0;
-    motorConfig.Slot0.kD = 0.0;
-    motorConfig.Slot0.kS = 0.0;
     m_clawMotor.getConfigurator().apply(motorConfig);
-  }
-
-  public void setClawMotorOutput(double percent) {
-    m_clawMotorOutput = percent;
-  }
-
-  public void update() {
-    m_clawMotor.set(m_clawMotorOutput);
-
-    switch (m_clawState) {
-      case In:
-        switch (m_currentGamePiece) {
-          case Cone:
-            setClawMotorOutput(-0.5);
-            break;
-          case Cube:
-            setClawMotorOutput(0.5);
-            break;
-        }
-        break;
-      case Out:
-        switch (m_currentGamePiece) {
-          case Cone:
-            setClawMotorOutput(0.5);
-            break;
-          case Cube:
-            setClawMotorOutput(-0.5);
-            break;
-        }
-        break;
-      case Neutral:
-        setClawMotorOutput(0.0);
-        break;
-    }
   }
 
   public double getclawCurrentAngle() {
@@ -111,6 +76,46 @@ public class Claw implements Subsystem {
 
   public void setClawTargetAngle(double angle) {
     m_targetAngle = angle;
+  }
+
+  public void setClawMotorOutput(double percent) {
+    m_clawMotorOutput = percent;
+  }
+
+  public void update() {
+    // switch (m_clawState) {
+    // case In:
+    // switch (m_currentGamePiece) {
+    // case Cone:
+    // setClawMotorOutput(-0.5);
+    // break;
+    // case Cube:
+    // setClawMotorOutput(0.5);
+    // break;
+    // }
+    // break;
+    // case Out:
+    // switch (m_currentGamePiece) {
+    // case Cone:
+    // setClawMotorOutput(0.5);
+    // break;
+    // case Cube:
+    // setClawMotorOutput(-0.5);
+    // break;
+    // }
+    // break;
+    // case Neutral:
+    // setClawMotorOutput(0.0);
+    // break;
+    // }
+
+    m_clawStator = m_clawMotor.getStatorCurrent().getValue();
+
+    m_clawMotor.set(m_clawMotorOutput);
+
+    SmartDashboard.putNumber("Claw Stator", m_clawMotor.getStatorCurrent().getValue());
+    SmartDashboard.putNumber("Claw Supply", m_clawMotor.getSupplyCurrent().getValue());
+    SmartDashboard.putNumber("Claw Velocity", m_clawMotor.getVelocity().getValue());
   }
 
   public void reset() {
