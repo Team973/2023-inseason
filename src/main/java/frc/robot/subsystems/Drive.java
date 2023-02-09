@@ -84,7 +84,10 @@ public class Drive implements Subsystem {
 
   public void driveInput(Translation2d translation, double rotation, boolean fieldRelative) {
     if (m_rotationControl == RotationControl.ClosedLoop) {
-      rotation = m_rotationController.calculate(getNormalizedGyroYaw(), m_targetRobotAngle);
+      double yaw = getNormalizedGyroYaw();
+      // fix 180 flip
+      double targetAngle = yaw > 0.0 ? m_targetRobotAngle : -m_targetRobotAngle;
+      rotation = m_rotationController.calculate(yaw, targetAngle);
     }
 
     ChassisSpeeds des_chassis_speeds =
