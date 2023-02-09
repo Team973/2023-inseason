@@ -11,8 +11,10 @@ import java.io.PrintWriter;
 
 import frc.robot.greydash.GreyDashClient;
 import frc.robot.subsystems.Claw;
+import frc.robot.subsystems.Claw.GamePiece;
 import frc.robot.subsystems.Claw.IntakeState;
 import frc.robot.subsystems.Drive;
+import frc.robot.subsystems.Drive.RotationControl;
 import frc.robot.subsystems.Elevator;
 import frc.robot.subsystems.Elevator.ElevatorState;
 
@@ -158,6 +160,9 @@ public class Robot extends TimedRobot {
   @Override
   public void teleopPeriodic() {
     try {
+      /////////////////////
+      // DRIVER CONTROLS //
+      /////////////////////
       final double xSpeed = -MathUtil.applyDeadband(m_driverStick.getRawAxis(1), 0.09);
       final double ySpeed = -MathUtil.applyDeadband(m_driverStick.getRawAxis(0), 0.09);
 
@@ -174,6 +179,40 @@ public class Robot extends TimedRobot {
 
       m_drive.driveInput(translation, rot, true);
 
+      // Closed loop drive angle
+      if (m_driverStick.getRightBumper()) {
+        m_drive.setRotationControl(RotationControl.ClosedLoop);
+        m_drive.setTargetRobotAngle(Drive.AnglePresets.TOWARDS_DS);
+      } else if (m_driverStick.getRightTriggerAxis() > 0.5) {
+        m_drive.setRotationControl(RotationControl.ClosedLoop);
+        m_drive.setTargetRobotAngle(Drive.AnglePresets.TOWARDS_HP);
+      } else {
+        m_drive.setRotationControl(RotationControl.OpenLoop);
+      }
+
+      // Reset Drive
+      if (m_driverStick.getStartButton()) {
+        m_drive.reset();
+      }
+
+      // Score
+      if (m_driverStick.getLeftBumper()) {
+        m_claw.setIntakeState(IntakeState.Out);
+      } else if (m_claw.getIntakeState() == IntakeState.Out) {
+        m_claw.setIntakeState(IntakeState.Neutral);
+      }
+
+      //////////
+      // BOTH //
+      //////////
+      // Stow elevator
+      if (m_driverStick.getLeftTriggerAxis() > 0.5 || m_operatorStick.getAButton()) {
+        m_elevator.setHeight(0.0);
+      }
+
+      ////////////////////////
+      // CO-DRIVER CONTROLS //
+      ////////////////////////
       double operatorStickRightY = -MathUtil.applyDeadband(m_operatorStick.getRawAxis(5), 0.1);
 
       // Elevator height preset
@@ -194,10 +233,6 @@ public class Robot extends TimedRobot {
           break;
       }
 
-      if (m_operatorStick.getBButton()) {
-        m_elevator.setHeight(0.0);
-      }
-
       // Manual Elevator
       if (operatorStickRightY != 0.0) {
         m_elevator.setElevatorState(ElevatorState.Manual);
@@ -209,22 +244,20 @@ public class Robot extends TimedRobot {
         m_elevator.setElevatorState(ElevatorState.ClosedLoop);
       }
 
-      if (m_operatorStick.getXButton()) {
-        m_claw.setClawMotorOutput(-0.5);
-      } else if (m_operatorStick.getYButton()) {
-        m_claw.setClawMotorOutput(0.5);
-      } else {
-        m_claw.setClawMotorOutput(0.0);
-      }
-
+      // Intake
       if (m_operatorStick.getRightTriggerAxis() > 0.5) {
-        m_claw.setIntakeState(IntakeState.Out);
-      } else {
-        m_claw.setIntakeState(IntakeState.Neutral);
+        m_claw.setCurrentGamePiece(GamePiece.Cone);
+        m_claw.setIntakeState(IntakeState.In);
+      } else if (m_operatorStick.getLeftTriggerAxis() > 0.5) {
+        m_claw.setCurrentGamePiece(GamePiece.Cube);
+        m_claw.setIntakeState(IntakeState.In);
+      } else if (m_claw.getIntakeState() != IntakeState.Out
+          && m_claw.getIntakeState() != IntakeState.Neutral) {
+        m_claw.setIntakeState(IntakeState.Hold);
       }
 
       // Manually Control Wrist
-      m_claw.setWristMotorOutput(-MathUtil.applyDeadband(m_operatorStick.getLeftY(), 0.09) * 0.3);
+      m_claw.setWristMotorOutput(-MathUtil.applyDeadband(m_operatorStick.getLeftY(), 0.09) * 0.5);
     } catch (Exception e) {
       logException(e);
     }

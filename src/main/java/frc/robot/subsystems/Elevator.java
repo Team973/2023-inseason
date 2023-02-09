@@ -25,9 +25,9 @@ public class Elevator implements Subsystem {
     /** Inches from floor */
     public static final double floor = 9.25;
     /** Inches from floor */
-    public static final double mid = 17.8;
+    public static final double mid = 22.3;
     /** Inches from floor */
-    public static final double hp = 22.3;
+    public static final double hp = 26.9;
     /** Inches from floor */
     public static final double high = 26.9;
   }
@@ -97,7 +97,7 @@ public class Elevator implements Subsystem {
     motorConfig.Slot0.kD = 0.0;
     motorConfig.Slot0.kS = 0.0;
 
-    motorConfig.MotionMagic.MotionMagicCruiseVelocity = 10.0;
+    motorConfig.MotionMagic.MotionMagicCruiseVelocity = 30.0;
     motorConfig.MotionMagic.MotionMagicAcceleration = 600.0;
 
     // Set motor to follow A
