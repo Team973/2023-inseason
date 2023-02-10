@@ -33,4 +33,9 @@ public class ScoreGamePieceCommand extends AutoCommand {
   public boolean isCompleted() {
     return hasElapsed();
   }
+
+  @Override
+  public void postComplete() {
+    m_claw.setIntakeState(IntakeState.Neutral);
+  }
 }
