@@ -9,6 +9,8 @@ import static frc.robot.shared.RobotInfo.*;
 import java.io.FileWriter;
 import java.io.PrintWriter;
 
+import frc.robot.auto.commands.ScoreGamePieceCommand;
+import frc.robot.auto.commands.util.SequentialCommand;
 import frc.robot.greydash.GreyDashClient;
 import frc.robot.subsystems.Claw;
 import frc.robot.subsystems.Claw.GamePiece;
@@ -51,6 +53,9 @@ public class Robot extends TimedRobot {
 
   private final Compressor m_compressor =
       new Compressor(COMPRESSOR_ID, PneumaticsModuleType.CTREPCM);
+
+  private SequentialCommand m_sequentialCommand =
+      new SequentialCommand(new ScoreGamePieceCommand(m_claw, GamePiece.Cube, 4000));
 
   private void logException(Exception e) {
     try {
@@ -129,6 +134,8 @@ public class Robot extends TimedRobot {
     m_autoSelected = GreyDashClient.getAutoSelected();
     System.out.println("Auto selected: " + m_autoSelected);
     m_compressor.enableDigital();
+
+    m_sequentialCommand.init();
   }
 
   /** This function is called periodically during autonomous. */
@@ -148,6 +155,8 @@ public class Robot extends TimedRobot {
     } catch (Exception e) {
       logException(e);
     }
+
+    m_sequentialCommand.run();
   }
 
   /** This function is called once when teleop is enabled. */
