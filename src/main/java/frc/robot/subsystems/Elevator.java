@@ -145,6 +145,10 @@ public class Elevator implements Subsystem {
     return !m_bottomHall.get();
   }
 
+  public boolean isAtHeight(double height) {
+    return Math.abs(height - getHeight()) < 0.5;
+  }
+
   public void update() {
     switch (m_elevatorState) {
       case Manual:
