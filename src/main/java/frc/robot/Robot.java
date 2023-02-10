@@ -9,6 +9,9 @@ import static frc.robot.shared.RobotInfo.*;
 import java.io.FileWriter;
 import java.io.PrintWriter;
 
+import frc.robot.auto.commands.PickupGamePiece;
+import frc.robot.auto.commands.util.SequentialCommand;
+import frc.robot.auto.commands.util.WaitCommand;
 import frc.robot.greydash.GreyDashClient;
 import frc.robot.subsystems.Claw;
 import frc.robot.subsystems.Claw.GamePiece;
@@ -136,15 +139,6 @@ public class Robot extends TimedRobot {
   public void autonomousPeriodic() {
     try {
       this.updateSubsystems();
-      switch (m_autoSelected) {
-        case kCustomAuto:
-          // Put custom auto code here
-          break;
-        case kDefaultAuto:
-        default:
-          // Put default auto code here
-          break;
-      }
     } catch (Exception e) {
       logException(e);
     }

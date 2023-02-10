@@ -23,4 +23,6 @@ public class WaitCommand extends AutoCommand {
   public boolean isCompleted() {
     return hasElapsed();
   }
+
+  public void postComplete() {}
 }
