@@ -19,7 +19,7 @@ import lombok.experimental.Accessors;
 
 @Accessors(prefix = "m_")
 public class Claw implements Subsystem {
-  @Setter @Getter private IntakeState m_intakeState;
+  @Setter @Getter private IntakeState m_intakeState = IntakeState.Neutral;
   @Setter @Getter private GamePiece m_currentGamePiece;
   @Setter @Getter private WristState m_wristState = WristState.Manual;
 
@@ -40,6 +40,7 @@ public class Claw implements Subsystem {
   public enum IntakeState {
     In,
     Out,
+    Hold,
     Neutral
   }
 
@@ -122,10 +123,6 @@ public class Claw implements Subsystem {
     m_wristMotor.getConfigurator().apply(motorConfig);
   }
 
-  public void setIntakeMotorOutput(double percent) {
-    m_intakeMotorOutput = percent;
-  }
-
   public double getClawCurrentAngle() {
     double rot = m_intakeMotor.getRotorPosition().getValue() * ClawInfo.GEAR_RATIO;
     return Rotation2d.fromRotations(rot).getDegrees();
@@ -135,16 +132,32 @@ public class Claw implements Subsystem {
     m_targetAngle = angle;
   }
 
-  public void setClawMotorOutput(double percent) {
-    m_intakeMotorOutput = percent;
-  }
-
   public boolean checkForGamePiece() {
     return m_intakeStator < m_statorCurrentLimit;
   }
 
   public void update() {
     m_intakeStator = m_intakeMotor.getStatorCurrent().getValue();
+
+    switch (m_intakeState) {
+      case In:
+        m_intakeMotorOutput = 0.5;
+        break;
+      case Out:
+        m_intakeMotorOutput = -0.5;
+        break;
+      case Hold:
+        m_intakeMotorOutput = 0.1;
+        break;
+      case Neutral:
+      default:
+        m_intakeMotorOutput = 0.0;
+        break;
+    }
+
+    if (m_currentGamePiece == GamePiece.Cone) {
+      m_intakeMotorOutput *= -1.0;
+    }
 
     m_intakeMotor.set(m_intakeMotorOutput);
 
@@ -165,6 +178,6 @@ public class Claw implements Subsystem {
   }
 
   public void reset() {
-    setIntakeMotorOutput(0.0);
+    setIntakeState(IntakeState.Neutral);
   }
 }
