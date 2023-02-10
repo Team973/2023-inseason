@@ -31,6 +31,7 @@ public class Claw implements Subsystem {
   private double m_intakeMotorOutput = 0.0;
   @Setter private double m_wristMotorOutput = 0.0;
   private double m_statorCurrentLimit = 60.0;
+  private final double ANGLE_TOLLERANCE = 1.0; // degrees
 
   public enum GamePiece {
     Cube,
@@ -116,7 +117,7 @@ public class Claw implements Subsystem {
 
     // Velocity PID Parameters
 
-    motorConfig.Slot0.kP = 0.0;
+    motorConfig.Slot0.kP = 0.45;
     motorConfig.Slot0.kI = 0.0;
     motorConfig.Slot0.kD = 0.0;
     motorConfig.Slot0.kS = 0.0;
@@ -179,5 +180,9 @@ public class Claw implements Subsystem {
 
   public void reset() {
     setIntakeState(IntakeState.Neutral);
+  }
+
+  public boolean isAtAngle() {
+    return Math.abs(getClawCurrentAngle() - m_targetAngle) < ANGLE_TOLLERANCE;
   }
 }

@@ -9,9 +9,6 @@ import static frc.robot.shared.RobotInfo.*;
 import java.io.FileWriter;
 import java.io.PrintWriter;
 
-import frc.robot.auto.commands.PickupGamePiece;
-import frc.robot.auto.commands.util.SequentialCommand;
-import frc.robot.auto.commands.util.WaitCommand;
 import frc.robot.greydash.GreyDashClient;
 import frc.robot.subsystems.Claw;
 import frc.robot.subsystems.Claw.GamePiece;
