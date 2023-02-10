@@ -30,4 +30,6 @@ public class ElevatorPresetCommand extends AutoCommand {
   public boolean isCompleted() {
     return m_elevator.isAtHeight(m_preset) || hasElapsed();
   }
+
+  public void postComplete() {}
 }

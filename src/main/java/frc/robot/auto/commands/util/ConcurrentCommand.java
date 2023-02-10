@@ -64,4 +64,6 @@ public class ConcurrentCommand extends AutoCommand {
   public boolean isCompleted() {
     return m_unfinishedCmds.size() == 0 || hasElapsed();
   }
+
+  public void postComplete() {}
 }

@@ -53,10 +53,13 @@ public class SequentialCommand extends AutoCommand {
     if (currentCommand.isCompleted()) {
       m_currentIndex++;
       m_cmdNeedsInit = true;
+      currentCommand.postComplete();
     }
   }
 
   public boolean isCompleted() {
     return m_currentIndex >= m_cmdList.size() || hasElapsed();
   }
+
+  public void postComplete() {}
 }
