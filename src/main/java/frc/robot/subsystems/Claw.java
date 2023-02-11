@@ -19,9 +19,23 @@ import lombok.experimental.Accessors;
 
 @Accessors(prefix = "m_")
 public class Claw implements Subsystem {
-  @Setter @Getter private IntakeState m_intakeState = IntakeState.Neutral;
-  @Setter @Getter private GamePiece m_currentGamePiece;
-  @Setter @Getter private WristState m_wristState = WristState.Manual;
+
+  public static class Presets {
+    public static final double floor = 0.0;
+    public static final double mid = 0.0;
+    public static final double high = 0.0;
+    public static final double hp = 0.0;
+  }
+
+  @Setter
+  @Getter
+  private IntakeState m_intakeState = IntakeState.Neutral;
+  @Setter
+  @Getter
+  private GamePiece m_currentGamePiece;
+  @Setter
+  @Getter
+  private WristState m_wristState = WristState.Manual;
 
   private final TalonFX m_intakeMotor;
   private final TalonFX m_wristMotor;
@@ -29,9 +43,10 @@ public class Claw implements Subsystem {
   private double m_targetAngle = 0.0;
   private double m_intakeStator = 0.0;
   private double m_intakeMotorOutput = 0.0;
-  @Setter private double m_wristMotorOutput = 0.0;
+  @Setter
+  private double m_wristMotorOutput = 0.0;
   private double m_statorCurrentLimit = 60.0;
-  private final double ANGLE_TOLLERANCE = 1.0; // degrees
+  private final double ANGLE_TOLERANCE = 1.0; // degrees
 
   public enum GamePiece {
     Cube,
@@ -183,6 +198,6 @@ public class Claw implements Subsystem {
   }
 
   public boolean isAtAngle() {
-    return Math.abs(getClawCurrentAngle() - m_targetAngle) < ANGLE_TOLLERANCE;
+    return Math.abs(getClawCurrentAngle() - m_targetAngle) < ANGLE_TOLERANCE;
   }
 }
