@@ -27,15 +27,9 @@ public class Claw implements Subsystem {
     public static final double hp = 0.0;
   }
 
-  @Setter
-  @Getter
-  private IntakeState m_intakeState = IntakeState.Neutral;
-  @Setter
-  @Getter
-  private GamePiece m_currentGamePiece;
-  @Setter
-  @Getter
-  private WristState m_wristState = WristState.Manual;
+  @Setter @Getter private IntakeState m_intakeState = IntakeState.Neutral;
+  @Setter @Getter private GamePiece m_currentGamePiece;
+  @Setter @Getter private WristState m_wristState = WristState.Manual;
 
   private final TalonFX m_intakeMotor;
   private final TalonFX m_wristMotor;
@@ -43,8 +37,7 @@ public class Claw implements Subsystem {
   private double m_targetAngle = 0.0;
   private double m_intakeStator = 0.0;
   private double m_intakeMotorOutput = 0.0;
-  @Setter
-  private double m_wristMotorOutput = 0.0;
+  @Setter private double m_wristMotorOutput = 0.0;
   private double m_statorCurrentLimit = 60.0;
   private final double ANGLE_TOLERANCE = 1.0; // degrees
 
