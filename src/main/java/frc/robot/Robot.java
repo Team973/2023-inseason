@@ -13,6 +13,7 @@ import frc.robot.greydash.GreyDashClient;
 import frc.robot.subsystems.Claw;
 import frc.robot.subsystems.Claw.GamePiece;
 import frc.robot.subsystems.Claw.IntakeState;
+import frc.robot.subsystems.Claw.WristState;
 import frc.robot.subsystems.Drive;
 import frc.robot.subsystems.Drive.RotationControl;
 import frc.robot.subsystems.Elevator;
@@ -43,6 +44,8 @@ public class Robot extends TimedRobot {
   private final Elevator m_elevator = new Elevator();
   private final Claw m_claw = new Claw();
   private final Drive m_drive = new Drive();
+
+  private final AutoManager m_autoManager = new AutoManager(m_claw, m_elevator, m_drive);
 
   private final XboxController m_driverStick = new XboxController(0);
   private final XboxController m_operatorStick = new XboxController(1);
@@ -129,12 +132,14 @@ public class Robot extends TimedRobot {
     m_autoSelected = GreyDashClient.getAutoSelected();
     System.out.println("Auto selected: " + m_autoSelected);
     m_compressor.enableDigital();
+    m_autoManager.init();
   }
 
   /** This function is called periodically during autonomous. */
   @Override
   public void autonomousPeriodic() {
     try {
+      m_autoManager.run();
       this.updateSubsystems();
     } catch (Exception e) {
       logException(e);
@@ -145,6 +150,7 @@ public class Robot extends TimedRobot {
   @Override
   public void teleopInit() {
     m_compressor.enableDigital();
+    m_claw.setWristState(WristState.Manual);
   }
 
   /** This function is called periodically during operator control. */
