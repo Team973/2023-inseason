@@ -9,6 +9,7 @@ import static frc.robot.shared.RobotInfo.*;
 import java.io.FileWriter;
 import java.io.PrintWriter;
 
+import frc.robot.auto.commands.TrajectoryManager;
 import frc.robot.greydash.GreyDashClient;
 import frc.robot.subsystems.Claw;
 import frc.robot.subsystems.Claw.GamePiece;
@@ -44,8 +45,10 @@ public class Robot extends TimedRobot {
   private final Elevator m_elevator = new Elevator();
   private final Claw m_claw = new Claw();
   private final Drive m_drive = new Drive();
+  private final TrajectoryManager m_trajectoryManager = new TrajectoryManager();
 
-  private final AutoManager m_autoManager = new AutoManager(m_claw, m_elevator, m_drive);
+  private final AutoManager m_autoManager =
+      new AutoManager(m_claw, m_elevator, m_drive, m_trajectoryManager);
 
   private final XboxController m_driverStick = new XboxController(0);
   private final XboxController m_operatorStick = new XboxController(1);

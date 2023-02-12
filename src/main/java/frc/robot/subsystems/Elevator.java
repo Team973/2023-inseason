@@ -30,6 +30,8 @@ public class Elevator implements Subsystem {
     public static final double hp = 26.9;
     /** Inches from floor */
     public static final double high = 26.9;
+    /** Stow in robot */
+    public static final double stow = 0.0;
   }
 
   private final TalonFX m_elevatorMotor;
