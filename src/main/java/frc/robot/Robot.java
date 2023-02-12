@@ -210,15 +210,19 @@ public class Robot extends TimedRobot {
       switch (m_operatorStick.getPOV()) {
         case 0:
           m_elevator.setHeight(Elevator.Presets.high);
+          m_claw.setWristTargetAngle(Claw.Presets.high);
           break;
         case 90:
           m_elevator.setHeight(Elevator.Presets.mid);
+          m_claw.setWristTargetAngle(Claw.Presets.mid);
           break;
         case 180:
           m_elevator.setHeight(Elevator.Presets.floor);
+          m_claw.setWristTargetAngle(Claw.Presets.floor);
           break;
         case 270:
           m_elevator.setHeight(Elevator.Presets.hp);
+          m_claw.setWristTargetAngle(Claw.Presets.hp);
           break;
         default:
           break;
