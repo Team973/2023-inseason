@@ -27,9 +27,11 @@ public class Elevator implements Subsystem {
     /** Inches from floor */
     public static final double mid = 22.3;
     /** Inches from floor */
-    public static final double hp = 26.9;
+    public static final double hp = 27.4;
     /** Inches from floor */
-    public static final double high = 26.9;
+    public static final double high = 27.4;
+    /** Inches from floor */
+    public static final double stow = 0.0;
   }
 
   private final TalonFX m_elevatorMotor;
@@ -53,7 +55,7 @@ public class Elevator implements Subsystem {
 
   private static final double STOW_OFFSET = 7.628;
 
-  private static final double MAX_HEIGHT = 27.0;
+  private static final double MAX_HEIGHT = 27.5;
 
   @Getter @Setter private ElevatorState m_elevatorState = ElevatorState.Manual;
 
@@ -97,7 +99,7 @@ public class Elevator implements Subsystem {
     motorConfig.Slot0.kD = 0.0;
     motorConfig.Slot0.kS = 0.0;
 
-    motorConfig.MotionMagic.MotionMagicCruiseVelocity = 30.0;
+    motorConfig.MotionMagic.MotionMagicCruiseVelocity = 50.0;
     motorConfig.MotionMagic.MotionMagicAcceleration = 600.0;
 
     // Set motor to follow A
