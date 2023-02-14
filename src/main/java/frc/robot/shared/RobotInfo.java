@@ -16,7 +16,7 @@ public final class RobotInfo {
   public static class ClawInfo {
     public static final int WRIST_FX_ID = 19;
     public static final int INTAKE_FX_ID = 15;
-    public static final double GEAR_RATIO = (1.0 / 4.0) * (1.0 / 4.0) * (1.0 / 4.0) * (16.0 / 44.0);
+    public static final double GEAR_RATIO = (1.0 / 4.0) * (1.0 / 4.0) * (16.0 / 44.0);
   }
 
   public static class CANdleInfo {
@@ -75,7 +75,7 @@ public final class RobotInfo {
     public static final double CLOSEDLOOP_RAMP = 0.0;
 
     /* Angle Motor PID Values */
-    public static final double ANGLE_KP = 0.25;
+    public static final double ANGLE_KP = 0.3;
     public static final double ANGLE_KI = 0.0;
     public static final double ANGLE_KD = 0.1;
     public static final double ANGLE_KF = 0.0;

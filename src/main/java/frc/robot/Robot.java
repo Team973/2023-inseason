@@ -205,9 +205,10 @@ public class Robot extends TimedRobot {
       //////////
       // BOTH //
       //////////
-      // Stow elevator
+      // Stow elevator/wrist
       if (m_driverStick.getLeftTriggerAxis() > 0.5 || m_operatorStick.getAButton()) {
-        m_elevator.setHeight(0.0);
+        m_elevator.setHeight(Elevator.Presets.stow);
+        m_claw.setWristPreset(Claw.WristPreset.Stow);
       }
 
       ////////////////////////
@@ -219,15 +220,19 @@ public class Robot extends TimedRobot {
       switch (m_operatorStick.getPOV()) {
         case 0:
           m_elevator.setHeight(Elevator.Presets.high);
+          m_claw.setWristPreset(Claw.WristPreset.High);
           break;
         case 90:
           m_elevator.setHeight(Elevator.Presets.mid);
+          m_claw.setWristPreset(Claw.WristPreset.Mid);
           break;
         case 180:
           m_elevator.setHeight(Elevator.Presets.floor);
+          m_claw.setWristPreset(Claw.WristPreset.Floor);
           break;
         case 270:
           m_elevator.setHeight(Elevator.Presets.hp);
+          m_claw.setWristPreset(Claw.WristPreset.HP);
           break;
         default:
           break;
@@ -257,7 +262,13 @@ public class Robot extends TimedRobot {
       }
 
       // Manually Control Wrist
-      m_claw.setWristMotorOutput(-MathUtil.applyDeadband(m_operatorStick.getLeftY(), 0.09) * 0.5);
+      double wristJoystickInput = -MathUtil.applyDeadband(m_operatorStick.getLeftY(), 0.12) * 0.25;
+      if (wristJoystickInput != 0.0) {
+        m_claw.setWristState(WristState.Manual);
+        m_claw.setWristMotorOutput(wristJoystickInput);
+      } else {
+        m_claw.setWristState(WristState.ClosedLoop);
+      }
     } catch (Exception e) {
       logException(e);
     }
