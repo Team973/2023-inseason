@@ -155,8 +155,8 @@ public class Robot extends TimedRobot {
       /////////////////////
       // DRIVER CONTROLS //
       /////////////////////
-      final double xSpeed = -MathUtil.applyDeadband(m_driverStick.getRawAxis(1), 0.09);
-      final double ySpeed = -MathUtil.applyDeadband(m_driverStick.getRawAxis(0), 0.09);
+      final double xSpeed = -MathUtil.applyDeadband(m_driverStick.getRawAxis(1), 0.12);
+      final double ySpeed = -MathUtil.applyDeadband(m_driverStick.getRawAxis(0), 0.12);
 
       final double rot =
           -m_rotLimiter.calculate(MathUtil.applyDeadband(m_driverStick.getRawAxis(4), 0.09))
@@ -174,10 +174,12 @@ public class Robot extends TimedRobot {
       // Closed loop drive angle
       if (m_driverStick.getRightBumper()) {
         m_drive.setRotationControl(RotationControl.ClosedLoop);
-        m_drive.setTargetRobotAngle(Drive.AnglePresets.TOWARDS_DS);
+        m_drive.setTargetRobotAngle(90);
       } else if (m_driverStick.getRightTriggerAxis() > 0.5) {
         m_drive.setRotationControl(RotationControl.ClosedLoop);
         m_drive.setTargetRobotAngle(Drive.AnglePresets.TOWARDS_HP);
+      } else if (rot == 0.0) {
+        m_drive.setRotationControl(RotationControl.ClosedLoop);
       } else {
         m_drive.setRotationControl(RotationControl.OpenLoop);
       }

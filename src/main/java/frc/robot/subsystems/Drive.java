@@ -1,5 +1,6 @@
 package frc.robot.subsystems;
 
+import frc.robot.greydash.GreyDashClient;
 import frc.robot.shared.RobotInfo;
 import frc.robot.shared.RobotInfo.DriveInfo;
 import frc.robot.shared.Subsystem;
@@ -84,10 +85,16 @@ public class Drive implements Subsystem {
 
   public void driveInput(Translation2d translation, double rotation, boolean fieldRelative) {
     if (m_rotationControl == RotationControl.ClosedLoop) {
-      double yaw = getNormalizedGyroYaw();
-      // fix 180 flip
-      double targetAngle = yaw > 0.0 ? m_targetRobotAngle : -m_targetRobotAngle;
-      rotation = m_rotationController.calculate(yaw, targetAngle);
+      double currentYaw = getNormalizedGyroYaw();
+      double diff = m_targetRobotAngle - currentYaw;
+      if (diff > 180) {
+        diff -= 360;
+      } else if (diff < -180) {
+        diff += 360;
+      }
+      rotation = m_rotationController.calculate(currentYaw, currentYaw + diff);
+    } else if (rotation != 0.0) {
+      m_targetRobotAngle = getNormalizedGyroYaw();
     }
 
     ChassisSpeeds des_chassis_speeds =
@@ -129,7 +136,12 @@ public class Drive implements Subsystem {
   }
 
   public double getNormalizedGyroYaw() {
-    return Math.IEEEremainder(getGyroYaw(), 360.0);
+    double rawYaw = getGyroYaw();
+    double normalizedYaw = Math.IEEEremainder(rawYaw, 360.0);
+    if (normalizedYaw < 0) {
+      normalizedYaw += 360.0;
+    }
+    return normalizedYaw;
   }
 
   public Rotation2d getGyroscopeRotation() {
@@ -175,6 +187,10 @@ public class Drive implements Subsystem {
 
   public void update() {
     swerveOdometry.update(getGyroscopeRotation(), getPositions());
+
+    GreyDashClient.setGyroAngle(getGyroYaw());
+
+    SmartDashboard.putNumber("Drive Yaw", getNormalizedGyroYaw());
 
     for (SwerveModule mod : m_swerveModules) {
       SmartDashboard.putNumber(
