@@ -14,7 +14,8 @@ public class IntakeCommand extends AutoCommand {
 
   private final double m_timeout;
 
-  public IntakeCommand(Claw claw, IntakeState state, GamePiece gamePiece, double preset, double timeout) {
+  public IntakeCommand(
+      Claw claw, IntakeState state, GamePiece gamePiece, double preset, double timeout) {
     m_claw = claw;
     m_state = state;
     m_gamePiece = gamePiece;
@@ -30,8 +31,7 @@ public class IntakeCommand extends AutoCommand {
   }
 
   @Override
-  public void run() {
-  }
+  public void run() {}
 
   @Override
   public boolean isCompleted() {
