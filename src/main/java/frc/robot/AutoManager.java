@@ -11,6 +11,7 @@ import frc.robot.auto.commands.TrajectoryManager;
 import frc.robot.auto.commands.WristAngleCommand;
 import frc.robot.auto.commands.util.ConcurrentCommand;
 import frc.robot.auto.commands.util.SequentialCommand;
+import frc.robot.auto.commands.util.WaitCommand;
 import frc.robot.shared.AutoCommand;
 import frc.robot.subsystems.Claw;
 import frc.robot.subsystems.Claw.GamePiece;
@@ -43,18 +44,29 @@ public class AutoManager {
     m_drive = drive;
     m_trajectoryManager = trajectoryManager;
 
-    test = new SequentialCommand(new ElevatorPresetCommand(elevator, Elevator.Presets.mid, 3000));
+    test =
+        new SequentialCommand(
+            new SetDrivePositionCommand(
+                drive,
+                new Pose2d(0.0, 0.0, Rotation2d.fromDegrees(180)),
+                Rotation2d.fromDegrees(180.0)),
+            new DriveTrajectoryCommand(m_drive, m_trajectoryManager.getTrajectoryA()));
+
     oneCone =
         new SequentialCommand(
-            new SetDrivePositionCommand(drive, new Pose2d(), Rotation2d.fromDegrees(180.0)),
-            new WristAngleCommand(claw, -20, 1000),
-            new PickupGamePiece(claw, GamePiece.Cone, 500),
+            new SetDrivePositionCommand(
+                drive,
+                new Pose2d(0.0, 0.0, Rotation2d.fromDegrees(180)),
+                Rotation2d.fromDegrees(180.0)),
+            new PickupGamePiece(claw, GamePiece.Cone, 0),
             new ElevatorPresetCommand(elevator, Elevator.Presets.high, 4000),
-            new WristAngleCommand(claw, -90.0, 2000),
+            new WaitCommand(500),
+            new WristAngleCommand(claw, Claw.ConePresets.high, 2000),
+            new ScoreGamePieceCommand(claw, GamePiece.Cone, 1500),
+            new WaitCommand(500),
             new ConcurrentCommand(
-                new ScoreGamePieceCommand(claw, GamePiece.Cone, 1000),
-                new WristAngleCommand(claw, -20.0, 2000)),
-            new ElevatorPresetCommand(elevator, Elevator.Presets.stow, 2000),
+                new ElevatorPresetCommand(elevator, Elevator.Presets.stow, 1000),
+                new WristAngleCommand(claw, Claw.ConePresets.stow, 2000)),
             new DriveTrajectoryCommand(m_drive, m_trajectoryManager.getTrajectoryA()));
 
     m_currentMode = oneCone;
