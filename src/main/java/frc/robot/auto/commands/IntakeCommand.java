@@ -35,6 +35,8 @@ public class IntakeCommand extends AutoCommand {
 
   @Override
   public void postComplete() {
-    m_claw.setIntakeState(IntakeState.Neutral);
+    if (m_state == IntakeState.Out) {
+      m_claw.setIntakeState(IntakeState.Neutral);
+    }
   }
 }
