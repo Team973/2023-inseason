@@ -5,6 +5,9 @@ import frc.robot.subsystems.Claw;
 import frc.robot.subsystems.Claw.GamePiece;
 import frc.robot.subsystems.Claw.IntakeState;
 
+import lombok.AllArgsConstructor;
+
+@AllArgsConstructor
 public class IntakeCommand extends AutoCommand {
   private final Claw m_claw;
 
@@ -13,14 +16,6 @@ public class IntakeCommand extends AutoCommand {
   private final GamePiece m_gamePiece;
 
   private final double m_timeout;
-
-  public IntakeCommand(
-      Claw claw, IntakeState state, GamePiece gamePiece, double preset, double timeout) {
-    m_claw = claw;
-    m_state = state;
-    m_gamePiece = gamePiece;
-    m_timeout = timeout;
-  }
 
   @Override
   public void init() {
