@@ -100,7 +100,7 @@ public final class RobotInfo {
     public static final boolean CANCODER_INVERT = false;
 
     public static final double MAX_VELOCITY_METERS_PER_SECOND =
-        6380.0 / 60.0 / DRIVE_GEAR_RATIO * WHEEL_DIAMETER_METERS * Math.PI;
+        8000.0 / 60.0 / DRIVE_GEAR_RATIO * WHEEL_DIAMETER_METERS * Math.PI;
 
     public static final double MAX_ANGULAR_VELOCITY_RADIANS_PER_SECOND = 11.5;
 
