@@ -174,7 +174,6 @@ public class Robot extends TimedRobot {
       // Closed loop drive angle
       if (m_driverStick.getRightBumper()) {
         m_drive.setRotationControl(RotationControl.ClosedLoop);
-        m_drive.setTargetRobotAngle(90);
       } else if (m_driverStick.getRightTriggerAxis() > 0.5) {
         m_drive.setRotationControl(RotationControl.ClosedLoop);
         m_drive.setTargetRobotAngle(Drive.AnglePresets.TOWARDS_HP);

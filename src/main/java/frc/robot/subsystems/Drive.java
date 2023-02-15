@@ -83,16 +83,17 @@ public class Drive implements Subsystem {
                     DriveInfo.MAX_ANGULAR_VELOCITY_RADIANS_PER_SECOND, 7.0)));
   }
 
-  public void driveInput(Translation2d translation, double rotation, boolean fieldRelative) {
+  public void driveInput(Translation2d translation, double rotationVal, boolean fieldRelative) {
+    double rotation = rotationVal;
     if (m_rotationControl == RotationControl.ClosedLoop) {
-      double currentYaw = getNormalizedGyroYaw();
-      double diff = m_targetRobotAngle - currentYaw;
+      double diff = m_targetRobotAngle - getNormalizedGyroYaw();
       if (diff > 180) {
         diff -= 360;
       } else if (diff < -180) {
         diff += 360;
       }
-      rotation = m_rotationController.calculate(currentYaw, currentYaw + diff);
+      rotation =
+          m_rotationController.calculate(getNormalizedGyroYaw(), getNormalizedGyroYaw() + diff);
     } else if (rotation != 0.0) {
       m_targetRobotAngle = getNormalizedGyroYaw();
     }
@@ -189,8 +190,6 @@ public class Drive implements Subsystem {
     swerveOdometry.update(getGyroscopeRotation(), getPositions());
 
     GreyDashClient.setGyroAngle(getGyroYaw());
-
-    SmartDashboard.putNumber("Drive Yaw", getNormalizedGyroYaw());
 
     for (SwerveModule mod : m_swerveModules) {
       SmartDashboard.putNumber(
