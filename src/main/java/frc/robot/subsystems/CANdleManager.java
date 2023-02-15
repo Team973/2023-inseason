@@ -43,6 +43,7 @@ public class CANdleManager implements Subsystem {
         setLightState(LightState.Cone);
         break;
       case None:
+      default:
         setLightState(LightState.Off);
         break;
     }

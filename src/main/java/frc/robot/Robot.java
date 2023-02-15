@@ -78,7 +78,6 @@ public class Robot extends TimedRobot {
     m_elevator.update();
     m_claw.update();
     m_drive.update();
-    m_candle.update();
   }
 
   /** Reset subsystems. Called me when initializing. */
@@ -111,6 +110,7 @@ public class Robot extends TimedRobot {
   public void robotPeriodic() {
     try {
       GreyDashClient.update();
+      m_candle.update();
       if (this.isEnabled()) {
         this.updateSubsystems();
       }
@@ -145,7 +145,6 @@ public class Robot extends TimedRobot {
   @Override
   public void autonomousPeriodic() {
     try {
-      this.updateSubsystems();
     } catch (Exception e) {
       logException(e);
     }
