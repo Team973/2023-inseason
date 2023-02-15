@@ -10,6 +10,8 @@ import java.io.FileWriter;
 import java.io.PrintWriter;
 
 import frc.robot.greydash.GreyDashClient;
+import frc.robot.subsystems.CANdleManager;
+import frc.robot.subsystems.CANdleManager.LightState;
 import frc.robot.subsystems.Claw;
 import frc.robot.subsystems.Claw.GamePiece;
 import frc.robot.subsystems.Claw.IntakeState;
@@ -44,6 +46,7 @@ public class Robot extends TimedRobot {
   private final Elevator m_elevator = new Elevator();
   private final Claw m_claw = new Claw();
   private final Drive m_drive = new Drive();
+  private final CANdleManager m_candleManager = new CANdleManager();
 
   private final XboxController m_driverStick = new XboxController(0);
   private final XboxController m_operatorStick = new XboxController(1);
@@ -53,8 +56,11 @@ public class Robot extends TimedRobot {
   private final Compressor m_compressor =
       new Compressor(COMPRESSOR_ID, PneumaticsModuleType.CTREPCM);
 
+  private boolean m_exceptionHappened = false;
+
   private void logException(Exception e) {
     try {
+      m_exceptionHappened = true;
       FileWriter fileWriter = new FileWriter("/home/lvuser/exception_log.txt", true);
       PrintWriter printWriter = new PrintWriter(fileWriter);
       e.printStackTrace(printWriter);
@@ -72,6 +78,7 @@ public class Robot extends TimedRobot {
     m_elevator.update();
     m_claw.update();
     m_drive.update();
+    m_candleManager.update();
   }
 
   /** Reset subsystems. Called me when initializing. */
@@ -79,6 +86,7 @@ public class Robot extends TimedRobot {
     m_elevator.reset();
     m_claw.reset();
     m_drive.reset();
+    m_candleManager.reset();
   }
 
   /**
@@ -103,6 +111,7 @@ public class Robot extends TimedRobot {
   public void robotPeriodic() {
     try {
       GreyDashClient.update();
+      m_candleManager.update();
       if (this.isEnabled()) {
         this.updateSubsystems();
       }
@@ -276,6 +285,9 @@ public class Robot extends TimedRobot {
   @Override
   public void disabledPeriodic() {
     try {
+      if (m_exceptionHappened == true) {
+        m_candleManager.setLightState(LightState.Flash);
+      }
     } catch (Exception e) {
       logException(e);
     }

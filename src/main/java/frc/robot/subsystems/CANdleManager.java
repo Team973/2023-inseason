@@ -17,6 +17,7 @@ public class CANdleManager implements Subsystem {
   public enum LightState {
     Cube,
     Cone,
+    Flash,
     Off
   }
 
@@ -41,6 +42,8 @@ public class CANdleManager implements Subsystem {
       case Cube:
         m_candle.setLEDs(165, 44, 209); // set the CANdle LEDs to purple
         break;
+      case Flash:
+        m_candle.setLEDs(237, 7, 19); // set the CANdle LEDs to red
       case Off:
         m_candle.setLEDs(0, 0, 0); // set the CANdle LEDs to be offs
         break;
