@@ -2,6 +2,7 @@ package frc.robot.subsystems;
 
 import static frc.robot.shared.RobotInfo.*;
 
+import frc.robot.shared.Constants.GamePiece;
 import frc.robot.shared.Subsystem;
 
 import com.ctre.phoenix.led.CANdle;
@@ -31,6 +32,14 @@ public class CANdleManager implements Subsystem {
     configAll.brightnessScalar = 0.1;
     configAll.vBatOutputMode = VBatOutputMode.Modulated;
     m_candle.configAllSettings(configAll, 100);
+  }
+
+  public void setLightWithGamePiece(GamePiece gamePiece) {
+    if (gamePiece == GamePiece.Cube) {
+      setLightState(LightState.Cube);
+    } else {
+      setLightState(LightState.Cone);
+    }
   }
 
   public void update() {

@@ -10,8 +10,9 @@ import java.io.FileWriter;
 import java.io.PrintWriter;
 
 import frc.robot.greydash.GreyDashClient;
+import frc.robot.shared.Constants.GamePiece;
+import frc.robot.subsystems.CANdleManager;
 import frc.robot.subsystems.Claw;
-import frc.robot.subsystems.Claw.GamePiece;
 import frc.robot.subsystems.Claw.IntakeState;
 import frc.robot.subsystems.Claw.WristState;
 import frc.robot.subsystems.Drive;
@@ -27,6 +28,8 @@ import edu.wpi.first.wpilibj.PneumaticsModuleType;
 import edu.wpi.first.wpilibj.TimedRobot;
 import edu.wpi.first.wpilibj.XboxController;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
+import lombok.Getter;
+import lombok.Setter;
 import lombok.experimental.Accessors;
 
 /**
@@ -44,11 +47,14 @@ public class Robot extends TimedRobot {
   private final Elevator m_elevator = new Elevator();
   private final Claw m_claw = new Claw();
   private final Drive m_drive = new Drive();
+  private final CANdleManager m_candle = new CANdleManager();
 
   private final XboxController m_driverStick = new XboxController(0);
   private final XboxController m_operatorStick = new XboxController(1);
 
   private final SlewRateLimiter m_rotLimiter = new SlewRateLimiter(3);
+
+  @Setter @Getter private GamePiece m_currentGamePiece;
 
   private final Compressor m_compressor =
       new Compressor(COMPRESSOR_ID, PneumaticsModuleType.CTREPCM);
@@ -106,6 +112,7 @@ public class Robot extends TimedRobot {
       if (this.isEnabled()) {
         this.updateSubsystems();
       }
+      m_candle.setLightWithGamePiece(m_currentGamePiece);
       SmartDashboard.putNumber("Elevator Height", m_elevator.getHeight());
       SmartDashboard.putNumber("Elevator Position", m_elevator.getPosition());
       SmartDashboard.putBoolean("Elevator Bottom Hall", m_elevator.getBottomHall());
