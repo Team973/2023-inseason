@@ -12,6 +12,7 @@ import java.io.PrintWriter;
 import frc.robot.greydash.GreyDashClient;
 import frc.robot.shared.Constants.GamePiece;
 import frc.robot.subsystems.CANdleManager;
+import frc.robot.subsystems.CANdleManager.LightState;
 import frc.robot.subsystems.Claw;
 import frc.robot.subsystems.Claw.IntakeState;
 import frc.robot.subsystems.Claw.WristState;
@@ -198,6 +199,7 @@ public class Robot extends TimedRobot {
       // Score
       if (m_driverStick.getLeftBumper()) {
         m_claw.setIntakeState(IntakeState.Out);
+        m_candle.setLightState(LightState.Off);
       } else if (m_claw.getIntakeState() == IntakeState.Out) {
         m_claw.setIntakeState(IntakeState.Neutral);
       }
@@ -252,9 +254,11 @@ public class Robot extends TimedRobot {
       // Intake
       if (m_operatorStick.getRightTriggerAxis() > 0.5) {
         m_claw.setCurrentGamePiece(GamePiece.Cone);
+        m_candle.setLightState(LightState.Cone);
         m_claw.setIntakeState(IntakeState.In);
       } else if (m_operatorStick.getLeftTriggerAxis() > 0.5) {
         m_claw.setCurrentGamePiece(GamePiece.Cube);
+        m_candle.setLightState(LightState.Cube);
         m_claw.setIntakeState(IntakeState.In);
       } else if (m_claw.getIntakeState() != IntakeState.Out
           && m_claw.getIntakeState() != IntakeState.Neutral) {
