@@ -78,6 +78,7 @@ public class Robot extends TimedRobot {
     m_elevator.update();
     m_claw.update();
     m_drive.update();
+    m_candle.update();
   }
 
   /** Reset subsystems. Called me when initializing. */
@@ -85,6 +86,7 @@ public class Robot extends TimedRobot {
     m_elevator.reset();
     m_claw.reset();
     m_drive.reset();
+    m_candle.reset();
   }
 
   /**

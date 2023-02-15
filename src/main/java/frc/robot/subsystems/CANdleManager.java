@@ -35,10 +35,16 @@ public class CANdleManager implements Subsystem {
   }
 
   public void setLightWithGamePiece(GamePiece gamePiece) {
-    if (gamePiece == GamePiece.Cube) {
-      setLightState(LightState.Cube);
-    } else {
-      setLightState(LightState.Cone);
+    switch (gamePiece) {
+      case Cube:
+        setLightState(LightState.Cube);
+        break;
+      case Cone:
+        setLightState(LightState.Cone);
+        break;
+      case None:
+        setLightState(LightState.Off);
+        break;
     }
   }
 
