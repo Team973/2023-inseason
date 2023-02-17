@@ -1,8 +1,8 @@
 package frc.robot.auto.commands;
 
 import frc.robot.shared.AutoCommand;
+import frc.robot.shared.Constants.GamePiece;
 import frc.robot.subsystems.Claw;
-import frc.robot.subsystems.Claw.GamePiece;
 import frc.robot.subsystems.Claw.IntakeState;
 
 import lombok.AllArgsConstructor;
