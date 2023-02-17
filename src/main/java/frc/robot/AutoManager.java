@@ -12,6 +12,7 @@ import frc.robot.auto.commands.WristAngleCommand;
 import frc.robot.auto.commands.util.ConcurrentCommand;
 import frc.robot.auto.commands.util.SequentialCommand;
 import frc.robot.auto.commands.util.WaitCommand;
+import frc.robot.greydash.GreyDashClient;
 import frc.robot.shared.AutoCommand;
 import frc.robot.subsystems.Claw;
 import frc.robot.subsystems.Claw.GamePiece;
@@ -33,6 +34,8 @@ public class AutoManager {
     Test,
     OneCone
   }
+
+  private AutoMode m_autoMode;
 
   private final AutoCommand test;
   private final AutoCommand oneCone;
@@ -77,6 +80,8 @@ public class AutoManager {
   }
 
   public void init() {
+    GreyDashClient.setAvailableAutoModes(AutoMode.Test.name(), AutoMode.OneCone.name());
+    m_autoMode = AutoMode.valueOf(GreyDashClient.getAutoSelected());
     m_currentMode.init();
   }
 
