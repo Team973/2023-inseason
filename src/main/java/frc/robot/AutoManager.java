@@ -1,7 +1,5 @@
 package frc.robot;
 
-import static frc.robot.shared.RobotInfo.*;
-
 import frc.robot.auto.commands.DriveTrajectoryCommand;
 import frc.robot.auto.commands.ElevatorPresetCommand;
 import frc.robot.auto.commands.PickupGamePiece;
@@ -87,9 +85,5 @@ public class AutoManager {
       default:
         return null;
     }
-  }
-
-  public void updateCurrentAutoMode() {
-    m_currentMode = selectAuto(Robot.getAutoMode());
   }
 }

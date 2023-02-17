@@ -29,7 +29,6 @@ import edu.wpi.first.wpilibj.PneumaticsModuleType;
 import edu.wpi.first.wpilibj.TimedRobot;
 import edu.wpi.first.wpilibj.XboxController;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
-import lombok.Getter;
 import lombok.experimental.Accessors;
 
 /**
@@ -41,7 +40,6 @@ import lombok.experimental.Accessors;
 @Accessors(prefix = "m_")
 public class Robot extends TimedRobot {
   private static final String kDefaultAuto = "Default";
-  private static final String kCustomAuto = "My Auto";
   private static String m_autoSelected = kDefaultAuto;
 
   private final Elevator m_elevator = new Elevator();
@@ -51,8 +49,6 @@ public class Robot extends TimedRobot {
 
   private final AutoManager m_autoManager =
       new AutoManager(m_claw, m_elevator, m_drive, m_trajectoryManager);
-
-  @Getter private static AutoMode m_autoMode;
 
   private final XboxController m_driverStick = new XboxController(0);
   private final XboxController m_operatorStick = new XboxController(1);
@@ -111,8 +107,7 @@ public class Robot extends TimedRobot {
   @Override
   public void robotPeriodic() {
     try {
-      m_autoManager.updateCurrentAutoMode();
-      m_autoMode = AutoMode.valueOf(GreyDashClient.getAutoSelected());
+      m_autoManager.selectAuto(AutoMode.valueOf(GreyDashClient.getAutoSelected()));
       GreyDashClient.update();
       if (this.isEnabled()) {
         this.updateSubsystems();
