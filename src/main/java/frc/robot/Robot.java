@@ -9,6 +9,7 @@ import static frc.robot.shared.RobotInfo.*;
 import java.io.FileWriter;
 import java.io.PrintWriter;
 
+import frc.robot.AutoManager.AutoMode;
 import frc.robot.auto.commands.TrajectoryManager;
 import frc.robot.greydash.GreyDashClient;
 import frc.robot.subsystems.Claw;
@@ -28,6 +29,7 @@ import edu.wpi.first.wpilibj.PneumaticsModuleType;
 import edu.wpi.first.wpilibj.TimedRobot;
 import edu.wpi.first.wpilibj.XboxController;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
+import lombok.Getter;
 import lombok.experimental.Accessors;
 
 /**
@@ -49,6 +51,8 @@ public class Robot extends TimedRobot {
 
   private final AutoManager m_autoManager =
       new AutoManager(m_claw, m_elevator, m_drive, m_trajectoryManager);
+
+  @Getter private static AutoMode m_autoMode;
 
   private final XboxController m_driverStick = new XboxController(0);
   private final XboxController m_operatorStick = new XboxController(1);
@@ -92,7 +96,7 @@ public class Robot extends TimedRobot {
    */
   @Override
   public void robotInit() {
-    GreyDashClient.setAvailableAutoModes(kDefaultAuto, kCustomAuto);
+    GreyDashClient.setAvailableAutoModes(AutoMode.Test.name(), AutoMode.OneCone.name());
 
     this.resetSubsystems();
   }
@@ -107,6 +111,8 @@ public class Robot extends TimedRobot {
   @Override
   public void robotPeriodic() {
     try {
+      m_autoManager.updateCurrentAutoMode();
+      m_autoMode = AutoMode.valueOf(GreyDashClient.getAutoSelected());
       GreyDashClient.update();
       if (this.isEnabled()) {
         this.updateSubsystems();
