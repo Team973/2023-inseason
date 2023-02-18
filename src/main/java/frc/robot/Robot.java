@@ -26,6 +26,7 @@ import edu.wpi.first.math.filter.SlewRateLimiter;
 import edu.wpi.first.math.geometry.Translation2d;
 import edu.wpi.first.wpilibj.Compressor;
 import edu.wpi.first.wpilibj.PneumaticsModuleType;
+import edu.wpi.first.wpilibj.RobotBase;
 import edu.wpi.first.wpilibj.TimedRobot;
 import edu.wpi.first.wpilibj.XboxController;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
@@ -65,11 +66,13 @@ public class Robot extends TimedRobot {
   private void logException(Exception e) {
     try {
       m_exceptionHappened = true;
-      FileWriter fileWriter = new FileWriter("/home/lvuser/exception_log.txt", true);
-      PrintWriter printWriter = new PrintWriter(fileWriter);
-      e.printStackTrace(printWriter);
-      printWriter.close();
-      fileWriter.close();
+      if (!RobotBase.isSimulation()) {
+        FileWriter fileWriter = new FileWriter("/home/lvuser/exception_log.txt", true);
+        PrintWriter printWriter = new PrintWriter(fileWriter);
+        e.printStackTrace(printWriter);
+        printWriter.close();
+        fileWriter.close();
+      }
 
       System.err.println(e);
     } catch (Exception ie) {
