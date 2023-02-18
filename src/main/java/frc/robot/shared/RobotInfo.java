@@ -13,9 +13,10 @@ public final class RobotInfo {
     public static final int FX_ID = 14;
   }
 
-  public static class ArmInfo {
-    public static final int SOLENOID_ID = 0;
-    public static final int FX_ID = 15;
+  public static class ClawInfo {
+    public static final int WRIST_FX_ID = 19;
+    public static final int INTAKE_FX_ID = 15;
+    public static final double GEAR_RATIO = (1.0 / 4.0) * (1.0 / 4.0) * (16.0 / 44.0);
   }
 
   public static class CANdleInfo {
@@ -23,14 +24,10 @@ public final class RobotInfo {
   }
 
   public static class ElevatorInfo {
-    public static final int BOTTOM_HALL_SENSOR_ID = 0;
-    public static final int TOP_HALL_SENSOR_ID = 1;
+    public static final int BOTTOM_HALL_SENSOR_ID = 2;
+    public static final int TOP_HALL_SENSOR_ID = 3;
     public static final int FX_ID = 16;
     public static final int FOLLOWER_FX_ID = 17;
-  }
-
-  public static class WristInfo {
-    public static final double GEAR_RATIO = (1.0 / 3.0) * (1.0 / 3.0) * (22.0 / 44.0);
   }
 
   public static class DriveInfo {
@@ -67,18 +64,18 @@ public final class RobotInfo {
      * The left-to-right distance between the drivetrain wheels Should be measured from center to
      * center.
      */
-    public static final double TRACKWIDTH_METERS = 0.6033;
+    public static final double TRACKWIDTH_METERS = 0.53975;
     /**
      * The front-to-back distance between the drivetrain wheels. Should be measured from center to
      * center.
      */
-    public static final double WHEELBASE_METERS = 0.6033;
+    public static final double WHEELBASE_METERS = 0.53975;
 
     public static final double OPENLOOP_RAMP = 0.0;
     public static final double CLOSEDLOOP_RAMP = 0.0;
 
     /* Angle Motor PID Values */
-    public static final double ANGLE_KP = 0.25;
+    public static final double ANGLE_KP = 0.3;
     public static final double ANGLE_KI = 0.0;
     public static final double ANGLE_KD = 0.1;
     public static final double ANGLE_KF = 0.0;
@@ -103,7 +100,7 @@ public final class RobotInfo {
     public static final boolean CANCODER_INVERT = false;
 
     public static final double MAX_VELOCITY_METERS_PER_SECOND =
-        6380.0 / 60.0 / DRIVE_GEAR_RATIO * WHEEL_DIAMETER_METERS * Math.PI;
+        8000.0 / 60.0 / DRIVE_GEAR_RATIO * WHEEL_DIAMETER_METERS * Math.PI;
 
     public static final double MAX_ANGULAR_VELOCITY_RADIANS_PER_SECOND = 11.5;
 

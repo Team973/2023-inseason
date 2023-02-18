@@ -9,27 +9,29 @@ import static frc.robot.shared.RobotInfo.*;
 import java.io.FileWriter;
 import java.io.PrintWriter;
 
-import frc.robot.subsystems.Arm;
-import frc.robot.subsystems.Arm.ExtensionState;
+import frc.robot.greydash.GreyDashClient;
+import frc.robot.shared.Constants.GamePiece;
 import frc.robot.subsystems.CANdleManager;
 import frc.robot.subsystems.CANdleManager.LightState;
+import frc.robot.subsystems.Claw;
+import frc.robot.subsystems.Claw.IntakeState;
+import frc.robot.subsystems.Claw.WristState;
 import frc.robot.subsystems.Drive;
+import frc.robot.subsystems.Drive.RotationControl;
 import frc.robot.subsystems.Elevator;
 import frc.robot.subsystems.Elevator.ElevatorState;
-import frc.robot.subsystems.ExampleSubsystem;
-import frc.robot.subsystems.Intake;
-import frc.robot.subsystems.Intake.GamePiece;
-import frc.robot.subsystems.Intake.IntakeState;
 
 import edu.wpi.first.math.MathUtil;
 import edu.wpi.first.math.filter.SlewRateLimiter;
 import edu.wpi.first.math.geometry.Translation2d;
 import edu.wpi.first.wpilibj.Compressor;
 import edu.wpi.first.wpilibj.PneumaticsModuleType;
+import edu.wpi.first.wpilibj.RobotBase;
 import edu.wpi.first.wpilibj.TimedRobot;
 import edu.wpi.first.wpilibj.XboxController;
-import edu.wpi.first.wpilibj.smartdashboard.SendableChooser;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
+import lombok.Getter;
+import lombok.Setter;
 import lombok.experimental.Accessors;
 
 /**
@@ -42,54 +44,55 @@ import lombok.experimental.Accessors;
 public class Robot extends TimedRobot {
   private static final String kDefaultAuto = "Default";
   private static final String kCustomAuto = "My Auto";
-  private String m_autoSelected;
-  private final SendableChooser<String> m_chooser = new SendableChooser<>();
+  private static String m_autoSelected = kDefaultAuto;
 
-  private final ExampleSubsystem m_exampleSubsystem = new ExampleSubsystem();
-  private final Intake m_intake = new Intake();
   private final Elevator m_elevator = new Elevator();
-  private final Arm m_arm = new Arm();
+  private final Claw m_claw = new Claw();
   private final Drive m_drive = new Drive();
-  private final CANdleManager m_candle = new CANdleManager();
+  private final CANdleManager m_candleManager = new CANdleManager();
 
   private final XboxController m_driverStick = new XboxController(0);
   private final XboxController m_operatorStick = new XboxController(1);
 
   private final SlewRateLimiter m_rotLimiter = new SlewRateLimiter(3);
 
+  @Setter @Getter private GamePiece m_currentGamePiece = GamePiece.None;
+
   private final Compressor m_compressor =
       new Compressor(COMPRESSOR_ID, PneumaticsModuleType.CTREPCM);
 
+  private boolean m_exceptionHappened = false;
+
   private void logException(Exception e) {
     try {
-      FileWriter fileWriter = new FileWriter("/home/lvuser/exception_log.txt", true);
-      PrintWriter printWriter = new PrintWriter(fileWriter);
-      e.printStackTrace(printWriter);
-      printWriter.close();
-      fileWriter.close();
+      m_exceptionHappened = true;
+      if (!RobotBase.isSimulation()) {
+        FileWriter fileWriter = new FileWriter("/home/lvuser/exception_log.txt", true);
+        PrintWriter printWriter = new PrintWriter(fileWriter);
+        e.printStackTrace(printWriter);
+        printWriter.close();
+        fileWriter.close();
+      }
+
+      System.err.println(e);
     } catch (Exception ie) {
-      throw new RuntimeException("could not write to exception log file", ie);
+      throw new RuntimeException("Could not write to exception log file", ie);
     }
   }
 
   /** Update subsystems. Called me when enabled. */
   private void updateSubsystems() {
-    m_exampleSubsystem.update();
-    m_intake.update();
     m_elevator.update();
-    m_arm.update();
+    m_claw.update();
     m_drive.update();
-    m_candle.update();
   }
 
   /** Reset subsystems. Called me when initializing. */
   private void resetSubsystems() {
-    m_exampleSubsystem.reset();
-    m_intake.reset();
     m_elevator.reset();
-    m_arm.reset();
+    m_claw.reset();
     m_drive.reset();
-    m_candle.reset();
+    m_candleManager.reset();
   }
 
   /**
@@ -98,9 +101,7 @@ public class Robot extends TimedRobot {
    */
   @Override
   public void robotInit() {
-    m_chooser.setDefaultOption("Default Auto", kDefaultAuto);
-    m_chooser.addOption("My Auto", kCustomAuto);
-    SmartDashboard.putData("Auto choices", m_chooser);
+    GreyDashClient.setAvailableAutoModes(kDefaultAuto, kCustomAuto);
 
     this.resetSubsystems();
   }
@@ -115,9 +116,19 @@ public class Robot extends TimedRobot {
   @Override
   public void robotPeriodic() {
     try {
+      GreyDashClient.update();
+      m_candleManager.update();
       if (this.isEnabled()) {
         this.updateSubsystems();
       }
+      m_claw.setCurrentGamePiece(m_currentGamePiece);
+      if (!m_exceptionHappened || !this.isDisabled()) {
+        m_candleManager.setLightWithGamePiece(m_currentGamePiece);
+      }
+      SmartDashboard.putNumber("Elevator Height", m_elevator.getHeight());
+      SmartDashboard.putNumber("Elevator Position", m_elevator.getPosition());
+      SmartDashboard.putBoolean("Elevator Bottom Hall", m_elevator.getBottomHall());
+      SmartDashboard.putBoolean("Elevator Top Hall", m_elevator.getTopHall());
     } catch (Exception e) {
       logException(e);
     }
@@ -135,8 +146,7 @@ public class Robot extends TimedRobot {
    */
   @Override
   public void autonomousInit() {
-    m_autoSelected = m_chooser.getSelected();
-    // m_autoSelected = SmartDashboard.getString("Auto Selector", kDefaultAuto);
+    m_autoSelected = GreyDashClient.getAutoSelected();
     System.out.println("Auto selected: " + m_autoSelected);
     m_compressor.enableDigital();
   }
@@ -145,16 +155,6 @@ public class Robot extends TimedRobot {
   @Override
   public void autonomousPeriodic() {
     try {
-      this.updateSubsystems();
-      switch (m_autoSelected) {
-        case kCustomAuto:
-          // Put custom auto code here
-          break;
-        case kDefaultAuto:
-        default:
-          // Put default auto code here
-          break;
-      }
     } catch (Exception e) {
       logException(e);
     }
@@ -170,6 +170,9 @@ public class Robot extends TimedRobot {
   @Override
   public void teleopPeriodic() {
     try {
+      /////////////////////
+      // DRIVER CONTROLS //
+      /////////////////////
       final double xSpeed = -MathUtil.applyDeadband(m_driverStick.getRawAxis(1), 0.09);
       final double ySpeed = -MathUtil.applyDeadband(m_driverStick.getRawAxis(0), 0.09);
 
@@ -186,31 +189,65 @@ public class Robot extends TimedRobot {
 
       m_drive.driveInput(translation, rot, true);
 
-      // Arm extension
-      if (m_operatorStick.getLeftBumper()) {
-        m_arm.setExtensionState(ExtensionState.RETRACTED);
-      } else if (m_operatorStick.getRightBumper()) {
-        m_arm.setExtensionState(ExtensionState.EXTENDED);
+      // Closed loop drive angle
+      if (m_driverStick.getRightBumper()) {
+        m_drive.setRotationControl(RotationControl.ClosedLoop);
+        m_drive.setTargetRobotAngle(Drive.AnglePresets.TOWARDS_DS);
+      } else if (m_driverStick.getRightTriggerAxis() > 0.5) {
+        m_drive.setRotationControl(RotationControl.ClosedLoop);
+        m_drive.setTargetRobotAngle(Drive.AnglePresets.TOWARDS_HP);
+      } else {
+        m_drive.setRotationControl(RotationControl.OpenLoop);
       }
+
+      // Reset Drive
+      if (m_driverStick.getStartButton()) {
+        m_drive.reset();
+      }
+
+      // Score
+      if (m_driverStick.getLeftBumper()) {
+        m_claw.setIntakeState(IntakeState.Out);
+        m_candleManager.setLightState(LightState.Off);
+      } else if (m_claw.getIntakeState() == IntakeState.Out) {
+        m_claw.setIntakeState(IntakeState.Neutral);
+      }
+
+      //////////
+      // BOTH //
+      //////////
+      // Stow elevator/wrist
+      if (m_driverStick.getLeftTriggerAxis() > 0.5 || m_operatorStick.getAButton()) {
+        m_elevator.setHeight(Elevator.Presets.stow);
+        m_claw.setWristPreset(Claw.WristPreset.Stow);
+      }
+
+      ////////////////////////
+      // CO-DRIVER CONTROLS //
+      ////////////////////////
+      double operatorStickRightY = -MathUtil.applyDeadband(m_operatorStick.getRawAxis(5), 0.1);
 
       // Elevator height preset
       switch (m_operatorStick.getPOV()) {
         case 0:
-          m_elevator.setHighPreset();
+          m_elevator.setHeight(Elevator.Presets.high);
+          m_claw.setWristPreset(Claw.WristPreset.High);
           break;
         case 90:
-          m_elevator.setMidPreset();
+          m_elevator.setHeight(Elevator.Presets.mid);
+          m_claw.setWristPreset(Claw.WristPreset.Mid);
           break;
         case 180:
-          m_elevator.setFloorPreset();
+          m_elevator.setHeight(Elevator.Presets.floor);
+          m_claw.setWristPreset(Claw.WristPreset.Floor);
           break;
         case 270:
-          m_elevator.setHpPreset();
+          m_elevator.setHeight(Elevator.Presets.hp);
+          m_claw.setWristPreset(Claw.WristPreset.HP);
+          break;
+        default:
           break;
       }
-
-      double operatorStickRightY = MathUtil.applyDeadband(m_operatorStick.getRawAxis(0), 0.1);
-      double operatorStickRightX = MathUtil.applyDeadband(m_operatorStick.getRawAxis(1), 0.1);
 
       // Manual Elevator
       if (operatorStickRightY != 0.0) {
@@ -224,23 +261,25 @@ public class Robot extends TimedRobot {
       }
 
       // Intake
-      if (operatorStickRightX < 0.0) {
-        m_intake.setIntakeState(IntakeState.In);
-      } else if (operatorStickRightX > 0.0) {
-        m_intake.setIntakeState(IntakeState.Out);
+      if (m_operatorStick.getRightTriggerAxis() > 0.5) {
+        m_currentGamePiece = GamePiece.Cone;
+        m_claw.setIntakeState(IntakeState.In);
+      } else if (m_operatorStick.getLeftTriggerAxis() > 0.5) {
+        m_currentGamePiece = GamePiece.Cube;
+        m_claw.setIntakeState(IntakeState.In);
+      } else if (m_claw.getIntakeState() != IntakeState.Out
+          && m_claw.getIntakeState() != IntakeState.Neutral) {
+        m_claw.setIntakeState(IntakeState.Hold);
       }
 
-      // Select Game Piece
-      if (m_operatorStick.getBButton()) {
-        m_candle.setLightState(LightState.Cube);
-        m_intake.setCurrentGamePiece(GamePiece.Cube);
-      } else if (m_operatorStick.getXButton()) {
-        m_candle.setLightState(LightState.Cone);
-        m_intake.setCurrentGamePiece(GamePiece.Cone);
+      // Manually Control Wrist
+      double wristJoystickInput = -MathUtil.applyDeadband(m_operatorStick.getLeftY(), 0.12) * 0.25;
+      if (wristJoystickInput != 0.0) {
+        m_claw.setWristState(WristState.Manual);
+        m_claw.setWristMotorOutput(wristJoystickInput);
+      } else {
+        m_claw.setWristState(WristState.ClosedLoop);
       }
-
-      // Set Wrist Angle
-      m_arm.setWristTargetAngle(MathUtil.applyDeadband(m_operatorStick.getRawAxis(1), 0.09));
     } catch (Exception e) {
       logException(e);
     }
@@ -256,6 +295,9 @@ public class Robot extends TimedRobot {
   @Override
   public void disabledPeriodic() {
     try {
+      if (m_exceptionHappened == true) {
+        m_candleManager.setLightState(LightState.Flash);
+      }
     } catch (Exception e) {
       logException(e);
     }

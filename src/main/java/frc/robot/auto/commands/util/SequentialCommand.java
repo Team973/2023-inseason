@@ -8,7 +8,7 @@ public class SequentialCommand extends AutoCommand {
   private final ImmutableList<AutoCommand> m_cmdList;
   private boolean m_cmdNeedsInit = true;
   private int m_currentIndex = 0;
-  private Double m_timeout = null;
+  private Double m_timeout = Double.MAX_VALUE;
 
   /**
    * Constructor for sequential command class.
@@ -53,10 +53,13 @@ public class SequentialCommand extends AutoCommand {
     if (currentCommand.isCompleted()) {
       m_currentIndex++;
       m_cmdNeedsInit = true;
+      currentCommand.postComplete();
     }
   }
 
   public boolean isCompleted() {
     return m_currentIndex >= m_cmdList.size() || hasElapsed();
   }
+
+  public void postComplete() {}
 }
