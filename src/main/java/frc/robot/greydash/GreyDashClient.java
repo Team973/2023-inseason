@@ -4,6 +4,9 @@ import static frc.robot.greydash.GreyDashConstants.*;
 
 import java.util.HashSet;
 
+import frc.robot.AutoManager.AutoMode;
+import frc.robot.shared.Constants.GamePiece;
+
 import edu.wpi.first.networktables.DoublePublisher;
 import edu.wpi.first.networktables.NetworkTable;
 import edu.wpi.first.networktables.NetworkTableInstance;
@@ -30,7 +33,12 @@ public final class GreyDashClient {
   private static final StringArrayPublisher m_autoModes =
       m_autoTable.getStringArrayTopic(AUTO_MODES_TOPIC).publish();
   private static final StringSubscriber m_autoSelected =
-      m_autoTable.getStringTopic(AUTO_SELECTED_TOPIC).subscribe("No Auto");
+      m_autoTable.getStringTopic(AUTO_SELECTED_TOPIC).subscribe(AutoMode.NoAuto.toString());
+
+  private static final StringArrayPublisher m_gamePieces =
+      m_autoTable.getStringArrayTopic(GAME_PIECES_TOPIC).publish();
+  private static final StringSubscriber m_preloadSelected =
+      m_autoTable.getStringTopic(GAME_PIECE_SELECTED_TOPIC).subscribe(GamePiece.None.toString());
 
   // Match Topics
   private static final DoublePublisher m_matchTime =
@@ -81,6 +89,26 @@ public final class GreyDashClient {
    */
   public static String getAutoSelected() {
     return m_autoSelected.get();
+  }
+
+  /**
+   * Sets the available game piece preload options in the dashboard's dropdown menu.
+   *
+   * @param gamePieces The available game pieces.
+   * @see #selectedGamePiece()
+   */
+  public static void availableGamePieces(final String... gamePieces) {
+    m_gamePieces.set(gamePieces);
+  }
+
+  /**
+   * Gets the selected preload from the dashboard's dropdown menu.
+   *
+   * @return The selected preload.
+   * @see #availableGamePieces(String...)
+   */
+  public static String selectedGamePiece() {
+    return m_preloadSelected.get();
   }
 
   /** Periodic update method. This should be called periodically to update the dashboard. */

@@ -1,5 +1,6 @@
 package frc.robot.subsystems;
 
+import frc.robot.greydash.GreyDashClient;
 import frc.robot.shared.RobotInfo;
 import frc.robot.shared.RobotInfo.DriveInfo;
 import frc.robot.shared.Subsystem;
@@ -155,7 +156,8 @@ public class Drive implements Subsystem {
     return swerveOdometry.getPoseMeters();
   }
 
-  public void resetOdometry(Pose2d pose) {
+  public void resetOdometry(Pose2d pose, Rotation2d rotation) {
+    m_gyroOffsetDegrees += rotation.getDegrees();
     swerveOdometry.resetPosition(getGyroscopeRotation(), getPositions(), pose);
   }
 
@@ -175,6 +177,7 @@ public class Drive implements Subsystem {
 
   public void update() {
     swerveOdometry.update(getGyroscopeRotation(), getPositions());
+    GreyDashClient.setGyroAngle(getGyroscopeRotation().getDegrees());
 
     for (SwerveModule mod : m_swerveModules) {
       SmartDashboard.putNumber(
@@ -189,6 +192,6 @@ public class Drive implements Subsystem {
 
   public void reset() {
     resetGyro();
-    resetOdometry(new Pose2d());
+    resetOdometry(new Pose2d(), new Rotation2d());
   }
 }
