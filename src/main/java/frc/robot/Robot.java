@@ -82,7 +82,6 @@ public class Robot extends TimedRobot {
     m_elevator.update();
     m_claw.update();
     m_drive.update();
-    m_candleManager.update();
   }
 
   /** Reset subsystems. Called me when initializing. */
