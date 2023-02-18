@@ -11,8 +11,8 @@ import frc.robot.auto.commands.util.ConcurrentCommand;
 import frc.robot.auto.commands.util.SequentialCommand;
 import frc.robot.auto.commands.util.WaitCommand;
 import frc.robot.shared.AutoCommand;
+import frc.robot.shared.Constants.GamePiece;
 import frc.robot.subsystems.Claw;
-import frc.robot.subsystems.Claw.GamePiece;
 import frc.robot.subsystems.Drive;
 import frc.robot.subsystems.Elevator;
 
@@ -35,6 +35,7 @@ public class AutoManager {
 
   private final AutoCommand test;
   private final AutoCommand oneCone;
+  private final AutoCommand noAuto = new SequentialCommand();
 
   public AutoManager(
       Claw claw, Elevator elevator, Drive drive, TrajectoryManager trajectoryManager) {
@@ -77,15 +78,14 @@ public class AutoManager {
     m_currentMode.init();
   }
 
-  public AutoCommand selectAuto(AutoMode mode) {
+  public void selectAuto(AutoMode mode) {
     switch (mode) {
       case Test:
-        return test;
+        m_currentMode = test;
       case OneCone:
-        return oneCone;
+        m_currentMode = oneCone;
       case NoAuto:
-      default:
-        return null;
+        m_currentMode = noAuto;
     }
   }
 }
