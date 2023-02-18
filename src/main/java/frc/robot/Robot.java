@@ -28,6 +28,7 @@ import edu.wpi.first.math.filter.SlewRateLimiter;
 import edu.wpi.first.math.geometry.Translation2d;
 import edu.wpi.first.wpilibj.Compressor;
 import edu.wpi.first.wpilibj.PneumaticsModuleType;
+import edu.wpi.first.wpilibj.RobotBase;
 import edu.wpi.first.wpilibj.TimedRobot;
 import edu.wpi.first.wpilibj.XboxController;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
@@ -52,25 +53,30 @@ public class Robot extends TimedRobot {
   private final TrajectoryManager m_trajectoryManager = new TrajectoryManager();
   private final AutoManager m_autoManager =
       new AutoManager(m_claw, m_elevator, m_drive, m_trajectoryManager);
-  private final CANdleManager m_candle = new CANdleManager();
+  private final CANdleManager m_candleManager = new CANdleManager();
 
   private final XboxController m_driverStick = new XboxController(0);
   private final XboxController m_operatorStick = new XboxController(1);
 
   private final SlewRateLimiter m_rotLimiter = new SlewRateLimiter(3);
 
-  @Setter @Getter private GamePiece m_currentGamePiece;
+  @Setter @Getter private GamePiece m_currentGamePiece = GamePiece.None;
 
   private final Compressor m_compressor =
       new Compressor(COMPRESSOR_ID, PneumaticsModuleType.CTREPCM);
 
+  private boolean m_exceptionHappened = false;
+
   private void logException(Exception e) {
     try {
-      FileWriter fileWriter = new FileWriter("/home/lvuser/exception_log.txt", true);
-      PrintWriter printWriter = new PrintWriter(fileWriter);
-      e.printStackTrace(printWriter);
-      printWriter.close();
-      fileWriter.close();
+      m_exceptionHappened = true;
+      if (!RobotBase.isSimulation()) {
+        FileWriter fileWriter = new FileWriter("/home/lvuser/exception_log.txt", true);
+        PrintWriter printWriter = new PrintWriter(fileWriter);
+        e.printStackTrace(printWriter);
+        printWriter.close();
+        fileWriter.close();
+      }
 
       System.err.println(e);
     } catch (Exception ie) {
@@ -90,7 +96,7 @@ public class Robot extends TimedRobot {
     m_elevator.reset();
     m_claw.reset();
     m_drive.reset();
-    m_candle.reset();
+    m_candleManager.reset();
   }
 
   /**
@@ -117,11 +123,14 @@ public class Robot extends TimedRobot {
     try {
       m_autoManager.selectAuto(AutoMode.valueOf(GreyDashClient.getAutoSelected()));
       GreyDashClient.update();
-      m_candle.update();
+      m_candleManager.update();
       if (this.isEnabled()) {
         this.updateSubsystems();
       }
-      m_candle.setLightWithGamePiece(m_currentGamePiece);
+      m_claw.setCurrentGamePiece(m_currentGamePiece);
+      if (!m_exceptionHappened || !this.isDisabled()) {
+        m_candleManager.setLightWithGamePiece(m_currentGamePiece);
+      }
       SmartDashboard.putNumber("Elevator Height", m_elevator.getHeight());
       SmartDashboard.putNumber("Elevator Position", m_elevator.getPosition());
       SmartDashboard.putBoolean("Elevator Bottom Hall", m_elevator.getBottomHall());
@@ -208,7 +217,7 @@ public class Robot extends TimedRobot {
       // Score
       if (m_driverStick.getLeftBumper()) {
         m_claw.setIntakeState(IntakeState.Out);
-        m_candle.setLightState(LightState.Off);
+        m_candleManager.setLightState(LightState.Off);
       } else if (m_claw.getIntakeState() == IntakeState.Out) {
         m_claw.setIntakeState(IntakeState.Neutral);
       }
@@ -262,12 +271,10 @@ public class Robot extends TimedRobot {
 
       // Intake
       if (m_operatorStick.getRightTriggerAxis() > 0.5) {
-        m_claw.setCurrentGamePiece(GamePiece.Cone);
-        m_candle.setLightState(LightState.Cone);
+        m_currentGamePiece = GamePiece.Cone;
         m_claw.setIntakeState(IntakeState.In);
       } else if (m_operatorStick.getLeftTriggerAxis() > 0.5) {
-        m_claw.setCurrentGamePiece(GamePiece.Cube);
-        m_candle.setLightState(LightState.Cube);
+        m_currentGamePiece = GamePiece.Cube;
         m_claw.setIntakeState(IntakeState.In);
       } else if (m_claw.getIntakeState() != IntakeState.Out
           && m_claw.getIntakeState() != IntakeState.Neutral) {
@@ -297,6 +304,9 @@ public class Robot extends TimedRobot {
   @Override
   public void disabledPeriodic() {
     try {
+      if (m_exceptionHappened == true) {
+        m_candleManager.setLightState(LightState.Flash);
+      }
     } catch (Exception e) {
       logException(e);
     }
