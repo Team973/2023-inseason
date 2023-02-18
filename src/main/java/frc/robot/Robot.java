@@ -118,7 +118,10 @@ public class Robot extends TimedRobot {
       if (this.isEnabled()) {
         this.updateSubsystems();
       }
-      m_candleManager.setLightWithGamePiece(m_currentGamePiece);
+      m_claw.setCurrentGamePiece(m_currentGamePiece);
+      if (!m_exceptionHappened || !this.isDisabled()) {
+        m_candleManager.setLightWithGamePiece(m_currentGamePiece);
+      }
       SmartDashboard.putNumber("Elevator Height", m_elevator.getHeight());
       SmartDashboard.putNumber("Elevator Position", m_elevator.getPosition());
       SmartDashboard.putBoolean("Elevator Bottom Hall", m_elevator.getBottomHall());
@@ -256,12 +259,10 @@ public class Robot extends TimedRobot {
 
       // Intake
       if (m_operatorStick.getRightTriggerAxis() > 0.5) {
-        m_claw.setCurrentGamePiece(GamePiece.Cone);
-        m_candleManager.setLightState(LightState.Cone);
+        m_currentGamePiece = GamePiece.Cone;
         m_claw.setIntakeState(IntakeState.In);
       } else if (m_operatorStick.getLeftTriggerAxis() > 0.5) {
-        m_claw.setCurrentGamePiece(GamePiece.Cube);
-        m_candleManager.setLightState(LightState.Cube);
+        m_currentGamePiece = GamePiece.Cube;
         m_claw.setIntakeState(IntakeState.In);
       } else if (m_claw.getIntakeState() != IntakeState.Out
           && m_claw.getIntakeState() != IntakeState.Neutral) {
