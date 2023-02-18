@@ -4,6 +4,9 @@ import static frc.robot.greydash.GreyDashConstants.*;
 
 import java.util.HashSet;
 
+import frc.robot.AutoManager.AutoMode;
+import frc.robot.shared.Constants.GamePiece;
+
 import edu.wpi.first.networktables.DoublePublisher;
 import edu.wpi.first.networktables.NetworkTable;
 import edu.wpi.first.networktables.NetworkTableInstance;
@@ -30,12 +33,12 @@ public final class GreyDashClient {
   private static final StringArrayPublisher m_autoModes =
       m_autoTable.getStringArrayTopic(AUTO_MODES_TOPIC).publish();
   private static final StringSubscriber m_autoSelected =
-      m_autoTable.getStringTopic(AUTO_SELECTED_TOPIC).subscribe("NoAuto");
+      m_autoTable.getStringTopic(AUTO_SELECTED_TOPIC).subscribe(AutoMode.NoAuto.toString());
 
   private static final StringArrayPublisher m_gamePieces =
       m_autoTable.getStringArrayTopic(GAME_PIECES_TOPIC).publish();
   private static final StringSubscriber m_preloadSelected =
-      m_autoTable.getStringTopic(GAME_PIECE_SELECTED_TOPIC).subscribe("None");
+      m_autoTable.getStringTopic(GAME_PIECE_SELECTED_TOPIC).subscribe(GamePiece.None.toString());
 
   // Match Topics
   private static final DoublePublisher m_matchTime =
