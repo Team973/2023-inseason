@@ -90,10 +90,10 @@ public class SwerveModule {
     motorConfig.MotorOutput.NeutralMode = NeutralModeValue.Brake;
     motorConfig.Feedback.FeedbackSensorSource = FeedbackSensorSourceValue.RotorSensor;
 
-    motorConfig.Slot0.kP = 0.005;
+    motorConfig.Slot0.kP = 0.00973;
     motorConfig.Slot0.kI = 0.0;
     motorConfig.Slot0.kD = 0.0;
-    motorConfig.Slot0.kV = 0.0103;
+    motorConfig.Slot0.kV = 0.00973;
 
     motorConfig.OpenLoopRamps.DutyCycleOpenLoopRampPeriod = 0.0;
     motorConfig.ClosedLoopRamps.DutyCycleClosedLoopRampPeriod = 0.0;
