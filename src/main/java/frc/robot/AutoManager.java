@@ -1,7 +1,5 @@
 package frc.robot;
 
-import static frc.robot.shared.RobotInfo.*;
-
 import frc.robot.auto.commands.DriveTrajectoryCommand;
 import frc.robot.auto.commands.ElevatorPresetCommand;
 import frc.robot.auto.commands.PickupGamePiece;
@@ -31,11 +29,13 @@ public class AutoManager {
 
   public enum AutoMode {
     Test,
-    OneCone
+    OneCone,
+    NoAuto
   }
 
   private final AutoCommand test;
   private final AutoCommand oneCone;
+  private final AutoCommand noAuto = new SequentialCommand();
 
   public AutoManager(
       Claw claw, Elevator elevator, Drive drive, TrajectoryManager trajectoryManager) {
@@ -68,8 +68,6 @@ public class AutoManager {
                 new ElevatorPresetCommand(elevator, Elevator.Presets.stow, 1000),
                 new WristAngleCommand(claw, Claw.ConePresets.stow, 2000)),
             new DriveTrajectoryCommand(m_drive, m_trajectoryManager.getTrajectoryA()));
-
-    m_currentMode = oneCone;
   }
 
   public void run() {
@@ -84,10 +82,10 @@ public class AutoManager {
     switch (mode) {
       case Test:
         m_currentMode = test;
-        break;
       case OneCone:
         m_currentMode = oneCone;
-        break;
+      case NoAuto:
+        m_currentMode = noAuto;
     }
   }
 }

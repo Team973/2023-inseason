@@ -9,6 +9,7 @@ import static frc.robot.shared.RobotInfo.*;
 import java.io.FileWriter;
 import java.io.PrintWriter;
 
+import frc.robot.AutoManager.AutoMode;
 import frc.robot.auto.commands.TrajectoryManager;
 import frc.robot.greydash.GreyDashClient;
 import frc.robot.shared.Constants.GamePiece;
@@ -43,7 +44,6 @@ import lombok.experimental.Accessors;
 @Accessors(prefix = "m_")
 public class Robot extends TimedRobot {
   private static final String kDefaultAuto = "Default";
-  private static final String kCustomAuto = "My Auto";
   private static String m_autoSelected = kDefaultAuto;
 
   private final Elevator m_elevator = new Elevator();
@@ -99,7 +99,8 @@ public class Robot extends TimedRobot {
    */
   @Override
   public void robotInit() {
-    GreyDashClient.setAvailableAutoModes(kDefaultAuto, kCustomAuto);
+    GreyDashClient.setAvailableAutoModes(
+        AutoMode.Test.name(), AutoMode.OneCone.name(), AutoMode.NoAuto.name());
 
     this.resetSubsystems();
   }
@@ -114,6 +115,7 @@ public class Robot extends TimedRobot {
   @Override
   public void robotPeriodic() {
     try {
+      m_autoManager.selectAuto(AutoMode.valueOf(GreyDashClient.getAutoSelected()));
       GreyDashClient.update();
       m_candle.update();
       if (this.isEnabled()) {
