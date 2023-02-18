@@ -92,7 +92,8 @@ public class Robot extends TimedRobot {
    */
   @Override
   public void robotInit() {
-    GreyDashClient.setAvailableAutoModes(AutoMode.Test.name(), AutoMode.OneCone.name());
+    GreyDashClient.setAvailableAutoModes(
+        AutoMode.Test.name(), AutoMode.OneCone.name(), AutoMode.NoAuto.name());
 
     this.resetSubsystems();
   }

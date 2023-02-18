@@ -29,7 +29,8 @@ public class AutoManager {
 
   public enum AutoMode {
     Test,
-    OneCone
+    OneCone,
+    NoAuto
   }
 
   private final AutoCommand test;
@@ -82,6 +83,7 @@ public class AutoManager {
         return test;
       case OneCone:
         return oneCone;
+      case NoAuto:
       default:
         return null;
     }
