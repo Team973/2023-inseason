@@ -10,6 +10,7 @@ import frc.robot.auto.commands.WristAngleCommand;
 import frc.robot.auto.commands.util.ConcurrentCommand;
 import frc.robot.auto.commands.util.SequentialCommand;
 import frc.robot.auto.commands.util.WaitCommand;
+import frc.robot.greydash.GreyDashClient;
 import frc.robot.shared.AutoCommand;
 import frc.robot.shared.Constants.GamePiece;
 import frc.robot.subsystems.Claw;
@@ -24,6 +25,8 @@ public class AutoManager {
   private final Elevator m_elevator;
   private final Drive m_drive;
   private final TrajectoryManager m_trajectoryManager;
+
+  private GamePiece m_preload = GamePiece.valueOf(GreyDashClient.selectedGamePiece());
 
   private AutoCommand m_currentMode;
 
