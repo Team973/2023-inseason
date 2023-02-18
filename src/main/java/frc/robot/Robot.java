@@ -12,8 +12,10 @@ import java.io.PrintWriter;
 import frc.robot.AutoManager.AutoMode;
 import frc.robot.auto.commands.TrajectoryManager;
 import frc.robot.greydash.GreyDashClient;
+import frc.robot.shared.Constants.GamePiece;
+import frc.robot.subsystems.CANdleManager;
+import frc.robot.subsystems.CANdleManager.LightState;
 import frc.robot.subsystems.Claw;
-import frc.robot.subsystems.Claw.GamePiece;
 import frc.robot.subsystems.Claw.IntakeState;
 import frc.robot.subsystems.Claw.WristState;
 import frc.robot.subsystems.Drive;
@@ -29,6 +31,8 @@ import edu.wpi.first.wpilibj.PneumaticsModuleType;
 import edu.wpi.first.wpilibj.TimedRobot;
 import edu.wpi.first.wpilibj.XboxController;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
+import lombok.Getter;
+import lombok.Setter;
 import lombok.experimental.Accessors;
 
 /**
@@ -49,11 +53,14 @@ public class Robot extends TimedRobot {
 
   private final AutoManager m_autoManager =
       new AutoManager(m_claw, m_elevator, m_drive, m_trajectoryManager);
+  private final CANdleManager m_candle = new CANdleManager();
 
   private final XboxController m_driverStick = new XboxController(0);
   private final XboxController m_operatorStick = new XboxController(1);
 
   private final SlewRateLimiter m_rotLimiter = new SlewRateLimiter(3);
+
+  @Setter @Getter private GamePiece m_currentGamePiece;
 
   private final Compressor m_compressor =
       new Compressor(COMPRESSOR_ID, PneumaticsModuleType.CTREPCM);
@@ -84,6 +91,7 @@ public class Robot extends TimedRobot {
     m_elevator.reset();
     m_claw.reset();
     m_drive.reset();
+    m_candle.reset();
   }
 
   /**
@@ -110,9 +118,11 @@ public class Robot extends TimedRobot {
     try {
       m_autoManager.selectAuto(AutoMode.valueOf(GreyDashClient.getAutoSelected()));
       GreyDashClient.update();
+      m_candle.update();
       if (this.isEnabled()) {
         this.updateSubsystems();
       }
+      m_candle.setLightWithGamePiece(m_currentGamePiece);
       SmartDashboard.putNumber("Elevator Height", m_elevator.getHeight());
       SmartDashboard.putNumber("Elevator Position", m_elevator.getPosition());
       SmartDashboard.putBoolean("Elevator Bottom Hall", m_elevator.getBottomHall());
@@ -200,6 +210,7 @@ public class Robot extends TimedRobot {
       // Score
       if (m_driverStick.getLeftBumper()) {
         m_claw.setIntakeState(IntakeState.Out);
+        m_candle.setLightState(LightState.Off);
       } else if (m_claw.getIntakeState() == IntakeState.Out) {
         m_claw.setIntakeState(IntakeState.Neutral);
       }
@@ -254,9 +265,11 @@ public class Robot extends TimedRobot {
       // Intake
       if (m_operatorStick.getRightTriggerAxis() > 0.5) {
         m_claw.setCurrentGamePiece(GamePiece.Cone);
+        m_candle.setLightState(LightState.Cone);
         m_claw.setIntakeState(IntakeState.In);
       } else if (m_operatorStick.getLeftTriggerAxis() > 0.5) {
         m_claw.setCurrentGamePiece(GamePiece.Cube);
+        m_candle.setLightState(LightState.Cube);
         m_claw.setIntakeState(IntakeState.In);
       } else if (m_claw.getIntakeState() != IntakeState.Out
           && m_claw.getIntakeState() != IntakeState.Neutral) {
