@@ -25,6 +25,8 @@ public class AutoManager {
   private final Drive m_drive;
   private final TrajectoryManager m_trajectoryManager;
 
+  private GamePiece m_preload;
+
   private AutoCommand m_currentMode;
 
   public enum AutoMode {
@@ -87,5 +89,9 @@ public class AutoManager {
       case NoAuto:
         m_currentMode = noAuto;
     }
+  }
+
+  public void selectPreload(GamePiece preload) {
+    m_preload = preload;
   }
 }

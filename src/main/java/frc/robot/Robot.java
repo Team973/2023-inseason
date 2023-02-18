@@ -101,6 +101,8 @@ public class Robot extends TimedRobot {
   public void robotInit() {
     GreyDashClient.setAvailableAutoModes(
         AutoMode.Test.name(), AutoMode.OneCone.name(), AutoMode.NoAuto.name());
+    GreyDashClient.availableGamePieces(
+        GamePiece.Cone.name(), GamePiece.Cube.name(), GamePiece.None.name());
 
     this.resetSubsystems();
   }
@@ -116,6 +118,7 @@ public class Robot extends TimedRobot {
   public void robotPeriodic() {
     try {
       m_autoManager.selectAuto(AutoMode.valueOf(GreyDashClient.getAutoSelected()));
+      m_autoManager.selectPreload(GamePiece.valueOf(GreyDashClient.selectedGamePiece()));
       GreyDashClient.update();
       m_candle.update();
       if (this.isEnabled()) {
@@ -154,6 +157,7 @@ public class Robot extends TimedRobot {
   public void autonomousPeriodic() {
     try {
       m_autoManager.run();
+      this.updateSubsystems();
     } catch (Exception e) {
       logException(e);
     }
