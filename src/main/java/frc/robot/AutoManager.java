@@ -13,8 +13,8 @@ import frc.robot.auto.commands.util.ConcurrentCommand;
 import frc.robot.auto.commands.util.SequentialCommand;
 import frc.robot.auto.commands.util.WaitCommand;
 import frc.robot.shared.AutoCommand;
+import frc.robot.shared.Constants.GamePiece;
 import frc.robot.subsystems.Claw;
-import frc.robot.subsystems.Claw.GamePiece;
 import frc.robot.subsystems.Drive;
 import frc.robot.subsystems.Elevator;
 
