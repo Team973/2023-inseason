@@ -55,7 +55,7 @@ public class Robot extends TimedRobot {
 
   private final SlewRateLimiter m_rotLimiter = new SlewRateLimiter(3);
 
-  @Setter @Getter private GamePiece m_currentGamePiece;
+  @Setter @Getter private GamePiece m_currentGamePiece = GamePiece.None;
 
   private final Compressor m_compressor =
       new Compressor(COMPRESSOR_ID, PneumaticsModuleType.CTREPCM);
