@@ -30,12 +30,12 @@ public final class GreyDashClient {
   private static final StringArrayPublisher m_autoModes =
       m_autoTable.getStringArrayTopic(AUTO_MODES_TOPIC).publish();
   private static final StringSubscriber m_autoSelected =
-      m_autoTable.getStringTopic(AUTO_SELECTED_TOPIC).subscribe("No Auto");
+      m_autoTable.getStringTopic(AUTO_SELECTED_TOPIC).subscribe("NoAuto");
 
   private static final StringArrayPublisher m_gamePieces =
       m_autoTable.getStringArrayTopic(GAME_PIECES_TOPIC).publish();
   private static final StringSubscriber m_preloadSelected =
-      m_autoTable.getStringTopic(GAME_PIECE_SELECTED_TOPIC).subscribe("No preload");
+      m_autoTable.getStringTopic(GAME_PIECE_SELECTED_TOPIC).subscribe("None");
 
   // Match Topics
   private static final DoublePublisher m_matchTime =
