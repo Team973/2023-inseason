@@ -121,7 +121,7 @@ public class Robot extends TimedRobot {
       SmartDashboard.putBoolean("Elevator Bottom Hall", m_elevator.getBottomHall());
       SmartDashboard.putBoolean("Elevator Top Hall", m_elevator.getTopHall());
     } catch (Exception e) {
-      throw e;
+      logException(e);
     }
   }
 
