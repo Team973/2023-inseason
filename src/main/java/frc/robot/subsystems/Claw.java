@@ -2,6 +2,7 @@ package frc.robot.subsystems;
 
 import static frc.robot.shared.RobotInfo.*;
 
+import frc.robot.shared.Constants.GamePiece;
 import frc.robot.shared.RobotInfo;
 import frc.robot.shared.Subsystem;
 
@@ -37,9 +38,8 @@ public class Claw implements Subsystem {
   }
 
   @Setter @Getter private IntakeState m_intakeState = IntakeState.Neutral;
-  @Setter @Getter private GamePiece m_currentGamePiece;
   @Setter @Getter private WristState m_wristState = WristState.Manual;
-
+  @Setter @Getter private GamePiece m_currentGamePiece;
   @Setter @Getter private WristPreset m_wristPreset = WristPreset.Stow;
 
   private final TalonFX m_intakeMotor;
@@ -51,11 +51,6 @@ public class Claw implements Subsystem {
   @Setter private double m_wristMotorOutput = 0.0;
   private double m_statorCurrentLimit = 60.0;
   private final double ANGLE_TOLERANCE = 1.0; // degrees
-
-  public enum GamePiece {
-    Cube,
-    Cone
-  }
 
   public enum IntakeState {
     In,
