@@ -50,7 +50,6 @@ public class Robot extends TimedRobot {
   private final Claw m_claw = new Claw();
   private final Drive m_drive = new Drive();
   private final TrajectoryManager m_trajectoryManager = new TrajectoryManager();
-
   private final AutoManager m_autoManager =
       new AutoManager(m_claw, m_elevator, m_drive, m_trajectoryManager);
   private final CANdleManager m_candle = new CANdleManager();
