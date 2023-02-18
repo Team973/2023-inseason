@@ -31,4 +31,6 @@ public class PathPlannerTrajectoryCommand extends AutoCommand {
   public boolean isCompleted() {
     return m_trajectoryCommand.isCompleted();
   }
+
+  public void postComplete() {}
 }
