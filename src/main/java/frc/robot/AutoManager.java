@@ -16,8 +16,6 @@ import frc.robot.subsystems.Claw.IntakeState;
 import frc.robot.subsystems.Drive;
 import frc.robot.subsystems.Elevator;
 
-import com.pathplanner.lib.PathConstraints;
-import com.pathplanner.lib.PathPlanner;
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation2d;
 
@@ -34,13 +32,11 @@ public class AutoManager {
   public enum AutoMode {
     Test,
     OneCone,
-    PreloadAndCharge,
     NoAuto
   }
 
   private final AutoCommand test;
   private final AutoCommand oneCone;
-  private final AutoCommand preloadAndCharge;
   private final AutoCommand noAuto = new SequentialCommand();
 
   public AutoManager(
@@ -66,16 +62,14 @@ public class AutoManager {
                 Rotation2d.fromDegrees(180.0)),
             new IntakeCommand(claw, IntakeState.In, GamePiece.Cone, 0),
             new ElevatorPresetCommand(elevator, Elevator.Presets.high, 4000),
+            new WaitCommand(500),
+            new WristAngleCommand(claw, Claw.ConePresets.high, 2000),
             new IntakeCommand(claw, IntakeState.Out, GamePiece.Cone, 1500),
             new WaitCommand(500),
             new ConcurrentCommand(
                 new ElevatorPresetCommand(elevator, Elevator.Presets.stow, 1000),
                 new WristAngleCommand(claw, Claw.ConePresets.stow, 2000)),
             new DriveTrajectoryCommand(m_drive, m_trajectoryManager.getTrajectoryA()));
-    preloadAndCharge =
-        new SequentialCommand(
-            new DriveTrajectoryCommand(
-                m_drive, PathPlanner.loadPath("Example Path", new PathConstraints(4, 3))));
   }
 
   public void run() {
@@ -93,9 +87,6 @@ public class AutoManager {
         break;
       case OneCone:
         m_currentMode = oneCone;
-        break;
-      case PreloadAndCharge:
-        m_currentMode = preloadAndCharge;
         break;
       case NoAuto:
         m_currentMode = noAuto;
