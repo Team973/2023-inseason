@@ -21,13 +21,32 @@ import edu.wpi.first.math.kinematics.SwerveModuleState;
 import edu.wpi.first.math.trajectory.Trajectory.State;
 import edu.wpi.first.math.trajectory.TrapezoidProfile;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
+import lombok.Setter;
+import lombok.experimental.Accessors;
 
+@Accessors(prefix = "m_")
 public class Drive implements Subsystem {
   private SwerveDriveOdometry swerveOdometry;
   private SwerveModule[] m_swerveModules;
 
   private final Pigeon2 m_pigeon;
   private double m_gyroOffsetDegrees;
+
+  @Setter private double m_targetRobotAngle = 0.0;
+
+  @Setter private RotationControl m_rotationControl = RotationControl.OpenLoop;
+
+  private PIDController m_rotationController = new PIDController(0.1125, 0.0, 0.003);
+
+  public enum RotationControl {
+    OpenLoop,
+    ClosedLoop,
+  }
+
+  public static class AnglePresets {
+    public static final double TOWARDS_HP = 0.0;
+    public static final double TOWARDS_DS = 180.0;
+  }
 
   private final HolonomicDriveController m_controller;
 
@@ -64,6 +83,13 @@ public class Drive implements Subsystem {
   }
 
   public void driveInput(Translation2d translation, double rotation, boolean fieldRelative) {
+    if (m_rotationControl == RotationControl.ClosedLoop) {
+      double yaw = getNormalizedGyroYaw();
+      // fix 180 flip
+      double targetAngle = yaw > 0.0 ? m_targetRobotAngle : -m_targetRobotAngle;
+      rotation = m_rotationController.calculate(yaw, targetAngle);
+    }
+
     ChassisSpeeds des_chassis_speeds =
         fieldRelative
             ? ChassisSpeeds.fromFieldRelativeSpeeds(
@@ -100,6 +126,10 @@ public class Drive implements Subsystem {
 
   public double getGyroYaw() {
     return m_pigeon.getYaw().getValue() - m_gyroOffsetDegrees;
+  }
+
+  public double getNormalizedGyroYaw() {
+    return Math.IEEEremainder(getGyroYaw(), 360.0);
   }
 
   public Rotation2d getGyroscopeRotation() {

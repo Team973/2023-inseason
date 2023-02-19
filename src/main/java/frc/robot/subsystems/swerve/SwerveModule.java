@@ -73,10 +73,10 @@ public class SwerveModule {
     motorConfig.Slot0.kD = DriveInfo.ANGLE_KD;
     motorConfig.Slot0.kS = DriveInfo.ANGLE_KF;
 
-    motorConfig.CurrentLimits.StatorCurrentLimit = 40.0;
-    motorConfig.CurrentLimits.StatorCurrentLimitEnable = false;
+    motorConfig.CurrentLimits.StatorCurrentLimit = 150.0;
+    motorConfig.CurrentLimits.StatorCurrentLimitEnable = true;
 
-    motorConfig.CurrentLimits.SupplyCurrentLimit = 80.0;
+    motorConfig.CurrentLimits.SupplyCurrentLimit = 150.0;
     motorConfig.CurrentLimits.SupplyCurrentLimitEnable = true;
 
     m_angleMotor.getConfigurator().apply(motorConfig);
@@ -90,16 +90,16 @@ public class SwerveModule {
     motorConfig.MotorOutput.NeutralMode = NeutralModeValue.Brake;
     motorConfig.Feedback.FeedbackSensorSource = FeedbackSensorSourceValue.RotorSensor;
 
-    motorConfig.Slot0.kP = 0.005;
+    motorConfig.Slot0.kP = 0.00973;
     motorConfig.Slot0.kI = 0.0;
     motorConfig.Slot0.kD = 0.0;
-    motorConfig.Slot0.kV = 0.0103;
+    motorConfig.Slot0.kV = 0.00973;
 
     motorConfig.OpenLoopRamps.DutyCycleOpenLoopRampPeriod = 0.0;
     motorConfig.ClosedLoopRamps.DutyCycleClosedLoopRampPeriod = 0.0;
 
-    motorConfig.CurrentLimits.StatorCurrentLimit = 40.0;
-    motorConfig.CurrentLimits.StatorCurrentLimitEnable = false;
+    motorConfig.CurrentLimits.StatorCurrentLimit = 100.0;
+    motorConfig.CurrentLimits.StatorCurrentLimitEnable = true;
     motorConfig.CurrentLimits.SupplyCurrentLimit = 80.0;
     motorConfig.CurrentLimits.SupplyCurrentLimitEnable = true;
 

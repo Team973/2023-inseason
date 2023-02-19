@@ -1,6 +1,5 @@
 package frc.robot.subsystems;
 
-import static frc.robot.shared.Constants.*;
 import static frc.robot.shared.RobotInfo.*;
 
 import frc.robot.shared.RobotInfo;
@@ -26,11 +25,13 @@ public class Elevator implements Subsystem {
     /** Inches from floor */
     public static final double floor = 9.25;
     /** Inches from floor */
-    public static final double mid = 17.8;
+    public static final double mid = 22.3;
     /** Inches from floor */
-    public static final double hp = 22.3;
+    public static final double hp = 27.4;
     /** Inches from floor */
-    public static final double high = 26.9;
+    public static final double high = 27.4;
+    /** Inches from floor */
+    public static final double stow = 0.0;
   }
 
   private final TalonFX m_elevatorMotor;
@@ -54,9 +55,9 @@ public class Elevator implements Subsystem {
 
   private static final double STOW_OFFSET = 7.628;
 
-  private static final double MAX_HEIGHT = 27.0;
+  private static final double MAX_HEIGHT = 27.5;
 
-  @Getter @Setter private ElevatorState m_elevatorState;
+  @Getter @Setter private ElevatorState m_elevatorState = ElevatorState.Manual;
 
   public enum ElevatorState {
     /** Manually control the motors with the joystick */
@@ -98,7 +99,7 @@ public class Elevator implements Subsystem {
     motorConfig.Slot0.kD = 0.0;
     motorConfig.Slot0.kS = 0.0;
 
-    motorConfig.MotionMagic.MotionMagicCruiseVelocity = 10.0;
+    motorConfig.MotionMagic.MotionMagicCruiseVelocity = 50.0;
     motorConfig.MotionMagic.MotionMagicAcceleration = 600.0;
 
     // Set motor to follow A
@@ -146,6 +147,10 @@ public class Elevator implements Subsystem {
     return !m_bottomHall.get();
   }
 
+  public boolean isAtHeight(double height) {
+    return Math.abs(height - getHeight()) < 0.5;
+  }
+
   public void update() {
     switch (m_elevatorState) {
       case Manual:
@@ -162,6 +167,8 @@ public class Elevator implements Subsystem {
       case ClosedLoop:
         double motorPosition = m_targetPosition / SPROCKET_CIRCUMFERENCE / GEAR_RATIO;
         m_elevatorMotor.setControl(new MotionMagicDutyCycle(motorPosition, false, 0.04, 0, true));
+        break;
+      default:
         break;
     }
 

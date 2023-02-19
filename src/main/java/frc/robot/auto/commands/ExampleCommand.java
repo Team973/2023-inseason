@@ -17,4 +17,6 @@ public class ExampleCommand extends AutoCommand {
     // TODO Auto-generated method stub
     return false;
   }
+
+  public void postComplete() {}
 }

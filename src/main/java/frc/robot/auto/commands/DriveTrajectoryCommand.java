@@ -33,4 +33,6 @@ public class DriveTrajectoryCommand extends AutoCommand {
     double dtSeconds = Conversions.Time.getSecTime() - m_startTimeSeconds;
     return m_trajectory.getTotalTimeSeconds() >= dtSeconds;
   }
+
+  public void postComplete() {}
 }

@@ -11,10 +11,14 @@ import java.io.PrintWriter;
 
 import frc.robot.greydash.GreyDashClient;
 import frc.robot.greydash.GreyDashServer;
+import frc.robot.shared.Constants.GamePiece;
+import frc.robot.subsystems.CANdleManager;
+import frc.robot.subsystems.CANdleManager.LightState;
 import frc.robot.subsystems.Claw;
-import frc.robot.subsystems.Claw.ClawState;
-import frc.robot.subsystems.Claw.GamePiece;
+import frc.robot.subsystems.Claw.IntakeState;
+import frc.robot.subsystems.Claw.WristState;
 import frc.robot.subsystems.Drive;
+import frc.robot.subsystems.Drive.RotationControl;
 import frc.robot.subsystems.Elevator;
 import frc.robot.subsystems.Elevator.ElevatorState;
 
@@ -23,44 +27,61 @@ import edu.wpi.first.math.filter.SlewRateLimiter;
 import edu.wpi.first.math.geometry.Translation2d;
 import edu.wpi.first.wpilibj.Compressor;
 import edu.wpi.first.wpilibj.PneumaticsModuleType;
+import edu.wpi.first.wpilibj.RobotBase;
 import edu.wpi.first.wpilibj.TimedRobot;
 import edu.wpi.first.wpilibj.XboxController;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
+import lombok.Getter;
+import lombok.Setter;
 import lombok.experimental.Accessors;
 
 /**
- * The VM is configured to automatically run this class, and to call the functions corresponding to
- * each mode, as described in the TimedRobot documentation. If you change the name of this class or
- * the package after creating this project, you must also update the build.gradle file in the
+ * The VM is configured to automatically run this class, and to call the
+ * functions corresponding to
+ * each mode, as described in the TimedRobot documentation. If you change the
+ * name of this class or
+ * the package after creating this project, you must also update the
+ * build.gradle file in the
  * project.
  */
 @Accessors(prefix = "m_")
 public class Robot extends TimedRobot {
   private static final String kDefaultAuto = "Default";
   private static final String kCustomAuto = "My Auto";
-  private static String m_autoSelected;
+  private static String m_autoSelected = kDefaultAuto;
 
   private final Elevator m_elevator = new Elevator();
   private final Claw m_claw = new Claw();
   private final Drive m_drive = new Drive();
+  private final CANdleManager m_candleManager = new CANdleManager();
 
   private final XboxController m_driverStick = new XboxController(0);
   private final XboxController m_operatorStick = new XboxController(1);
 
   private final SlewRateLimiter m_rotLimiter = new SlewRateLimiter(3);
 
-  private final Compressor m_compressor =
-      new Compressor(COMPRESSOR_ID, PneumaticsModuleType.CTREPCM);
+  @Setter
+  @Getter
+  private GamePiece m_currentGamePiece = GamePiece.None;
+
+  private final Compressor m_compressor = new Compressor(COMPRESSOR_ID, PneumaticsModuleType.CTREPCM);
+
+  private boolean m_exceptionHappened = false;
 
   private void logException(Exception e) {
     try {
-      FileWriter fileWriter = new FileWriter("/home/lvuser/exception_log.txt", true);
-      PrintWriter printWriter = new PrintWriter(fileWriter);
-      e.printStackTrace(printWriter);
-      printWriter.close();
-      fileWriter.close();
+      m_exceptionHappened = true;
+      if (!RobotBase.isSimulation()) {
+        FileWriter fileWriter = new FileWriter("/home/lvuser/exception_log.txt", true);
+        PrintWriter printWriter = new PrintWriter(fileWriter);
+        e.printStackTrace(printWriter);
+        printWriter.close();
+        fileWriter.close();
+      }
+
+      System.err.println(e);
     } catch (Exception ie) {
-      throw new RuntimeException("could not write to exception log file", ie);
+      throw new RuntimeException("Could not write to exception log file", ie);
     }
   }
 
@@ -76,10 +97,12 @@ public class Robot extends TimedRobot {
     m_elevator.reset();
     m_claw.reset();
     m_drive.reset();
+    m_candleManager.reset();
   }
 
   /**
-   * This function is run when the robot is first started up and should be used for any
+   * This function is run when the robot is first started up and should be used
+   * for any
    * initialization code.
    */
   @Override
@@ -93,18 +116,26 @@ public class Robot extends TimedRobot {
   }
 
   /**
-   * This function is called every 20 ms, no matter the mode. Use this for items like diagnostics
+   * This function is called every 20 ms, no matter the mode. Use this for items
+   * like diagnostics
    * that you want ran during disabled, autonomous, teleoperated and test.
    *
-   * <p>This runs after the mode specific periodic functions, but before LiveWindow and
+   * <p>
+   * This runs after the mode specific periodic functions, but before LiveWindow
+   * and
    * SmartDashboard integrated updating.
    */
   @Override
   public void robotPeriodic() {
     try {
       GreyDashClient.update();
+      m_candleManager.update();
       if (this.isEnabled()) {
         this.updateSubsystems();
+      }
+      m_claw.setCurrentGamePiece(m_currentGamePiece);
+      if (!m_exceptionHappened || !this.isDisabled()) {
+        m_candleManager.setLightWithGamePiece(m_currentGamePiece);
       }
       SmartDashboard.putNumber("Elevator Height", m_elevator.getHeight());
       SmartDashboard.putNumber("Elevator Position", m_elevator.getPosition());
@@ -116,13 +147,20 @@ public class Robot extends TimedRobot {
   }
 
   /**
-   * This autonomous (along with the chooser code above) shows how to select between different
-   * autonomous modes using the dashboard. The sendable chooser code works with the Java
-   * SmartDashboard. If you prefer the LabVIEW Dashboard, remove all of the chooser code and
-   * uncomment the getString line to get the auto name from the text box below the Gyro
+   * This autonomous (along with the chooser code above) shows how to select
+   * between different
+   * autonomous modes using the dashboard. The sendable chooser code works with
+   * the Java
+   * SmartDashboard. If you prefer the LabVIEW Dashboard, remove all of the
+   * chooser code and
+   * uncomment the getString line to get the auto name from the text box below the
+   * Gyro
    *
-   * <p>You can add additional auto modes by adding additional comparisons to the switch structure
-   * below with additional strings. If using the SendableChooser make sure to add them to the
+   * <p>
+   * You can add additional auto modes by adding additional comparisons to the
+   * switch structure
+   * below with additional strings. If using the SendableChooser make sure to add
+   * them to the
    * chooser code above as well.
    */
   @Override
@@ -136,16 +174,6 @@ public class Robot extends TimedRobot {
   @Override
   public void autonomousPeriodic() {
     try {
-      this.updateSubsystems();
-      switch (m_autoSelected) {
-        case kCustomAuto:
-          // Put custom auto code here
-          break;
-        case kDefaultAuto:
-        default:
-          // Put default auto code here
-          break;
-      }
     } catch (Exception e) {
       logException(e);
     }
@@ -161,42 +189,81 @@ public class Robot extends TimedRobot {
   @Override
   public void teleopPeriodic() {
     try {
+      /////////////////////
+      // DRIVER CONTROLS //
+      /////////////////////
       final double xSpeed = -MathUtil.applyDeadband(m_driverStick.getRawAxis(1), 0.09);
       final double ySpeed = -MathUtil.applyDeadband(m_driverStick.getRawAxis(0), 0.09);
 
-      final double rot =
-          -m_rotLimiter.calculate(MathUtil.applyDeadband(m_driverStick.getRawAxis(4), 0.09))
-              * DriveInfo.MAX_ANGULAR_VELOCITY_RADIANS_PER_SECOND;
+      final double rot = -m_rotLimiter.calculate(MathUtil.applyDeadband(m_driverStick.getRawAxis(4), 0.09))
+          * DriveInfo.MAX_ANGULAR_VELOCITY_RADIANS_PER_SECOND;
 
       SmartDashboard.putNumber("drive/swerve/inputs/xspeed", xSpeed);
       SmartDashboard.putNumber("drive/swerve/inputs/yspeed", ySpeed);
       SmartDashboard.putNumber("drive/swerve/inputs/rot", rot);
 
-      Translation2d translation =
-          new Translation2d(xSpeed, ySpeed).times(DriveInfo.MAX_VELOCITY_METERS_PER_SECOND);
+      Translation2d translation = new Translation2d(xSpeed, ySpeed).times(DriveInfo.MAX_VELOCITY_METERS_PER_SECOND);
 
       m_drive.driveInput(translation, rot, true);
 
+      // Closed loop drive angle
+      if (m_driverStick.getRightBumper()) {
+        m_drive.setRotationControl(RotationControl.ClosedLoop);
+        m_drive.setTargetRobotAngle(Drive.AnglePresets.TOWARDS_DS);
+      } else if (m_driverStick.getRightTriggerAxis() > 0.5) {
+        m_drive.setRotationControl(RotationControl.ClosedLoop);
+        m_drive.setTargetRobotAngle(Drive.AnglePresets.TOWARDS_HP);
+      } else {
+        m_drive.setRotationControl(RotationControl.OpenLoop);
+      }
+
+      // Reset Drive
+      if (m_driverStick.getStartButton()) {
+        m_drive.reset();
+      }
+
+      // Score
+      if (m_driverStick.getLeftBumper()) {
+        m_claw.setIntakeState(IntakeState.Out);
+        m_candleManager.setLightState(LightState.Off);
+      } else if (m_claw.getIntakeState() == IntakeState.Out) {
+        m_claw.setIntakeState(IntakeState.Neutral);
+      }
+
+      //////////
+      // BOTH //
+      //////////
+      // Stow elevator/wrist
+      if (m_driverStick.getLeftTriggerAxis() > 0.5 || m_operatorStick.getAButton()) {
+        m_elevator.setHeight(Elevator.Presets.stow);
+        m_claw.setWristPreset(Claw.WristPreset.Stow);
+      }
+
+      ////////////////////////
+      // CO-DRIVER CONTROLS //
+      ////////////////////////
       double operatorStickRightY = -MathUtil.applyDeadband(m_operatorStick.getRawAxis(5), 0.1);
 
       // Elevator height preset
       switch (m_operatorStick.getPOV()) {
         case 0:
           m_elevator.setHeight(Elevator.Presets.high);
+          m_claw.setWristPreset(Claw.WristPreset.High);
           break;
         case 90:
           m_elevator.setHeight(Elevator.Presets.mid);
+          m_claw.setWristPreset(Claw.WristPreset.Mid);
           break;
         case 180:
           m_elevator.setHeight(Elevator.Presets.floor);
+          m_claw.setWristPreset(Claw.WristPreset.Floor);
           break;
         case 270:
           m_elevator.setHeight(Elevator.Presets.hp);
+          m_claw.setWristPreset(Claw.WristPreset.HP);
           break;
-      }
-
-      if (m_operatorStick.getBButton()) {
-        m_elevator.setHeight(0.0);
+        default:
+          break;
       }
 
       // Manual Elevator
@@ -210,27 +277,26 @@ public class Robot extends TimedRobot {
         m_elevator.setElevatorState(ElevatorState.ClosedLoop);
       }
 
-      // Select Game Piece
-      if (m_operatorStick.getLeftBumper()) {
-        m_claw.setCurrentGamePiece(GamePiece.Cube);
-      } else if (m_operatorStick.getRightBumper()) {
-        m_claw.setCurrentGamePiece(GamePiece.Cone);
-      }
-
-      if (m_operatorStick.getLeftTriggerAxis() > 0.5) {
-        m_claw.setClawState(ClawState.In);
-      } else {
-        m_claw.setClawState(ClawState.Neutral);
-      }
-
+      // Intake
       if (m_operatorStick.getRightTriggerAxis() > 0.5) {
-        m_claw.setClawState(ClawState.Out);
-      } else {
-        m_claw.setClawState(ClawState.Neutral);
+        m_currentGamePiece = GamePiece.Cone;
+        m_claw.setIntakeState(IntakeState.In);
+      } else if (m_operatorStick.getLeftTriggerAxis() > 0.5) {
+        m_currentGamePiece = GamePiece.Cube;
+        m_claw.setIntakeState(IntakeState.In);
+      } else if (m_claw.getIntakeState() != IntakeState.Out
+          && m_claw.getIntakeState() != IntakeState.Neutral) {
+        m_claw.setIntakeState(IntakeState.Hold);
       }
 
-      // Set Wrist Angle
-      m_claw.setClawTargetAngle(MathUtil.applyDeadband(m_operatorStick.getRawAxis(1), 0.09));
+      // Manually Control Wrist
+      double wristJoystickInput = -MathUtil.applyDeadband(m_operatorStick.getLeftY(), 0.12) * 0.25;
+      if (wristJoystickInput != 0.0) {
+        m_claw.setWristState(WristState.Manual);
+        m_claw.setWristMotorOutput(wristJoystickInput);
+      } else {
+        m_claw.setWristState(WristState.ClosedLoop);
+      }
     } catch (Exception e) {
       logException(e);
     }
@@ -246,6 +312,10 @@ public class Robot extends TimedRobot {
   @Override
   public void disabledPeriodic() {
     try {
+      if (m_exceptionHappened == true) {
+        m_candleManager.setLightState(LightState.Flash);
+      }
+
     } catch (Exception e) {
       logException(e);
     }
@@ -261,6 +331,7 @@ public class Robot extends TimedRobot {
     try {
     } catch (Exception e) {
       logException(e);
+  
     }
   }
 
@@ -274,6 +345,7 @@ public class Robot extends TimedRobot {
     try {
     } catch (Exception e) {
       logException(e);
+  
     }
   }
 }
