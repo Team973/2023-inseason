@@ -5,36 +5,40 @@ import frc.robot.shared.Constants.GamePiece;
 import frc.robot.subsystems.Claw;
 import frc.robot.subsystems.Claw.IntakeState;
 
-public class PickupGamePiece extends AutoCommand {
+import lombok.AllArgsConstructor;
 
+@AllArgsConstructor
+public class IntakeCommand extends AutoCommand {
   private final Claw m_claw;
+
+  private final IntakeState m_state;
+
   private final GamePiece m_gamePiece;
 
   private final double m_timeout;
 
-  public PickupGamePiece(Claw claw, GamePiece gamePiece, double TimeOut) {
-    m_claw = claw;
-    m_gamePiece = gamePiece;
-    m_timeout = TimeOut;
-  }
-
+  @Override
   public void init() {
-    // TODO Auto-generated method stub
     setTargetMsec(m_timeout);
-  }
-
-  public void run() {
-    // TODO Auto-generated method stub
     m_claw.setCurrentGamePiece(m_gamePiece);
-    m_claw.setIntakeState(IntakeState.In);
+
+    m_claw.setIntakeState(m_state);
   }
 
+  @Override
+  public void run() {}
+
+  @Override
   public boolean isCompleted() {
-    // TODO Auto-generated method stub
     return hasElapsed();
   }
 
+  @Override
   public void postComplete() {
-    m_claw.setIntakeState(IntakeState.Hold);
+    if (m_state == IntakeState.Out) {
+      m_claw.setIntakeState(IntakeState.Neutral);
+    } else if (m_state == IntakeState.In) {
+      m_claw.setIntakeState(IntakeState.Hold);
+    }
   }
 }
