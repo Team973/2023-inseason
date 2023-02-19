@@ -118,7 +118,7 @@ public class Claw implements Subsystem {
     var motorConfig = new TalonFXConfiguration();
 
     // Motor Directions
-    motorConfig.MotorOutput.Inverted = InvertedValue.CounterClockwise_Positive;
+    motorConfig.MotorOutput.Inverted = InvertedValue.Clockwise_Positive;
 
     // Neutral Mode
 
