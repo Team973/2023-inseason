@@ -10,8 +10,10 @@ import java.io.FileWriter;
 import java.io.PrintWriter;
 
 import frc.robot.greydash.GreyDashClient;
+import frc.robot.shared.Constants.GamePiece;
+import frc.robot.subsystems.CANdleManager;
+import frc.robot.subsystems.CANdleManager.LightState;
 import frc.robot.subsystems.Claw;
-import frc.robot.subsystems.Claw.GamePiece;
 import frc.robot.subsystems.Claw.IntakeState;
 import frc.robot.subsystems.Claw.WristState;
 import frc.robot.subsystems.Drive;
@@ -24,9 +26,12 @@ import edu.wpi.first.math.filter.SlewRateLimiter;
 import edu.wpi.first.math.geometry.Translation2d;
 import edu.wpi.first.wpilibj.Compressor;
 import edu.wpi.first.wpilibj.PneumaticsModuleType;
+import edu.wpi.first.wpilibj.RobotBase;
 import edu.wpi.first.wpilibj.TimedRobot;
 import edu.wpi.first.wpilibj.XboxController;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
+import lombok.Getter;
+import lombok.Setter;
 import lombok.experimental.Accessors;
 
 /**
@@ -44,22 +49,30 @@ public class Robot extends TimedRobot {
   private final Elevator m_elevator = new Elevator();
   private final Claw m_claw = new Claw();
   private final Drive m_drive = new Drive();
+  private final CANdleManager m_candleManager = new CANdleManager();
 
   private final XboxController m_driverStick = new XboxController(0);
   private final XboxController m_operatorStick = new XboxController(1);
 
   private final SlewRateLimiter m_rotLimiter = new SlewRateLimiter(3);
 
+  @Setter @Getter private GamePiece m_currentGamePiece = GamePiece.None;
+
   private final Compressor m_compressor =
       new Compressor(COMPRESSOR_ID, PneumaticsModuleType.CTREPCM);
 
+  private boolean m_exceptionHappened = false;
+
   private void logException(Exception e) {
     try {
-      FileWriter fileWriter = new FileWriter("/home/lvuser/exception_log.txt", true);
-      PrintWriter printWriter = new PrintWriter(fileWriter);
-      e.printStackTrace(printWriter);
-      printWriter.close();
-      fileWriter.close();
+      m_exceptionHappened = true;
+      if (!RobotBase.isSimulation()) {
+        FileWriter fileWriter = new FileWriter("/home/lvuser/exception_log.txt", true);
+        PrintWriter printWriter = new PrintWriter(fileWriter);
+        e.printStackTrace(printWriter);
+        printWriter.close();
+        fileWriter.close();
+      }
 
       System.err.println(e);
     } catch (Exception ie) {
@@ -79,6 +92,7 @@ public class Robot extends TimedRobot {
     m_elevator.reset();
     m_claw.reset();
     m_drive.reset();
+    m_candleManager.reset();
   }
 
   /**
@@ -103,8 +117,13 @@ public class Robot extends TimedRobot {
   public void robotPeriodic() {
     try {
       GreyDashClient.update();
+      m_candleManager.update();
       if (this.isEnabled()) {
         this.updateSubsystems();
+      }
+      m_claw.setCurrentGamePiece(m_currentGamePiece);
+      if (!m_exceptionHappened || !this.isDisabled()) {
+        m_candleManager.setLightWithGamePiece(m_currentGamePiece);
       }
       SmartDashboard.putNumber("Elevator Height", m_elevator.getHeight());
       SmartDashboard.putNumber("Elevator Position", m_elevator.getPosition());
@@ -136,7 +155,6 @@ public class Robot extends TimedRobot {
   @Override
   public void autonomousPeriodic() {
     try {
-      this.updateSubsystems();
     } catch (Exception e) {
       logException(e);
     }
@@ -192,6 +210,7 @@ public class Robot extends TimedRobot {
       // Score
       if (m_driverStick.getLeftBumper()) {
         m_claw.setIntakeState(IntakeState.Out);
+        m_candleManager.setLightState(LightState.Off);
       } else if (m_claw.getIntakeState() == IntakeState.Out) {
         m_claw.setIntakeState(IntakeState.Neutral);
       }
@@ -245,10 +264,10 @@ public class Robot extends TimedRobot {
 
       // Intake
       if (m_operatorStick.getRightTriggerAxis() > 0.5) {
-        m_claw.setCurrentGamePiece(GamePiece.Cone);
+        m_currentGamePiece = GamePiece.Cone;
         m_claw.setIntakeState(IntakeState.In);
       } else if (m_operatorStick.getLeftTriggerAxis() > 0.5) {
-        m_claw.setCurrentGamePiece(GamePiece.Cube);
+        m_currentGamePiece = GamePiece.Cube;
         m_claw.setIntakeState(IntakeState.In);
       } else if (m_claw.getIntakeState() != IntakeState.Out
           && m_claw.getIntakeState() != IntakeState.Neutral) {
@@ -278,6 +297,9 @@ public class Robot extends TimedRobot {
   @Override
   public void disabledPeriodic() {
     try {
+      if (m_exceptionHappened == true) {
+        m_candleManager.setLightState(LightState.Flash);
+      }
     } catch (Exception e) {
       logException(e);
     }
