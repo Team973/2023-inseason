@@ -27,7 +27,6 @@ public class SetDrivePositionCommand extends AutoCommand {
   @Override
   public void run() {
     // Do nothing
-
   }
 
   @Override
