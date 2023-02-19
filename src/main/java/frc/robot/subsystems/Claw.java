@@ -78,13 +78,15 @@ public class Claw implements Subsystem {
     m_wristMotor = new TalonFX(ClawInfo.WRIST_FX_ID, RobotInfo.CANIVORE_NAME);
     configIntakeMotor();
     configWristMotor();
+
+    m_wristMotor.setRotorPosition(0.0);
   }
 
   private void configIntakeMotor() {
     var motorConfig = new TalonFXConfiguration();
 
     // Motor Directions
-    motorConfig.MotorOutput.Inverted = InvertedValue.CounterClockwise_Positive;
+    motorConfig.MotorOutput.Inverted = InvertedValue.Clockwise_Positive;
 
     // Neutral Mode
 
@@ -118,7 +120,7 @@ public class Claw implements Subsystem {
     var motorConfig = new TalonFXConfiguration();
 
     // Motor Directions
-    motorConfig.MotorOutput.Inverted = InvertedValue.CounterClockwise_Positive;
+    motorConfig.MotorOutput.Inverted = InvertedValue.Clockwise_Positive;
 
     // Neutral Mode
 

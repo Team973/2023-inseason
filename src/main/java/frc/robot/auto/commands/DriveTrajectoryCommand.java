@@ -26,12 +26,12 @@ public class DriveTrajectoryCommand extends AutoCommand {
     double dtSeconds = Conversions.Time.getSecTime() - m_startTimeSeconds;
 
     var goal = m_trajectory.sample(dtSeconds);
-    m_drive.driveInput(goal, Rotation2d.fromDegrees(0.0));
+    m_drive.driveInput(goal, Rotation2d.fromDegrees(180.0));
   }
 
   public boolean isCompleted() {
     double dtSeconds = Conversions.Time.getSecTime() - m_startTimeSeconds;
-    return m_trajectory.getTotalTimeSeconds() >= dtSeconds;
+    return m_trajectory.getTotalTimeSeconds() <= dtSeconds;
   }
 
   public void postComplete() {}

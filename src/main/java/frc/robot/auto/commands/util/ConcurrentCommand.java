@@ -55,6 +55,7 @@ public class ConcurrentCommand extends AutoCommand {
       command.run();
 
       if (command.isCompleted()) {
+        command.postComplete();
         m_unfinishedCmds.remove(command);
       }
     }

@@ -43,7 +43,7 @@ public class Elevator implements Subsystem {
   private double m_elevatorOutput = 0.0;
   private double m_targetPosition = 0.0;
 
-  private static final double GEAR_RATIO = (11.0 / 60.0);
+  private static final double GEAR_RATIO = (11.0 / 72.0);
   /** Pitch Diameter of sprocket in inches */
   private static final double SPROCKET_PD = 1.751;
   /** Circumference of sprocket in inches */
