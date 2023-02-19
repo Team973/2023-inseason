@@ -106,7 +106,10 @@ public class Robot extends TimedRobot {
   @Override
   public void robotInit() {
     GreyDashClient.setAvailableAutoModes(
-        AutoMode.Test.name(), AutoMode.OneCone.name(), AutoMode.NoAuto.name());
+        AutoMode.Test.name(),
+        AutoMode.OneCone.name(),
+        AutoMode.PreloadAndCharge.name(),
+        AutoMode.NoAuto.name());
     GreyDashClient.availableGamePieces(
         GamePiece.Cone.name(), GamePiece.Cube.name(), GamePiece.None.name());
 

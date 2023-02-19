@@ -14,14 +14,17 @@ public class PathPlannerTrajectoryCommand extends AutoCommand {
 
   private final DriveTrajectoryCommand m_trajectoryCommand;
 
-  public PathPlannerTrajectoryCommand(Drive drive, String path, PathConstraints constraints) {
+  public PathPlannerTrajectoryCommand(
+      Drive drive, String path, PathConstraints constraints, boolean reverse) {
     m_drive = drive;
-    m_path = PathPlanner.loadPath(path, constraints);
+    m_path = PathPlanner.loadPath(path, constraints, reverse);
     m_trajectoryCommand = new DriveTrajectoryCommand(m_drive, m_path);
   }
 
   public void init() {
     m_trajectoryCommand.init();
+    m_drive.resetOdometry(
+        m_path.getInitialHolonomicPose(), m_path.getInitialHolonomicPose().getRotation());
   }
 
   public void run() {
