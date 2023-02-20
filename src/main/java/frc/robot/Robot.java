@@ -126,7 +126,7 @@ public class Robot extends TimedRobot {
   @Override
   public void robotPeriodic() {
     try {
-      m_autoManager.selectAuto(AutoMode.valueOf(GreyDashClient.getAutoSelected()));
+      m_autoManager.selectAuto(AutoMode.PreloadAndCharge);
       m_autoManager.selectPreload(GamePiece.valueOf(GreyDashClient.selectedGamePiece()));
       GreyDashClient.update();
       m_candleManager.update();

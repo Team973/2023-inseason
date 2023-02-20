@@ -22,18 +22,18 @@ import lombok.experimental.Accessors;
 public class Claw implements Subsystem {
 
   public static class ConePresets {
-    public static final double floor = -71.0;
-    public static final double mid = -76.0;
-    public static final double high = -65.0;
-    public static final double hp = -69.0;
+    public static final double floor = -138.45;
+    public static final double mid = -135.83;
+    public static final double high = -124.01;
+    public static final double hp = -133.98;
     public static final double stow = 0.0;
   }
 
   public static class CubePresets {
-    public static final double floor = -81.0;
-    public static final double mid = -89.0;
-    public static final double high = -89.0;
-    public static final double hp = -69.0;
+    public static final double floor = -146.04;
+    public static final double mid = -151.28;
+    public static final double high = -136.13;
+    public static final double hp = -140.00;
     public static final double stow = 0.0;
   }
 
@@ -86,7 +86,7 @@ public class Claw implements Subsystem {
     var motorConfig = new TalonFXConfiguration();
 
     // Motor Directions
-    motorConfig.MotorOutput.Inverted = InvertedValue.Clockwise_Positive;
+    motorConfig.MotorOutput.Inverted = InvertedValue.CounterClockwise_Positive;
 
     // Neutral Mode
 

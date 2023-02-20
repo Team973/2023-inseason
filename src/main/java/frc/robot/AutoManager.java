@@ -77,6 +77,18 @@ public class AutoManager {
 
     preloadAndCharge =
         new SequentialCommand(
+            new SetDrivePositionCommand(
+                drive,
+                new Pose2d(0.0, 0.0, Rotation2d.fromDegrees(180)),
+                Rotation2d.fromDegrees(180.0)),
+            new IntakeCommand(claw, IntakeState.In, GamePiece.Cone, 100),
+            new ElevatorPresetCommand(elevator, Elevator.Presets.high, 4000),
+            new WristAngleCommand(claw, Claw.ConePresets.high, 10000),
+            new WaitCommand(1000),
+            new IntakeCommand(claw, IntakeState.Out, GamePiece.Cone, 1500),
+            new ConcurrentCommand(
+                new ElevatorPresetCommand(elevator, Elevator.Presets.stow, 1000),
+                new WristAngleCommand(claw, Claw.ConePresets.stow, 2000)),
             new PathPlannerTrajectoryCommand(
                 m_drive, "PreloadAndCharge", new PathConstraints(4, 3), true));
   }
