@@ -75,7 +75,7 @@ public class AutoManager {
 
     preloadAndCharge = new SequentialCommand(
         new PathPlannerTrajectoryCommand(
-            m_drive, "PreloadAndCharge", new PathConstraints(0.5, 1), true));
+            m_drive, "PreloadAndCharge", new PathConstraints(4, 3), true));
   }
 
   public void run() {
