@@ -7,7 +7,7 @@ import frc.robot.shared.Subsystem;
 
 import com.ctre.phoenixpro.configs.TalonFXConfiguration;
 import com.ctre.phoenixpro.controls.Follower;
-import com.ctre.phoenixpro.controls.MotionMagicDutyCycle;
+import com.ctre.phoenixpro.controls.MotionMagicVoltage;
 import com.ctre.phoenixpro.hardware.TalonFX;
 import com.ctre.phoenixpro.signals.FeedbackSensorSourceValue;
 import com.ctre.phoenixpro.signals.InvertedValue;
@@ -59,8 +59,8 @@ public class Elevator implements Subsystem {
 
   @Getter @Setter private ElevatorState m_elevatorState = ElevatorState.Manual;
 
-  private final MotionMagicDutyCycle m_elevatorMotionMagic =
-      new MotionMagicDutyCycle(0.0, false, 0.04, 0, true);
+  private final MotionMagicVoltage m_elevatorMotionMagic =
+      new MotionMagicVoltage(0.0, false, 0.04, 0, true);
 
   public enum ElevatorState {
     /** Manually control the motors with the joystick */
@@ -97,7 +97,7 @@ public class Elevator implements Subsystem {
     motorConfig.ClosedLoopRamps.DutyCycleClosedLoopRampPeriod = 0.0;
 
     // Position PID Parameters
-    motorConfig.Slot0.kP = 0.8;
+    motorConfig.Slot0.kP = 7.0;
     motorConfig.Slot0.kI = 0.0;
     motorConfig.Slot0.kD = 0.0;
     motorConfig.Slot0.kS = 0.0;
