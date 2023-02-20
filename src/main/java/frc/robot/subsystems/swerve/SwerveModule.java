@@ -32,6 +32,11 @@ public class SwerveModule {
   SimpleMotorFeedforward feedforward =
       new SimpleMotorFeedforward(DriveInfo.driveKS, DriveInfo.driveKV, DriveInfo.driveKA);
 
+  private PositionDutyCycle m_anglePosition = new PositionDutyCycle(0.0);
+
+  private VelocityDutyCycle m_driveVelocity =
+      new VelocityDutyCycle(0.0, true, feedforward.calculate(0.0), 0, false);
+
   public SwerveModule(int moduleNumber, SwerveModuleConfig moduleConfig) {
     this.moduleNumber = moduleNumber;
     angleOffset = Rotation2d.fromDegrees(moduleConfig.angleOffset);
@@ -148,14 +153,10 @@ public class SwerveModule {
     double desiredWheelVelocityInRPS =
         desiredState.speedMetersPerSecond / DriveInfo.WHEEL_CIRCUMFRENCE_METERS;
     double desiredFalconVelocityInRPS = desiredWheelVelocityInRPS * DriveInfo.DRIVE_GEAR_RATIO;
-    var velocityControlReq =
-        new VelocityDutyCycle(
-            desiredFalconVelocityInRPS,
-            true,
-            feedforward.calculate(desiredState.speedMetersPerSecond),
-            0,
-            false);
-    m_driveMotor.setControl(velocityControlReq);
+    m_driveMotor.setControl(
+        m_driveVelocity
+            .withVelocity(desiredFalconVelocityInRPS)
+            .withFeedForward(feedforward.calculate(desiredState.speedMetersPerSecond)));
 
     // Prevent rotating module if speed is less then 1%. Prevents jittering.
     Rotation2d angle =
@@ -165,7 +166,7 @@ public class SwerveModule {
             : desiredState.angle;
 
     m_angleMotor.setControl(
-        new PositionDutyCycle(angle.getRotations() * DriveInfo.ANGLE_GEAR_RATIO));
+        m_anglePosition.withPosition(angle.getRotations() * DriveInfo.ANGLE_GEAR_RATIO));
     lastAngle = angle;
   }
 }
