@@ -1,6 +1,5 @@
 package frc.robot.shared;
 
-import com.ctre.phoenixpro.configs.AudioConfigs;
 import com.ctre.phoenixpro.configs.TalonFXConfiguration;
 import com.ctre.phoenixpro.hardware.TalonFX;
 import com.ctre.phoenixpro.signals.FeedbackSensorSourceValue;
