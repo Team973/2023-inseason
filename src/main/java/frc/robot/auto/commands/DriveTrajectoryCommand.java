@@ -4,7 +4,6 @@ import frc.robot.shared.AutoCommand;
 import frc.robot.shared.Conversions;
 import frc.robot.subsystems.Drive;
 
-import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.trajectory.Trajectory;
 
 public class DriveTrajectoryCommand extends AutoCommand {
@@ -26,7 +25,7 @@ public class DriveTrajectoryCommand extends AutoCommand {
     double dtSeconds = Conversions.Time.getSecTime() - m_startTimeSeconds;
 
     var goal = m_trajectory.sample(dtSeconds);
-    m_drive.driveInput(goal, Rotation2d.fromDegrees(180.0));
+    m_drive.driveInput(goal, goal.poseMeters.getRotation());
   }
 
   public boolean isCompleted() {

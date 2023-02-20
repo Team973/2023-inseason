@@ -147,9 +147,16 @@ public class Drive implements Subsystem {
     SwerveDriveKinematics.desaturateWheelSpeeds(
         desiredStates, DriveInfo.MAX_VELOCITY_METERS_PER_SECOND);
 
+    double states[] = new double[8];
+    int index = 0;
     for (SwerveModule mod : m_swerveModules) {
       mod.setDesiredState(desiredStates[mod.moduleNumber]);
+      states[index] = desiredStates[mod.moduleNumber].angle.getDegrees();
+      states[index + 1] = desiredStates[mod.moduleNumber].speedMetersPerSecond;
+      index += 2;
     }
+
+    SmartDashboard.putNumberArray("swerve/setpoints", states);
   }
 
   public Pose2d getPose() {
@@ -179,6 +186,9 @@ public class Drive implements Subsystem {
     swerveOdometry.update(getGyroscopeRotation(), getPositions());
     GreyDashClient.setGyroAngle(getGyroscopeRotation().getDegrees());
 
+    double states[] = new double[8];
+    int index = 0;
+
     for (SwerveModule mod : m_swerveModules) {
       SmartDashboard.putNumber(
           "Mod " + mod.moduleNumber + " Cancoder", mod.getCanCoder().getDegrees());
@@ -187,7 +197,11 @@ public class Drive implements Subsystem {
       SmartDashboard.putNumber("Mod " + mod.moduleNumber + " Raw", mod.getAngleRaw());
       SmartDashboard.putNumber(
           "Mod " + mod.moduleNumber + " Velocity", mod.getState().speedMetersPerSecond);
+      states[index] = mod.getState().angle.getDegrees();
+      states[index + 1] = mod.getState().speedMetersPerSecond;
+      index += 2;
     }
+    SmartDashboard.putNumberArray("swerve/actual", states);
   }
 
   public void reset() {
