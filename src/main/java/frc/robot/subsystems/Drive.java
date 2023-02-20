@@ -1,5 +1,6 @@
 package frc.robot.subsystems;
 
+import frc.robot.greydash.GreyDashClient;
 import frc.robot.shared.RobotInfo;
 import frc.robot.shared.RobotInfo.DriveInfo;
 import frc.robot.shared.Subsystem;
@@ -82,12 +83,19 @@ public class Drive implements Subsystem {
                     DriveInfo.MAX_ANGULAR_VELOCITY_RADIANS_PER_SECOND, 7.0)));
   }
 
-  public void driveInput(Translation2d translation, double rotation, boolean fieldRelative) {
+  public void driveInput(Translation2d translation, double rotationVal, boolean fieldRelative) {
+    double rotation = rotationVal;
     if (m_rotationControl == RotationControl.ClosedLoop) {
-      double yaw = getNormalizedGyroYaw();
-      // fix 180 flip
-      double targetAngle = yaw > 0.0 ? m_targetRobotAngle : -m_targetRobotAngle;
-      rotation = m_rotationController.calculate(yaw, targetAngle);
+      double diff = m_targetRobotAngle - getNormalizedGyroYaw();
+      if (diff > 180) {
+        diff -= 360;
+      } else if (diff < -180) {
+        diff += 360;
+      }
+      rotation =
+          m_rotationController.calculate(getNormalizedGyroYaw(), getNormalizedGyroYaw() + diff);
+    } else if (rotation != 0.0) {
+      m_targetRobotAngle = getNormalizedGyroYaw();
     }
 
     ChassisSpeeds des_chassis_speeds =
@@ -129,7 +137,12 @@ public class Drive implements Subsystem {
   }
 
   public double getNormalizedGyroYaw() {
-    return Math.IEEEremainder(getGyroYaw(), 360.0);
+    double rawYaw = getGyroYaw();
+    double normalizedYaw = Math.IEEEremainder(rawYaw, 360.0);
+    if (normalizedYaw < 0) {
+      normalizedYaw += 360.0;
+    }
+    return normalizedYaw;
   }
 
   public Rotation2d getGyroscopeRotation() {
@@ -176,6 +189,8 @@ public class Drive implements Subsystem {
   public void update() {
     swerveOdometry.update(getGyroscopeRotation(), getPositions());
 
+    GreyDashClient.setGyroAngle(getGyroYaw());
+
     for (SwerveModule mod : m_swerveModules) {
       SmartDashboard.putNumber(
           "Mod " + mod.moduleNumber + " Cancoder", mod.getCanCoder().getDegrees());
@@ -189,6 +204,7 @@ public class Drive implements Subsystem {
 
   public void reset() {
     resetGyro();
+    m_targetRobotAngle = getGyroYaw();
     resetOdometry(new Pose2d());
   }
 }
