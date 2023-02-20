@@ -37,7 +37,7 @@ public class Drive implements Subsystem {
 
   @Setter private RotationControl m_rotationControl = RotationControl.OpenLoop;
 
-  private PIDController m_rotationController = new PIDController(0.1125, 0.0, 0.003);
+  private PIDController m_rotationController = new PIDController(0.11, 0.0, 0.003);
 
   public enum RotationControl {
     OpenLoop,
@@ -92,6 +92,8 @@ public class Drive implements Subsystem {
       } else if (diff < -180) {
         diff += 360;
       }
+      SmartDashboard.putNumber("rotation setpoint", getNormalizedGyroYaw() + diff);
+      SmartDashboard.putNumber("rotation actual", getNormalizedGyroYaw());
       rotation =
           m_rotationController.calculate(getNormalizedGyroYaw(), getNormalizedGyroYaw() + diff);
     } else if (rotation != 0.0) {
