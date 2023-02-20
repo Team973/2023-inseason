@@ -11,7 +11,6 @@ import com.ctre.phoenixpro.signals.ReverseLimitSourceValue;
 import com.ctre.phoenixpro.signals.ReverseLimitTypeValue;
 
 public class GreyTalonFX extends TalonFX {
-  private final TalonFX m_motor;
 
   public GreyTalonFX(int deviceNumber) {
     this(deviceNumber, "");
@@ -20,7 +19,6 @@ public class GreyTalonFX extends TalonFX {
   public GreyTalonFX(int deviceNumber, String canbus) {
     super(deviceNumber, canbus);
 
-    m_motor = new TalonFX(deviceNumber, canbus);
     // Factory Default
     var motorConfig = new TalonFXConfiguration();
 
@@ -108,6 +106,6 @@ public class GreyTalonFX extends TalonFX {
     motorConfig.MotionMagic.MotionMagicJerk = 0.0;
 
     // Apply configurator
-    m_motor.getConfigurator().apply(motorConfig);
+    this.getConfigurator().apply(motorConfig);
   }
 }
