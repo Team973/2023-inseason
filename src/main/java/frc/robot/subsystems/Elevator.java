@@ -59,6 +59,9 @@ public class Elevator implements Subsystem {
 
   @Getter @Setter private ElevatorState m_elevatorState = ElevatorState.Manual;
 
+  private final MotionMagicDutyCycle m_elevatorMotionMagic =
+      new MotionMagicDutyCycle(0.0, false, 0.04, 0, true);
+
   public enum ElevatorState {
     /** Manually control the motors with the joystick */
     Manual,
@@ -166,7 +169,7 @@ public class Elevator implements Subsystem {
         break;
       case ClosedLoop:
         double motorPosition = m_targetPosition / SPROCKET_CIRCUMFERENCE / GEAR_RATIO;
-        m_elevatorMotor.setControl(new MotionMagicDutyCycle(motorPosition, false, 0.04, 0, true));
+        m_elevatorMotor.setControl(m_elevatorMotionMagic.withPosition(motorPosition));
         break;
       default:
         break;

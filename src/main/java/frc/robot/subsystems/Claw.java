@@ -2,12 +2,14 @@ package frc.robot.subsystems;
 
 import static frc.robot.shared.RobotInfo.*;
 
+import frc.robot.greydash.GreyDashChart;
+import frc.robot.greydash.GreyDashClient;
 import frc.robot.shared.Constants.GamePiece;
 import frc.robot.shared.RobotInfo;
 import frc.robot.shared.Subsystem;
 
 import com.ctre.phoenixpro.configs.TalonFXConfiguration;
-import com.ctre.phoenixpro.controls.PositionDutyCycle;
+import com.ctre.phoenixpro.controls.PositionVoltage;
 import com.ctre.phoenixpro.hardware.TalonFX;
 import com.ctre.phoenixpro.signals.FeedbackSensorSourceValue;
 import com.ctre.phoenixpro.signals.InvertedValue;
@@ -37,10 +39,18 @@ public class Claw implements Subsystem {
     public static final double stow = 0.0;
   }
 
-  @Setter @Getter private IntakeState m_intakeState = IntakeState.Neutral;
-  @Setter @Getter private WristState m_wristState = WristState.Manual;
-  @Setter @Getter private GamePiece m_currentGamePiece;
-  @Setter @Getter private WristPreset m_wristPreset = WristPreset.Stow;
+  @Setter
+  @Getter
+  private IntakeState m_intakeState = IntakeState.Neutral;
+  @Setter
+  @Getter
+  private WristState m_wristState = WristState.Manual;
+  @Setter
+  @Getter
+  private GamePiece m_currentGamePiece;
+  @Setter
+  @Getter
+  private WristPreset m_wristPreset = WristPreset.Stow;
 
   private final TalonFX m_intakeMotor;
   private final TalonFX m_wristMotor;
@@ -48,9 +58,14 @@ public class Claw implements Subsystem {
   private double m_targetAngle = 0.0;
   private double m_intakeStator = 0.0;
   private double m_intakeMotorOutput = 0.0;
-  @Setter private double m_wristMotorOutput = 0.0;
+  @Setter
+  private double m_wristMotorOutput = 0.0;
   private double m_statorCurrentLimit = 60.0;
   private final double ANGLE_TOLERANCE = 1.0; // degrees
+
+  private final GreyDashChart m_angleChart = GreyDashClient.createChart("Wrist Angle");
+
+  private final PositionVoltage m_wristPosition = new PositionVoltage(m_targetAngle / 360.0 / ClawInfo.GEAR_RATIO);
 
   public enum IntakeState {
     In,
@@ -121,11 +136,9 @@ public class Claw implements Subsystem {
     motorConfig.MotorOutput.Inverted = InvertedValue.Clockwise_Positive;
 
     // Neutral Mode
-
     motorConfig.MotorOutput.NeutralMode = NeutralModeValue.Brake;
 
     // Current limits
-
     motorConfig.CurrentLimits.SupplyCurrentLimit = 40;
     motorConfig.CurrentLimits.SupplyCurrentLimitEnable = true;
     motorConfig.CurrentLimits.StatorCurrentLimit = 80;
@@ -139,11 +152,11 @@ public class Claw implements Subsystem {
     motorConfig.ClosedLoopRamps.DutyCycleClosedLoopRampPeriod = 0.0;
 
     // Velocity PID Parameters
-
-    motorConfig.Slot0.kP = 0.45;
+    motorConfig.Slot0.kP = 2.0;
     motorConfig.Slot0.kI = 0.0;
     motorConfig.Slot0.kD = 0.0;
     motorConfig.Slot0.kS = 0.0;
+
     m_wristMotor.getConfigurator().apply(motorConfig);
   }
 
@@ -192,7 +205,7 @@ public class Claw implements Subsystem {
         setWristPreset(WristPreset.Manual);
         break;
       case ClosedLoop:
-        m_wristMotor.setControl(new PositionDutyCycle(m_targetAngle / 360.0 / ClawInfo.GEAR_RATIO));
+        m_wristMotor.setControl(m_wristPosition.withPosition(m_targetAngle / 360.0 / ClawInfo.GEAR_RATIO));
         break;
       default:
         break;
@@ -246,6 +259,9 @@ public class Claw implements Subsystem {
     SmartDashboard.putNumber("Intake Supply", m_intakeMotor.getSupplyCurrent().getValue());
     SmartDashboard.putNumber("Intake Velocity", m_intakeMotor.getVelocity().getValue());
     SmartDashboard.putNumber("Claw Angle", getClawCurrentAngle());
+
+    m_angleChart.addDataToSeries("Target", m_targetAngle);
+    m_angleChart.addDataToSeries("Actual", getClawCurrentAngle());
   }
 
   public void reset() {
