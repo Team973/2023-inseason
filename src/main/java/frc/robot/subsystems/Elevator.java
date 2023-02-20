@@ -100,7 +100,7 @@ public class Elevator implements Subsystem {
     motorConfig.Slot0.kS = 0.0;
 
     motorConfig.MotionMagic.MotionMagicCruiseVelocity = 50.0;
-    motorConfig.MotionMagic.MotionMagicAcceleration = 600.0;
+    motorConfig.MotionMagic.MotionMagicAcceleration = 300.0;
 
     // Set motor to follow A
     m_elevatorMotor.getConfigurator().apply(motorConfig);
