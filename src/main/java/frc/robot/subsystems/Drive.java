@@ -204,6 +204,7 @@ public class Drive implements Subsystem {
 
   public void reset() {
     resetGyro();
+    m_targetRobotAngle = getGyroYaw();
     resetOdometry(new Pose2d());
   }
 }
