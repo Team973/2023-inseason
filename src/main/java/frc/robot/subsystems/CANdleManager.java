@@ -56,6 +56,8 @@ public class CANdleManager implements Subsystem {
     }
   }
 
+  public void dashboardUpdate() {}
+
   public void update() {
     switch (m_lightState) {
       case Cone:

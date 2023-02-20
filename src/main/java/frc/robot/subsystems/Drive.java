@@ -173,9 +173,7 @@ public class Drive implements Subsystem {
     return positions;
   }
 
-  public void update() {
-    swerveOdometry.update(getGyroscopeRotation(), getPositions());
-
+  public void dashboardUpdate() {
     for (SwerveModule mod : m_swerveModules) {
       SmartDashboard.putNumber(
           "Mod " + mod.moduleNumber + " Cancoder", mod.getCanCoder().getDegrees());
@@ -185,6 +183,10 @@ public class Drive implements Subsystem {
       SmartDashboard.putNumber(
           "Mod " + mod.moduleNumber + " Velocity", mod.getState().speedMetersPerSecond);
     }
+  }
+
+  public void update() {
+    swerveOdometry.update(getGyroscopeRotation(), getPositions());
   }
 
   public void reset() {

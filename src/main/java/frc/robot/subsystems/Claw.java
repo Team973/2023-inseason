@@ -160,6 +160,13 @@ public class Claw implements Subsystem {
     return m_intakeStator < m_statorCurrentLimit;
   }
 
+  public void dashboardUpdate() {
+    SmartDashboard.putNumber("Intake Stator", m_intakeStator);
+    SmartDashboard.putNumber("Intake Supply", m_intakeMotor.getSupplyCurrent().getValue());
+    SmartDashboard.putNumber("Intake Velocity", m_intakeMotor.getVelocity().getValue());
+    SmartDashboard.putNumber("Claw Angle", getClawCurrentAngle());
+  }
+
   public void update() {
     m_intakeStator = m_intakeMotor.getStatorCurrent().getValue();
 
@@ -198,9 +205,6 @@ public class Claw implements Subsystem {
         break;
     }
 
-    // Given the wrist preset m_wristPreset and the current game piece
-    // m_currentGamePiece,
-    // set the target angle for the wrist
     switch (m_wristPreset) {
       case Floor:
         if (m_currentGamePiece == GamePiece.Cube) {
@@ -241,11 +245,6 @@ public class Claw implements Subsystem {
       default:
         break;
     }
-
-    SmartDashboard.putNumber("Intake Stator", m_intakeStator);
-    SmartDashboard.putNumber("Intake Supply", m_intakeMotor.getSupplyCurrent().getValue());
-    SmartDashboard.putNumber("Intake Velocity", m_intakeMotor.getVelocity().getValue());
-    SmartDashboard.putNumber("Claw Angle", getClawCurrentAngle());
   }
 
   public void reset() {

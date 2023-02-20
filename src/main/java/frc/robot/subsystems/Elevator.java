@@ -151,6 +151,16 @@ public class Elevator implements Subsystem {
     return Math.abs(height - getHeight()) < 0.5;
   }
 
+  public void dashboardUpdate() {
+    SmartDashboard.putNumber("Elevator Position", getPosition());
+    SmartDashboard.putNumber("Elevator Target Position", m_targetPosition);
+    SmartDashboard.putNumber("Elevator Velocity", m_elevatorMotor.getRotorVelocity().getValue());
+    SmartDashboard.putNumber("Elevator Height", getHeight());
+    SmartDashboard.putNumber("Elevator Position", getPosition());
+    SmartDashboard.putBoolean("Elevator Bottom Hall", getBottomHall());
+    SmartDashboard.putBoolean("Elevator Top Hall", getTopHall());
+  }
+
   public void update() {
     switch (m_elevatorState) {
       case Manual:
@@ -171,10 +181,6 @@ public class Elevator implements Subsystem {
       default:
         break;
     }
-
-    SmartDashboard.putNumber("Elevator Position", getPosition());
-    SmartDashboard.putNumber("Elevator Target Position", m_targetPosition);
-    SmartDashboard.putNumber("Elevator Velocity", m_elevatorMotor.getRotorVelocity().getValue());
   }
 
   public void reset() {
