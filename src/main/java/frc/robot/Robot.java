@@ -190,13 +190,16 @@ public class Robot extends TimedRobot {
       m_drive.driveInput(translation, rot, true);
 
       // Closed loop drive angle
-      if (m_driverStick.getRightBumper()) {
+      if (m_driverStick.getYButton()) {
         m_drive.setRotationControl(RotationControl.ClosedLoop);
         m_drive.setTargetRobotAngle(Drive.AnglePresets.TOWARDS_DS);
-      } else if (m_driverStick.getRightTriggerAxis() > 0.5) {
+      } else if (m_driverStick.getBButton()) {
         m_drive.setRotationControl(RotationControl.ClosedLoop);
         m_drive.setTargetRobotAngle(Drive.AnglePresets.TOWARDS_HP);
       } else if (rot == 0.0) {
+        if (m_driverStick.getYButtonReleased() || m_driverStick.getBButtonReleased()) {
+          m_drive.setTargetRobotAngle(m_drive.getNormalizedGyroYaw());
+        }
         m_drive.setRotationControl(RotationControl.ClosedLoop);
       } else {
         m_drive.setRotationControl(RotationControl.OpenLoop);
