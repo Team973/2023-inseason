@@ -8,7 +8,7 @@ import frc.robot.shared.Subsystem;
 
 import com.ctre.phoenixpro.configs.TalonFXConfiguration;
 import com.ctre.phoenixpro.controls.Follower;
-import com.ctre.phoenixpro.controls.MotionMagicDutyCycle;
+import com.ctre.phoenixpro.controls.MotionMagicVoltage;
 import com.ctre.phoenixpro.signals.InvertedValue;
 import edu.wpi.first.wpilibj.DigitalInput;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
@@ -57,6 +57,9 @@ public class Elevator implements Subsystem {
 
   @Getter @Setter private ElevatorState m_elevatorState = ElevatorState.Manual;
 
+  private final MotionMagicVoltage m_elevatorMotionMagic =
+      new MotionMagicVoltage(0.0, false, 0.04, 0, true);
+
   public enum ElevatorState {
     /** Manually control the motors with the joystick */
     Manual,
@@ -82,13 +85,13 @@ public class Elevator implements Subsystem {
     motorConfig.CurrentLimits.StatorCurrentLimitEnable = false;
 
     // Position PID Parameters
-    motorConfig.Slot0.kP = 0.8;
+    motorConfig.Slot0.kP = 7.0;
     motorConfig.Slot0.kI = 0.0;
     motorConfig.Slot0.kD = 0.0;
     motorConfig.Slot0.kS = 0.0;
 
-    motorConfig.MotionMagic.MotionMagicCruiseVelocity = 50.0;
-    motorConfig.MotionMagic.MotionMagicAcceleration = 300.0;
+    motorConfig.MotionMagic.MotionMagicCruiseVelocity = 70.0;
+    motorConfig.MotionMagic.MotionMagicAcceleration = 250.0;
 
     // Set motor to follow A
     m_elevatorMotor.getConfigurator().apply(motorConfig);
@@ -154,7 +157,7 @@ public class Elevator implements Subsystem {
         break;
       case ClosedLoop:
         double motorPosition = m_targetPosition / SPROCKET_CIRCUMFERENCE / GEAR_RATIO;
-        m_elevatorMotor.setControl(new MotionMagicDutyCycle(motorPosition, false, 0.04, 0, true));
+        m_elevatorMotor.setControl(m_elevatorMotionMagic.withPosition(motorPosition));
         break;
       default:
         break;

@@ -2,8 +2,8 @@ package frc.robot.shared;
 
 /** Abstract Class for auto commands. */
 public abstract class AutoCommand {
-  protected double m_targetMsec;
-  protected double m_startMsec;
+  protected double m_targetMsec = Double.MAX_VALUE;
+  protected double m_startMsec = 0.0;
 
   /**
    * Checks if the target time (safety timeout) has elapsed.

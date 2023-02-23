@@ -9,6 +9,8 @@ import static frc.robot.shared.RobotInfo.*;
 import java.io.FileWriter;
 import java.io.PrintWriter;
 
+import frc.robot.AutoManager.AutoMode;
+import frc.robot.auto.commands.TrajectoryManager;
 import frc.robot.greydash.GreyDashClient;
 import frc.robot.shared.Constants.GamePiece;
 import frc.robot.subsystems.CANdleManager;
@@ -43,13 +45,15 @@ import lombok.experimental.Accessors;
 @Accessors(prefix = "m_")
 public class Robot extends TimedRobot {
   private static final String kDefaultAuto = "Default";
-  private static final String kCustomAuto = "My Auto";
   private static String m_autoSelected = kDefaultAuto;
 
   private final Elevator m_elevator = new Elevator();
   private final Claw m_claw = new Claw();
   private final Drive m_drive = new Drive();
   private final CANdleManager m_candleManager = new CANdleManager();
+  private final TrajectoryManager m_trajectoryManager = new TrajectoryManager();
+  private final AutoManager m_autoManager =
+      new AutoManager(m_claw, m_elevator, m_drive, m_trajectoryManager);
 
   private final XboxController m_driverStick = new XboxController(0);
   private final XboxController m_operatorStick = new XboxController(1);
@@ -101,7 +105,13 @@ public class Robot extends TimedRobot {
    */
   @Override
   public void robotInit() {
-    GreyDashClient.setAvailableAutoModes(kDefaultAuto, kCustomAuto);
+    GreyDashClient.setAvailableAutoModes(
+        AutoMode.Test.name(),
+        AutoMode.OneCone.name(),
+        AutoMode.PreloadAndCharge.name(),
+        AutoMode.NoAuto.name());
+    GreyDashClient.availableGamePieces(
+        GamePiece.Cone.name(), GamePiece.Cube.name(), GamePiece.None.name());
 
     this.resetSubsystems();
   }
@@ -116,6 +126,8 @@ public class Robot extends TimedRobot {
   @Override
   public void robotPeriodic() {
     try {
+      m_autoManager.selectAuto(AutoMode.valueOf(GreyDashClient.getAutoSelected()));
+      m_autoManager.selectPreload(GamePiece.valueOf(GreyDashClient.selectedGamePiece()));
       GreyDashClient.update();
       m_candleManager.update();
       if (this.isEnabled()) {
@@ -149,12 +161,14 @@ public class Robot extends TimedRobot {
     m_autoSelected = GreyDashClient.getAutoSelected();
     System.out.println("Auto selected: " + m_autoSelected);
     m_compressor.enableDigital();
+    m_autoManager.init();
   }
 
   /** This function is called periodically during autonomous. */
   @Override
   public void autonomousPeriodic() {
     try {
+      m_autoManager.run();
     } catch (Exception e) {
       logException(e);
     }
@@ -164,6 +178,7 @@ public class Robot extends TimedRobot {
   @Override
   public void teleopInit() {
     m_compressor.enableDigital();
+    m_claw.setWristState(WristState.Manual);
   }
 
   /** This function is called periodically during operator control. */
