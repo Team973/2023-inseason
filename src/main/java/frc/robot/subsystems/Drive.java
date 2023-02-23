@@ -36,7 +36,7 @@ public class Drive implements Subsystem {
 
   @Setter private RotationControl m_rotationControl = RotationControl.OpenLoop;
 
-  private PIDController m_rotationController = new PIDController(0.1125, 0.0, 0.003);
+  private PIDController m_rotationController = new PIDController(0.11, 0.0, 0.003);
 
   public enum RotationControl {
     OpenLoop,
@@ -91,6 +91,7 @@ public class Drive implements Subsystem {
       } else if (diff < -180) {
         diff += 360;
       }
+
       rotation =
           m_rotationController.calculate(getNormalizedGyroYaw(), getNormalizedGyroYaw() + diff);
     } else if (rotation != 0.0) {
@@ -158,9 +159,16 @@ public class Drive implements Subsystem {
     SwerveDriveKinematics.desaturateWheelSpeeds(
         desiredStates, DriveInfo.MAX_VELOCITY_METERS_PER_SECOND);
 
+    double states[] = new double[8];
+    int index = 0;
     for (SwerveModule mod : m_swerveModules) {
       mod.setDesiredState(desiredStates[mod.moduleNumber]);
+      states[index] = desiredStates[mod.moduleNumber].angle.getDegrees();
+      states[index + 1] = desiredStates[mod.moduleNumber].speedMetersPerSecond;
+      index += 2;
     }
+
+    SmartDashboard.putNumberArray("swerve/setpoints", states);
   }
 
   public Pose2d getPose() {
@@ -168,6 +176,7 @@ public class Drive implements Subsystem {
   }
 
   public void resetOdometry(Pose2d pose) {
+    m_gyroOffsetDegrees += pose.getRotation().getDegrees();
     swerveOdometry.resetPosition(getGyroscopeRotation(), getPositions(), pose);
   }
 
@@ -186,6 +195,9 @@ public class Drive implements Subsystem {
   }
 
   public void dashboardUpdate() {
+    double states[] = new double[8];
+    int index = 0;
+
     for (SwerveModule mod : m_swerveModules) {
       SmartDashboard.putNumber(
           "Mod " + mod.moduleNumber + " Cancoder", mod.getCanCoder().getDegrees());
@@ -194,7 +206,11 @@ public class Drive implements Subsystem {
       SmartDashboard.putNumber("Mod " + mod.moduleNumber + " Raw", mod.getAngleRaw());
       SmartDashboard.putNumber(
           "Mod " + mod.moduleNumber + " Velocity", mod.getState().speedMetersPerSecond);
+      states[index] = mod.getState().angle.getDegrees();
+      states[index + 1] = mod.getState().speedMetersPerSecond;
+      index += 2;
     }
+    SmartDashboard.putNumberArray("swerve/actual", states);
   }
 
   public void update() {
