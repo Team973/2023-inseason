@@ -169,7 +169,6 @@ public class Robot extends TimedRobot {
   public void autonomousPeriodic() {
     try {
       m_autoManager.run();
-      this.updateSubsystems();
     } catch (Exception e) {
       logException(e);
     }
