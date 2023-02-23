@@ -177,8 +177,8 @@ public class Drive implements Subsystem {
     return swerveOdometry.getPoseMeters();
   }
 
-  public void resetOdometry(Pose2d pose, Rotation2d rotation) {
-    m_gyroOffsetDegrees += rotation.getDegrees();
+  public void resetOdometry(Pose2d pose) {
+    m_gyroOffsetDegrees += pose.getRotation().getDegrees();
     swerveOdometry.resetPosition(getGyroscopeRotation(), getPositions(), pose);
   }
 
@@ -223,6 +223,6 @@ public class Drive implements Subsystem {
   public void reset() {
     resetGyro();
     m_targetRobotAngle = getGyroYaw();
-    resetOdometry(new Pose2d(), new Rotation2d());
+    resetOdometry(new Pose2d());
   }
 }

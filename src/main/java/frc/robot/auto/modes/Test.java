@@ -12,10 +12,7 @@ import edu.wpi.first.math.geometry.Rotation2d;
 public class Test extends SequentialCommand {
   public Test(Drive drive, TrajectoryManager trajectoryManager) {
     super(
-        new SetDrivePositionCommand(
-            drive,
-            new Pose2d(0.0, 0.0, Rotation2d.fromDegrees(180)),
-            Rotation2d.fromDegrees(180.0)),
+        new SetDrivePositionCommand(drive, new Pose2d(0.0, 0.0, Rotation2d.fromDegrees(180))),
         new DriveTrajectoryCommand(drive, trajectoryManager.getTrajectoryA()));
   }
 }

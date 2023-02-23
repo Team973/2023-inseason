@@ -21,10 +21,7 @@ import edu.wpi.first.math.geometry.Rotation2d;
 public class OneCone extends SequentialCommand {
   public OneCone(Drive drive, Claw claw, Elevator elevator, TrajectoryManager trajectoryManager) {
     super(
-        new SetDrivePositionCommand(
-            drive,
-            new Pose2d(0.0, 0.0, Rotation2d.fromDegrees(180)),
-            Rotation2d.fromDegrees(180.0)),
+        new SetDrivePositionCommand(drive, new Pose2d(0.0, 0.0, Rotation2d.fromDegrees(180))),
         new IntakeCommand(claw, IntakeState.In, GamePiece.Cone, 100),
         new ElevatorPresetCommand(elevator, Elevator.Presets.high, 4000),
         new WaitCommand(500),

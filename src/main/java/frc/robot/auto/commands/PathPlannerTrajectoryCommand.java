@@ -19,11 +19,7 @@ public class PathPlannerTrajectoryCommand extends AutoCommand {
       Drive drive, String path, PathConstraints constraints, boolean reverse) {
     m_drive = drive;
     m_path = PathPlanner.loadPath(path, constraints, reverse);
-    m_positionCommand =
-        new SetDrivePositionCommand(
-            m_drive,
-            m_path.getInitialHolonomicPose(),
-            m_path.getInitialHolonomicPose().getRotation());
+    m_positionCommand = new SetDrivePositionCommand(m_drive, m_path.getInitialHolonomicPose());
     m_trajectoryCommand = new DriveTrajectoryCommand(m_drive, m_path);
   }
 
