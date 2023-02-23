@@ -32,12 +32,11 @@ public class GreyTalonFX extends TalonFX {
     motorConfig.ClosedLoopRamps.VoltageClosedLoopRampPeriod = 0.0;
 
     // Motor Directions
-    motorConfig.MotorOutput.Inverted = InvertedValue.Clockwise_Positive;
+    motorConfig.MotorOutput.Inverted = InvertedValue.CounterClockwise_Positive;
 
     // Neutral Mode
     motorConfig.MotorOutput.NeutralMode = NeutralModeValue.Brake;
     motorConfig.MotorOutput.DutyCycleNeutralDeadband = 0.0;
-    motorConfig.MotorOutput.Inverted = InvertedValue.Clockwise_Positive;
     motorConfig.MotorOutput.PeakForwardDutyCycle = 0.0;
     motorConfig.MotorOutput.PeakReverseDutyCycle = 0.0;
 
