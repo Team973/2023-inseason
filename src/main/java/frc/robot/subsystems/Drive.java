@@ -92,8 +92,7 @@ public class Drive implements Subsystem {
       } else if (diff < -180) {
         diff += 360;
       }
-      SmartDashboard.putNumber("rotation setpoint", getNormalizedGyroYaw() + diff);
-      SmartDashboard.putNumber("rotation actual", getNormalizedGyroYaw());
+
       rotation =
           m_rotationController.calculate(getNormalizedGyroYaw(), getNormalizedGyroYaw() + diff);
     } else if (rotation != 0.0) {
