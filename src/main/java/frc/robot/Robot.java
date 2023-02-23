@@ -31,7 +31,6 @@ import edu.wpi.first.wpilibj.PneumaticsModuleType;
 import edu.wpi.first.wpilibj.RobotBase;
 import edu.wpi.first.wpilibj.TimedRobot;
 import edu.wpi.first.wpilibj.XboxController;
-import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import lombok.Getter;
 import lombok.Setter;
 import lombok.experimental.Accessors;
@@ -84,6 +83,13 @@ public class Robot extends TimedRobot {
     }
   }
 
+  private void dashboardUpdateSubsystems() {
+    m_elevator.dashboardUpdate();
+    m_claw.dashboardUpdate();
+    m_drive.dashboardUpdate();
+    m_candleManager.dashboardUpdate();
+  }
+
   /** Update subsystems. Called me when enabled. */
   private void updateSubsystems() {
     m_elevator.update();
@@ -126,21 +132,27 @@ public class Robot extends TimedRobot {
   @Override
   public void robotPeriodic() {
     try {
+      // GreyDash
+      GreyDashClient.update();
+
+      // Auto Selection
       m_autoManager.selectAuto(AutoMode.valueOf(GreyDashClient.getAutoSelected()));
       m_autoManager.selectPreload(GamePiece.valueOf(GreyDashClient.selectedGamePiece()));
-      GreyDashClient.update();
+
+      // Subsystems
+      dashboardUpdateSubsystems();
       m_candleManager.update();
-      if (this.isEnabled()) {
-        this.updateSubsystems();
+      if (isEnabled()) {
+        updateSubsystems();
       }
+
+      // Keep claw game piece up to date
       m_claw.setCurrentGamePiece(m_currentGamePiece);
-      if (!m_exceptionHappened || !this.isDisabled()) {
+
+      // CANdle
+      if (!m_exceptionHappened || !isDisabled()) {
         m_candleManager.setLightWithGamePiece(m_currentGamePiece);
       }
-      SmartDashboard.putNumber("Elevator Height", m_elevator.getHeight());
-      SmartDashboard.putNumber("Elevator Position", m_elevator.getPosition());
-      SmartDashboard.putBoolean("Elevator Bottom Hall", m_elevator.getBottomHall());
-      SmartDashboard.putBoolean("Elevator Top Hall", m_elevator.getTopHall());
     } catch (Exception e) {
       logException(e);
     }
@@ -194,10 +206,6 @@ public class Robot extends TimedRobot {
       final double rot =
           -m_rotLimiter.calculate(MathUtil.applyDeadband(m_driverStick.getRawAxis(4), 0.09))
               * DriveInfo.MAX_ANGULAR_VELOCITY_RADIANS_PER_SECOND;
-
-      SmartDashboard.putNumber("drive/swerve/inputs/xspeed", xSpeed);
-      SmartDashboard.putNumber("drive/swerve/inputs/yspeed", ySpeed);
-      SmartDashboard.putNumber("drive/swerve/inputs/rot", rot);
 
       Translation2d translation =
           new Translation2d(xSpeed, ySpeed).times(DriveInfo.MAX_VELOCITY_METERS_PER_SECOND);

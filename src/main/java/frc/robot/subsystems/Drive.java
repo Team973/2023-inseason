@@ -1,6 +1,5 @@
 package frc.robot.subsystems;
 
-import frc.robot.greydash.GreyDashClient;
 import frc.robot.shared.RobotInfo;
 import frc.robot.shared.RobotInfo.DriveInfo;
 import frc.robot.shared.Subsystem;
@@ -195,14 +194,9 @@ public class Drive implements Subsystem {
     return positions;
   }
 
-  public void update() {
-    swerveOdometry.update(getGyroscopeRotation(), getPositions());
-    GreyDashClient.setGyroAngle(getGyroscopeRotation().getDegrees());
-
+  public void dashboardUpdate() {
     double states[] = new double[8];
     int index = 0;
-
-    GreyDashClient.setGyroAngle(getGyroYaw());
 
     for (SwerveModule mod : m_swerveModules) {
       SmartDashboard.putNumber(
@@ -217,6 +211,10 @@ public class Drive implements Subsystem {
       index += 2;
     }
     SmartDashboard.putNumberArray("swerve/actual", states);
+  }
+
+  public void update() {
+    swerveOdometry.update(getGyroscopeRotation(), getPositions());
   }
 
   public void reset() {
