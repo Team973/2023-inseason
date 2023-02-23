@@ -2,16 +2,14 @@ package frc.robot.subsystems;
 
 import static frc.robot.shared.RobotInfo.*;
 
+import frc.robot.shared.GreyTalonFX;
 import frc.robot.shared.RobotInfo;
 import frc.robot.shared.Subsystem;
 
 import com.ctre.phoenixpro.configs.TalonFXConfiguration;
 import com.ctre.phoenixpro.controls.Follower;
 import com.ctre.phoenixpro.controls.MotionMagicDutyCycle;
-import com.ctre.phoenixpro.hardware.TalonFX;
-import com.ctre.phoenixpro.signals.FeedbackSensorSourceValue;
 import com.ctre.phoenixpro.signals.InvertedValue;
-import com.ctre.phoenixpro.signals.NeutralModeValue;
 import edu.wpi.first.wpilibj.DigitalInput;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import lombok.Getter;
@@ -34,8 +32,8 @@ public class Elevator implements Subsystem {
     public static final double stow = 0.0;
   }
 
-  private final TalonFX m_elevatorMotor;
-  private final TalonFX m_elevatorFollowerMotor;
+  private final GreyTalonFX m_elevatorMotor;
+  private final GreyTalonFX m_elevatorFollowerMotor;
 
   private final DigitalInput m_bottomHall;
   private final DigitalInput m_topHall;
@@ -67,8 +65,8 @@ public class Elevator implements Subsystem {
   }
 
   public Elevator() {
-    m_elevatorMotor = new TalonFX(ElevatorInfo.FX_ID, RobotInfo.CANIVORE_NAME);
-    m_elevatorFollowerMotor = new TalonFX(ElevatorInfo.FOLLOWER_FX_ID, RobotInfo.CANIVORE_NAME);
+    m_elevatorMotor = new GreyTalonFX(ElevatorInfo.FX_ID, RobotInfo.CANIVORE_NAME);
+    m_elevatorFollowerMotor = new GreyTalonFX(ElevatorInfo.FOLLOWER_FX_ID, RobotInfo.CANIVORE_NAME);
     m_bottomHall = new DigitalInput(ElevatorInfo.BOTTOM_HALL_SENSOR_ID);
     m_topHall = new DigitalInput(ElevatorInfo.TOP_HALL_SENSOR_ID);
 
@@ -77,21 +75,11 @@ public class Elevator implements Subsystem {
     // Motor Directions
     motorConfig.MotorOutput.Inverted = InvertedValue.Clockwise_Positive;
 
-    // Neutral Mode
-    motorConfig.MotorOutput.NeutralMode = NeutralModeValue.Brake;
-
     // Current limits
     motorConfig.CurrentLimits.SupplyCurrentLimit = 40;
     motorConfig.CurrentLimits.SupplyCurrentLimitEnable = false;
     motorConfig.CurrentLimits.StatorCurrentLimit = 80;
     motorConfig.CurrentLimits.StatorCurrentLimitEnable = false;
-
-    // Motor feedback
-    motorConfig.Feedback.FeedbackSensorSource = FeedbackSensorSourceValue.RotorSensor;
-
-    // Ramp rate
-    motorConfig.OpenLoopRamps.DutyCycleOpenLoopRampPeriod = 0.0;
-    motorConfig.ClosedLoopRamps.DutyCycleClosedLoopRampPeriod = 0.0;
 
     // Position PID Parameters
     motorConfig.Slot0.kP = 0.8;

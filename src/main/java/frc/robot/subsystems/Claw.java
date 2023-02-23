@@ -3,12 +3,12 @@ package frc.robot.subsystems;
 import static frc.robot.shared.RobotInfo.*;
 
 import frc.robot.shared.Constants.GamePiece;
+import frc.robot.shared.GreyTalonFX;
 import frc.robot.shared.RobotInfo;
 import frc.robot.shared.Subsystem;
 
 import com.ctre.phoenixpro.configs.TalonFXConfiguration;
 import com.ctre.phoenixpro.controls.PositionDutyCycle;
-import com.ctre.phoenixpro.hardware.TalonFX;
 import com.ctre.phoenixpro.signals.FeedbackSensorSourceValue;
 import com.ctre.phoenixpro.signals.InvertedValue;
 import com.ctre.phoenixpro.signals.NeutralModeValue;
@@ -42,8 +42,8 @@ public class Claw implements Subsystem {
   @Setter @Getter private GamePiece m_currentGamePiece;
   @Setter @Getter private WristPreset m_wristPreset = WristPreset.Stow;
 
-  private final TalonFX m_intakeMotor;
-  private final TalonFX m_wristMotor;
+  private final GreyTalonFX m_intakeMotor;
+  private final GreyTalonFX m_wristMotor;
 
   private double m_targetAngle = 0.0;
   private double m_intakeStator = 0.0;
@@ -74,8 +74,8 @@ public class Claw implements Subsystem {
   }
 
   public Claw() {
-    m_intakeMotor = new TalonFX(ClawInfo.INTAKE_FX_ID, RobotInfo.CANIVORE_NAME);
-    m_wristMotor = new TalonFX(ClawInfo.WRIST_FX_ID, RobotInfo.CANIVORE_NAME);
+    m_intakeMotor = new GreyTalonFX(ClawInfo.INTAKE_FX_ID, RobotInfo.CANIVORE_NAME);
+    m_wristMotor = new GreyTalonFX(ClawInfo.WRIST_FX_ID, RobotInfo.CANIVORE_NAME);
     configIntakeMotor();
     configWristMotor();
   }
@@ -83,33 +83,11 @@ public class Claw implements Subsystem {
   private void configIntakeMotor() {
     var motorConfig = new TalonFXConfiguration();
 
-    // Motor Directions
-    motorConfig.MotorOutput.Inverted = InvertedValue.CounterClockwise_Positive;
-
-    // Neutral Mode
-
-    motorConfig.MotorOutput.NeutralMode = NeutralModeValue.Brake;
-
     // Current limits
-
     motorConfig.CurrentLimits.SupplyCurrentLimit = 100;
     motorConfig.CurrentLimits.SupplyCurrentLimitEnable = true;
     motorConfig.CurrentLimits.StatorCurrentLimit = m_statorCurrentLimit;
     motorConfig.CurrentLimits.StatorCurrentLimitEnable = true;
-
-    // Motor feedback
-    motorConfig.Feedback.FeedbackSensorSource = FeedbackSensorSourceValue.RotorSensor;
-
-    // Ramp rate
-    motorConfig.OpenLoopRamps.DutyCycleOpenLoopRampPeriod = 0.0;
-    motorConfig.ClosedLoopRamps.DutyCycleClosedLoopRampPeriod = 0.0;
-
-    // Velocity PID Parameters
-
-    motorConfig.Slot0.kP = 0.0;
-    motorConfig.Slot0.kI = 0.0;
-    motorConfig.Slot0.kD = 0.0;
-    motorConfig.Slot0.kS = 0.0;
 
     m_intakeMotor.getConfigurator().apply(motorConfig);
   }
