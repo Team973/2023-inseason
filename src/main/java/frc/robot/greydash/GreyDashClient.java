@@ -32,7 +32,7 @@ public final class GreyDashClient {
   // Auto Topics
   private static final StringArrayPublisher m_autoModes =
       m_autoTable.getStringArrayTopic(AUTO_MODES_TOPIC).publish();
-  private static final StringSubscriber m_autoSelected =
+  private static final StringSubscriber m_autoSelectedSubscriber =
       m_autoTable.getStringTopic(AUTO_SELECTED_TOPIC).subscribe(AutoMode.NoAuto.toString());
 
   private static final StringArrayPublisher m_gamePieces =
@@ -40,10 +40,8 @@ public final class GreyDashClient {
   private static final StringSubscriber m_preloadSelected =
       m_autoTable.getStringTopic(GAME_PIECE_SELECTED_TOPIC).subscribe(GamePiece.None.toString());
 
-  private static final StringPublisher m_selectAuto =
+  private static final StringPublisher m_autoSelectedPublisher =
       m_autoTable.getStringTopic(AUTO_MODES_TOPIC).publish();
-  private static final StringSubscriber m_lastSelectedAuto =
-      m_autoTable.getStringTopic(AUTO_SELECTED_TOPIC).subscribe(AutoMode.NoAuto.toString());
 
   // Match Topics
   private static final DoublePublisher m_matchTime =
@@ -93,7 +91,7 @@ public final class GreyDashClient {
    * @see #setAvailableAutoModes(String...)
    */
   public static String getAutoSelected() {
-    return m_autoSelected.get();
+    return m_autoSelectedSubscriber.get();
   }
 
   /**
@@ -117,7 +115,7 @@ public final class GreyDashClient {
   }
 
   public static void setSelectedAuto(final String auto) {
-    m_selectAuto.set(auto);
+    m_autoSelectedPublisher.set(auto);
   }
 
   /** Periodic update method. This should be called periodically to update the dashboard. */
