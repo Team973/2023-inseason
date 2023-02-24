@@ -8,8 +8,8 @@ import frc.robot.shared.SwerveModuleConfig;
 import com.ctre.phoenixpro.BaseStatusSignalValue;
 import com.ctre.phoenixpro.configs.CANcoderConfiguration;
 import com.ctre.phoenixpro.configs.TalonFXConfiguration;
-import com.ctre.phoenixpro.controls.PositionDutyCycle;
-import com.ctre.phoenixpro.controls.VelocityDutyCycle;
+import com.ctre.phoenixpro.controls.PositionVoltage;
+import com.ctre.phoenixpro.controls.VelocityVoltage;
 import com.ctre.phoenixpro.hardware.CANcoder;
 import com.ctre.phoenixpro.signals.AbsoluteSensorRangeValue;
 import com.ctre.phoenixpro.signals.InvertedValue;
@@ -18,7 +18,6 @@ import com.ctre.phoenixpro.signals.SensorDirectionValue;
 import edu.wpi.first.math.controller.SimpleMotorFeedforward;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.kinematics.SwerveModulePosition;
-import edu.wpi.first.math.kinematics.SwerveModuleState;
 
 public class SwerveModule {
   public int moduleNumber;
@@ -31,10 +30,10 @@ public class SwerveModule {
   SimpleMotorFeedforward feedforward =
       new SimpleMotorFeedforward(DriveInfo.driveKS, DriveInfo.driveKV, DriveInfo.driveKA);
 
-  private PositionDutyCycle m_anglePosition = new PositionDutyCycle(0.0);
+  private PositionVoltage m_anglePosition = new PositionVoltage(0.0);
 
-  private VelocityDutyCycle m_driveVelocity =
-      new VelocityDutyCycle(0.0, true, feedforward.calculate(0.0), 0, false);
+  private VelocityVoltage m_driveVelocity =
+      new VelocityVoltage(0.0, true, feedforward.calculate(0.0), 0, false);
 
   public SwerveModule(int moduleNumber, SwerveModuleConfig moduleConfig) {
     this.moduleNumber = moduleNumber;
@@ -71,10 +70,10 @@ public class SwerveModule {
     motorConfig.MotorOutput.Inverted = InvertedValue.Clockwise_Positive;
     motorConfig.MotorOutput.NeutralMode = NeutralModeValue.Coast;
 
-    motorConfig.Slot0.kP = DriveInfo.ANGLE_KP;
-    motorConfig.Slot0.kI = DriveInfo.ANGLE_KI;
-    motorConfig.Slot0.kD = DriveInfo.ANGLE_KD;
-    motorConfig.Slot0.kS = DriveInfo.ANGLE_KF;
+    motorConfig.Slot0.kP = 1.5;
+    motorConfig.Slot0.kI = 0.4;
+    motorConfig.Slot0.kD = 0.3;
+    motorConfig.Slot0.kS = 0.2;
 
     motorConfig.CurrentLimits.StatorCurrentLimit = 150.0;
     motorConfig.CurrentLimits.StatorCurrentLimitEnable = true;
@@ -91,10 +90,10 @@ public class SwerveModule {
     var motorConfig = new TalonFXConfiguration();
     motorConfig.MotorOutput.Inverted = InvertedValue.Clockwise_Positive;
 
-    motorConfig.Slot0.kP = 0.00973;
-    motorConfig.Slot0.kI = 0.0;
-    motorConfig.Slot0.kD = 0.0;
-    motorConfig.Slot0.kV = 0.00973;
+    motorConfig.Slot0.kP = 0.5;
+    motorConfig.Slot0.kI = 0.04;
+    motorConfig.Slot0.kD = 0.06;
+    motorConfig.Slot0.kV = 0.1;
 
     motorConfig.CurrentLimits.StatorCurrentLimit = 100.0;
     motorConfig.CurrentLimits.StatorCurrentLimitEnable = true;
@@ -115,7 +114,7 @@ public class SwerveModule {
     m_angleMotor.setRotorPosition(absolutePosition);
   }
 
-  public SwerveModuleState getState() {
+  public SwerveModuleState2 getState() {
     double wheelRPS = m_driveMotor.getRotorVelocity().getValue() / DriveInfo.DRIVE_GEAR_RATIO;
     double velocityInMPS = wheelRPS * DriveInfo.WHEEL_CIRCUMFRENCE_METERS;
 
@@ -123,7 +122,11 @@ public class SwerveModule {
         Rotation2d.fromRotations(
             m_angleMotor.getRotorPosition().getValue() / DriveInfo.ANGLE_GEAR_RATIO);
 
-    return new SwerveModuleState(velocityInMPS, angle);
+    Rotation2d angularVelocity =
+        Rotation2d.fromRotations(
+            m_angleMotor.getRotorVelocity().getValue() / DriveInfo.ANGLE_GEAR_RATIO);
+
+    return new SwerveModuleState2(velocityInMPS, angle, angularVelocity.getRadians());
   }
 
   public double getAngleRaw() {
@@ -136,7 +139,7 @@ public class SwerveModule {
     return new SwerveModulePosition(wheelDistanceMeters, getState().angle);
   }
 
-  public void setDesiredState(SwerveModuleState desiredState) {
+  public void setDesiredState(SwerveModuleState2 desiredState) {
     desiredState =
         CTREModuleState.optimize(
             desiredState,
