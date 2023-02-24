@@ -16,7 +16,9 @@ import frc.robot.shared.Constants.GamePiece;
 import frc.robot.subsystems.CANdleManager;
 import frc.robot.subsystems.CANdleManager.LightState;
 import frc.robot.subsystems.Claw;
+import frc.robot.subsystems.Claw.ConePresets;
 import frc.robot.subsystems.Claw.IntakeState;
+import frc.robot.subsystems.Claw.WristPreset;
 import frc.robot.subsystems.Claw.WristState;
 import frc.robot.subsystems.Drive;
 import frc.robot.subsystems.Drive.RotationControl;
@@ -256,6 +258,20 @@ public class Robot extends TimedRobot {
         m_claw.setIntakeState(IntakeState.Neutral);
       }
 
+      // Right Cone
+      if (m_driverStick.getRightTriggerAxis() > 0.1) {
+        m_elevator.setElevatorState(ElevatorState.ClosedLoop);
+        m_elevator.setHeight(Elevator.Presets.floor);
+        m_claw.setWristState(WristState.ClosedLoop);
+        m_currentGamePiece = GamePiece.Cone;
+        m_claw.setIntakeState(IntakeState.In);
+        if (m_driverStick.getRightTriggerAxis() > 0.9) {
+          m_claw.setWristTargetAngle(ConePresets.floor);
+        } else {
+          m_claw.setWristTargetAngle(ConePresets.right);
+        }
+      }
+
       //////////
       // BOTH //
       //////////
@@ -311,13 +327,19 @@ public class Robot extends TimedRobot {
         m_currentGamePiece = GamePiece.Cube;
         m_claw.setIntakeState(IntakeState.In);
       } else if (m_claw.getIntakeState() != IntakeState.Out
-          && m_claw.getIntakeState() != IntakeState.Neutral) {
+          && m_claw.getIntakeState() != IntakeState.Neutral
+          && m_driverStick.getRightTriggerAxis() < 0.1) {
         m_claw.setIntakeState(IntakeState.Hold);
+      }
+
+      if (m_claw.getIntakeState() == IntakeState.In && m_claw.checkForGamePiece()) {
+        m_elevator.setHeight(Elevator.Presets.stow);
+        m_claw.setWristPreset(WristPreset.Stow);
       }
 
       // Manually Control Wrist
       double wristJoystickInput = -MathUtil.applyDeadband(m_operatorStick.getLeftY(), 0.12) * 0.25;
-      if (wristJoystickInput != 0.0) {
+      if (wristJoystickInput != 0.0 && m_driverStick.getRightTriggerAxis() <= 0.1) {
         m_claw.setWristState(WristState.Manual);
         m_claw.setWristMotorOutput(wristJoystickInput);
       } else {

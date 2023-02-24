@@ -13,6 +13,7 @@ import com.ctre.phoenixpro.signals.FeedbackSensorSourceValue;
 import com.ctre.phoenixpro.signals.InvertedValue;
 import com.ctre.phoenixpro.signals.NeutralModeValue;
 import edu.wpi.first.math.geometry.Rotation2d;
+import edu.wpi.first.wpilibj.DigitalInput;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import lombok.Getter;
 import lombok.Setter;
@@ -22,19 +23,20 @@ import lombok.experimental.Accessors;
 public class Claw implements Subsystem {
 
   public static class ConePresets {
-    public static final double floor = -138.45;
-    public static final double mid = -135.83;
-    public static final double high = -124.01;
-    public static final double hp = -133.98;
-    public static final double stow = 0.0;
+    public static final double floor = -107.41;
+    public static final double mid = -104.79;
+    public static final double high = -92.97;
+    public static final double hp = -102.94;
+    public static final double stow = STOW_OFFSET;
+    public static final double right = -63.0;
   }
 
   public static class CubePresets {
-    public static final double floor = -146.04;
-    public static final double mid = -151.28;
-    public static final double high = -136.13;
-    public static final double hp = -140.00;
-    public static final double stow = 0.0;
+    public static final double floor = -115;
+    public static final double mid = -120.24;
+    public static final double high = -105.09;
+    public static final double hp = -108.96;
+    public static final double stow = STOW_OFFSET;
   }
 
   @Setter @Getter private IntakeState m_intakeState = IntakeState.Neutral;
@@ -44,12 +46,15 @@ public class Claw implements Subsystem {
 
   private final GreyTalonFX m_intakeMotor;
   private final GreyTalonFX m_wristMotor;
+  private final DigitalInput m_wristHall;
+  private static final double STOW_OFFSET = 31.04;
 
-  private double m_targetAngle = 0.0;
+  private double m_targetAngle = STOW_OFFSET;
   private double m_intakeStator = 0.0;
   private double m_intakeMotorOutput = 0.0;
   @Setter private double m_wristMotorOutput = 0.0;
   private double m_statorCurrentLimit = 60.0;
+  private double m_supplyCurrentLimit = 100.0;
   private final double ANGLE_TOLERANCE = 1.0; // degrees
 
   private final PositionVoltage m_wristPosition =
@@ -76,20 +81,23 @@ public class Claw implements Subsystem {
     Manual
   }
 
+  private static final double WRIST_FF = 0.4;
+
   public Claw() {
     m_intakeMotor = new GreyTalonFX(ClawInfo.INTAKE_FX_ID, RobotInfo.CANIVORE_NAME);
     m_wristMotor = new GreyTalonFX(ClawInfo.WRIST_FX_ID, RobotInfo.CANIVORE_NAME);
+    m_wristHall = new DigitalInput(ClawInfo.WRIST_HALL_ID);
     configIntakeMotor();
     configWristMotor();
 
-    m_wristMotor.setRotorPosition(0.0);
+    m_wristMotor.setRotorPosition(STOW_OFFSET / ClawInfo.GEAR_RATIO / 360.0);
   }
 
   private void configIntakeMotor() {
     var motorConfig = new TalonFXConfiguration();
 
     // Current limits
-    motorConfig.CurrentLimits.SupplyCurrentLimit = 100;
+    motorConfig.CurrentLimits.SupplyCurrentLimit = m_supplyCurrentLimit;
     motorConfig.CurrentLimits.SupplyCurrentLimitEnable = true;
     motorConfig.CurrentLimits.StatorCurrentLimit = m_statorCurrentLimit;
     motorConfig.CurrentLimits.StatorCurrentLimitEnable = true;
@@ -119,7 +127,7 @@ public class Claw implements Subsystem {
     motorConfig.OpenLoopRamps.DutyCycleOpenLoopRampPeriod = 0.0;
     motorConfig.ClosedLoopRamps.DutyCycleClosedLoopRampPeriod = 0.0;
 
-    // Velocity PID Parameters
+    // Position PID Parameters
     motorConfig.Slot0.kP = 2.0;
     motorConfig.Slot0.kI = 0.0;
     motorConfig.Slot0.kD = 0.0;
@@ -138,7 +146,7 @@ public class Claw implements Subsystem {
   }
 
   public boolean checkForGamePiece() {
-    return m_intakeStator < m_statorCurrentLimit;
+    return Math.abs(m_intakeStator) > m_statorCurrentLimit - 10.0;
   }
 
   public void dashboardUpdate() {
@@ -146,6 +154,12 @@ public class Claw implements Subsystem {
     SmartDashboard.putNumber("Intake Supply", m_intakeMotor.getSupplyCurrent().getValue());
     SmartDashboard.putNumber("Intake Velocity", m_intakeMotor.getVelocity().getValue());
     SmartDashboard.putNumber("Claw Angle", getClawCurrentAngle());
+    SmartDashboard.putNumber("Claw Angle Target", m_targetAngle);
+    SmartDashboard.putBoolean("Game Piece", checkForGamePiece());
+  }
+
+  public boolean getWristHall() {
+    return !m_wristHall.get();
   }
 
   public void update() {
@@ -181,7 +195,9 @@ public class Claw implements Subsystem {
         break;
       case ClosedLoop:
         m_wristMotor.setControl(
-            m_wristPosition.withPosition(m_targetAngle / 360.0 / ClawInfo.GEAR_RATIO));
+            m_wristPosition
+                .withPosition(m_targetAngle / 360.0 / ClawInfo.GEAR_RATIO)
+                .withFeedForward(Math.sin(Math.toRadians(getClawCurrentAngle())) * -WRIST_FF));
         break;
       default:
         break;
@@ -227,6 +243,9 @@ public class Claw implements Subsystem {
       default:
         break;
     }
+    /*if (getWristHall()) {
+      m_wristMotor.setRotorPosition(STOW_OFFSET);
+    }*/
   }
 
   public void reset() {
