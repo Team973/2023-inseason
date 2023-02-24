@@ -113,15 +113,19 @@ public class Robot extends TimedRobot {
    */
   @Override
   public void robotInit() {
-    GreyDashClient.setAvailableAutoModes(
-        AutoMode.Test.name(),
-        AutoMode.OneCone.name(),
-        AutoMode.PreloadAndCharge.name(),
-        AutoMode.NoAuto.name());
-    GreyDashClient.availableGamePieces(
-        GamePiece.Cone.name(), GamePiece.Cube.name(), GamePiece.None.name());
+    try {
+      GreyDashClient.setAvailableAutoModes(
+          AutoMode.Test.name(),
+          AutoMode.OneCone.name(),
+          AutoMode.PreloadAndCharge.name(),
+          AutoMode.NoAuto.name());
+      GreyDashClient.availableGamePieces(
+          GamePiece.Cone.name(), GamePiece.Cube.name(), GamePiece.None.name());
 
-    this.resetSubsystems();
+      this.resetSubsystems();
+    } catch (Exception e) {
+      logException(e);
+    }
   }
 
   /**
@@ -172,10 +176,14 @@ public class Robot extends TimedRobot {
    */
   @Override
   public void autonomousInit() {
-    m_autoSelected = GreyDashClient.getAutoSelected();
-    System.out.println("Auto selected: " + m_autoSelected);
-    m_compressor.enableDigital();
-    m_autoManager.init();
+    try {
+      m_autoSelected = GreyDashClient.getAutoSelected();
+      System.out.println("Auto selected: " + m_autoSelected);
+      m_compressor.enableDigital();
+      m_autoManager.init();
+    } catch (Exception e) {
+      logException(e);
+    }
   }
 
   /** This function is called periodically during autonomous. */
@@ -191,8 +199,12 @@ public class Robot extends TimedRobot {
   /** This function is called once when teleop is enabled. */
   @Override
   public void teleopInit() {
-    m_compressor.enableDigital();
-    m_claw.setWristState(WristState.Manual);
+    try {
+      m_compressor.enableDigital();
+      m_claw.setWristState(WristState.Manual);
+    } catch (Exception e) {
+      logException(e);
+    }
   }
 
   /** This function is called periodically during operator control. */
@@ -318,9 +330,12 @@ public class Robot extends TimedRobot {
   /** This function is called once when the robot is disabled. */
   @Override
   public void disabledInit() {
-    m_compressor.disable();
-
-    m_lastAutoSelected = m_autoSelected;
+    try {
+      m_lastAutoSelected = m_autoSelected;
+      m_compressor.disable();
+    } catch (Exception e) {
+      logException(e);
+    }
   }
 
   /** This function is called periodically when disabled. */
@@ -343,7 +358,13 @@ public class Robot extends TimedRobot {
 
   /** This function is called once when test mode is enabled. */
   @Override
-  public void testInit() {}
+  public void testInit() {
+    try {
+
+    } catch (Exception e) {
+      logException(e);
+    }
+  }
 
   /** This function is called periodically during test mode. */
   @Override
@@ -356,7 +377,12 @@ public class Robot extends TimedRobot {
 
   /** This function is called once when the robot is first started up. */
   @Override
-  public void simulationInit() {}
+  public void simulationInit() {
+    try {
+    } catch (Exception e) {
+      logException(e);
+    }
+  }
 
   /** This function is called periodically whilst in simulation. */
   @Override
