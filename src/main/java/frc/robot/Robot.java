@@ -66,7 +66,7 @@ public class Robot extends TimedRobot {
 
   private boolean m_exceptionHappened = false;
 
-  private String m_lastAutoSelected = AutoMode.NoAuto.toString();
+  private AutoMode m_lastAutoSelected = AutoMode.NoAuto;
 
   private void logException(Exception e) {
     try {
@@ -331,7 +331,7 @@ public class Robot extends TimedRobot {
   @Override
   public void disabledInit() {
     try {
-      m_lastAutoSelected = m_autoSelected;
+      m_lastAutoSelected = AutoMode.valueOf(m_autoSelected);
       m_compressor.disable();
     } catch (Exception e) {
       logException(e);
@@ -346,10 +346,10 @@ public class Robot extends TimedRobot {
         m_candleManager.setLightState(LightState.Emergency);
       }
 
-      if (m_autoSelected != m_lastAutoSelected) {
+      if (AutoMode.valueOf(m_autoSelected) != m_lastAutoSelected) {
         m_candleManager.setLightState(LightState.AutoSelected);
-        m_lastAutoSelected = m_autoSelected;
-        GreyDashClient.setLastSelectedAuto(m_lastAutoSelected);
+        m_lastAutoSelected = AutoMode.valueOf(m_autoSelected);
+        GreyDashClient.seSelectedAuto(m_lastAutoSelected.toString());
       }
     } catch (Exception e) {
       logException(e);

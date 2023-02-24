@@ -41,7 +41,7 @@ public final class GreyDashClient {
       m_autoTable.getStringTopic(GAME_PIECE_SELECTED_TOPIC).subscribe(GamePiece.None.toString());
 
   private static final StringPublisher m_lastSelectedAuto =
-      m_autoTable.getStringTopic(LAST_SELECTED_AUTO_TOPIC).publish();
+      m_autoTable.getStringTopic(AUTO_MODES_TOPIC).publish();
 
   // Match Topics
   private static final DoublePublisher m_matchTime =
@@ -114,7 +114,7 @@ public final class GreyDashClient {
     return m_preloadSelected.get();
   }
 
-  public static void setLastSelectedAuto(final String auto) {
+  public static void seSelectedAuto(final String auto) {
     m_lastSelectedAuto.set(auto);
   }
 
