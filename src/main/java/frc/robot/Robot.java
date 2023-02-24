@@ -251,7 +251,7 @@ public class Robot extends TimedRobot {
       // Score
       if (m_driverStick.getLeftBumper()) {
         m_claw.setIntakeState(IntakeState.Out);
-        m_candleManager.setLightState(LightState.Off);
+        m_currentGamePiece = GamePiece.None;
       } else if (m_claw.getIntakeState() == IntakeState.Out) {
         m_claw.setIntakeState(IntakeState.Neutral);
       }
