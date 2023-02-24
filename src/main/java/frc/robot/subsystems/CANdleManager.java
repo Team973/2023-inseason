@@ -19,7 +19,8 @@ public class CANdleManager implements Subsystem {
   public enum LightState {
     Cube,
     Cone,
-    Flash,
+    Emergency,
+    AutoSelected,
     Off
   }
 
@@ -66,7 +67,7 @@ public class CANdleManager implements Subsystem {
       case Cube:
         m_candle.setLEDs(170, 0, 255); // set the CANdle LEDs to purple
         break;
-      case Flash:
+      case Emergency:
         if (!m_flashLEDsOn
             && Conversions.Time.getMsecTime() - m_flashStartTime >= FLASH_DELAY_TIME) {
           m_candle.setLEDs(255, 0, 0); // set the CANdle LEDs to red
@@ -78,6 +79,17 @@ public class CANdleManager implements Subsystem {
           m_flashLEDsOn = false;
         }
         break;
+      case AutoSelected:
+        if (!m_flashLEDsOn
+            && Conversions.Time.getMsecTime() - m_flashStartTime >= FLASH_DELAY_TIME) {
+          m_candle.setLEDs(0, 0, 255); // set the CANdle LEDs to red
+          m_flashStartTime = Conversions.Time.getMsecTime();
+          m_flashLEDsOn = true;
+        } else if (Conversions.Time.getMsecTime() - m_flashStartTime >= FLASH_DELAY_TIME) {
+          m_candle.setLEDs(0, 0, 0);
+          m_flashStartTime = Conversions.Time.getMsecTime();
+          m_flashLEDsOn = false;
+        }
       case Off:
         m_candle.setLEDs(0, 0, 0); // set the CANdle LEDs to be offs
         break;

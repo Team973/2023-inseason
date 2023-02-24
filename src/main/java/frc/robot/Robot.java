@@ -66,6 +66,8 @@ public class Robot extends TimedRobot {
 
   private boolean m_exceptionHappened = false;
 
+  private String m_lastAutoSelected;
+
   private void logException(Exception e) {
     try {
       m_exceptionHappened = true;
@@ -317,6 +319,8 @@ public class Robot extends TimedRobot {
   @Override
   public void disabledInit() {
     m_compressor.disable();
+
+    m_lastAutoSelected = m_autoSelected;
   }
 
   /** This function is called periodically when disabled. */
@@ -324,7 +328,12 @@ public class Robot extends TimedRobot {
   public void disabledPeriodic() {
     try {
       if (m_exceptionHappened == true) {
-        m_candleManager.setLightState(LightState.Flash);
+        m_candleManager.setLightState(LightState.Emergency);
+      }
+
+      if (m_autoSelected != m_lastAutoSelected) {
+        m_candleManager.setLightState(LightState.AutoSelected);
+        m_lastAutoSelected = m_autoSelected;
       }
     } catch (Exception e) {
       logException(e);

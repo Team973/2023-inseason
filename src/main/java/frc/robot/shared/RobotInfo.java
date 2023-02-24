@@ -58,7 +58,7 @@ public final class RobotInfo {
     public static final double ANGLE_GEAR_RATIO = 1 / ((8.0 / 24.0) * (14.0 / 72.0)); // 15.43:1
 
     public static final double WHEEL_DIAMETER_METERS = 0.1016;
-    public static final double WHEEL_CIRCUMFRENCE_METERS = WHEEL_DIAMETER_METERS * Math.PI;
+    public static final double WHEEL_CIRCUMFERENCE_METERS = WHEEL_DIAMETER_METERS * Math.PI;
 
     /**
      * The left-to-right distance between the drivetrain wheels Should be measured from center to
