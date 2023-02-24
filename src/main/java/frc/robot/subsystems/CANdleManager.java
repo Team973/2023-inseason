@@ -30,8 +30,6 @@ public class CANdleManager implements Subsystem {
   private boolean m_flashLEDsOn = false;
   private double m_flashStartTime = 0.0;
 
-  private static final double FLASH_DELAY_TIME = 250.0;
-
   public CANdleManager() {
     CANdleConfiguration configAll = new CANdleConfiguration();
     configAll.statusLedOffWhenActive = true;
@@ -57,6 +55,18 @@ public class CANdleManager implements Subsystem {
     }
   }
 
+  private void setFlashing(int r, int g, int b, double timeOut) {
+    if (!m_flashLEDsOn && Conversions.Time.getMsecTime() - m_flashStartTime >= timeOut) {
+      m_candle.setLEDs(r, g, b); // set the CANdle LEDs to passed in RGB values
+      m_flashStartTime = Conversions.Time.getMsecTime();
+      m_flashLEDsOn = true;
+    } else if (Conversions.Time.getMsecTime() - m_flashStartTime >= timeOut) {
+      m_candle.setLEDs(0, 0, 0);
+      m_flashStartTime = Conversions.Time.getMsecTime();
+      m_flashLEDsOn = false;
+    }
+  }
+
   public void dashboardUpdate() {}
 
   public void update() {
@@ -68,28 +78,10 @@ public class CANdleManager implements Subsystem {
         m_candle.setLEDs(170, 0, 255); // set the CANdle LEDs to purple
         break;
       case Emergency:
-        if (!m_flashLEDsOn
-            && Conversions.Time.getMsecTime() - m_flashStartTime >= FLASH_DELAY_TIME) {
-          m_candle.setLEDs(255, 0, 0); // set the CANdle LEDs to red
-          m_flashStartTime = Conversions.Time.getMsecTime();
-          m_flashLEDsOn = true;
-        } else if (Conversions.Time.getMsecTime() - m_flashStartTime >= FLASH_DELAY_TIME) {
-          m_candle.setLEDs(0, 0, 0);
-          m_flashStartTime = Conversions.Time.getMsecTime();
-          m_flashLEDsOn = false;
-        }
+        setFlashing(255, 0, 0, 250.0);
         break;
       case AutoSelected:
-        if (!m_flashLEDsOn
-            && Conversions.Time.getMsecTime() - m_flashStartTime >= FLASH_DELAY_TIME) {
-          m_candle.setLEDs(0, 0, 255); // set the CANdle LEDs to red
-          m_flashStartTime = Conversions.Time.getMsecTime();
-          m_flashLEDsOn = true;
-        } else if (Conversions.Time.getMsecTime() - m_flashStartTime >= FLASH_DELAY_TIME) {
-          m_candle.setLEDs(0, 0, 0);
-          m_flashStartTime = Conversions.Time.getMsecTime();
-          m_flashLEDsOn = false;
-        }
+        setFlashing(0, 0, 0, 250.0);
       case Off:
         m_candle.setLEDs(0, 0, 0); // set the CANdle LEDs to be offs
         break;

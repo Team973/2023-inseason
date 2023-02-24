@@ -40,6 +40,9 @@ public final class GreyDashClient {
   private static final StringSubscriber m_preloadSelected =
       m_autoTable.getStringTopic(GAME_PIECE_SELECTED_TOPIC).subscribe(GamePiece.None.toString());
 
+  private static final StringPublisher m_lastSelectedAuto =
+      m_autoTable.getStringTopic(LAST_SELECTED_AUTO_TOPIC).publish();
+
   // Match Topics
   private static final DoublePublisher m_matchTime =
       m_matchTable.getDoubleTopic(MATCH_TIME_TOPIC).publish();
@@ -109,6 +112,10 @@ public final class GreyDashClient {
    */
   public static String selectedGamePiece() {
     return m_preloadSelected.get();
+  }
+
+  public static void setLastSelectedAuto(final String auto) {
+    m_lastSelectedAuto.set(auto);
   }
 
   /** Periodic update method. This should be called periodically to update the dashboard. */

@@ -22,6 +22,7 @@ public final class GreyDashConstants {
   public static final String AUTO_SELECTED_TOPIC = "selectedMode";
   public static final String GAME_PIECES_TOPIC = "availableGamePieces";
   public static final String GAME_PIECE_SELECTED_TOPIC = "selectedPreload";
+  public static final String LAST_SELECTED_AUTO_TOPIC = "lastSelectedAuto";
 
   // Match
   public static final String MATCH_TIME_TOPIC = "time";

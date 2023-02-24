@@ -66,7 +66,7 @@ public class Robot extends TimedRobot {
 
   private boolean m_exceptionHappened = false;
 
-  private String m_lastAutoSelected;
+  private String m_lastAutoSelected = AutoMode.NoAuto.toString();
 
   private void logException(Exception e) {
     try {
@@ -334,6 +334,7 @@ public class Robot extends TimedRobot {
       if (m_autoSelected != m_lastAutoSelected) {
         m_candleManager.setLightState(LightState.AutoSelected);
         m_lastAutoSelected = m_autoSelected;
+        GreyDashClient.setLastSelectedAuto(m_lastAutoSelected);
       }
     } catch (Exception e) {
       logException(e);
