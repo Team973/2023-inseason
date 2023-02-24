@@ -112,15 +112,19 @@ public class Robot extends TimedRobot {
    */
   @Override
   public void robotInit() {
-    GreyDashClient.setAvailableAutoModes(
-        AutoMode.Test.name(),
-        AutoMode.OneCone.name(),
-        AutoMode.PreloadAndCharge.name(),
-        AutoMode.NoAuto.name());
-    GreyDashClient.availableGamePieces(
-        GamePiece.Cone.name(), GamePiece.Cube.name(), GamePiece.None.name());
+    try {
+      GreyDashClient.setAvailableAutoModes(
+          AutoMode.Test.name(),
+          AutoMode.OneCone.name(),
+          AutoMode.PreloadAndCharge.name(),
+          AutoMode.NoAuto.name());
+      GreyDashClient.availableGamePieces(
+          GamePiece.Cone.name(), GamePiece.Cube.name(), GamePiece.None.name());
 
-    this.resetSubsystems();
+      this.resetSubsystems();
+    } catch (Exception e) {
+      logException(e);
+    }
   }
 
   /**
@@ -171,10 +175,14 @@ public class Robot extends TimedRobot {
    */
   @Override
   public void autonomousInit() {
-    m_autoSelected = GreyDashClient.getAutoSelected();
-    System.out.println("Auto selected: " + m_autoSelected);
-    m_compressor.enableDigital();
-    m_autoManager.init();
+    try {
+      m_autoSelected = GreyDashClient.getAutoSelected();
+      System.out.println("Auto selected: " + m_autoSelected);
+      m_compressor.enableDigital();
+      m_autoManager.init();
+    } catch (Exception e) {
+      logException(e);
+    }
   }
 
   /** This function is called periodically during autonomous. */
@@ -190,8 +198,12 @@ public class Robot extends TimedRobot {
   /** This function is called once when teleop is enabled. */
   @Override
   public void teleopInit() {
-    m_compressor.enableDigital();
-    m_claw.setWristState(WristState.Manual);
+    try {
+      m_compressor.enableDigital();
+      m_claw.setWristState(WristState.Manual);
+    } catch (Exception e) {
+      logException(e);
+    }
   }
 
   /** This function is called periodically during operator control. */
@@ -204,9 +216,12 @@ public class Robot extends TimedRobot {
       final double xSpeed = -MathUtil.applyDeadband(m_driverStick.getRawAxis(1), 0.12);
       final double ySpeed = -MathUtil.applyDeadband(m_driverStick.getRawAxis(0), 0.12);
 
-      final double rot =
+      double rot =
           -m_rotLimiter.calculate(MathUtil.applyDeadband(m_driverStick.getRawAxis(4), 0.09))
               * DriveInfo.MAX_ANGULAR_VELOCITY_RADIANS_PER_SECOND;
+      if (m_elevator.getHeight() > 15.0) {
+        rot *= 0.5;
+      }
 
       Translation2d translation =
           new Translation2d(xSpeed, ySpeed).times(DriveInfo.MAX_VELOCITY_METERS_PER_SECOND);
@@ -237,7 +252,7 @@ public class Robot extends TimedRobot {
       // Score
       if (m_driverStick.getLeftBumper()) {
         m_claw.setIntakeState(IntakeState.Out);
-        m_candleManager.setLightState(LightState.Off);
+        m_currentGamePiece = GamePiece.None;
       } else if (m_claw.getIntakeState() == IntakeState.Out) {
         m_claw.setIntakeState(IntakeState.Neutral);
       }
@@ -332,7 +347,11 @@ public class Robot extends TimedRobot {
   /** This function is called once when the robot is disabled. */
   @Override
   public void disabledInit() {
-    m_compressor.disable();
+    try {
+      m_compressor.disable();
+    } catch (Exception e) {
+      logException(e);
+    }
   }
 
   /** This function is called periodically when disabled. */
@@ -349,7 +368,13 @@ public class Robot extends TimedRobot {
 
   /** This function is called once when test mode is enabled. */
   @Override
-  public void testInit() {}
+  public void testInit() {
+    try {
+
+    } catch (Exception e) {
+      logException(e);
+    }
+  }
 
   /** This function is called periodically during test mode. */
   @Override
@@ -362,7 +387,12 @@ public class Robot extends TimedRobot {
 
   /** This function is called once when the robot is first started up. */
   @Override
-  public void simulationInit() {}
+  public void simulationInit() {
+    try {
+    } catch (Exception e) {
+      logException(e);
+    }
+  }
 
   /** This function is called periodically whilst in simulation. */
   @Override
