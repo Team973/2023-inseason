@@ -23,20 +23,20 @@ import lombok.experimental.Accessors;
 public class Claw implements Subsystem {
 
   public static class ConePresets {
-    public static final double floor = -138.45 + 31.04;
-    public static final double mid = -135.83 + 31.04;
-    public static final double high = -124.01 + 31.04;
-    public static final double hp = -133.98 + 31.04;
-    public static final double stow = 0.0 + 31.04;
+    public static final double floor = -107.41;
+    public static final double mid = -104.79;
+    public static final double high = -92.97;
+    public static final double hp = -102.94;
+    public static final double stow = STOW_OFFSET;
     public static final double right = -63.0;
   }
 
   public static class CubePresets {
-    public static final double floor = -146.04 + 31.04;
-    public static final double mid = -151.28 + 31.04;
-    public static final double high = -136.13 + 31.04;
-    public static final double hp = -140.00 + 31.04;
-    public static final double stow = 0.0 + 31.04;
+    public static final double floor = -115;
+    public static final double mid = -120.24;
+    public static final double high = -105.09;
+    public static final double hp = -108.96;
+    public static final double stow = STOW_OFFSET;
   }
 
   @Setter @Getter private IntakeState m_intakeState = IntakeState.Neutral;
@@ -47,7 +47,7 @@ public class Claw implements Subsystem {
   private final GreyTalonFX m_intakeMotor;
   private final GreyTalonFX m_wristMotor;
   private final DigitalInput m_wristHall;
-  private final double STOW_OFFSET = 31.04;
+  private static final double STOW_OFFSET = 31.04;
 
   private double m_targetAngle = STOW_OFFSET;
   private double m_intakeStator = 0.0;
@@ -146,7 +146,7 @@ public class Claw implements Subsystem {
   }
 
   public boolean checkForGamePiece() {
-    return m_intakeStator < m_statorCurrentLimit;
+    return Math.abs(m_intakeStator) > m_statorCurrentLimit - 10.0;
   }
 
   public void dashboardUpdate() {
@@ -155,6 +155,7 @@ public class Claw implements Subsystem {
     SmartDashboard.putNumber("Intake Velocity", m_intakeMotor.getVelocity().getValue());
     SmartDashboard.putNumber("Claw Angle", getClawCurrentAngle());
     SmartDashboard.putNumber("Claw Angle Target", m_targetAngle);
+    SmartDashboard.putBoolean("Game Piece", checkForGamePiece());
   }
 
   public boolean getWristHall() {
