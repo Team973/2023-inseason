@@ -351,7 +351,7 @@ public class Robot extends TimedRobot {
   @Override
   public void testInit() {
     try {
-      // Put all the existing code here
+
     } catch (Exception e) {
       logException(e);
     }
