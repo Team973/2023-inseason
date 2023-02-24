@@ -215,9 +215,12 @@ public class Robot extends TimedRobot {
       final double xSpeed = -MathUtil.applyDeadband(m_driverStick.getRawAxis(1), 0.12);
       final double ySpeed = -MathUtil.applyDeadband(m_driverStick.getRawAxis(0), 0.12);
 
-      final double rot =
+      double rot =
           -m_rotLimiter.calculate(MathUtil.applyDeadband(m_driverStick.getRawAxis(4), 0.09))
               * DriveInfo.MAX_ANGULAR_VELOCITY_RADIANS_PER_SECOND;
+      if (m_elevator.getHeight() > 15.0) {
+        rot *= 0.5;
+      }
 
       Translation2d translation =
           new Translation2d(xSpeed, ySpeed).times(DriveInfo.MAX_VELOCITY_METERS_PER_SECOND);
