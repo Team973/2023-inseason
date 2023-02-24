@@ -121,6 +121,7 @@ public class Robot extends TimedRobot {
           AutoMode.NoAuto.name());
       GreyDashClient.availableGamePieces(
           GamePiece.Cone.name(), GamePiece.Cube.name(), GamePiece.None.name());
+      GreyDashClient.setSelectedAuto(m_lastAutoSelected.toString());
 
       this.resetSubsystems();
     } catch (Exception e) {
@@ -349,7 +350,6 @@ public class Robot extends TimedRobot {
       if (AutoMode.valueOf(m_autoSelected) != m_lastAutoSelected) {
         m_candleManager.setLightState(LightState.AutoSelected);
         m_lastAutoSelected = AutoMode.valueOf(m_autoSelected);
-        GreyDashClient.seSelectedAuto(m_lastAutoSelected.toString());
       }
     } catch (Exception e) {
       logException(e);
