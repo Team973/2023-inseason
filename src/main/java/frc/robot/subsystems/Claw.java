@@ -23,19 +23,19 @@ import lombok.experimental.Accessors;
 public class Claw implements Subsystem {
 
   public static class ConePresets {
-    public static final double floor = -107.41;
+    public static final double floor = -102.30;
     public static final double mid = -104.79;
-    public static final double high = -92.97;
-    public static final double hp = -102.94;
+    public static final double high = -88.39;
+    public static final double hp = -96.91;
     public static final double stow = STOW_OFFSET;
-    public static final double right = -65.0;
+    public static final double right = -63.0;
   }
 
   public static class CubePresets {
     public static final double floor = -115;
-    public static final double mid = -120.24;
+    public static final double mid = -112.22;
     public static final double high = -105.09;
-    public static final double hp = -108.96;
+    public static final double hp = -98.84;
     public static final double stow = STOW_OFFSET;
   }
 
