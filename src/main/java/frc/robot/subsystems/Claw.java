@@ -28,7 +28,7 @@ public class Claw implements Subsystem {
     public static final double high = -92.97;
     public static final double hp = -102.94;
     public static final double stow = STOW_OFFSET;
-    public static final double right = -63.0;
+    public static final double right = -65.0;
   }
 
   public static class CubePresets {
@@ -243,9 +243,11 @@ public class Claw implements Subsystem {
       default:
         break;
     }
-    /*if (getWristHall()) {
-      m_wristMotor.setRotorPosition(STOW_OFFSET);
-    }*/
+    /*
+     * if (getWristHall()) {
+     * m_wristMotor.setRotorPosition(STOW_OFFSET);
+     * }
+     */
   }
 
   public void reset() {

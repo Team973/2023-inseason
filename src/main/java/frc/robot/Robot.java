@@ -156,7 +156,8 @@ public class Robot extends TimedRobot {
       m_claw.setCurrentGamePiece(m_currentGamePiece);
 
       // CANdle
-      if (!m_exceptionHappened || !isDisabled()) {
+      if (!m_exceptionHappened
+          || !isDisabled() && m_candleManager.getLightState() != LightState.GotIt) {
         m_candleManager.setLightWithGamePiece(m_currentGamePiece);
       }
     } catch (Exception e) {
@@ -256,6 +257,8 @@ public class Robot extends TimedRobot {
       } else if (m_claw.getIntakeState() == IntakeState.Out) {
         m_claw.setIntakeState(IntakeState.Neutral);
         m_currentGamePiece = GamePiece.None;
+        m_claw.setWristPreset(WristPreset.Stow);
+        m_elevator.setHeight(Elevator.Presets.stow);
       }
 
       // Right Cone
@@ -332,9 +335,11 @@ public class Robot extends TimedRobot {
         m_claw.setIntakeState(IntakeState.Hold);
       }
 
+      // Got it!
       if (m_claw.getIntakeState() == IntakeState.In && m_claw.checkForGamePiece()) {
         m_elevator.setHeight(Elevator.Presets.stow);
         m_claw.setWristPreset(WristPreset.Stow);
+        m_candleManager.setLightState(LightState.GotIt);
       }
 
       // Manually Control Wrist
