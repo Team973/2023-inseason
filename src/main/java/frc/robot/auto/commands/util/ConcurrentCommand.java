@@ -1,6 +1,7 @@
 package frc.robot.auto.commands.util;
 
 import java.util.HashSet;
+import java.util.Iterator;
 
 import frc.robot.shared.AutoCommand;
 
@@ -47,7 +48,9 @@ public class ConcurrentCommand extends AutoCommand {
       return;
     }
 
-    for (AutoCommand command : m_unfinishedCmds) {
+    Iterator<AutoCommand> iterator = m_unfinishedCmds.iterator();
+    while (iterator.hasNext()) {
+      AutoCommand command = iterator.next();
       if (m_cmdsNeedInit) {
         command.init();
       }
@@ -56,7 +59,7 @@ public class ConcurrentCommand extends AutoCommand {
 
       if (command.isCompleted()) {
         command.postComplete();
-        m_unfinishedCmds.remove(command);
+        iterator.remove();
       }
     }
     m_cmdsNeedInit = false;
