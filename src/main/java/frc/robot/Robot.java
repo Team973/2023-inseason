@@ -13,8 +13,6 @@ import frc.robot.AutoManager.AutoMode;
 import frc.robot.auto.commands.TrajectoryManager;
 import frc.robot.greydash.GreyDashClient;
 import frc.robot.shared.Constants.GamePiece;
-import frc.robot.subsystems.CANdleManager;
-import frc.robot.subsystems.CANdleManager.LightState;
 import frc.robot.subsystems.Claw;
 import frc.robot.subsystems.Claw.IntakeState;
 import frc.robot.subsystems.Claw.WristState;
@@ -22,6 +20,8 @@ import frc.robot.subsystems.Drive;
 import frc.robot.subsystems.Drive.RotationControl;
 import frc.robot.subsystems.Elevator;
 import frc.robot.subsystems.Elevator.ElevatorState;
+import frc.robot.subsystems.candle.CANdleManager;
+import frc.robot.subsystems.candle.CANdleManager.LightState;
 
 import edu.wpi.first.math.MathUtil;
 import edu.wpi.first.math.filter.SlewRateLimiter;
@@ -43,8 +43,11 @@ import lombok.experimental.Accessors;
  */
 @Accessors(prefix = "m_")
 public class Robot extends TimedRobot {
-  private static final String kDefaultAuto = "Default";
-  private static String m_autoSelected = kDefaultAuto;
+  @Getter private static boolean m_exceptionHappened = false;
+  @Setter @Getter private static GamePiece m_currentGamePiece = GamePiece.None;
+
+  private static AutoMode m_autoSelected = AutoMode.NoAuto;
+  private static AutoMode m_lastAutoSelected;
 
   private final Elevator m_elevator = new Elevator();
   private final Claw m_claw = new Claw();
@@ -59,14 +62,8 @@ public class Robot extends TimedRobot {
 
   private final SlewRateLimiter m_rotLimiter = new SlewRateLimiter(3);
 
-  @Setter @Getter private GamePiece m_currentGamePiece = GamePiece.None;
-
   private final Compressor m_compressor =
       new Compressor(COMPRESSOR_ID, PneumaticsModuleType.CTREPCM);
-
-  private boolean m_exceptionHappened = false;
-
-  private AutoMode m_lastAutoSelected = AutoMode.NoAuto;
 
   private void logException(Exception e) {
     try {
@@ -119,9 +116,9 @@ public class Robot extends TimedRobot {
           AutoMode.OneCone.name(),
           AutoMode.PreloadAndCharge.name(),
           AutoMode.NoAuto.name());
-      GreyDashClient.availableGamePieces(
+      GreyDashClient.setAvailableGamePieces(
           GamePiece.Cone.name(), GamePiece.Cube.name(), GamePiece.None.name());
-      GreyDashClient.setSelectedAuto(m_lastAutoSelected.toString());
+      GreyDashClient.setSelectedAuto(m_autoSelected);
 
       this.resetSubsystems();
     } catch (Exception e) {
@@ -139,27 +136,22 @@ public class Robot extends TimedRobot {
   @Override
   public void robotPeriodic() {
     try {
-      // GreyDash
-      GreyDashClient.update();
-
-      // Auto Selection
-      m_autoManager.selectAuto(AutoMode.valueOf(GreyDashClient.getAutoSelected()));
-      m_autoManager.selectPreload(GamePiece.valueOf(GreyDashClient.selectedGamePiece()));
-
       // Subsystems
-      dashboardUpdateSubsystems();
       m_candleManager.update();
       if (isEnabled()) {
         updateSubsystems();
       }
 
-      // Keep claw game piece up to date
-      m_claw.setCurrentGamePiece(m_currentGamePiece);
+      // Dashboard
+      dashboardUpdateSubsystems();
+      GreyDashClient.update();
 
-      // CANdle
-      if (!m_exceptionHappened || !isDisabled()) {
-        m_candleManager.setLightWithGamePiece(m_currentGamePiece);
-      }
+      // Auto Selection
+      m_autoSelected = GreyDashClient.getAutoSelected();
+      m_currentGamePiece = GreyDashClient.getSelectedGamePiece();
+
+      m_autoManager.selectAuto(m_autoSelected);
+      m_autoManager.selectPreload(m_currentGamePiece);
     } catch (Exception e) {
       logException(e);
     }
@@ -178,8 +170,6 @@ public class Robot extends TimedRobot {
   @Override
   public void autonomousInit() {
     try {
-      m_autoSelected = GreyDashClient.getAutoSelected();
-      System.out.println("Auto selected: " + m_autoSelected);
       m_compressor.enableDigital();
       m_autoManager.init();
     } catch (Exception e) {
@@ -332,7 +322,6 @@ public class Robot extends TimedRobot {
   @Override
   public void disabledInit() {
     try {
-      m_lastAutoSelected = AutoMode.valueOf(m_autoSelected);
       m_compressor.disable();
     } catch (Exception e) {
       logException(e);
@@ -343,13 +332,9 @@ public class Robot extends TimedRobot {
   @Override
   public void disabledPeriodic() {
     try {
-      if (m_exceptionHappened == true) {
-        m_candleManager.setLightState(LightState.Emergency);
-      }
-
-      if (AutoMode.valueOf(m_autoSelected) != m_lastAutoSelected) {
+      if (m_autoSelected != m_lastAutoSelected) {
         m_candleManager.setLightState(LightState.AutoSelected);
-        m_lastAutoSelected = AutoMode.valueOf(m_autoSelected);
+        m_lastAutoSelected = m_autoSelected;
       }
     } catch (Exception e) {
       logException(e);
@@ -360,7 +345,6 @@ public class Robot extends TimedRobot {
   @Override
   public void testInit() {
     try {
-
     } catch (Exception e) {
       logException(e);
     }

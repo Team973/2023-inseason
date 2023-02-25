@@ -2,6 +2,7 @@ package frc.robot.subsystems;
 
 import static frc.robot.shared.RobotInfo.*;
 
+import frc.robot.Robot;
 import frc.robot.shared.Constants.GamePiece;
 import frc.robot.shared.GreyTalonFX;
 import frc.robot.shared.RobotInfo;
@@ -39,7 +40,7 @@ public class Claw implements Subsystem {
 
   @Setter @Getter private IntakeState m_intakeState = IntakeState.Neutral;
   @Setter @Getter private WristState m_wristState = WristState.Manual;
-  @Setter @Getter private GamePiece m_currentGamePiece;
+  private GamePiece m_currentGamePiece = Robot.getCurrentGamePiece();
   @Setter @Getter private WristPreset m_wristPreset = WristPreset.Stow;
 
   private final GreyTalonFX m_intakeMotor;
@@ -149,6 +150,7 @@ public class Claw implements Subsystem {
   }
 
   public void update() {
+    m_currentGamePiece = Robot.getCurrentGamePiece();
     m_intakeStator = m_intakeMotor.getStatorCurrent().getValue();
 
     switch (m_intakeState) {

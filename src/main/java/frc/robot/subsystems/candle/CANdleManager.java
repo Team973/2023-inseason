@@ -1,8 +1,8 @@
-package frc.robot.subsystems;
+package frc.robot.subsystems.candle;
 
 import static frc.robot.shared.RobotInfo.*;
 
-import frc.robot.shared.Constants.GamePiece;
+import frc.robot.Robot;
 import frc.robot.shared.Conversions;
 import frc.robot.shared.Subsystem;
 
@@ -10,17 +10,24 @@ import com.ctre.phoenix.led.CANdle;
 import com.ctre.phoenix.led.CANdle.LEDStripType;
 import com.ctre.phoenix.led.CANdle.VBatOutputMode;
 import com.ctre.phoenix.led.CANdleConfiguration;
+import com.ctre.phoenix.led.RainbowAnimation;
+import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import lombok.Getter;
 import lombok.Setter;
 import lombok.experimental.Accessors;
 
 @Accessors(prefix = "m_")
 public class CANdleManager implements Subsystem {
+  private static final int NUM_LEDS = 8 + 17 + 14 + 17;
+
   public enum LightState {
     Cube,
     Cone,
     Emergency,
+    AutoWaiting,
+    PreloadWaiting,
     AutoSelected,
+    RainbowBarf,
     Off
   }
 
@@ -40,50 +47,59 @@ public class CANdleManager implements Subsystem {
     m_candle.configAllSettings(configAll, 100);
   }
 
-  public void setLightWithGamePiece(GamePiece gamePiece) {
-    switch (gamePiece) {
-      case Cube:
-        setLightState(LightState.Cube);
-        break;
-      case Cone:
-        setLightState(LightState.Cone);
-        break;
-      case None:
-      default:
-        setLightState(LightState.Off);
-        break;
-    }
-  }
-
-  private void setFlashing(int r, int g, int b, double timeOut) {
+  private void setAlternate(RGBColor color1, RGBColor color2, double timeOut) {
     if (!m_flashLEDsOn && Conversions.Time.getMsecTime() - m_flashStartTime >= timeOut) {
-      m_candle.setLEDs(r, g, b); // set the CANdle LEDs to passed in RGB values
+      setColor(color1);
       m_flashStartTime = Conversions.Time.getMsecTime();
       m_flashLEDsOn = true;
     } else if (Conversions.Time.getMsecTime() - m_flashStartTime >= timeOut) {
-      m_candle.setLEDs(0, 0, 0);
+      setColor(color2);
       m_flashStartTime = Conversions.Time.getMsecTime();
       m_flashLEDsOn = false;
     }
   }
 
-  public void dashboardUpdate() {}
+  private void setFlashing(RGBColor color, double timeOut) {
+    setAlternate(color, CANdleColors.off, timeOut);
+  }
+
+  private void setColor(RGBColor color) {
+    m_candle.setLEDs(color.getRed(), color.getGreen(), color.getBlue());
+  }
+
+  public void dashboardUpdate() {
+    SmartDashboard.putString("Candle State", m_lightState.toString());
+  }
 
   public void update() {
+    if (Robot.isExceptionHappened()) {
+      m_lightState = LightState.Emergency;
+    }
+
     switch (m_lightState) {
       case Cone:
-        m_candle.setLEDs(255, 150, 0); // set the CANdle LEDs to yellow
+        setColor(CANdleColors.cone);
         break;
       case Cube:
-        m_candle.setLEDs(170, 0, 255); // set the CANdle LEDs to purple
+        setColor(CANdleColors.cube);
         break;
       case Emergency:
-        setFlashing(255, 0, 0, 250.0);
+        setFlashing(CANdleColors.emergency, 250.0);
+        break;
+      case AutoWaiting:
+        setFlashing(CANdleColors.autoWaiting, 1250.0);
+        break;
+      case PreloadWaiting:
+        setAlternate(CANdleColors.cone, CANdleColors.cube, 1000.0);
         break;
       case AutoSelected:
-        setFlashing(0, 0, 0, 250.0);
+        setFlashing(CANdleColors.autoSelected, 1250.0);
+        break;
+      case RainbowBarf:
+        m_candle.animate(new RainbowAnimation(1, 10.0, NUM_LEDS));
+        break;
       case Off:
-        m_candle.setLEDs(0, 0, 0); // set the CANdle LEDs to be offs
+        setColor(CANdleColors.off);
         break;
       default:
         break;

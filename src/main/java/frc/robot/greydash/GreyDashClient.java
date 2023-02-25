@@ -85,22 +85,33 @@ public final class GreyDashClient {
   }
 
   /**
+   * Sets the selected auto to GreyDash from the Robot. Used to initialize the default dropdown
+   * state.
+   *
+   * @param auto The default auto mode.
+   * @see #getAutoSelected()
+   */
+  public static void setSelectedAuto(final AutoMode auto) {
+    m_autoSelectedPublisher.set(auto.toString());
+  }
+
+  /**
    * Gets the selected auto mode from the dashboard's dropdown menu.
    *
    * @return The selected auto mode.
    * @see #setAvailableAutoModes(String...)
    */
-  public static String getAutoSelected() {
-    return m_autoSelectedSubscriber.get();
+  public static AutoMode getAutoSelected() {
+    return AutoMode.valueOf(m_autoSelectedSubscriber.get());
   }
 
   /**
    * Sets the available game piece preload options in the dashboard's dropdown menu.
    *
    * @param gamePieces The available game pieces.
-   * @see #selectedGamePiece()
+   * @see #getSelectedGamePiece()
    */
-  public static void availableGamePieces(final String... gamePieces) {
+  public static void setAvailableGamePieces(final String... gamePieces) {
     m_gamePieces.set(gamePieces);
   }
 
@@ -108,14 +119,10 @@ public final class GreyDashClient {
    * Gets the selected preload from the dashboard's dropdown menu.
    *
    * @return The selected preload.
-   * @see #availableGamePieces(String...)
+   * @see #setAvailableGamePieces(String...)
    */
-  public static String selectedGamePiece() {
-    return m_preloadSelected.get();
-  }
-
-  public static void setSelectedAuto(final String auto) {
-    m_autoSelectedPublisher.set(auto);
+  public static GamePiece getSelectedGamePiece() {
+    return GamePiece.valueOf(m_preloadSelected.get());
   }
 
   /** Periodic update method. This should be called periodically to update the dashboard. */
