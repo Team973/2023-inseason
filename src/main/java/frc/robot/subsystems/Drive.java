@@ -36,7 +36,7 @@ public class Drive implements Subsystem {
 
   @Setter private RotationControl m_rotationControl = RotationControl.OpenLoop;
 
-  private PIDController m_rotationController = new PIDController(0.1125, 0.0, 0.003);
+  private PIDController m_rotationController = new PIDController(0.11, 0.0, 0.003);
 
   public enum RotationControl {
     OpenLoop,
@@ -82,12 +82,20 @@ public class Drive implements Subsystem {
                     DriveInfo.MAX_ANGULAR_VELOCITY_RADIANS_PER_SECOND, 7.0)));
   }
 
-  public void driveInput(Translation2d translation, double rotation, boolean fieldRelative) {
+  public void driveInput(Translation2d translation, double rotationVal, boolean fieldRelative) {
+    double rotation = rotationVal;
     if (m_rotationControl == RotationControl.ClosedLoop) {
-      double yaw = getNormalizedGyroYaw();
-      // fix 180 flip
-      double targetAngle = yaw > 0.0 ? m_targetRobotAngle : -m_targetRobotAngle;
-      rotation = m_rotationController.calculate(yaw, targetAngle);
+      double diff = m_targetRobotAngle - getNormalizedGyroYaw();
+      if (diff > 180) {
+        diff -= 360;
+      } else if (diff < -180) {
+        diff += 360;
+      }
+
+      rotation =
+          m_rotationController.calculate(getNormalizedGyroYaw(), getNormalizedGyroYaw() + diff);
+    } else if (rotation != 0.0) {
+      m_targetRobotAngle = getNormalizedGyroYaw();
     }
 
     ChassisSpeeds des_chassis_speeds =
@@ -129,7 +137,12 @@ public class Drive implements Subsystem {
   }
 
   public double getNormalizedGyroYaw() {
-    return Math.IEEEremainder(getGyroYaw(), 360.0);
+    double rawYaw = getGyroYaw();
+    double normalizedYaw = Math.IEEEremainder(rawYaw, 360.0);
+    if (normalizedYaw < 0) {
+      normalizedYaw += 360.0;
+    }
+    return normalizedYaw;
   }
 
   public Rotation2d getGyroscopeRotation() {
@@ -146,9 +159,16 @@ public class Drive implements Subsystem {
     SwerveDriveKinematics.desaturateWheelSpeeds(
         desiredStates, DriveInfo.MAX_VELOCITY_METERS_PER_SECOND);
 
+    double states[] = new double[8];
+    int index = 0;
     for (SwerveModule mod : m_swerveModules) {
       mod.setDesiredState(desiredStates[mod.moduleNumber]);
+      states[index] = desiredStates[mod.moduleNumber].angle.getDegrees();
+      states[index + 1] = desiredStates[mod.moduleNumber].speedMetersPerSecond;
+      index += 2;
     }
+
+    SmartDashboard.putNumberArray("swerve/setpoints", states);
   }
 
   public Pose2d getPose() {
@@ -156,6 +176,7 @@ public class Drive implements Subsystem {
   }
 
   public void resetOdometry(Pose2d pose) {
+    m_gyroOffsetDegrees += pose.getRotation().getDegrees();
     swerveOdometry.resetPosition(getGyroscopeRotation(), getPositions(), pose);
   }
 
@@ -173,8 +194,9 @@ public class Drive implements Subsystem {
     return positions;
   }
 
-  public void update() {
-    swerveOdometry.update(getGyroscopeRotation(), getPositions());
+  public void dashboardUpdate() {
+    double states[] = new double[8];
+    int index = 0;
 
     for (SwerveModule mod : m_swerveModules) {
       SmartDashboard.putNumber(
@@ -184,11 +206,20 @@ public class Drive implements Subsystem {
       SmartDashboard.putNumber("Mod " + mod.moduleNumber + " Raw", mod.getAngleRaw());
       SmartDashboard.putNumber(
           "Mod " + mod.moduleNumber + " Velocity", mod.getState().speedMetersPerSecond);
+      states[index] = mod.getState().angle.getDegrees();
+      states[index + 1] = mod.getState().speedMetersPerSecond;
+      index += 2;
     }
+    SmartDashboard.putNumberArray("swerve/actual", states);
+  }
+
+  public void update() {
+    swerveOdometry.update(getGyroscopeRotation(), getPositions());
   }
 
   public void reset() {
     resetGyro();
+    m_targetRobotAngle = getGyroYaw();
     resetOdometry(new Pose2d());
   }
 }

@@ -16,7 +16,8 @@ public final class RobotInfo {
   public static class ClawInfo {
     public static final int WRIST_FX_ID = 19;
     public static final int INTAKE_FX_ID = 15;
-    public static final double GEAR_RATIO = (1.0 / 4.0) * (1.0 / 4.0) * (16.0 / 44.0);
+    public static final int WRIST_HALL_ID = 4;
+    public static final double GEAR_RATIO = (1.0 / 4.0) * (1.0 / 4.0) * (16.0 / 42.0);
   }
 
   public static class CANdleInfo {

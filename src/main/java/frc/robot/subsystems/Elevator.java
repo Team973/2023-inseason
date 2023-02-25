@@ -2,16 +2,14 @@ package frc.robot.subsystems;
 
 import static frc.robot.shared.RobotInfo.*;
 
+import frc.robot.shared.GreyTalonFX;
 import frc.robot.shared.RobotInfo;
 import frc.robot.shared.Subsystem;
 
 import com.ctre.phoenixpro.configs.TalonFXConfiguration;
 import com.ctre.phoenixpro.controls.Follower;
-import com.ctre.phoenixpro.controls.MotionMagicDutyCycle;
-import com.ctre.phoenixpro.hardware.TalonFX;
-import com.ctre.phoenixpro.signals.FeedbackSensorSourceValue;
+import com.ctre.phoenixpro.controls.MotionMagicVoltage;
 import com.ctre.phoenixpro.signals.InvertedValue;
-import com.ctre.phoenixpro.signals.NeutralModeValue;
 import edu.wpi.first.wpilibj.DigitalInput;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import lombok.Getter;
@@ -34,8 +32,8 @@ public class Elevator implements Subsystem {
     public static final double stow = 0.0;
   }
 
-  private final TalonFX m_elevatorMotor;
-  private final TalonFX m_elevatorFollowerMotor;
+  private final GreyTalonFX m_elevatorMotor;
+  private final GreyTalonFX m_elevatorFollowerMotor;
 
   private final DigitalInput m_bottomHall;
   private final DigitalInput m_topHall;
@@ -43,7 +41,7 @@ public class Elevator implements Subsystem {
   private double m_elevatorOutput = 0.0;
   private double m_targetPosition = 0.0;
 
-  private static final double GEAR_RATIO = (11.0 / 60.0);
+  private static final double GEAR_RATIO = (11.0 / 72.0);
   /** Pitch Diameter of sprocket in inches */
   private static final double SPROCKET_PD = 1.751;
   /** Circumference of sprocket in inches */
@@ -59,6 +57,9 @@ public class Elevator implements Subsystem {
 
   @Getter @Setter private ElevatorState m_elevatorState = ElevatorState.Manual;
 
+  private final MotionMagicVoltage m_elevatorMotionMagic =
+      new MotionMagicVoltage(0.0, false, 0.04, 0, true);
+
   public enum ElevatorState {
     /** Manually control the motors with the joystick */
     Manual,
@@ -67,8 +68,8 @@ public class Elevator implements Subsystem {
   }
 
   public Elevator() {
-    m_elevatorMotor = new TalonFX(ElevatorInfo.FX_ID, RobotInfo.CANIVORE_NAME);
-    m_elevatorFollowerMotor = new TalonFX(ElevatorInfo.FOLLOWER_FX_ID, RobotInfo.CANIVORE_NAME);
+    m_elevatorMotor = new GreyTalonFX(ElevatorInfo.FX_ID, RobotInfo.CANIVORE_NAME);
+    m_elevatorFollowerMotor = new GreyTalonFX(ElevatorInfo.FOLLOWER_FX_ID, RobotInfo.CANIVORE_NAME);
     m_bottomHall = new DigitalInput(ElevatorInfo.BOTTOM_HALL_SENSOR_ID);
     m_topHall = new DigitalInput(ElevatorInfo.TOP_HALL_SENSOR_ID);
 
@@ -77,30 +78,20 @@ public class Elevator implements Subsystem {
     // Motor Directions
     motorConfig.MotorOutput.Inverted = InvertedValue.Clockwise_Positive;
 
-    // Neutral Mode
-    motorConfig.MotorOutput.NeutralMode = NeutralModeValue.Brake;
-
     // Current limits
     motorConfig.CurrentLimits.SupplyCurrentLimit = 40;
     motorConfig.CurrentLimits.SupplyCurrentLimitEnable = false;
     motorConfig.CurrentLimits.StatorCurrentLimit = 80;
     motorConfig.CurrentLimits.StatorCurrentLimitEnable = false;
 
-    // Motor feedback
-    motorConfig.Feedback.FeedbackSensorSource = FeedbackSensorSourceValue.RotorSensor;
-
-    // Ramp rate
-    motorConfig.OpenLoopRamps.DutyCycleOpenLoopRampPeriod = 0.0;
-    motorConfig.ClosedLoopRamps.DutyCycleClosedLoopRampPeriod = 0.0;
-
     // Position PID Parameters
-    motorConfig.Slot0.kP = 0.8;
+    motorConfig.Slot0.kP = 7.0;
     motorConfig.Slot0.kI = 0.0;
     motorConfig.Slot0.kD = 0.0;
     motorConfig.Slot0.kS = 0.0;
 
-    motorConfig.MotionMagic.MotionMagicCruiseVelocity = 50.0;
-    motorConfig.MotionMagic.MotionMagicAcceleration = 600.0;
+    motorConfig.MotionMagic.MotionMagicCruiseVelocity = 70.0;
+    motorConfig.MotionMagic.MotionMagicAcceleration = 250.0;
 
     // Set motor to follow A
     m_elevatorMotor.getConfigurator().apply(motorConfig);
@@ -151,6 +142,16 @@ public class Elevator implements Subsystem {
     return Math.abs(height - getHeight()) < 0.5;
   }
 
+  public void dashboardUpdate() {
+    SmartDashboard.putNumber("Elevator Position", getPosition());
+    SmartDashboard.putNumber("Elevator Target Position", m_targetPosition);
+    SmartDashboard.putNumber("Elevator Velocity", m_elevatorMotor.getRotorVelocity().getValue());
+    SmartDashboard.putNumber("Elevator Height", getHeight());
+    SmartDashboard.putNumber("Elevator Position", getPosition());
+    SmartDashboard.putBoolean("Elevator Bottom Hall", getBottomHall());
+    SmartDashboard.putBoolean("Elevator Top Hall", getTopHall());
+  }
+
   public void update() {
     switch (m_elevatorState) {
       case Manual:
@@ -166,15 +167,11 @@ public class Elevator implements Subsystem {
         break;
       case ClosedLoop:
         double motorPosition = m_targetPosition / SPROCKET_CIRCUMFERENCE / GEAR_RATIO;
-        m_elevatorMotor.setControl(new MotionMagicDutyCycle(motorPosition, false, 0.04, 0, true));
+        m_elevatorMotor.setControl(m_elevatorMotionMagic.withPosition(motorPosition));
         break;
       default:
         break;
     }
-
-    SmartDashboard.putNumber("Elevator Position", getPosition());
-    SmartDashboard.putNumber("Elevator Target Position", m_targetPosition);
-    SmartDashboard.putNumber("Elevator Velocity", m_elevatorMotor.getRotorVelocity().getValue());
   }
 
   public void reset() {
