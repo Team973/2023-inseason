@@ -45,9 +45,6 @@ import lombok.experimental.Accessors;
  */
 @Accessors(prefix = "m_")
 public class Robot extends TimedRobot {
-  private static final String kDefaultAuto = "Default";
-  private static String m_autoSelected = kDefaultAuto;
-
   private final Elevator m_elevator = new Elevator();
   private final Claw m_claw = new Claw();
   private final Drive m_drive = new Drive();
@@ -115,12 +112,8 @@ public class Robot extends TimedRobot {
   public void robotInit() {
     try {
       GreyDashClient.setAvailableAutoModes(
-          AutoMode.Test.name(),
-          AutoMode.OneCone.name(),
-          AutoMode.PreloadAndCharge.name(),
-          AutoMode.NoAuto.name());
-      GreyDashClient.availableGamePieces(
-          GamePiece.Cone.name(), GamePiece.Cube.name(), GamePiece.None.name());
+          AutoMode.Test, AutoMode.OneCone, AutoMode.PreloadAndCharge, AutoMode.NoAuto);
+      GreyDashClient.availableGamePieces(GamePiece.Cone, GamePiece.Cube, GamePiece.None);
 
       this.resetSubsystems();
     } catch (Exception e) {
@@ -138,19 +131,18 @@ public class Robot extends TimedRobot {
   @Override
   public void robotPeriodic() {
     try {
-      // GreyDash
-      GreyDashClient.update();
-
-      // Auto Selection
-      m_autoManager.selectAuto(AutoMode.valueOf(GreyDashClient.getAutoSelected()));
-      m_autoManager.selectPreload(GamePiece.valueOf(GreyDashClient.selectedGamePiece()));
-
       // Subsystems
-      dashboardUpdateSubsystems();
       m_candleManager.update();
       if (isEnabled()) {
         updateSubsystems();
       }
+      // GreyDash
+      GreyDashClient.update();
+      dashboardUpdateSubsystems();
+
+      // Auto Selection
+      m_autoManager.selectAuto(GreyDashClient.getAutoSelected());
+      m_autoManager.selectPreload(GreyDashClient.selectedGamePiece());
 
       // Keep claw game piece up to date
       m_claw.setCurrentGamePiece(m_currentGamePiece);
@@ -177,8 +169,6 @@ public class Robot extends TimedRobot {
   @Override
   public void autonomousInit() {
     try {
-      m_autoSelected = GreyDashClient.getAutoSelected();
-      System.out.println("Auto selected: " + m_autoSelected);
       m_compressor.enableDigital();
       m_autoManager.init();
     } catch (Exception e) {
@@ -376,7 +366,6 @@ public class Robot extends TimedRobot {
   @Override
   public void testInit() {
     try {
-
     } catch (Exception e) {
       logException(e);
     }
