@@ -10,9 +10,6 @@ import frc.robot.subsystems.Claw;
 import frc.robot.subsystems.Drive;
 import frc.robot.subsystems.Elevator;
 
-import lombok.AllArgsConstructor;
-
-@AllArgsConstructor
 public class AutoManager {
   private AutoCommand m_currentMode;
 

@@ -113,12 +113,8 @@ public class Robot extends TimedRobot {
   public void robotInit() {
     try {
       GreyDashClient.setAvailableAutoModes(
-          AutoMode.Test.name(),
-          AutoMode.OneCone.name(),
-          AutoMode.PreloadAndCharge.name(),
-          AutoMode.NoAuto.name());
-      GreyDashClient.availableGamePieces(
-          GamePiece.Cone.name(), GamePiece.Cube.name(), GamePiece.None.name());
+          AutoMode.Test, AutoMode.OneCone, AutoMode.PreloadAndCharge, AutoMode.NoAuto);
+      GreyDashClient.availableGamePieces(GamePiece.Cone, GamePiece.Cube, GamePiece.None);
 
       this.resetSubsystems();
     } catch (Exception e) {
@@ -136,18 +132,17 @@ public class Robot extends TimedRobot {
   @Override
   public void robotPeriodic() {
     try {
-      // GreyDash
-      GreyDashClient.update();
-
-      // Auto Selection
-      m_autoManager.selectAuto(AutoMode.valueOf(GreyDashClient.getAutoSelected()));
-
       // Subsystems
-      dashboardUpdateSubsystems();
       m_candleManager.update();
       if (isEnabled()) {
         updateSubsystems();
       }
+      // GreyDash
+      GreyDashClient.update();
+      dashboardUpdateSubsystems();
+
+      // Auto Selection
+      m_autoManager.selectAuto(GreyDashClient.getAutoSelected());
 
       // CANdle
       if (!m_exceptionHappened || !isDisabled()) {
@@ -358,7 +353,7 @@ public class Robot extends TimedRobot {
   public void disabledPeriodic() {
     try {
       if (!m_autoRan) {
-        m_currentGamePiece = GamePiece.valueOf(GreyDashClient.selectedGamePiece());
+        m_currentGamePiece = GreyDashClient.selectedGamePiece();
       }
     } catch (Exception e) {
       logException(e);
@@ -369,7 +364,6 @@ public class Robot extends TimedRobot {
   @Override
   public void testInit() {
     try {
-
     } catch (Exception e) {
       logException(e);
     }
