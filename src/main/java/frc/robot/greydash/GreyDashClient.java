@@ -80,8 +80,12 @@ public final class GreyDashClient {
    * @param modes The available auto modes.
    * @see #getAutoSelected()
    */
-  public static void setAvailableAutoModes(final String... modes) {
-    m_autoModes.set(modes);
+  public static void setAvailableAutoModes(final AutoMode... modes) {
+    String[] modeStrings = new String[modes.length];
+    for (int i = 0; i < modes.length; i++) {
+      modeStrings[i] = modes[i].toString();
+    }
+    m_autoModes.set(modeStrings);
   }
 
   /**
@@ -111,8 +115,12 @@ public final class GreyDashClient {
    * @param gamePieces The available game pieces.
    * @see #getSelectedGamePiece()
    */
-  public static void setAvailableGamePieces(final String... gamePieces) {
-    m_gamePieces.set(gamePieces);
+  public static void setAvailableGamePieces(final GamePiece... gamePieces) {
+    String[] gamePieceStrings = new String[gamePieces.length];
+    for (int i = 0; i < gamePieces.length; i++) {
+      gamePieceStrings[i] = gamePieces[i].toString();
+    }
+    m_gamePieces.set(gamePieceStrings);
   }
 
   /**

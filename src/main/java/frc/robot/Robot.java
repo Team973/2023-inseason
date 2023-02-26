@@ -14,7 +14,9 @@ import frc.robot.auto.commands.TrajectoryManager;
 import frc.robot.greydash.GreyDashClient;
 import frc.robot.shared.Constants.GamePiece;
 import frc.robot.subsystems.Claw;
+import frc.robot.subsystems.Claw.ConePresets;
 import frc.robot.subsystems.Claw.IntakeState;
+import frc.robot.subsystems.Claw.WristPreset;
 import frc.robot.subsystems.Claw.WristState;
 import frc.robot.subsystems.Drive;
 import frc.robot.subsystems.Drive.RotationControl;
@@ -112,12 +114,8 @@ public class Robot extends TimedRobot {
   public void robotInit() {
     try {
       GreyDashClient.setAvailableAutoModes(
-          AutoMode.Test.name(),
-          AutoMode.OneCone.name(),
-          AutoMode.PreloadAndCharge.name(),
-          AutoMode.NoAuto.name());
-      GreyDashClient.setAvailableGamePieces(
-          GamePiece.Cone.name(), GamePiece.Cube.name(), GamePiece.None.name());
+          AutoMode.Test, AutoMode.OneCone, AutoMode.PreloadAndCharge, AutoMode.NoAuto);
+      GreyDashClient.setAvailableGamePieces(GamePiece.Cone, GamePiece.Cube, GamePiece.None);
       GreyDashClient.setSelectedAuto(m_autoSelected);
 
       this.resetSubsystems();
@@ -141,10 +139,9 @@ public class Robot extends TimedRobot {
       if (isEnabled()) {
         updateSubsystems();
       }
-
-      // Dashboard
-      dashboardUpdateSubsystems();
+      // GreyDash
       GreyDashClient.update();
+      dashboardUpdateSubsystems();
 
       // Auto Selection
       m_autoSelected = GreyDashClient.getAutoSelected();
@@ -208,9 +205,12 @@ public class Robot extends TimedRobot {
       final double xSpeed = -MathUtil.applyDeadband(m_driverStick.getRawAxis(1), 0.12);
       final double ySpeed = -MathUtil.applyDeadband(m_driverStick.getRawAxis(0), 0.12);
 
-      final double rot =
+      double rot =
           -m_rotLimiter.calculate(MathUtil.applyDeadband(m_driverStick.getRawAxis(4), 0.09))
               * DriveInfo.MAX_ANGULAR_VELOCITY_RADIANS_PER_SECOND;
+      if (m_elevator.getHeight() > 15.0) {
+        rot *= 0.5;
+      }
 
       Translation2d translation =
           new Translation2d(xSpeed, ySpeed).times(DriveInfo.MAX_VELOCITY_METERS_PER_SECOND);
@@ -241,9 +241,23 @@ public class Robot extends TimedRobot {
       // Score
       if (m_driverStick.getLeftBumper()) {
         m_claw.setIntakeState(IntakeState.Out);
-        m_candleManager.setLightState(LightState.Off);
       } else if (m_claw.getIntakeState() == IntakeState.Out) {
         m_claw.setIntakeState(IntakeState.Neutral);
+        m_currentGamePiece = GamePiece.None;
+      }
+
+      // Right Cone
+      if (m_driverStick.getRightTriggerAxis() > 0.1) {
+        m_elevator.setElevatorState(ElevatorState.ClosedLoop);
+        m_elevator.setHeight(Elevator.Presets.floor);
+        m_claw.setWristState(WristState.ClosedLoop);
+        m_currentGamePiece = GamePiece.Cone;
+        m_claw.setIntakeState(IntakeState.In);
+        if (m_driverStick.getRightTriggerAxis() > 0.9) {
+          m_claw.setWristTargetAngle(ConePresets.floor);
+        } else {
+          m_claw.setWristTargetAngle(ConePresets.right);
+        }
       }
 
       //////////
@@ -301,13 +315,19 @@ public class Robot extends TimedRobot {
         m_currentGamePiece = GamePiece.Cube;
         m_claw.setIntakeState(IntakeState.In);
       } else if (m_claw.getIntakeState() != IntakeState.Out
-          && m_claw.getIntakeState() != IntakeState.Neutral) {
+          && m_claw.getIntakeState() != IntakeState.Neutral
+          && m_driverStick.getRightTriggerAxis() < 0.1) {
         m_claw.setIntakeState(IntakeState.Hold);
+      }
+
+      if (m_claw.getIntakeState() == IntakeState.In && m_claw.checkForGamePiece()) {
+        m_elevator.setHeight(Elevator.Presets.stow);
+        m_claw.setWristPreset(WristPreset.Stow);
       }
 
       // Manually Control Wrist
       double wristJoystickInput = -MathUtil.applyDeadband(m_operatorStick.getLeftY(), 0.12) * 0.25;
-      if (wristJoystickInput != 0.0) {
+      if (wristJoystickInput != 0.0 && m_driverStick.getRightTriggerAxis() <= 0.1) {
         m_claw.setWristState(WristState.Manual);
         m_claw.setWristMotorOutput(wristJoystickInput);
       } else {
