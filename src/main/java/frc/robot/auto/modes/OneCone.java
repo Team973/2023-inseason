@@ -3,8 +3,8 @@ package frc.robot.auto.modes;
 import frc.robot.auto.commands.DriveTrajectoryCommand;
 import frc.robot.auto.commands.ElevatorPresetCommand;
 import frc.robot.auto.commands.IntakeCommand;
+import frc.robot.auto.commands.SetCurrentGamePieceCommand;
 import frc.robot.auto.commands.SetDrivePositionCommand;
-import frc.robot.auto.commands.SetGamePieceCommand;
 import frc.robot.auto.commands.TrajectoryManager;
 import frc.robot.auto.commands.WristAngleCommand;
 import frc.robot.auto.commands.util.ConcurrentCommand;
@@ -22,7 +22,7 @@ import edu.wpi.first.math.geometry.Rotation2d;
 public class OneCone extends SequentialCommand {
   public OneCone(Drive drive, Claw claw, Elevator elevator, TrajectoryManager trajectoryManager) {
     super(
-        new SetGamePieceCommand(GamePiece.Cone),
+        new SetCurrentGamePieceCommand(GamePiece.Cone),
         new SetDrivePositionCommand(drive, new Pose2d(0.0, 0.0, Rotation2d.fromDegrees(180))),
         new IntakeCommand(claw, IntakeState.In, 100),
         new ElevatorPresetCommand(elevator, Elevator.Presets.high, 4000),

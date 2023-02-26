@@ -48,6 +48,7 @@ public class Robot extends TimedRobot {
   @Getter private static boolean m_exceptionHappened = false;
   @Setter @Getter private static GamePiece m_currentGamePiece = GamePiece.None;
 
+  private static boolean m_autoRan = false;
   private static AutoMode m_autoSelected = AutoMode.NoAuto;
   private static AutoMode m_lastAutoSelected;
 
@@ -145,10 +146,7 @@ public class Robot extends TimedRobot {
 
       // Auto Selection
       m_autoSelected = GreyDashClient.getAutoSelected();
-      m_currentGamePiece = GreyDashClient.getSelectedGamePiece();
-
       m_autoManager.selectAuto(m_autoSelected);
-      m_autoManager.selectPreload(m_currentGamePiece);
     } catch (Exception e) {
       logException(e);
     }
@@ -169,6 +167,7 @@ public class Robot extends TimedRobot {
     try {
       m_compressor.enableDigital();
       m_autoManager.init();
+      m_autoRan = true;
     } catch (Exception e) {
       logException(e);
     }
@@ -355,6 +354,10 @@ public class Robot extends TimedRobot {
       if (m_autoSelected != m_lastAutoSelected) {
         m_candleManager.setLightState(LightState.AutoSelected);
         m_lastAutoSelected = m_autoSelected;
+      }
+
+      if (!m_autoRan) {
+        m_currentGamePiece = GreyDashClient.getSelectedGamePiece();
       }
     } catch (Exception e) {
       logException(e);
