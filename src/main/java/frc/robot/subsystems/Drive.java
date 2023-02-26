@@ -3,9 +3,7 @@ package frc.robot.subsystems;
 import frc.robot.shared.RobotInfo;
 import frc.robot.shared.RobotInfo.DriveInfo;
 import frc.robot.shared.Subsystem;
-import frc.robot.subsystems.swerve.SwerveKinematics2;
 import frc.robot.subsystems.swerve.SwerveModule;
-import frc.robot.subsystems.swerve.SwerveModuleState2;
 
 import com.ctre.phoenixpro.configs.Pigeon2Configuration;
 import com.ctre.phoenixpro.hardware.Pigeon2;
@@ -16,8 +14,10 @@ import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.geometry.Translation2d;
 import edu.wpi.first.math.kinematics.ChassisSpeeds;
+import edu.wpi.first.math.kinematics.SwerveDriveKinematics;
 import edu.wpi.first.math.kinematics.SwerveDriveOdometry;
 import edu.wpi.first.math.kinematics.SwerveModulePosition;
+import edu.wpi.first.math.kinematics.SwerveModuleState;
 import edu.wpi.first.math.trajectory.Trajectory.State;
 import edu.wpi.first.math.trajectory.TrapezoidProfile;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
@@ -103,16 +103,33 @@ public class Drive implements Subsystem {
             ? ChassisSpeeds.fromFieldRelativeSpeeds(
                 translation.getX(), translation.getY(), rotation, getGyroscopeRotation())
             : new ChassisSpeeds(translation.getX(), translation.getY(), rotation);
-
-    SwerveModuleState2[] swerveModuleStates =
-        DriveInfo.SWERVE_KINEMATICS.to2ndOrderSwerveModuleStates(des_chassis_speeds);
+    /*
+     * TODO: Test this 254 code to handle drift in spinning translation
+     * Pose2d robot_pose_vel =
+     * new Pose2d(
+     * des_chassis_speeds.vxMetersPerSecond * Constants.kLooperDt,
+     * des_chassis_speeds.vyMetersPerSecond * Constants.kLooperDt,
+     * new Rotation2d(des_chassis_speeds.omegaRadiansPerSecond *
+     * Constants.kLooperDt));
+     * Pose2d robot_cur_pose = new Pose2d();
+     * Twist2d twist_vel = robot_cur_pose.log(robot_pose_vel);
+     * ChassisSpeeds updated_chassis_speeds =
+     * new ChassisSpeeds(
+     * twist_vel.dx / Constants.kLooperDt,
+     * twist_vel.dy / Constants.kLooperDt,
+     * twist_vel.dtheta / Constants.kLooperDt);
+     *
+     */
+    SwerveModuleState[] swerveModuleStates =
+        DriveInfo.SWERVE_KINEMATICS.toSwerveModuleStates(des_chassis_speeds);
+    // SWERVE_DRIVE_KINEMATICS.toSwerveModuleStates(updated_chassis_speeds);
 
     setModuleStates(swerveModuleStates);
   }
 
   public void driveInput(State state, Rotation2d rotation) {
     var desiredStates = m_controller.calculate(getPose(), state, rotation);
-    setModuleStates(DriveInfo.SWERVE_KINEMATICS.to2ndOrderSwerveModuleStates(desiredStates));
+    setModuleStates(DriveInfo.SWERVE_KINEMATICS.toSwerveModuleStates(desiredStates));
   }
 
   public double getGyroYaw() {
@@ -138,8 +155,8 @@ public class Drive implements Subsystem {
   }
 
   /* Used by Auto */
-  public void setModuleStates(SwerveModuleState2[] desiredStates) {
-    SwerveKinematics2.desaturateWheelSpeeds(
+  public void setModuleStates(SwerveModuleState[] desiredStates) {
+    SwerveDriveKinematics.desaturateWheelSpeeds(
         desiredStates, DriveInfo.MAX_VELOCITY_METERS_PER_SECOND);
 
     double states[] = new double[8];

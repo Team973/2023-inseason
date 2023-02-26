@@ -1,6 +1,7 @@
 package frc.robot.subsystems.swerve;
 
 import edu.wpi.first.math.geometry.Rotation2d;
+import edu.wpi.first.math.kinematics.SwerveModuleState;
 
 public class CTREModuleState {
 
@@ -12,8 +13,8 @@ public class CTREModuleState {
    * @param desiredState The desired state.
    * @param currentAngle The current module angle.
    */
-  public static SwerveModuleState2 optimize(
-      SwerveModuleState2 desiredState, Rotation2d currentAngle) {
+  public static SwerveModuleState optimize(
+      SwerveModuleState desiredState, Rotation2d currentAngle) {
     double targetAngle =
         placeInAppropriate0To360Scope(currentAngle.getDegrees(), desiredState.angle.getDegrees());
     double targetSpeed = desiredState.speedMetersPerSecond;
@@ -22,8 +23,7 @@ public class CTREModuleState {
       targetSpeed = -targetSpeed;
       targetAngle = delta > 90 ? (targetAngle -= 180) : (targetAngle += 180);
     }
-    return new SwerveModuleState2(
-        targetSpeed, Rotation2d.fromDegrees(targetAngle), desiredState.omegaRadPerSecond);
+    return new SwerveModuleState(targetSpeed, Rotation2d.fromDegrees(targetAngle));
   }
 
   /**

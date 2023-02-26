@@ -1,8 +1,7 @@
 package frc.robot.shared;
 
-import frc.robot.subsystems.swerve.SwerveKinematics2;
-
 import edu.wpi.first.math.geometry.Translation2d;
+import edu.wpi.first.math.kinematics.SwerveDriveKinematics;
 
 /** Robot info, specs, dimensions. */
 public final class RobotInfo {
@@ -82,11 +81,21 @@ public final class RobotInfo {
     public static final double ANGLE_KD = 0.1;
     public static final double ANGLE_KF = 0.0;
 
+    /* Drive Motor PID Values */
+    public static final double DRIVE_KP = 0.0;
+    public static final double DRIVE_KI = 0.0;
+    public static final double DRIVE_KD = 0.0;
+    public static final double DRIVE_KF = 0.0;
+
     /* Drive Motor Characterization Values */
     // divide by 12 to convert from volts to percent output for CTRE
     public static final double driveKS = (0.0 / 12);
     public static final double driveKV = (0.0 / 12);
     public static final double driveKA = (0.0 / 12);
+
+    /* Motor Inverts */
+    public static final boolean DRIVE_MOTOR_INVERT = true;
+    public static final boolean ANGLE_MOTOR_INVERT = true;
 
     /* Angle Encoder Invert */
     public static final boolean CANCODER_INVERT = false;
@@ -121,8 +130,8 @@ public final class RobotInfo {
             BACK_RIGHT_MODULE_STEER_ENCODER,
             BACK_RIGHT_MODULE_STEER_OFFSET);
 
-    public static final SwerveKinematics2 SWERVE_KINEMATICS =
-        new SwerveKinematics2(
+    public static final SwerveDriveKinematics SWERVE_KINEMATICS =
+        new SwerveDriveKinematics(
             new Translation2d(TRACKWIDTH_METERS / 2.0, WHEELBASE_METERS / 2.0),
             new Translation2d(TRACKWIDTH_METERS / 2.0, -WHEELBASE_METERS / 2.0),
             new Translation2d(-TRACKWIDTH_METERS / 2.0, WHEELBASE_METERS / 2.0),
