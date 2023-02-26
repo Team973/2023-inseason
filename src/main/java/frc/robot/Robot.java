@@ -46,8 +46,11 @@ import lombok.experimental.Accessors;
  */
 @Accessors(prefix = "m_")
 public class Robot extends TimedRobot {
-  private static final String kDefaultAuto = "Default";
-  private static String m_autoSelected = kDefaultAuto;
+  @Setter @Getter private static GamePiece m_currentGamePiece = GamePiece.None;
+
+  @Getter private static boolean m_exceptionHappened = false;
+
+  private static boolean m_autoRan = false;
 
   private static final double GOT_IT_DELAY = 300.0;
   private static double m_gotItStartTime;
@@ -66,12 +69,8 @@ public class Robot extends TimedRobot {
 
   private final SlewRateLimiter m_rotLimiter = new SlewRateLimiter(3);
 
-  @Setter @Getter private GamePiece m_currentGamePiece = GamePiece.None;
-
   private final Compressor m_compressor =
       new Compressor(COMPRESSOR_ID, PneumaticsModuleType.CTREPCM);
-
-  private boolean m_exceptionHappened = false;
 
   private void logException(Exception e) {
     try {
@@ -120,12 +119,8 @@ public class Robot extends TimedRobot {
   public void robotInit() {
     try {
       GreyDashClient.setAvailableAutoModes(
-          AutoMode.Test.name(),
-          AutoMode.OneCone.name(),
-          AutoMode.PreloadAndCharge.name(),
-          AutoMode.NoAuto.name());
-      GreyDashClient.availableGamePieces(
-          GamePiece.Cone.name(), GamePiece.Cube.name(), GamePiece.None.name());
+          AutoMode.Test, AutoMode.OneCone, AutoMode.PreloadAndCharge, AutoMode.NoAuto);
+      GreyDashClient.availableGamePieces(GamePiece.Cone, GamePiece.Cube, GamePiece.None);
 
       this.resetSubsystems();
     } catch (Exception e) {
@@ -143,27 +138,22 @@ public class Robot extends TimedRobot {
   @Override
   public void robotPeriodic() {
     try {
-      // GreyDash
-      GreyDashClient.update();
-
-      // Auto Selection
-      m_autoManager.selectAuto(AutoMode.valueOf(GreyDashClient.getAutoSelected()));
-      m_autoManager.selectPreload(GamePiece.valueOf(GreyDashClient.selectedGamePiece()));
-
       // Subsystems
-      dashboardUpdateSubsystems();
       m_candleManager.update();
       if (isEnabled()) {
         updateSubsystems();
       }
+      // GreyDash
+      GreyDashClient.update();
+      dashboardUpdateSubsystems();
 
-      // Keep claw game piece up to date
-      m_claw.setCurrentGamePiece(m_currentGamePiece);
+      // Auto Selection
+      m_autoManager.selectAuto(GreyDashClient.getAutoSelected());
 
       // CANdle
       if (!m_exceptionHappened
           || !isDisabled() && m_candleManager.getLightState() != LightState.GotIt) {
-        m_candleManager.setLightWithGamePiece(m_currentGamePiece);
+        m_candleManager.setLightWithGamePiece();
       }
     } catch (Exception e) {
       logException(e);
@@ -183,10 +173,9 @@ public class Robot extends TimedRobot {
   @Override
   public void autonomousInit() {
     try {
-      m_autoSelected = GreyDashClient.getAutoSelected();
-      System.out.println("Auto selected: " + m_autoSelected);
       m_compressor.enableDigital();
       m_autoManager.init();
+      m_autoRan = true;
     } catch (Exception e) {
       logException(e);
     }
@@ -382,8 +371,8 @@ public class Robot extends TimedRobot {
   @Override
   public void disabledPeriodic() {
     try {
-      if (m_exceptionHappened == true) {
-        m_candleManager.setLightState(LightState.Flash);
+      if (!m_autoRan) {
+        m_currentGamePiece = GreyDashClient.selectedGamePiece();
       }
     } catch (Exception e) {
       logException(e);
@@ -394,7 +383,6 @@ public class Robot extends TimedRobot {
   @Override
   public void testInit() {
     try {
-
     } catch (Exception e) {
       logException(e);
     }
