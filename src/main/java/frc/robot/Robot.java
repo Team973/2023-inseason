@@ -17,7 +17,6 @@ import frc.robot.shared.Conversions;
 import frc.robot.subsystems.CANdleManager;
 import frc.robot.subsystems.CANdleManager.LightState;
 import frc.robot.subsystems.Claw;
-import frc.robot.subsystems.Claw.ConePresets;
 import frc.robot.subsystems.Claw.IntakeState;
 import frc.robot.subsystems.Claw.WristPreset;
 import frc.robot.subsystems.Claw.WristState;
@@ -263,9 +262,9 @@ public class Robot extends TimedRobot {
         m_currentGamePiece = GamePiece.Cone;
         m_claw.setIntakeState(IntakeState.In);
         if (m_driverStick.getRightTriggerAxis() > 0.9) {
-          m_claw.setWristTargetAngle(ConePresets.floor);
+          m_claw.setWristPreset(WristPreset.Floor);
         } else {
-          m_claw.setWristTargetAngle(ConePresets.right);
+          m_claw.setWristPreset(WristPreset.ConeRight);
         }
       }
 

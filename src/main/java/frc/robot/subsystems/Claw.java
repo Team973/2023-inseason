@@ -78,6 +78,7 @@ public class Claw implements Subsystem {
     High,
     HP,
     Stow,
+    ConeRight,
     Manual
   }
 
@@ -141,7 +142,7 @@ public class Claw implements Subsystem {
     return Rotation2d.fromRotations(rot).getDegrees();
   }
 
-  public void setWristTargetAngle(double angle) {
+  private void setWristTargetAngle(double angle) {
     m_targetAngle = angle;
   }
 
@@ -246,6 +247,13 @@ public class Claw implements Subsystem {
           setWristTargetAngle(CubePresets.stow);
         } else {
           setWristTargetAngle(ConePresets.stow);
+        }
+        break;
+      case ConeRight:
+        if (currentGamePiece == GamePiece.Cube) {
+          setWristTargetAngle(CubePresets.stow);
+        } else {
+          setWristTargetAngle(ConePresets.right);
         }
         break;
       case Manual:
