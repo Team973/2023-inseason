@@ -167,7 +167,7 @@ public class Claw implements Subsystem {
 
     switch (m_intakeState) {
       case In:
-        m_intakeMotorOutput = 0.5;
+        m_intakeMotorOutput = 0.625;
         break;
       case Out:
         m_intakeMotorOutput = -0.5;
