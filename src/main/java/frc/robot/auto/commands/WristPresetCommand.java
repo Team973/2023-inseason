@@ -6,26 +6,22 @@ package frc.robot.auto.commands;
 
 import frc.robot.shared.AutoCommand;
 import frc.robot.subsystems.Claw;
+import frc.robot.subsystems.Claw.WristPreset;
 import frc.robot.subsystems.Claw.WristState;
 
-public class WristAngleCommand extends AutoCommand {
+import lombok.AllArgsConstructor;
 
-  private final double m_targetMsec;
-
-  private final double m_angle;
+@AllArgsConstructor
+public class WristPresetCommand extends AutoCommand {
   private final Claw m_claw;
-  /** Creates a new WristCommand. */
-  public WristAngleCommand(Claw claw, double angle, double targetMsec) {
-    this.m_targetMsec = targetMsec;
-    this.m_angle = angle;
-    this.m_claw = claw;
-  }
+  private final WristPreset m_preset;
+  private final double m_targetMsec;
 
   // Called when the command is initially scheduled.
   public void init() {
     m_claw.setWristState(WristState.ClosedLoop);
     setTargetMsec(m_targetMsec);
-    m_claw.setWristTargetAngle(m_angle);
+    m_claw.setWristPreset(m_preset);
   }
 
   // Called every time the scheduler runs while the command is scheduled.
@@ -33,7 +29,6 @@ public class WristAngleCommand extends AutoCommand {
   public void run() {}
 
   public boolean isCompleted() {
-    // TODO Auto-generated method stub
     return hasElapsed() || m_claw.isAtAngle();
   }
 
