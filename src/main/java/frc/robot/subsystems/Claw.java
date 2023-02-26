@@ -53,7 +53,7 @@ public class Claw implements Subsystem {
   private double m_intakeStator = 0.0;
   private double m_intakeMotorOutput = 0.0;
   @Setter private double m_wristMotorOutput = 0.0;
-  private double m_statorCurrentLimit = 60.0;
+  private double m_statorCurrentLimit = 70.0;
   private double m_supplyCurrentLimit = 100.0;
   private final double ANGLE_TOLERANCE = 1.0; // degrees
 
@@ -167,22 +167,30 @@ public class Claw implements Subsystem {
 
     switch (m_intakeState) {
       case In:
-        m_intakeMotorOutput = 0.625;
+        if (m_currentGamePiece == GamePiece.Cube) {
+          m_intakeMotorOutput = -0.5;
+        } else {
+          m_intakeMotorOutput = 0.8;
+        }
         break;
       case Out:
-        m_intakeMotorOutput = -0.5;
+        if (m_currentGamePiece == GamePiece.Cube) {
+          m_intakeMotorOutput = 0.3;
+        } else {
+          m_intakeMotorOutput = -0.5;
+        }
         break;
       case Hold:
-        m_intakeMotorOutput = 0.1;
+        if (m_currentGamePiece == GamePiece.Cube) {
+          m_intakeMotorOutput = -0.1;
+        } else {
+          m_intakeMotorOutput = 0.1;
+        }
         break;
       case Neutral:
       default:
         m_intakeMotorOutput = 0.0;
         break;
-    }
-
-    if (m_currentGamePiece == GamePiece.Cube) {
-      m_intakeMotorOutput *= -1.0;
     }
 
     m_intakeMotor.set(m_intakeMotorOutput);
