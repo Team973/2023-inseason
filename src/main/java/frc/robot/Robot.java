@@ -51,7 +51,7 @@ public class Robot extends TimedRobot {
 
   private static boolean m_autoRan = false;
 
-  private static final double GOT_IT_DELAY = 300.0;
+  private static final double GOT_IT_DELAY_MSEC = 300.0;
   private static double m_gotItStartTime;
   private static boolean m_gotIt;
 
@@ -337,7 +337,7 @@ public class Robot extends TimedRobot {
         m_candleManager.setLightState(LightState.GotIt);
 
         m_claw.setWristPreset(WristPreset.Stow);
-        if (Conversions.Time.getMsecTime() - m_gotItStartTime > GOT_IT_DELAY) {
+        if (Conversions.Time.getMsecTime() - m_gotItStartTime > GOT_IT_DELAY_MSEC) {
           m_elevator.setHeight(Elevator.Presets.stow);
           m_gotIt = false;
         }
