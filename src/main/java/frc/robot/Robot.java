@@ -45,8 +45,8 @@ import lombok.experimental.Accessors;
  */
 @Accessors(prefix = "m_")
 public class Robot extends TimedRobot {
-  @Getter private static boolean m_exceptionHappened = false;
   @Setter @Getter private static GamePiece m_currentGamePiece = GamePiece.None;
+  @Getter private static boolean m_exceptionHappened = false;
 
   private static boolean m_autoRan = false;
   private static AutoMode m_autoSelected = AutoMode.NoAuto;
