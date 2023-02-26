@@ -2,7 +2,7 @@ package frc.robot.subsystems;
 
 import static frc.robot.shared.RobotInfo.*;
 
-import frc.robot.shared.Constants.GamePiece;
+import frc.robot.Robot;
 import frc.robot.shared.Conversions;
 import frc.robot.shared.Subsystem;
 
@@ -41,8 +41,8 @@ public class CANdleManager implements Subsystem {
     m_candle.configAllSettings(configAll, 100);
   }
 
-  public void setLightWithGamePiece(GamePiece gamePiece) {
-    switch (gamePiece) {
+  public void setLightWithGamePiece() {
+    switch (Robot.getCurrentGamePiece()) {
       case Cube:
         setLightState(LightState.Cube);
         break;
@@ -59,6 +59,10 @@ public class CANdleManager implements Subsystem {
   public void dashboardUpdate() {}
 
   public void update() {
+    if (Robot.isExceptionHappened()) {
+      m_lightState = LightState.Flash;
+    }
+
     switch (m_lightState) {
       case Cone:
         m_candle.setLEDs(255, 150, 0); // set the CANdle LEDs to yellow

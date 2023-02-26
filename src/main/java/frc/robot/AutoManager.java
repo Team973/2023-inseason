@@ -6,13 +6,11 @@ import frc.robot.auto.modes.OneCone;
 import frc.robot.auto.modes.PreloadAndCharge;
 import frc.robot.auto.modes.Test;
 import frc.robot.shared.AutoCommand;
-import frc.robot.shared.Constants.GamePiece;
 import frc.robot.subsystems.Claw;
 import frc.robot.subsystems.Drive;
 import frc.robot.subsystems.Elevator;
 
 public class AutoManager {
-  private GamePiece m_preload;
   private AutoCommand m_currentMode;
 
   public enum AutoMode {
@@ -58,9 +56,5 @@ public class AutoManager {
         m_currentMode = m_noAuto;
         break;
     }
-  }
-
-  public void selectPreload(GamePiece preload) {
-    m_preload = preload;
   }
 }
