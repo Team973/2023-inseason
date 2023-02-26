@@ -13,7 +13,9 @@ import frc.robot.AutoManager.AutoMode;
 import frc.robot.auto.commands.TrajectoryManager;
 import frc.robot.greydash.GreyDashClient;
 import frc.robot.shared.Constants.GamePiece;
+import frc.robot.shared.Conversions;
 import frc.robot.subsystems.CANdleManager;
+import frc.robot.subsystems.CANdleManager.LightState;
 import frc.robot.subsystems.Claw;
 import frc.robot.subsystems.Claw.IntakeState;
 import frc.robot.subsystems.Claw.WristPreset;
@@ -48,6 +50,10 @@ public class Robot extends TimedRobot {
   @Getter private static boolean m_exceptionHappened = false;
 
   private static boolean m_autoRan = false;
+
+  private static final double GOT_IT_DELAY_MSEC = 300.0;
+  private static double m_gotItStartTime;
+  private static boolean m_gotIt;
 
   private final Elevator m_elevator = new Elevator();
   private final Claw m_claw = new Claw();
@@ -144,7 +150,8 @@ public class Robot extends TimedRobot {
       m_autoManager.selectAuto(GreyDashClient.getAutoSelected());
 
       // CANdle
-      if (!m_exceptionHappened || !isDisabled()) {
+      if (!m_exceptionHappened
+          || !isDisabled() && m_candleManager.getLightState() != LightState.GotIt) {
         m_candleManager.setLightWithGamePiece();
       }
     } catch (Exception e) {
@@ -243,6 +250,8 @@ public class Robot extends TimedRobot {
       } else if (m_claw.getIntakeState() == IntakeState.Out) {
         m_claw.setIntakeState(IntakeState.Neutral);
         m_currentGamePiece = GamePiece.None;
+        m_claw.setWristPreset(WristPreset.Stow);
+        m_elevator.setHeight(Elevator.Presets.stow);
       }
 
       // Right Cone
@@ -319,9 +328,19 @@ public class Robot extends TimedRobot {
         m_claw.setIntakeState(IntakeState.Hold);
       }
 
+      // Got it!
       if (m_claw.getIntakeState() == IntakeState.In && m_claw.checkForGamePiece()) {
-        m_elevator.setHeight(Elevator.Presets.stow);
+        if (!m_gotIt) {
+          m_gotItStartTime = Conversions.Time.getMsecTime();
+          m_gotIt = true;
+        }
+        m_candleManager.setLightState(LightState.GotIt);
+
         m_claw.setWristPreset(WristPreset.Stow);
+        if (Conversions.Time.getMsecTime() - m_gotItStartTime > GOT_IT_DELAY_MSEC) {
+          m_elevator.setHeight(Elevator.Presets.stow);
+          m_gotIt = false;
+        }
       }
 
       // Manually Control Wrist

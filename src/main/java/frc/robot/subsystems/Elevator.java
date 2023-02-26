@@ -53,7 +53,7 @@ public class Elevator implements Subsystem {
 
   private static final double STOW_OFFSET = 7.628;
 
-  private static final double MAX_HEIGHT = 27.5;
+  private static final double MAX_HEIGHT = 27.58;
 
   @Getter @Setter private ElevatorState m_elevatorState = ElevatorState.Manual;
 
@@ -79,19 +79,19 @@ public class Elevator implements Subsystem {
     motorConfig.MotorOutput.Inverted = InvertedValue.Clockwise_Positive;
 
     // Current limits
-    motorConfig.CurrentLimits.SupplyCurrentLimit = 40;
-    motorConfig.CurrentLimits.SupplyCurrentLimitEnable = false;
-    motorConfig.CurrentLimits.StatorCurrentLimit = 80;
-    motorConfig.CurrentLimits.StatorCurrentLimitEnable = false;
+    motorConfig.CurrentLimits.SupplyCurrentLimit = 40.0;
+    motorConfig.CurrentLimits.SupplyCurrentLimitEnable = true;
+    motorConfig.CurrentLimits.StatorCurrentLimit = 100.0;
+    motorConfig.CurrentLimits.StatorCurrentLimitEnable = true;
 
     // Position PID Parameters
-    motorConfig.Slot0.kP = 7.0;
+    motorConfig.Slot0.kP = 4.4;
     motorConfig.Slot0.kI = 0.0;
     motorConfig.Slot0.kD = 0.0;
     motorConfig.Slot0.kS = 0.0;
 
-    motorConfig.MotionMagic.MotionMagicCruiseVelocity = 70.0;
-    motorConfig.MotionMagic.MotionMagicAcceleration = 250.0;
+    motorConfig.MotionMagic.MotionMagicCruiseVelocity = 75.0;
+    motorConfig.MotionMagic.MotionMagicAcceleration = 210.0;
 
     // Set motor to follow A
     m_elevatorMotor.getConfigurator().apply(motorConfig);
@@ -153,14 +153,23 @@ public class Elevator implements Subsystem {
   }
 
   public void update() {
+    if (getTopHall()) {
+      m_elevatorMotor.setRotorPosition(
+          getPositionFromHeight(Elevator.MAX_HEIGHT - STOW_OFFSET)
+              / SPROCKET_CIRCUMFERENCE
+              / GEAR_RATIO);
+    } else if (getBottomHall()) {
+      m_elevatorMotor.setRotorPosition(0.0);
+    }
+
     switch (m_elevatorState) {
       case Manual:
         if (getTopHall()) {
-          m_elevatorOutput = clamp(m_elevatorOutput, 0.04, -0.1);
+          m_elevatorOutput = clamp(m_elevatorOutput, 0.0, -1.0);
         } else if (getBottomHall()) {
           m_elevatorOutput = clamp(m_elevatorOutput, 1.0, 0.0);
         } else {
-          m_elevatorOutput = clamp(m_elevatorOutput, 0.1, -0.1);
+          m_elevatorOutput = clamp(m_elevatorOutput, 0.2, -0.2);
         }
 
         m_elevatorMotor.set(m_elevatorOutput);

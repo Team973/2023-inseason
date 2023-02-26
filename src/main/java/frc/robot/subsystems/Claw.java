@@ -24,19 +24,19 @@ import lombok.experimental.Accessors;
 public class Claw implements Subsystem {
 
   public static class ConePresets {
-    public static final double floor = -107.41;
+    public static final double floor = -102.30;
     public static final double mid = -104.79;
-    public static final double high = -92.97;
-    public static final double hp = -102.94;
+    public static final double high = -88.39;
+    public static final double hp = -96.91;
     public static final double stow = STOW_OFFSET;
     public static final double right = -63.0;
   }
 
   public static class CubePresets {
     public static final double floor = -115;
-    public static final double mid = -120.24;
+    public static final double mid = -112.22;
     public static final double high = -105.09;
-    public static final double hp = -108.96;
+    public static final double hp = -98.84;
     public static final double stow = STOW_OFFSET;
   }
 
@@ -53,7 +53,7 @@ public class Claw implements Subsystem {
   private double m_intakeStator = 0.0;
   private double m_intakeMotorOutput = 0.0;
   @Setter private double m_wristMotorOutput = 0.0;
-  private double m_statorCurrentLimit = 60.0;
+  private double m_statorCurrentLimit = 70.0;
   private double m_supplyCurrentLimit = 100.0;
   private final double ANGLE_TOLERANCE = 1.0; // degrees
 
@@ -169,22 +169,30 @@ public class Claw implements Subsystem {
 
     switch (m_intakeState) {
       case In:
-        m_intakeMotorOutput = 0.5;
+        if (currentGamePiece == GamePiece.Cube) {
+          m_intakeMotorOutput = -0.5;
+        } else {
+          m_intakeMotorOutput = 0.8;
+        }
         break;
       case Out:
-        m_intakeMotorOutput = -0.5;
+        if (currentGamePiece == GamePiece.Cube) {
+          m_intakeMotorOutput = 0.3;
+        } else {
+          m_intakeMotorOutput = -0.5;
+        }
         break;
       case Hold:
-        m_intakeMotorOutput = 0.1;
+        if (currentGamePiece == GamePiece.Cube) {
+          m_intakeMotorOutput = -0.1;
+        } else {
+          m_intakeMotorOutput = 0.1;
+        }
         break;
       case Neutral:
       default:
         m_intakeMotorOutput = 0.0;
         break;
-    }
-
-    if (currentGamePiece == GamePiece.Cube) {
-      m_intakeMotorOutput *= -1.0;
     }
 
     m_intakeMotor.set(m_intakeMotorOutput);
