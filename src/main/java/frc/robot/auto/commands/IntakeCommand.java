@@ -23,11 +23,14 @@ public class IntakeCommand extends AutoCommand {
 
   @Override
   public boolean isCompleted() {
+    if (m_state == IntakeState.In) {
+      return m_claw.checkForGamePiece();
+    }
     return hasElapsed();
   }
 
   @Override
-  public void postComplete() {
+  public void postComplete(boolean interrupted) {
     if (m_state == IntakeState.Out) {
       m_claw.setIntakeState(IntakeState.Neutral);
     } else if (m_state == IntakeState.In) {

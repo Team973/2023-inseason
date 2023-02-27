@@ -18,5 +18,5 @@ public class ExampleCommand extends AutoCommand {
     return false;
   }
 
-  public void postComplete() {}
+  public void postComplete(boolean interrupted) {}
 }

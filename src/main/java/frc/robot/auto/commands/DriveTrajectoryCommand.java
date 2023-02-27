@@ -4,6 +4,7 @@ import frc.robot.shared.AutoCommand;
 import frc.robot.shared.Conversions;
 import frc.robot.subsystems.Drive;
 
+import com.pathplanner.lib.PathPlannerTrajectory.PathPlannerState;
 import edu.wpi.first.math.trajectory.Trajectory;
 
 public class DriveTrajectoryCommand extends AutoCommand {
@@ -24,8 +25,8 @@ public class DriveTrajectoryCommand extends AutoCommand {
   public void run() {
     double dtSeconds = Conversions.Time.getSecTime() - m_startTimeSeconds;
 
-    var goal = m_trajectory.sample(dtSeconds);
-    m_drive.driveInput(goal, goal.poseMeters.getRotation());
+    var goal = (PathPlannerState) m_trajectory.sample(dtSeconds);
+    m_drive.driveInput(goal, goal.holonomicRotation);
   }
 
   public boolean isCompleted() {
@@ -33,5 +34,5 @@ public class DriveTrajectoryCommand extends AutoCommand {
     return m_trajectory.getTotalTimeSeconds() <= dtSeconds;
   }
 
-  public void postComplete() {}
+  public void postComplete(boolean interrupted) {}
 }

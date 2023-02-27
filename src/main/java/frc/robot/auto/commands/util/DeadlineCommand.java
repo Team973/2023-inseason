@@ -7,7 +7,8 @@ import frc.robot.shared.AutoCommand;
 
 import com.google.common.collect.ImmutableList;
 
-public class ConcurrentCommand extends AutoCommand {
+public class DeadlineCommand extends AutoCommand {
+  private final AutoCommand m_deadline;
   private final ImmutableList<AutoCommand> m_cmdList;
   private HashSet<AutoCommand> m_unfinishedCmds;
   private Double m_timeout = null;
@@ -19,8 +20,9 @@ public class ConcurrentCommand extends AutoCommand {
    *
    * @param commands This is the parameter for a variable amount of auto commands.
    */
-  public ConcurrentCommand(AutoCommand... commands) {
-    this.m_cmdList = ImmutableList.copyOf(commands);
+  public DeadlineCommand(AutoCommand deadline, AutoCommand... commands) {
+    m_deadline = deadline;
+    m_cmdList = ImmutableList.copyOf(commands);
     m_unfinishedCmds = new HashSet<>();
 
     m_unfinishedCmds.addAll(m_cmdList);
@@ -32,9 +34,9 @@ public class ConcurrentCommand extends AutoCommand {
    * @param timeout This sets the timeout for the commands.
    * @param commands This is the parameter for a variable amount of auto commands.
    */
-  public ConcurrentCommand(double timeout, AutoCommand... commands) {
-    this(commands);
-    this.m_timeout = timeout;
+  public DeadlineCommand(double timeout, AutoCommand deadline, AutoCommand... commands) {
+    this(deadline, commands);
+    m_timeout = timeout;
   }
 
   public void init() {
@@ -69,7 +71,7 @@ public class ConcurrentCommand extends AutoCommand {
   }
 
   public boolean isCompleted() {
-    return m_unfinishedCmds.size() == 0;
+    return m_deadline.isCompleted() || m_unfinishedCmds.size() == 0;
   }
 
   public void postComplete(boolean interrupted) {}

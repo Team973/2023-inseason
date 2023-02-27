@@ -118,7 +118,11 @@ public class Robot extends TimedRobot {
   public void robotInit() {
     try {
       GreyDashClient.setAvailableAutoModes(
-          AutoMode.Test, AutoMode.OneCone, AutoMode.PreloadAndCharge, AutoMode.NoAuto);
+          AutoMode.Test,
+          AutoMode.OneCone,
+          AutoMode.PreloadAndCharge,
+          AutoMode.PreloadPickupCharge,
+          AutoMode.NoAuto);
       GreyDashClient.availableGamePieces(GamePiece.Cone, GamePiece.Cube, GamePiece.None);
 
       this.resetSubsystems();

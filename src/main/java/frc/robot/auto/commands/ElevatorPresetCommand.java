@@ -28,8 +28,8 @@ public class ElevatorPresetCommand extends AutoCommand {
 
   @Override
   public boolean isCompleted() {
-    return m_elevator.isAtHeight(m_preset) || hasElapsed();
+    return m_elevator.isAtHeight(m_preset);
   }
 
-  public void postComplete() {}
+  public void postComplete(boolean interrupted) {}
 }
