@@ -1,5 +1,6 @@
 package frc.robot.auto.modes;
 
+import frc.robot.auto.commands.BalanceCommand;
 import frc.robot.auto.commands.ElevatorPresetCommand;
 import frc.robot.auto.commands.IntakeCommand;
 import frc.robot.auto.commands.PathPlannerTrajectoryCommand;
@@ -25,6 +26,7 @@ public class PreloadAndCharge extends SequentialCommand {
             new ElevatorPresetCommand(elevator, Elevator.Presets.stow, 1000),
             new WristPresetCommand(claw, WristPreset.Stow, 2000),
             new PathPlannerTrajectoryCommand(
-                drive, "PreloadAndCharge", new PathConstraints(4, 3), true)));
+                drive, "PreloadAndCharge", new PathConstraints(4, 3), true)),
+        new BalanceCommand(drive, 5000));
   }
 }
