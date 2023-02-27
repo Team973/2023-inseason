@@ -37,6 +37,8 @@ public class Drive implements Subsystem {
   @Setter private RotationControl m_rotationControl = RotationControl.OpenLoop;
 
   private PIDController m_rotationController = new PIDController(0.11, 0.0, 0.003);
+  private PIDController m_balancePitchController = new PIDController(0.045, 0.0, 0.007);
+  private PIDController m_balanceRollController = new PIDController(0.045, 0.0, 0.007);
 
   public enum RotationControl {
     OpenLoop,
@@ -80,6 +82,36 @@ public class Drive implements Subsystem {
                 0.0,
                 new TrapezoidProfile.Constraints(
                     DriveInfo.MAX_ANGULAR_VELOCITY_RADIANS_PER_SECOND, 7.0)));
+  }
+
+  public void balanceDrivePitch() {
+    double pitch = getGyroPitch();
+    if (Math.abs(pitch) > 5.0) {
+      double pitchCorrection = m_balancePitchController.calculate(pitch, 0.0);
+      if (Math.abs(getNormalizedGyroYaw() - 180) < 30.0) {
+        pitchCorrection *= -1.0;
+      }
+      driveInput(new Translation2d(pitchCorrection, 0.0), 0.0, true);
+    } else {
+      for (SwerveModule swerveModule : m_swerveModules) {
+        swerveModule.setDesiredState(new SwerveModuleState(0.0, Rotation2d.fromDegrees(90)), true);
+      }
+    }
+  }
+
+  public void balanceDriveRoll() {
+    double roll = getGyroRoll();
+    if (Math.abs(roll) > 5.0) {
+      double rollCorrection = m_balanceRollController.calculate(roll, 0.0);
+      if (Math.abs(getNormalizedGyroYaw() - 270) < 30.0) {
+        rollCorrection *= -1.0;
+      }
+      driveInput(new Translation2d(rollCorrection, 0.0), 0.0, true);
+    } else {
+      for (SwerveModule swerveModule : m_swerveModules) {
+        swerveModule.setDesiredState(new SwerveModuleState(0.0, Rotation2d.fromDegrees(0)), true);
+      }
+    }
   }
 
   public void driveInput(Translation2d translation, double rotationVal, boolean fieldRelative) {
@@ -130,6 +162,14 @@ public class Drive implements Subsystem {
   public void driveInput(State state, Rotation2d rotation) {
     var desiredStates = m_controller.calculate(getPose(), state, rotation);
     setModuleStates(DriveInfo.SWERVE_KINEMATICS.toSwerveModuleStates(desiredStates));
+  }
+
+  public double getGyroPitch() {
+    return m_pigeon.getPitch().getValue();
+  }
+
+  public double getGyroRoll() {
+    return m_pigeon.getRoll().getValue();
   }
 
   public double getGyroYaw() {
@@ -211,6 +251,8 @@ public class Drive implements Subsystem {
       index += 2;
     }
     SmartDashboard.putNumberArray("swerve/actual", states);
+    SmartDashboard.putNumber("pitch", m_pigeon.getPitch().getValue());
+    SmartDashboard.putNumber("roll", m_pigeon.getRoll().getValue());
   }
 
   public void update() {
