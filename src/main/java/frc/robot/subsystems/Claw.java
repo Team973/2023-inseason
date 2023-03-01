@@ -42,15 +42,9 @@ public class Claw implements Subsystem {
     public static final double stow = STOW_OFFSET;
   }
 
-  @Setter
-  @Getter
-  private IntakeState m_intakeState = IntakeState.Neutral;
-  @Setter
-  @Getter
-  private WristState m_wristState = WristState.Manual;
-  @Setter
-  @Getter
-  private WristPreset m_wristPreset = WristPreset.Stow;
+  @Setter @Getter private IntakeState m_intakeState = IntakeState.Neutral;
+  @Setter @Getter private WristState m_wristState = WristState.Manual;
+  @Setter @Getter private WristPreset m_wristPreset = WristPreset.Stow;
 
   private final GreyTalonFX m_intakeMotor;
   private final GreyTalonFX m_wristMotor;
@@ -58,19 +52,18 @@ public class Claw implements Subsystem {
   private static final double STOW_OFFSET = 31.04;
 
   private GamePiece m_lastGamePiece = GamePiece.None;
-  @Getter
-  private boolean m_hasGamePiece = false;
+  @Getter private boolean m_hasGamePiece = false;
 
   private double m_targetAngle = STOW_OFFSET;
   private double m_intakeStator = 0.0;
   private double m_intakeMotorOutput = 0.0;
-  @Setter
-  private double m_wristMotorOutput = 0.0;
+  @Setter private double m_wristMotorOutput = 0.0;
   private double m_statorCurrentLimit = 70.0;
   private double m_supplyCurrentLimit = 100.0;
   private final double ANGLE_TOLERANCE = 1.0; // degrees
 
-  private final PositionVoltage m_wristPosition = new PositionVoltage(m_targetAngle / 360.0 / ClawInfo.GEAR_RATIO);
+  private final PositionVoltage m_wristPosition =
+      new PositionVoltage(m_targetAngle / 360.0 / ClawInfo.GEAR_RATIO);
 
   public enum IntakeState {
     In,
