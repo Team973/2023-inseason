@@ -46,6 +46,7 @@ import lombok.experimental.Accessors;
 @Accessors(prefix = "m_")
 public class Robot extends TimedRobot {
   @Setter @Getter private static GamePiece m_currentGamePiece = GamePiece.None;
+
   @Getter private static boolean m_exceptionHappened = false;
 
   private static boolean m_autoRan = false;
@@ -122,7 +123,7 @@ public class Robot extends TimedRobot {
           AutoMode.Test, AutoMode.OneCone, AutoMode.PreloadAndCharge, AutoMode.NoAuto);
       GreyDashClient.setAvailableGamePieces(GamePiece.Cone, GamePiece.Cube, GamePiece.None);
       GreyDashClient.setSelectedAuto(m_autoSelected);
-
+      GreyDashClient.setSelectedGamePiece(m_currentGamePiece);
       this.resetSubsystems();
     } catch (Exception e) {
       logException(e);

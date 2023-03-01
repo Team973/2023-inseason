@@ -30,18 +30,19 @@ public final class GreyDashClient {
   private static final NetworkTable m_gyroTable = m_devicesTable.getSubTable(GYRO_TABLE);
 
   // Auto Topics
-  private static final StringArrayPublisher m_autoModes =
-      m_autoTable.getStringArrayTopic(AUTO_MODES_TOPIC).publish();
+  private static final StringArrayPublisher m_availableAutoModes =
+      m_autoTable.getStringArrayTopic(AVAILABLE_AUTO_MODES_TOPIC).publish();
   private static final StringSubscriber m_autoSelectedSubscriber =
       m_autoTable.getStringTopic(AUTO_SELECTED_TOPIC).subscribe(AutoMode.NoAuto.toString());
-
-  private static final StringArrayPublisher m_gamePieces =
-      m_autoTable.getStringArrayTopic(GAME_PIECES_TOPIC).publish();
-  private static final StringSubscriber m_preloadSelected =
-      m_autoTable.getStringTopic(GAME_PIECE_SELECTED_TOPIC).subscribe(GamePiece.None.toString());
-
   private static final StringPublisher m_autoSelectedPublisher =
-      m_autoTable.getStringTopic(AUTO_MODES_TOPIC).publish();
+      m_autoTable.getStringTopic(AUTO_SELECTED_TOPIC).publish();
+
+  private static final StringArrayPublisher m_availableGamePieces =
+      m_autoTable.getStringArrayTopic(AVAILABLE_GAME_PIECES_TOPIC).publish();
+  private static final StringSubscriber m_preloadSelectedSubscriber =
+      m_autoTable.getStringTopic(GAME_PIECE_SELECTED_TOPIC).subscribe(GamePiece.None.toString());
+  private static final StringPublisher m_preloadSelectedPublisher =
+      m_autoTable.getStringTopic(GAME_PIECE_SELECTED_TOPIC).publish();
 
   // Match Topics
   private static final DoublePublisher m_matchTime =
@@ -85,7 +86,7 @@ public final class GreyDashClient {
     for (int i = 0; i < modes.length; i++) {
       modeStrings[i] = modes[i].toString();
     }
-    m_autoModes.set(modeStrings);
+    m_availableAutoModes.set(modeStrings);
   }
 
   /**
@@ -120,7 +121,7 @@ public final class GreyDashClient {
     for (int i = 0; i < gamePieces.length; i++) {
       gamePieceStrings[i] = gamePieces[i].toString();
     }
-    m_gamePieces.set(gamePieceStrings);
+    m_availableGamePieces.set(gamePieceStrings);
   }
 
   /**
@@ -130,7 +131,11 @@ public final class GreyDashClient {
    * @see #setAvailableGamePieces(String...)
    */
   public static GamePiece getSelectedGamePiece() {
-    return GamePiece.valueOf(m_preloadSelected.get());
+    return GamePiece.valueOf(m_preloadSelectedSubscriber.get());
+  }
+
+  public static void setSelectedGamePiece(final GamePiece gamePiece) {
+    m_preloadSelectedPublisher.set(gamePiece.toString());
   }
 
   /** Periodic update method. This should be called periodically to update the dashboard. */
