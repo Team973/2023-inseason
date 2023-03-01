@@ -21,8 +21,8 @@ public class CANdleManager implements Subsystem {
   private static final int NUM_LEDS = 8 + 17 + 14 + 17;
 
   public enum LightState {
-    Cube,
-    Cone,
+    GamePiece,
+    GotIt,
     Emergency,
     AutoWaiting,
     PreloadWaiting,
@@ -77,11 +77,11 @@ public class CANdleManager implements Subsystem {
     }
 
     switch (m_lightState) {
-      case Cone:
-        setColor(CANdleColors.cone);
+      case GamePiece:
+        setColor(CANdleColors.getColorFromGamePiece(Robot.getCurrentGamePiece()));
         break;
-      case Cube:
-        setColor(CANdleColors.cube);
+      case GotIt:
+        setFlashing(CANdleColors.gotIt, 250.0);
         break;
       case Emergency:
         setFlashing(CANdleColors.emergency, 250.0);
@@ -93,10 +93,10 @@ public class CANdleManager implements Subsystem {
         setAlternate(CANdleColors.cone, CANdleColors.cube, 1000.0);
         break;
       case AutoSelected:
-        setFlashing(CANdleColors.autoSelected, 1250.0);
+        setFlashing(CANdleColors.getColorFromGamePiece(Robot.getCurrentGamePiece()), 1250.0);
         break;
       case RainbowBarf:
-        m_candle.animate(new RainbowAnimation(1, 10.0, NUM_LEDS));
+        m_candle.animate(new RainbowAnimation(1, 100.0, NUM_LEDS));
         break;
       case Off:
         setColor(CANdleColors.off);

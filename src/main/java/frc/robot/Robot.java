@@ -50,9 +50,15 @@ public class Robot extends TimedRobot {
 
   @Getter private static boolean m_exceptionHappened = false;
 
+  private enum AutoSetupMode {
+    AutoWaiting,
+    PreloadWaiting,
+    AutoSelected
+  }
+
   private static boolean m_autoRan = false;
   private static AutoMode m_autoSelected = AutoMode.NoAuto;
-  private static AutoMode m_lastAutoSelected;
+  private static AutoSetupMode m_autoSetupStep = AutoSetupMode.AutoWaiting;
 
   private static final double GOT_IT_DELAY_MSEC = 300.0;
   private static double m_gotItStartTime;
@@ -159,12 +165,8 @@ public class Robot extends TimedRobot {
       m_autoManager.selectAuto(m_autoSelected);
 
       // CANdle
-      if (!m_exceptionHappened
-          || !isDisabled()
-              && ((m_candleManager.getLightState() != LightState.Cone)
-                  && (m_candleManager.getLightState() != LightState.Cube))) {
-        m_candleManager.setLightState(LightState.valueOf(m_currentGamePiece.toString()));
-        ;
+      if (!m_exceptionHappened && !isDisabled()) {
+        m_candleManager.setLightState(LightState.GamePiece);
       }
     } catch (Exception e) {
       logException(e);
@@ -352,7 +354,7 @@ public class Robot extends TimedRobot {
           m_gotItStartTime = Conversions.Time.getMsecTime();
           m_gotIt = true;
         }
-        m_candleManager.setLightState(LightState.valueOf(m_currentGamePiece.toString()));
+        m_candleManager.setLightState(LightState.GotIt);
 
         m_claw.setWristPreset(WristPreset.Stow);
         if (Conversions.Time.getMsecTime() - m_gotItStartTime > GOT_IT_DELAY_MSEC) {
@@ -388,13 +390,40 @@ public class Robot extends TimedRobot {
   @Override
   public void disabledPeriodic() {
     try {
-      if (m_autoSelected != m_lastAutoSelected) {
-        m_candleManager.setLightState(LightState.AutoSelected);
-        m_lastAutoSelected = m_autoSelected;
-      }
-
       if (!m_autoRan) {
         m_currentGamePiece = GreyDashClient.getSelectedGamePiece();
+
+        switch (m_autoSetupStep) {
+          case AutoWaiting:
+            m_candleManager.setLightState(LightState.GotIt);
+
+            if (m_autoSelected != AutoMode.NoAuto) {
+              m_autoSetupStep = AutoSetupMode.PreloadWaiting;
+            }
+            break;
+          case PreloadWaiting:
+            m_candleManager.setLightState(LightState.PreloadWaiting);
+
+            // Go back if we choose no auto, continue if we choose a game piece
+            if (m_autoSelected == AutoMode.NoAuto) {
+              m_autoSetupStep = AutoSetupMode.AutoWaiting;
+            } else if (m_currentGamePiece != GamePiece.None) {
+              m_autoSetupStep = AutoSetupMode.AutoSelected;
+            }
+            break;
+          case AutoSelected:
+            m_candleManager.setLightState(LightState.AutoSelected);
+
+            // Go back if we lose the auto or the game piece
+            if (m_autoSelected == AutoMode.NoAuto || m_currentGamePiece == GamePiece.None) {
+              m_autoSetupStep = AutoSetupMode.AutoWaiting;
+            }
+            break;
+          default:
+            break;
+        }
+      } else {
+        m_candleManager.setLightState(LightState.RainbowBarf);
       }
 
     } catch (Exception e) {

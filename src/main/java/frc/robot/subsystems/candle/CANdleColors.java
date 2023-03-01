@@ -5,9 +5,9 @@ import frc.robot.shared.Constants.GamePiece;
 public final class CANdleColors {
   public static final RGBColor cube = new RGBColor(170, 0, 255);
   public static final RGBColor cone = new RGBColor(255, 150, 0);
+  public static final RGBColor gotIt = new RGBColor(0, 255, 0);
   public static final RGBColor emergency = new RGBColor(255, 0, 0);
   public static final RGBColor autoWaiting = new RGBColor(0, 0, 255);
-  public static final RGBColor autoSelected = new RGBColor(255, 0, 255);
   public static final RGBColor off = new RGBColor(0, 0, 0);
 
   public static RGBColor getColorFromGamePiece(GamePiece gamePiece) {
