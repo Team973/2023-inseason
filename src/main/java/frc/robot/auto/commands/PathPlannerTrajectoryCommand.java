@@ -6,6 +6,7 @@ import frc.robot.subsystems.Drive;
 import com.pathplanner.lib.PathConstraints;
 import com.pathplanner.lib.PathPlanner;
 import com.pathplanner.lib.PathPlannerTrajectory;
+import edu.wpi.first.wpilibj.DriverStation;
 
 public class PathPlannerTrajectoryCommand extends AutoCommand {
   private final Drive m_drive;
@@ -18,7 +19,10 @@ public class PathPlannerTrajectoryCommand extends AutoCommand {
   public PathPlannerTrajectoryCommand(
       Drive drive, String path, PathConstraints constraints, boolean reverse) {
     m_drive = drive;
-    m_path = PathPlanner.loadPath(path, constraints, reverse);
+    PathPlannerTrajectory pathTrajectory = PathPlanner.loadPath(path, constraints, reverse);
+    m_path =
+        PathPlannerTrajectory.transformTrajectoryForAlliance(
+            pathTrajectory, DriverStation.getAlliance());
     m_positionCommand = new SetDrivePositionCommand(m_drive, m_path.getInitialHolonomicPose());
     m_trajectoryCommand = new DriveTrajectoryCommand(m_drive, m_path);
   }
