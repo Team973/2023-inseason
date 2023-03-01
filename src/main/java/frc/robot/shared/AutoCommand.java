@@ -28,7 +28,7 @@ public abstract class AutoCommand {
   public abstract boolean isCompleted();
 
   /** Executes once after isCompleted returns true */
-  public abstract void postComplete();
+  public abstract void postComplete(boolean interrupted);
 
   /**
    * Sets the target time (safety timeout) for the command.

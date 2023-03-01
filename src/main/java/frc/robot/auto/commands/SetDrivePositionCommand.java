@@ -32,5 +32,5 @@ public class SetDrivePositionCommand extends AutoCommand {
   }
 
   @Override
-  public void postComplete() {}
+  public void postComplete(boolean interrupted) {}
 }

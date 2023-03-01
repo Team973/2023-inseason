@@ -3,6 +3,7 @@ package frc.robot.auto.commands.util;
 import frc.robot.shared.AutoCommand;
 
 import com.google.common.collect.ImmutableList;
+import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 
 public class SequentialCommand extends AutoCommand {
   private final ImmutableList<AutoCommand> m_cmdList;
@@ -37,6 +38,7 @@ public class SequentialCommand extends AutoCommand {
   }
 
   public void run() {
+    SmartDashboard.putNumber("sequential index", m_currentIndex);
     if (isCompleted()) {
       return;
     }
@@ -53,13 +55,17 @@ public class SequentialCommand extends AutoCommand {
     if (currentCommand.isCompleted()) {
       m_currentIndex++;
       m_cmdNeedsInit = true;
-      currentCommand.postComplete();
+      currentCommand.postComplete(false);
+    } else if (currentCommand.hasElapsed()) {
+      m_currentIndex++;
+      m_cmdNeedsInit = true;
+      currentCommand.postComplete(true);
     }
   }
 
   public boolean isCompleted() {
-    return m_currentIndex >= m_cmdList.size() || hasElapsed();
+    return m_currentIndex >= m_cmdList.size();
   }
 
-  public void postComplete() {}
+  public void postComplete(boolean interrupted) {}
 }

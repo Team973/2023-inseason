@@ -25,12 +25,11 @@ public class WristPresetCommand extends AutoCommand {
   }
 
   // Called every time the scheduler runs while the command is scheduled.
-
   public void run() {}
 
   public boolean isCompleted() {
-    return hasElapsed() || m_claw.isAtAngle();
+    return m_claw.isAtAngle();
   }
 
-  public void postComplete() {}
+  public void postComplete(boolean interrupted) {}
 }

@@ -24,5 +24,5 @@ public class SetCurrentGamePieceCommand extends AutoCommand {
   }
 
   @Override
-  public void postComplete() {}
+  public void postComplete(boolean interrupted) {}
 }

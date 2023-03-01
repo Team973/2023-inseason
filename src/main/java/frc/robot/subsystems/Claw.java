@@ -44,7 +44,7 @@ public class Claw implements Subsystem {
 
   @Setter @Getter private IntakeState m_intakeState = IntakeState.Neutral;
   @Setter @Getter private WristState m_wristState = WristState.Manual;
-  @Setter @Getter private WristPreset m_wristPreset = WristPreset.Stow;
+  @Getter private WristPreset m_wristPreset = WristPreset.Stow;
 
   private final GreyTalonFX m_intakeMotor;
   private final GreyTalonFX m_wristMotor;
@@ -146,6 +146,58 @@ public class Claw implements Subsystem {
   public double getClawCurrentAngle() {
     double rot = m_wristMotor.getRotorPosition().getValue() * ClawInfo.GEAR_RATIO;
     return Rotation2d.fromRotations(rot).getDegrees();
+  }
+
+  public void setWristPreset(WristPreset preset) {
+    m_wristPreset = preset;
+    GamePiece currentGamePiece = Robot.getCurrentGamePiece();
+    switch (m_wristPreset) {
+      case Floor:
+        if (currentGamePiece == GamePiece.Cube) {
+          setWristTargetAngle(CubePresets.floor);
+        } else {
+          setWristTargetAngle(ConePresets.floor);
+        }
+        break;
+      case Mid:
+        if (currentGamePiece == GamePiece.Cube) {
+          setWristTargetAngle(CubePresets.mid);
+        } else {
+          setWristTargetAngle(ConePresets.mid);
+        }
+        break;
+      case High:
+        if (currentGamePiece == GamePiece.Cube) {
+          setWristTargetAngle(CubePresets.high);
+        } else {
+          setWristTargetAngle(ConePresets.high);
+        }
+        break;
+      case HP:
+        if (currentGamePiece == GamePiece.Cube) {
+          setWristTargetAngle(CubePresets.hp);
+        } else {
+          setWristTargetAngle(ConePresets.hp);
+        }
+        break;
+      case Stow:
+        if (currentGamePiece == GamePiece.Cube) {
+          setWristTargetAngle(CubePresets.stow);
+        } else {
+          setWristTargetAngle(ConePresets.stow);
+        }
+        break;
+      case ConeRight:
+        if (currentGamePiece == GamePiece.Cube) {
+          setWristTargetAngle(CubePresets.stow);
+        } else {
+          setWristTargetAngle(ConePresets.right);
+        }
+        break;
+      case Manual:
+      default:
+        break;
+    }
   }
 
   private void setWristTargetAngle(double angle) {

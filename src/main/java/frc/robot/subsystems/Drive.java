@@ -7,6 +7,7 @@ import frc.robot.subsystems.swerve.SwerveModule;
 
 import com.ctre.phoenixpro.configs.Pigeon2Configuration;
 import com.ctre.phoenixpro.hardware.Pigeon2;
+import com.google.common.collect.ImmutableList;
 import edu.wpi.first.math.controller.HolonomicDriveController;
 import edu.wpi.first.math.controller.PIDController;
 import edu.wpi.first.math.controller.ProfiledPIDController;
@@ -253,6 +254,13 @@ public class Drive implements Subsystem {
     SmartDashboard.putNumberArray("swerve/actual", states);
     SmartDashboard.putNumber("pitch", m_pigeon.getPitch().getValue());
     SmartDashboard.putNumber("roll", m_pigeon.getRoll().getValue());
+    SmartDashboard.putNumberArray(
+        "swerve/odometry",
+        ImmutableList.of(
+                getPose().getTranslation().getX(),
+                getPose().getTranslation().getY(),
+                getPose().getRotation().getDegrees())
+            .toArray(Double[]::new));
   }
 
   public void update() {

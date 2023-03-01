@@ -47,8 +47,8 @@ public class BalanceCommand extends AutoCommand {
       default:
         break;
     }
-    return completed || hasElapsed();
+    return completed;
   }
 
-  public void postComplete() {}
+  public void postComplete(boolean interrupted) {}
 }

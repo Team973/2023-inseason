@@ -24,5 +24,5 @@ public class WaitCommand extends AutoCommand {
     return hasElapsed();
   }
 
-  public void postComplete() {}
+  public void postComplete(boolean interrupted) {}
 }

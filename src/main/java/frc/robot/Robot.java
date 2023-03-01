@@ -119,7 +119,11 @@ public class Robot extends TimedRobot {
   public void robotInit() {
     try {
       GreyDashClient.setAvailableAutoModes(
-          AutoMode.Test, AutoMode.OneCone, AutoMode.PreloadAndCharge, AutoMode.NoAuto);
+          AutoMode.Test,
+          AutoMode.OneCone,
+          AutoMode.PreloadAndCharge,
+          AutoMode.PreloadPickupCharge,
+          AutoMode.NoAuto);
       GreyDashClient.setAvailableGamePieces(GamePiece.Cone, GamePiece.Cube, GamePiece.None);
 
       GreyDashServer greyDashServer = new GreyDashServer(8080);
@@ -383,7 +387,6 @@ public class Robot extends TimedRobot {
       if (!m_autoRan) {
         m_currentGamePiece = GreyDashClient.getSelectedGamePiece();
       }
-
     } catch (Exception e) {
       logException(e);
     }
