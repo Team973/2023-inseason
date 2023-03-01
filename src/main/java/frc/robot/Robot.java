@@ -38,16 +38,22 @@ import lombok.Setter;
 import lombok.experimental.Accessors;
 
 /**
- * The VM is configured to automatically run this class, and to call the functions corresponding to
- * each mode, as described in the TimedRobot documentation. If you change the name of this class or
- * the package after creating this project, you must also update the build.gradle file in the
+ * The VM is configured to automatically run this class, and to call the
+ * functions corresponding to
+ * each mode, as described in the TimedRobot documentation. If you change the
+ * name of this class or
+ * the package after creating this project, you must also update the
+ * build.gradle file in the
  * project.
  */
 @Accessors(prefix = "m_")
 public class Robot extends TimedRobot {
-  @Setter @Getter private static GamePiece m_currentGamePiece = GamePiece.None;
+  @Setter
+  @Getter
+  private static GamePiece m_currentGamePiece = GamePiece.None;
 
-  @Getter private static boolean m_exceptionHappened = false;
+  @Getter
+  private static boolean m_exceptionHappened = false;
 
   private static boolean m_autoRan = false;
 
@@ -60,16 +66,14 @@ public class Robot extends TimedRobot {
   private final Drive m_drive = new Drive();
   private final CANdleManager m_candleManager = new CANdleManager();
   private final TrajectoryManager m_trajectoryManager = new TrajectoryManager();
-  private final AutoManager m_autoManager =
-      new AutoManager(m_claw, m_elevator, m_drive, m_trajectoryManager);
+  private final AutoManager m_autoManager = new AutoManager(m_claw, m_elevator, m_drive, m_trajectoryManager);
 
   private final XboxController m_driverStick = new XboxController(0);
   private final XboxController m_operatorStick = new XboxController(1);
 
   private final SlewRateLimiter m_rotLimiter = new SlewRateLimiter(3);
 
-  private final Compressor m_compressor =
-      new Compressor(COMPRESSOR_ID, PneumaticsModuleType.CTREPCM);
+  private final Compressor m_compressor = new Compressor(COMPRESSOR_ID, PneumaticsModuleType.CTREPCM);
 
   private void logException(Exception e) {
     try {
@@ -111,7 +115,8 @@ public class Robot extends TimedRobot {
   }
 
   /**
-   * This function is run when the robot is first started up and should be used for any
+   * This function is run when the robot is first started up and should be used
+   * for any
    * initialization code.
    */
   @Override
@@ -128,10 +133,13 @@ public class Robot extends TimedRobot {
   }
 
   /**
-   * This function is called every 20 ms, no matter the mode. Use this for items like diagnostics
+   * This function is called every 20 ms, no matter the mode. Use this for items
+   * like diagnostics
    * that you want ran during disabled, autonomous, teleoperated and test.
    *
-   * <p>This runs after the mode specific periodic functions, but before LiveWindow and
+   * <p>
+   * This runs after the mode specific periodic functions, but before LiveWindow
+   * and
    * SmartDashboard integrated updating.
    */
   @Override
@@ -160,13 +168,20 @@ public class Robot extends TimedRobot {
   }
 
   /**
-   * This autonomous (along with the chooser code above) shows how to select between different
-   * autonomous modes using the dashboard. The sendable chooser code works with the Java
-   * SmartDashboard. If you prefer the LabVIEW Dashboard, remove all of the chooser code and
-   * uncomment the getString line to get the auto name from the text box below the Gyro
+   * This autonomous (along with the chooser code above) shows how to select
+   * between different
+   * autonomous modes using the dashboard. The sendable chooser code works with
+   * the Java
+   * SmartDashboard. If you prefer the LabVIEW Dashboard, remove all of the
+   * chooser code and
+   * uncomment the getString line to get the auto name from the text box below the
+   * Gyro
    *
-   * <p>You can add additional auto modes by adding additional comparisons to the switch structure
-   * below with additional strings. If using the SendableChooser make sure to add them to the
+   * <p>
+   * You can add additional auto modes by adding additional comparisons to the
+   * switch structure
+   * below with additional strings. If using the SendableChooser make sure to add
+   * them to the
    * chooser code above as well.
    */
   @Override
@@ -211,15 +226,13 @@ public class Robot extends TimedRobot {
       final double xSpeed = -MathUtil.applyDeadband(m_driverStick.getRawAxis(1), 0.12);
       final double ySpeed = -MathUtil.applyDeadband(m_driverStick.getRawAxis(0), 0.12);
 
-      double rot =
-          -m_rotLimiter.calculate(MathUtil.applyDeadband(m_driverStick.getRawAxis(4), 0.09))
-              * DriveInfo.MAX_ANGULAR_VELOCITY_RADIANS_PER_SECOND;
+      double rot = -m_rotLimiter.calculate(MathUtil.applyDeadband(m_driverStick.getRawAxis(4), 0.09))
+          * DriveInfo.MAX_ANGULAR_VELOCITY_RADIANS_PER_SECOND;
       if (m_elevator.getHeight() > 15.0) {
         rot *= 0.5;
       }
 
-      Translation2d translation =
-          new Translation2d(xSpeed, ySpeed).times(DriveInfo.MAX_VELOCITY_METERS_PER_SECOND);
+      Translation2d translation = new Translation2d(xSpeed, ySpeed).times(DriveInfo.MAX_VELOCITY_METERS_PER_SECOND);
 
       m_drive.driveInput(translation, rot, true);
 
@@ -293,13 +306,13 @@ public class Robot extends TimedRobot {
           m_claw.setWristPreset(Claw.WristPreset.Mid);
           break;
         case 180:
-          // If we have a game piece, go to the floor, otherwise go to hybrid
-          if (m_currentGamePiece == GamePiece.None) {
-            m_elevator.setHeight(Elevator.Presets.floor);
-            m_claw.setWristPreset(Claw.WristPreset.Floor);
-          } else {
+          // If we have a game piece, go to hybrid, otherwise go to floor
+          if (m_claw.checkForGamePiece()) {
             m_elevator.setHeight(Elevator.Presets.hybrid);
             m_claw.setWristPreset(Claw.WristPreset.Hybrid);
+          } else {
+            m_elevator.setHeight(Elevator.Presets.floor);
+            m_claw.setWristPreset(Claw.WristPreset.Floor);
           }
           break;
         case 270:
