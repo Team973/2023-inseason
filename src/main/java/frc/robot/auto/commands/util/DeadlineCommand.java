@@ -16,8 +16,8 @@ public class DeadlineCommand extends AutoCommand {
   private boolean m_cmdsNeedInit = true;
 
   /**
-   * Constructor for deadline command class.
-   * This command will run until the deadline command is completed.
+   * Constructor for deadline command class. This command will run until the deadline command is
+   * completed.
    *
    * @param commands This is the parameter for a variable amount of auto commands.
    */
@@ -30,11 +30,10 @@ public class DeadlineCommand extends AutoCommand {
   }
 
   /**
-   * Constructor for deadline command class with timeout parameter.
-   * This command will run until the timeout is reached or the deadline command is
-   * completed.
+   * Constructor for deadline command class with timeout parameter. This command will run until the
+   * timeout is reached or the deadline command is completed.
    *
-   * @param timeout  This sets the timeout for the commands.
+   * @param timeout This sets the timeout for the commands.
    * @param commands This is the parameter for a variable amount of auto commands.
    */
   public DeadlineCommand(double timeout, AutoCommand deadline, AutoCommand... commands) {
@@ -77,6 +76,5 @@ public class DeadlineCommand extends AutoCommand {
     return m_deadline.isCompleted() || m_unfinishedCmds.size() == 0;
   }
 
-  public void postComplete(boolean interrupted) {
-  }
+  public void postComplete(boolean interrupted) {}
 }

@@ -82,6 +82,12 @@ public class FollowPathWithEvents extends AutoCommand {
         if (runningCommand.getKey().equals(pathFollowingCommand)) {
           isCompleted = true;
         }
+      } else if (runningCommand.getKey().hasElapsed()) {
+        runningCommand.getKey().postComplete(true);
+        runningCommand.setValue(false);
+        if (runningCommand.getKey().equals(pathFollowingCommand)) {
+          isCompleted = true;
+        }
       }
     }
 
