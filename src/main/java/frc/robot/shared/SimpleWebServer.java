@@ -6,7 +6,6 @@ import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.IOException;
-import java.io.InputStream;
 import java.io.OutputStream;
 import java.util.HashMap;
 import java.util.Map;
@@ -37,19 +36,22 @@ public class SimpleWebServer implements HttpHandler {
     MIME_MAP.put("md", "text/plain");
     MIME_MAP.put("txt", "text/plain");
     MIME_MAP.put("php", "text/plain");
-  }
-  ;
+  };
 
   private String filesystemRoot;
   private String urlPrefix;
   private String directoryIndex;
 
   /**
-   * @param urlPrefix The prefix of all URLs. This is the first argument to createContext. Must
-   *     start and end in a slash.
-   * @param filesystemRoot The root directory in the filesystem. Only files under this directory
-   *     will be served to the client. For instance "./staticfiles".
-   * @param directoryIndex File to show when a directory is requested, e.g. "index.html".
+   * @param urlPrefix      The prefix of all URLs. This is the first argument to
+   *                       createContext. Must
+   *                       start and end in a slash.
+   * @param filesystemRoot The root directory in the filesystem. Only files under
+   *                       this directory
+   *                       will be served to the client. For instance
+   *                       "./staticfiles".
+   * @param directoryIndex File to show when a directory is requested, e.g.
+   *                       "index.html".
    */
   public SimpleWebServer(String urlPrefix, String filesystemRoot, String directoryIndex) {
     if (!urlPrefix.startsWith("/")) {
@@ -73,12 +75,17 @@ public class SimpleWebServer implements HttpHandler {
   /**
    * Create and register a new static file handler.
    *
-   * @param hs The HTTP server where the file handler will be registered.
-   * @param path The path in the URL prefixed to all requests, such as "/static/"
-   * @param filesystemRoot The filesystem location. For instance "/var/www/mystaticfiles/". A
-   *     request to "/static/x/y.html" will be served from the filesystem file
-   *     "/var/www/mystaticfiles/x/y.html"
-   * @param directoryIndex File to show when a directory is requested, e.g. "index.html".
+   * @param hs             The HTTP server where the file handler will be
+   *                       registered.
+   * @param path           The path in the URL prefixed to all requests, such as
+   *                       "/static/"
+   * @param filesystemRoot The filesystem location. For instance
+   *                       "/var/www/mystaticfiles/". A
+   *                       request to "/static/x/y.html" will be served from the
+   *                       filesystem file
+   *                       "/var/www/mystaticfiles/x/y.html"
+   * @param directoryIndex File to show when a directory is requested, e.g.
+   *                       "index.html".
    */
   public static void create(
       HttpServer hs, String path, String filesystemRoot, String directoryIndex) {
@@ -134,21 +141,13 @@ public class SimpleWebServer implements HttpHandler {
     if ("GET".equals(method)) {
       he.sendResponseHeaders(200, canonicalFile.length());
       OutputStream os = he.getResponseBody();
-      copyStream(fis, os);
+      fis.transferTo(os);
       os.close();
     } else {
       assert ("HEAD".equals(method));
       he.sendResponseHeaders(200, -1);
     }
     fis.close();
-  }
-
-  private void copyStream(InputStream is, OutputStream os) throws IOException {
-    byte[] buf = new byte[4096];
-    int n;
-    while ((n = is.read(buf)) >= 0) {
-      os.write(buf, 0, n);
-    }
   }
 
   private void sendError(HttpExchange he, int rCode, String description) throws IOException {
