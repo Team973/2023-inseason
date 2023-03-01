@@ -293,8 +293,14 @@ public class Robot extends TimedRobot {
           m_claw.setWristPreset(Claw.WristPreset.Mid);
           break;
         case 180:
-          m_elevator.setHeight(Elevator.Presets.floor);
-          m_claw.setWristPreset(Claw.WristPreset.Floor);
+          // If we have a game piece, go to hybrid, otherwise go to floor
+          if (m_claw.isHasGamePiece()) {
+            m_elevator.setHeight(Elevator.Presets.hybrid);
+            m_claw.setWristPreset(Claw.WristPreset.Hybrid);
+          } else {
+            m_elevator.setHeight(Elevator.Presets.floor);
+            m_claw.setWristPreset(Claw.WristPreset.Floor);
+          }
           break;
         case 270:
           m_elevator.setHeight(Elevator.Presets.hp);
@@ -329,7 +335,7 @@ public class Robot extends TimedRobot {
       }
 
       // Got it!
-      if (m_claw.getIntakeState() == IntakeState.In && m_claw.checkForGamePiece()) {
+      if (m_claw.getIntakeState() == IntakeState.In && m_claw.isHasGamePiece()) {
         if (!m_gotIt) {
           m_gotItStartTime = Conversions.Time.getMsecTime();
           m_gotIt = true;
