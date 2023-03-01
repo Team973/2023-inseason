@@ -22,8 +22,7 @@ public class PathPlannerTrajectoryCommand extends AutoCommand {
 
   public PathPlannerTrajectoryCommand(Drive drive, PathPlannerTrajectory path) {
     m_drive = drive;
-    m_path = PathPlannerTrajectory.transformTrajectoryForAlliance(
-        path, DriverStation.getAlliance());
+    m_path = PathPlannerTrajectory.transformTrajectoryForAlliance(path, DriverStation.getAlliance());
     m_positionCommand = new SetDrivePositionCommand(m_drive, m_path.getInitialHolonomicPose());
     m_trajectoryCommand = new DriveTrajectoryCommand(m_drive, m_path);
   }
