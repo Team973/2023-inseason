@@ -134,6 +134,11 @@ public final class GreyDashClient {
     return GamePiece.valueOf(m_preloadSelectedSubscriber.get());
   }
 
+  /**
+   * Sets the selected preload to GreyDash from the Robot. Used to initialize the default dropdown.
+   *
+   * @param gamePiece The default preload.
+   */
   public static void setSelectedGamePiece(final GamePiece gamePiece) {
     m_preloadSelectedPublisher.set(gamePiece.toString());
   }
