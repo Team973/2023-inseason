@@ -25,7 +25,7 @@ public class Claw implements Subsystem {
 
   public static class ConePresets {
     public static final double floor = -102.30;
-    public static final double hybrid = -104.79;
+    public static final double hybrid = -155.90;
     public static final double mid = -104.79;
     public static final double high = -88.39;
     public static final double hp = -96.91;
@@ -35,7 +35,7 @@ public class Claw implements Subsystem {
 
   public static class CubePresets {
     public static final double floor = -115;
-    public static final double hybrid = -112.22;
+    public static final double hybrid = -155.90;
     public static final double mid = -112.22;
     public static final double high = -105.09;
     public static final double hp = -98.84;
@@ -222,6 +222,13 @@ public class Claw implements Subsystem {
           setWristTargetAngle(CubePresets.floor);
         } else {
           setWristTargetAngle(ConePresets.floor);
+        }
+        break;
+      case Hybrid:
+        if (currentGamePiece == GamePiece.Cube) {
+          setWristTargetAngle(CubePresets.hybrid);
+        } else {
+          setWristTargetAngle(ConePresets.hybrid);
         }
         break;
       case Mid:

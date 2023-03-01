@@ -23,7 +23,7 @@ public class Elevator implements Subsystem {
     /** Inches from floor */
     public static final double floor = 9.25;
     /** Inches from floor */
-    public static final double hybrid = 22.3;
+    public static final double hybrid = 12.6;
     /** Inches from floor */
     public static final double mid = 22.3;
     /** Inches from floor */
