@@ -2,7 +2,7 @@ package frc.robot.subsystems;
 
 import static frc.robot.shared.RobotInfo.*;
 
-import frc.robot.shared.Constants.GamePiece;
+import frc.robot.Robot;
 import frc.robot.shared.Conversions;
 import frc.robot.shared.Subsystem;
 
@@ -20,6 +20,7 @@ public class CANdleManager implements Subsystem {
     Cube,
     Cone,
     Flash,
+    GotIt,
     Off
   }
 
@@ -29,7 +30,8 @@ public class CANdleManager implements Subsystem {
   private boolean m_flashLEDsOn = false;
   private double m_flashStartTime = 0.0;
 
-  private static final double FLASH_DELAY_TIME = 250.0;
+  private static final double FLASH_DELAY_MSEC = 250.0;
+  private static final double GOTIT_DELAY_MSEC = 80.0;
 
   public CANdleManager() {
     CANdleConfiguration configAll = new CANdleConfiguration();
@@ -41,8 +43,8 @@ public class CANdleManager implements Subsystem {
     m_candle.configAllSettings(configAll, 100);
   }
 
-  public void setLightWithGamePiece(GamePiece gamePiece) {
-    switch (gamePiece) {
+  public void setLightWithGamePiece() {
+    switch (Robot.getCurrentGamePiece()) {
       case Cube:
         setLightState(LightState.Cube);
         break;
@@ -59,6 +61,10 @@ public class CANdleManager implements Subsystem {
   public void dashboardUpdate() {}
 
   public void update() {
+    if (Robot.isExceptionHappened()) {
+      m_lightState = LightState.Flash;
+    }
+
     switch (m_lightState) {
       case Cone:
         m_candle.setLEDs(255, 150, 0); // set the CANdle LEDs to yellow
@@ -68,11 +74,23 @@ public class CANdleManager implements Subsystem {
         break;
       case Flash:
         if (!m_flashLEDsOn
-            && Conversions.Time.getMsecTime() - m_flashStartTime >= FLASH_DELAY_TIME) {
+            && Conversions.Time.getMsecTime() - m_flashStartTime >= FLASH_DELAY_MSEC) {
           m_candle.setLEDs(255, 0, 0); // set the CANdle LEDs to red
           m_flashStartTime = Conversions.Time.getMsecTime();
           m_flashLEDsOn = true;
-        } else if (Conversions.Time.getMsecTime() - m_flashStartTime >= FLASH_DELAY_TIME) {
+        } else if (Conversions.Time.getMsecTime() - m_flashStartTime >= FLASH_DELAY_MSEC) {
+          m_candle.setLEDs(0, 0, 0);
+          m_flashStartTime = Conversions.Time.getMsecTime();
+          m_flashLEDsOn = false;
+        }
+        break;
+      case GotIt:
+        if (!m_flashLEDsOn
+            && Conversions.Time.getMsecTime() - m_flashStartTime >= GOTIT_DELAY_MSEC) {
+          m_candle.setLEDs(0, 255, 0); // set the CANdle LEDs to red
+          m_flashStartTime = Conversions.Time.getMsecTime();
+          m_flashLEDsOn = true;
+        } else if (Conversions.Time.getMsecTime() - m_flashStartTime >= GOTIT_DELAY_MSEC) {
           m_candle.setLEDs(0, 0, 0);
           m_flashStartTime = Conversions.Time.getMsecTime();
           m_flashLEDsOn = false;

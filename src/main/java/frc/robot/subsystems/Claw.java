@@ -2,6 +2,7 @@ package frc.robot.subsystems;
 
 import static frc.robot.shared.RobotInfo.*;
 
+import frc.robot.Robot;
 import frc.robot.shared.Constants.GamePiece;
 import frc.robot.shared.GreyTalonFX;
 import frc.robot.shared.RobotInfo;
@@ -23,25 +24,24 @@ import lombok.experimental.Accessors;
 public class Claw implements Subsystem {
 
   public static class ConePresets {
-    public static final double floor = -107.41;
+    public static final double floor = -102.30;
     public static final double mid = -104.79;
-    public static final double high = -92.97;
-    public static final double hp = -102.94;
+    public static final double high = -88.39;
+    public static final double hp = -96.91;
     public static final double stow = STOW_OFFSET;
     public static final double right = -63.0;
   }
 
   public static class CubePresets {
     public static final double floor = -115;
-    public static final double mid = -120.24;
+    public static final double mid = -112.22;
     public static final double high = -105.09;
-    public static final double hp = -108.96;
+    public static final double hp = -98.84;
     public static final double stow = STOW_OFFSET;
   }
 
   @Setter @Getter private IntakeState m_intakeState = IntakeState.Neutral;
   @Setter @Getter private WristState m_wristState = WristState.Manual;
-  @Setter @Getter private GamePiece m_currentGamePiece;
   @Setter @Getter private WristPreset m_wristPreset = WristPreset.Stow;
 
   private final GreyTalonFX m_intakeMotor;
@@ -53,7 +53,7 @@ public class Claw implements Subsystem {
   private double m_intakeStator = 0.0;
   private double m_intakeMotorOutput = 0.0;
   @Setter private double m_wristMotorOutput = 0.0;
-  private double m_statorCurrentLimit = 60.0;
+  private double m_statorCurrentLimit = 70.0;
   private double m_supplyCurrentLimit = 100.0;
   private final double ANGLE_TOLERANCE = 1.0; // degrees
 
@@ -78,6 +78,7 @@ public class Claw implements Subsystem {
     High,
     HP,
     Stow,
+    ConeRight,
     Manual
   }
 
@@ -141,7 +142,7 @@ public class Claw implements Subsystem {
     return Rotation2d.fromRotations(rot).getDegrees();
   }
 
-  public void setWristTargetAngle(double angle) {
+  private void setWristTargetAngle(double angle) {
     m_targetAngle = angle;
   }
 
@@ -163,26 +164,35 @@ public class Claw implements Subsystem {
   }
 
   public void update() {
+    GamePiece currentGamePiece = Robot.getCurrentGamePiece();
     m_intakeStator = m_intakeMotor.getStatorCurrent().getValue();
 
     switch (m_intakeState) {
       case In:
-        m_intakeMotorOutput = 0.5;
+        if (currentGamePiece == GamePiece.Cube) {
+          m_intakeMotorOutput = -0.5;
+        } else {
+          m_intakeMotorOutput = 0.8;
+        }
         break;
       case Out:
-        m_intakeMotorOutput = -0.5;
+        if (currentGamePiece == GamePiece.Cube) {
+          m_intakeMotorOutput = 0.3;
+        } else {
+          m_intakeMotorOutput = -0.5;
+        }
         break;
       case Hold:
-        m_intakeMotorOutput = 0.1;
+        if (currentGamePiece == GamePiece.Cube) {
+          m_intakeMotorOutput = -0.1;
+        } else {
+          m_intakeMotorOutput = 0.1;
+        }
         break;
       case Neutral:
       default:
         m_intakeMotorOutput = 0.0;
         break;
-    }
-
-    if (m_currentGamePiece == GamePiece.Cube) {
-      m_intakeMotorOutput *= -1.0;
     }
 
     m_intakeMotor.set(m_intakeMotorOutput);
@@ -205,47 +215,56 @@ public class Claw implements Subsystem {
 
     switch (m_wristPreset) {
       case Floor:
-        if (m_currentGamePiece == GamePiece.Cube) {
+        if (currentGamePiece == GamePiece.Cube) {
           setWristTargetAngle(CubePresets.floor);
         } else {
           setWristTargetAngle(ConePresets.floor);
         }
         break;
       case Mid:
-        if (m_currentGamePiece == GamePiece.Cube) {
+        if (currentGamePiece == GamePiece.Cube) {
           setWristTargetAngle(CubePresets.mid);
         } else {
           setWristTargetAngle(ConePresets.mid);
         }
         break;
       case High:
-        if (m_currentGamePiece == GamePiece.Cube) {
+        if (currentGamePiece == GamePiece.Cube) {
           setWristTargetAngle(CubePresets.high);
         } else {
           setWristTargetAngle(ConePresets.high);
         }
         break;
       case HP:
-        if (m_currentGamePiece == GamePiece.Cube) {
+        if (currentGamePiece == GamePiece.Cube) {
           setWristTargetAngle(CubePresets.hp);
         } else {
           setWristTargetAngle(ConePresets.hp);
         }
         break;
       case Stow:
-        if (m_currentGamePiece == GamePiece.Cube) {
+        if (currentGamePiece == GamePiece.Cube) {
           setWristTargetAngle(CubePresets.stow);
         } else {
           setWristTargetAngle(ConePresets.stow);
+        }
+        break;
+      case ConeRight:
+        if (currentGamePiece == GamePiece.Cube) {
+          setWristTargetAngle(CubePresets.stow);
+        } else {
+          setWristTargetAngle(ConePresets.right);
         }
         break;
       case Manual:
       default:
         break;
     }
-    /*if (getWristHall()) {
-      m_wristMotor.setRotorPosition(STOW_OFFSET);
-    }*/
+    /*
+     * if (getWristHall()) {
+     * m_wristMotor.setRotorPosition(STOW_OFFSET);
+     * }
+     */
   }
 
   public void reset() {
