@@ -178,17 +178,8 @@ public class Claw implements Subsystem {
     m_intakeStator = m_intakeMotor.getStatorCurrent().getValue();
     checkForGamePiece();
 
-    switch (currentGamePiece) {
-      case Cube:
-      case Cone:
-        if (currentGamePiece != m_lastGamePiece) {
-          m_hasGamePiece = false;
-        }
-        break;
-      case None:
-        m_hasGamePiece = false;
-      default:
-        break;
+    if (currentGamePiece != m_lastGamePiece || currentGamePiece == GamePiece.None) {
+      m_hasGamePiece = false;
     }
 
     switch (m_intakeState) {
