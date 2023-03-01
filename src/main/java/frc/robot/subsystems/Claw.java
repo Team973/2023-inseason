@@ -25,6 +25,7 @@ public class Claw implements Subsystem {
 
   public static class ConePresets {
     public static final double floor = -102.30;
+    public static final double hybrid = -155.90;
     public static final double mid = -104.79;
     public static final double high = -88.39;
     public static final double hp = -96.91;
@@ -34,6 +35,7 @@ public class Claw implements Subsystem {
 
   public static class CubePresets {
     public static final double floor = -115;
+    public static final double hybrid = -155.90;
     public static final double mid = -112.22;
     public static final double high = -105.09;
     public static final double hp = -98.84;
@@ -48,6 +50,9 @@ public class Claw implements Subsystem {
   private final GreyTalonFX m_wristMotor;
   private final DigitalInput m_wristHall;
   private static final double STOW_OFFSET = 31.04;
+
+  private GamePiece m_lastGamePiece = GamePiece.None;
+  @Getter private boolean m_hasGamePiece = false;
 
   private double m_targetAngle = STOW_OFFSET;
   private double m_intakeStator = 0.0;
@@ -74,6 +79,7 @@ public class Claw implements Subsystem {
 
   public enum WristPreset {
     Floor,
+    Hybrid,
     Mid,
     High,
     HP,
@@ -198,8 +204,12 @@ public class Claw implements Subsystem {
     m_targetAngle = angle;
   }
 
-  public boolean checkForGamePiece() {
-    return Math.abs(m_intakeStator) > m_statorCurrentLimit - 10.0;
+  private boolean checkForGamePiece() {
+    boolean check = Math.abs(m_intakeStator) > m_statorCurrentLimit - 10.0;
+    if (check) {
+      m_hasGamePiece = true;
+    }
+    return m_hasGamePiece;
   }
 
   public void dashboardUpdate() {
@@ -208,8 +218,7 @@ public class Claw implements Subsystem {
     SmartDashboard.putNumber("Intake Velocity", m_intakeMotor.getVelocity().getValue());
     SmartDashboard.putNumber("Claw Angle", getClawCurrentAngle());
     SmartDashboard.putNumber("Claw Angle Target", m_targetAngle);
-    SmartDashboard.putBoolean("Game Piece", checkForGamePiece());
-    SmartDashboard.putBoolean("isAtAngle", isAtAngle());
+    SmartDashboard.putBoolean("Game Piece", m_hasGamePiece);
   }
 
   public boolean getWristHall() {
@@ -219,6 +228,11 @@ public class Claw implements Subsystem {
   public void update() {
     GamePiece currentGamePiece = Robot.getCurrentGamePiece();
     m_intakeStator = m_intakeMotor.getStatorCurrent().getValue();
+    checkForGamePiece();
+
+    if (currentGamePiece != m_lastGamePiece || currentGamePiece == GamePiece.None) {
+      m_hasGamePiece = false;
+    }
 
     switch (m_intakeState) {
       case In:
@@ -229,6 +243,7 @@ public class Claw implements Subsystem {
         }
         break;
       case Out:
+        m_hasGamePiece = false;
         if (currentGamePiece == GamePiece.Cube) {
           m_intakeMotorOutput = 0.3;
         } else {
@@ -266,11 +281,67 @@ public class Claw implements Subsystem {
         break;
     }
 
+    switch (m_wristPreset) {
+      case Floor:
+        if (currentGamePiece == GamePiece.Cube) {
+          setWristTargetAngle(CubePresets.floor);
+        } else {
+          setWristTargetAngle(ConePresets.floor);
+        }
+        break;
+      case Hybrid:
+        if (currentGamePiece == GamePiece.Cube) {
+          setWristTargetAngle(CubePresets.hybrid);
+        } else {
+          setWristTargetAngle(ConePresets.hybrid);
+        }
+        break;
+      case Mid:
+        if (currentGamePiece == GamePiece.Cube) {
+          setWristTargetAngle(CubePresets.mid);
+        } else {
+          setWristTargetAngle(ConePresets.mid);
+        }
+        break;
+      case High:
+        if (currentGamePiece == GamePiece.Cube) {
+          setWristTargetAngle(CubePresets.high);
+        } else {
+          setWristTargetAngle(ConePresets.high);
+        }
+        break;
+      case HP:
+        if (currentGamePiece == GamePiece.Cube) {
+          setWristTargetAngle(CubePresets.hp);
+        } else {
+          setWristTargetAngle(ConePresets.hp);
+        }
+        break;
+      case Stow:
+        if (currentGamePiece == GamePiece.Cube) {
+          setWristTargetAngle(CubePresets.stow);
+        } else {
+          setWristTargetAngle(ConePresets.stow);
+        }
+        break;
+      case ConeRight:
+        if (currentGamePiece == GamePiece.Cube) {
+          setWristTargetAngle(CubePresets.stow);
+        } else {
+          setWristTargetAngle(ConePresets.right);
+        }
+        break;
+      case Manual:
+      default:
+        break;
+    }
     /*
      * if (getWristHall()) {
      * m_wristMotor.setRotorPosition(STOW_OFFSET);
      * }
      */
+
+    m_lastGamePiece = currentGamePiece;
   }
 
   public void reset() {

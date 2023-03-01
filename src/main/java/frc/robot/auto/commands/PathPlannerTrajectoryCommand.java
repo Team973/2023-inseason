@@ -6,23 +6,23 @@ import frc.robot.subsystems.Drive;
 import com.pathplanner.lib.PathConstraints;
 import com.pathplanner.lib.PathPlanner;
 import com.pathplanner.lib.PathPlannerTrajectory;
+import edu.wpi.first.wpilibj.DriverStation;
 import lombok.Getter;
 import lombok.experimental.Accessors;
-import edu.wpi.first.wpilibj.DriverStation;
 
 @Accessors(prefix = "m_")
 public class PathPlannerTrajectoryCommand extends AutoCommand {
   private final Drive m_drive;
 
-  @Getter
-  private final PathPlannerTrajectory m_path;
+  @Getter private final PathPlannerTrajectory m_path;
 
   private final SetDrivePositionCommand m_positionCommand;
   private final DriveTrajectoryCommand m_trajectoryCommand;
 
   public PathPlannerTrajectoryCommand(Drive drive, PathPlannerTrajectory path) {
     m_drive = drive;
-    m_path = PathPlannerTrajectory.transformTrajectoryForAlliance(path, DriverStation.getAlliance());
+    m_path =
+        PathPlannerTrajectory.transformTrajectoryForAlliance(path, DriverStation.getAlliance());
     m_positionCommand = new SetDrivePositionCommand(m_drive, m_path.getInitialHolonomicPose());
     m_trajectoryCommand = new DriveTrajectoryCommand(m_drive, m_path);
   }
@@ -45,6 +45,5 @@ public class PathPlannerTrajectoryCommand extends AutoCommand {
     return m_trajectoryCommand.isCompleted();
   }
 
-  public void postComplete(boolean interrupted) {
-  }
+  public void postComplete(boolean interrupted) {}
 }

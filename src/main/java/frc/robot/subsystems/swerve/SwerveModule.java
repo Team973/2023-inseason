@@ -117,7 +117,7 @@ public class SwerveModule {
 
   public SwerveModuleState getState() {
     double wheelRPS = m_driveMotor.getRotorVelocity().getValue() / DriveInfo.DRIVE_GEAR_RATIO;
-    double velocityInMPS = wheelRPS * DriveInfo.WHEEL_CIRCUMFRENCE_METERS;
+    double velocityInMPS = wheelRPS * DriveInfo.WHEEL_CIRCUMFERENCE_METERS;
 
     Rotation2d angle =
         Rotation2d.fromRotations(
@@ -132,7 +132,7 @@ public class SwerveModule {
 
   public SwerveModulePosition getPosition() {
     double wheelRotations = m_driveMotor.getRotorPosition().getValue() / DriveInfo.DRIVE_GEAR_RATIO;
-    double wheelDistanceMeters = wheelRotations * DriveInfo.WHEEL_CIRCUMFRENCE_METERS;
+    double wheelDistanceMeters = wheelRotations * DriveInfo.WHEEL_CIRCUMFERENCE_METERS;
     return new SwerveModulePosition(wheelDistanceMeters, getState().angle);
   }
 
@@ -148,7 +148,7 @@ public class SwerveModule {
     // continuous controller which CTRE is not
 
     double desiredWheelVelocityInRPS =
-        desiredState.speedMetersPerSecond / DriveInfo.WHEEL_CIRCUMFRENCE_METERS;
+        desiredState.speedMetersPerSecond / DriveInfo.WHEEL_CIRCUMFERENCE_METERS;
     double desiredFalconVelocityInRPS = desiredWheelVelocityInRPS * DriveInfo.DRIVE_GEAR_RATIO;
     m_driveMotor.setControl(
         m_driveVelocity

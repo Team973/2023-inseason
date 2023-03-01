@@ -115,4 +115,60 @@ spotless {
   }
 }
 
-build.dependsOn spotlessApply
+def greydashDir = "${project.projectDir}/GreyDash"
+
+task npmInstall() {
+    inputs.files("${greydashDir}/package.json", "${greydashDir}/package-lock.json")
+    outputs.dir("${greydashDir}/node_modules")
+    
+    doLast {
+        exec {
+          workingDir greydashDir
+          commandLine 'npm', 'install'
+        }
+    }
+}
+
+task buildGreyDash() {
+  inputs.files(fileTree("${greydashDir}/node_modules"))
+  inputs.files(fileTree("${greydashDir}/src"))
+  outputs.dir("${greydashDir}/dist/apps/greydash")
+
+  doLast {
+    exec {
+      workingDir greydashDir
+      commandLine 'npx', 'nx', 'build', 'greydash', '--prod'
+    }
+  }
+}
+
+task packageGreyDash() {
+  inputs.files(fileTree("${greydashDir}/dist/apps/greydash"))
+  outputs.dir("${greydashDir}/dist/apps/greydash/exported")
+
+  dependsOn buildGreyDash
+
+  doLast {
+    exec {
+      workingDir greydashDir
+      commandLine 'npx', 'nx', 'export', '--prod'
+    }
+  }
+}
+
+task deployGreyDash() {
+  dependsOn packageGreyDash
+
+  // Copy the GreyDash files to the deploy directory
+  inputs.files(fileTree("${greydashDir}/dist/apps/greydash/exported"))
+  outputs.dir("${project.projectDir}/src/main/deploy/greydash")
+
+  doLast {
+    copy {
+      from "${greydashDir}/dist/apps/greydash/exported"
+      into "${project.projectDir}/src/main/deploy/greydash"
+    }
+  }
+}
+
+project.compileJava.dependsOn spotlessApply

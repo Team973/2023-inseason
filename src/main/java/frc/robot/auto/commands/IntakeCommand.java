@@ -24,7 +24,7 @@ public class IntakeCommand extends AutoCommand {
   @Override
   public boolean isCompleted() {
     if (m_state == IntakeState.In) {
-      return m_claw.checkForGamePiece();
+      return m_claw.isHasGamePiece();
     }
     return hasElapsed();
   }
