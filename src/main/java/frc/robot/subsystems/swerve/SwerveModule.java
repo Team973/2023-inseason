@@ -137,6 +137,10 @@ public class SwerveModule {
   }
 
   public void setDesiredState(SwerveModuleState desiredState) {
+    setDesiredState(desiredState, false);
+  }
+
+  public void setDesiredState(SwerveModuleState desiredState, boolean ignoreJitter) {
     desiredState =
         CTREModuleState.optimize(
             desiredState,
@@ -151,12 +155,16 @@ public class SwerveModule {
             .withVelocity(desiredFalconVelocityInRPS)
             .withFeedForward(feedforward.calculate(desiredState.speedMetersPerSecond)));
 
+    Rotation2d angle = desiredState.angle;
+
     // Prevent rotating module if speed is less then 1%. Prevents jittering.
-    Rotation2d angle =
-        (Math.abs(desiredState.speedMetersPerSecond)
-                <= (DriveInfo.MAX_VELOCITY_METERS_PER_SECOND * 0.01))
-            ? lastAngle
-            : desiredState.angle;
+    if (!ignoreJitter) {
+      angle =
+          (Math.abs(desiredState.speedMetersPerSecond)
+                  <= (DriveInfo.MAX_VELOCITY_METERS_PER_SECOND * 0.01))
+              ? lastAngle
+              : desiredState.angle;
+    }
 
     m_angleMotor.setControl(
         m_anglePosition.withPosition(angle.getRotations() * DriveInfo.ANGLE_GEAR_RATIO));

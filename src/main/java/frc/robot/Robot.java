@@ -12,6 +12,7 @@ import java.io.PrintWriter;
 import frc.robot.AutoManager.AutoMode;
 import frc.robot.auto.commands.TrajectoryManager;
 import frc.robot.greydash.GreyDashClient;
+import frc.robot.greydash.GreyDashServer;
 import frc.robot.shared.Constants.GamePiece;
 import frc.robot.shared.Conversions;
 import frc.robot.subsystems.Claw;
@@ -124,6 +125,10 @@ public class Robot extends TimedRobot {
       GreyDashClient.setAvailableGamePieces(GamePiece.Cone, GamePiece.Cube, GamePiece.None);
       GreyDashClient.setSelectedAuto(m_autoSelected);
       GreyDashClient.setSelectedGamePiece(m_currentGamePiece);
+
+      GreyDashServer greyDashServer = new GreyDashServer(8080);
+      greyDashServer.run();
+
       this.resetSubsystems();
     } catch (Exception e) {
       logException(e);
@@ -300,8 +305,14 @@ public class Robot extends TimedRobot {
           m_claw.setWristPreset(Claw.WristPreset.Mid);
           break;
         case 180:
-          m_elevator.setHeight(Elevator.Presets.floor);
-          m_claw.setWristPreset(Claw.WristPreset.Floor);
+          // If we have a game piece, go to hybrid, otherwise go to floor
+          if (m_claw.isHasGamePiece()) {
+            m_elevator.setHeight(Elevator.Presets.hybrid);
+            m_claw.setWristPreset(Claw.WristPreset.Hybrid);
+          } else {
+            m_elevator.setHeight(Elevator.Presets.floor);
+            m_claw.setWristPreset(Claw.WristPreset.Floor);
+          }
           break;
         case 270:
           m_elevator.setHeight(Elevator.Presets.hp);
@@ -336,7 +347,7 @@ public class Robot extends TimedRobot {
       }
 
       // Got it!
-      if (m_claw.getIntakeState() == IntakeState.In && m_claw.checkForGamePiece()) {
+      if (m_claw.getIntakeState() == IntakeState.In && m_claw.isHasGamePiece()) {
         if (!m_gotIt) {
           m_gotItStartTime = Conversions.Time.getMsecTime();
           m_gotIt = true;
@@ -385,6 +396,7 @@ public class Robot extends TimedRobot {
       if (!m_autoRan) {
         m_currentGamePiece = GreyDashClient.getSelectedGamePiece();
       }
+
     } catch (Exception e) {
       logException(e);
     }
