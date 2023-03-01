@@ -250,6 +250,9 @@ public class Robot extends TimedRobot {
 
       // Score
       if (m_driverStick.getLeftBumper()) {
+        if (m_claw.isHasGamePiece() && (m_claw.getWristPreset() == WristPreset.Stow)) {
+          m_claw.setWristPreset(WristPreset.ConeRight);
+        }
         m_claw.setIntakeState(IntakeState.Out);
       } else if (m_claw.getIntakeState() == IntakeState.Out) {
         m_claw.setIntakeState(IntakeState.Neutral);

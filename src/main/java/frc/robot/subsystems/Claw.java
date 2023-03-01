@@ -29,8 +29,8 @@ public class Claw implements Subsystem {
     public static final double mid = -104.79;
     public static final double high = -88.39;
     public static final double hp = -96.91;
-    public static final double stow = STOW_OFFSET;
     public static final double right = -63.0;
+    public static final double stow = STOW_OFFSET;
   }
 
   public static class CubePresets {
@@ -39,6 +39,7 @@ public class Claw implements Subsystem {
     public static final double mid = -112.22;
     public static final double high = -105.09;
     public static final double hp = -98.84;
+    public static final double right = -63.0;
     public static final double stow = STOW_OFFSET;
   }
 
@@ -166,6 +167,7 @@ public class Claw implements Subsystem {
     SmartDashboard.putNumber("Intake Velocity", m_intakeMotor.getVelocity().getValue());
     SmartDashboard.putNumber("Claw Angle", getClawCurrentAngle());
     SmartDashboard.putNumber("Claw Angle Target", m_targetAngle);
+    SmartDashboard.putString("Claw preset", m_wristPreset.toString());
     SmartDashboard.putBoolean("Game Piece", m_hasGamePiece);
   }
 
@@ -274,7 +276,7 @@ public class Claw implements Subsystem {
         break;
       case ConeRight:
         if (currentGamePiece == GamePiece.Cube) {
-          setWristTargetAngle(CubePresets.stow);
+          setWristTargetAngle(CubePresets.right);
         } else {
           setWristTargetAngle(ConePresets.right);
         }
