@@ -12,6 +12,7 @@ import java.io.PrintWriter;
 import frc.robot.AutoManager.AutoMode;
 import frc.robot.auto.commands.TrajectoryManager;
 import frc.robot.greydash.GreyDashClient;
+import frc.robot.greydash.GreyDashServer;
 import frc.robot.shared.Constants.GamePiece;
 import frc.robot.shared.Conversions;
 import frc.robot.subsystems.CANdleManager;
@@ -120,6 +121,9 @@ public class Robot extends TimedRobot {
       GreyDashClient.setAvailableAutoModes(
           AutoMode.Test, AutoMode.OneCone, AutoMode.PreloadAndCharge, AutoMode.NoAuto);
       GreyDashClient.availableGamePieces(GamePiece.Cone, GamePiece.Cube, GamePiece.None);
+
+      GreyDashServer greyDashServer = new GreyDashServer(8080);
+      greyDashServer.run();
 
       this.resetSubsystems();
     } catch (Exception e) {
@@ -379,6 +383,7 @@ public class Robot extends TimedRobot {
       if (!m_autoRan) {
         m_currentGamePiece = GreyDashClient.selectedGamePiece();
       }
+
     } catch (Exception e) {
       logException(e);
     }
