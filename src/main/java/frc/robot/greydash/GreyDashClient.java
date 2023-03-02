@@ -40,17 +40,17 @@ public final class GreyDashClient {
 
   private static final StringArrayPublisher m_availableGamePieces =
       m_autoTable.getStringArrayTopic(AVAILABLE_GAME_PIECES_TOPIC).publish();
-  private static final StringSubscriber m_preloadSelectedSubscriber =
+  private static final StringSubscriber m_gamePieceSelectedSubscriber =
       m_autoTable.getStringTopic(GAME_PIECE_SELECTED_TOPIC).subscribe(GamePiece.None.toString());
-  private static final StringPublisher m_preloadSelectedPublisher =
+  private static final StringPublisher m_gamePieceSelectedPublisher =
       m_autoTable.getStringTopic(GAME_PIECE_SELECTED_TOPIC).publish();
 
   private static final StringArrayPublisher m_availableAutoSides =
-      m_autoTable.getStringArrayTopic(AVAILABLE_GAME_PIECES_TOPIC).publish();
+      m_autoTable.getStringArrayTopic(AVAILABLE_AUTO_SIDES_TOPIC).publish();
   private static final StringSubscriber m_autoSideSelectedSubscriber =
-      m_autoTable.getStringTopic(GAME_PIECE_SELECTED_TOPIC).subscribe(AutoSide.Left.toString());
+      m_autoTable.getStringTopic(AUTO_SIDE_SELECTED_TOPIC).subscribe(AutoSide.Left.toString());
   private static final StringPublisher m_autoSideSelectedPublisher =
-      m_autoTable.getStringTopic(GAME_PIECE_SELECTED_TOPIC).publish();
+      m_autoTable.getStringTopic(AUTO_SIDE_SELECTED_TOPIC).publish();
 
   // Match Topics
   private static final DoublePublisher m_matchTime =
@@ -139,7 +139,7 @@ public final class GreyDashClient {
    * @see #setAvailableGamePieces(String...)
    */
   public static GamePiece getSelectedGamePiece() {
-    return GamePiece.valueOf(m_preloadSelectedSubscriber.get());
+    return GamePiece.valueOf(m_gamePieceSelectedSubscriber.get());
   }
 
   /**
@@ -148,7 +148,7 @@ public final class GreyDashClient {
    * @param gamePiece The default preload.
    */
   public static void setSelectedGamePiece(final GamePiece gamePiece) {
-    m_preloadSelectedPublisher.set(gamePiece.toString());
+    m_gamePieceSelectedPublisher.set(gamePiece.toString());
   }
 
   /**
