@@ -22,6 +22,12 @@ public class AutoManager {
     NoAuto
   }
 
+  public enum AutoSide {
+    Left,
+    Right,
+    Center
+  }
+
   private final AutoCommand m_test;
   private final AutoCommand m_oneCone;
   private final AutoCommand m_preloadAndCharge;
