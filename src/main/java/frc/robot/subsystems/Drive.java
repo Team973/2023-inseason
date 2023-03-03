@@ -1,5 +1,6 @@
 package frc.robot.subsystems;
 
+import frc.robot.greydash.GreyDashClient;
 import frc.robot.shared.RobotInfo;
 import frc.robot.shared.RobotInfo.DriveInfo;
 import frc.robot.shared.Subsystem;
@@ -236,6 +237,7 @@ public class Drive implements Subsystem {
   }
 
   public void dashboardUpdate() {
+    GreyDashClient.setGyroAngle(getGyroscopeRotation().getDegrees());
     double states[] = new double[8];
     int index = 0;
 

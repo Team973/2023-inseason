@@ -1,5 +1,6 @@
 package frc.robot;
 
+import frc.robot.auto.modes.CenterPreloadAndCharge;
 import frc.robot.auto.modes.NoAuto;
 import frc.robot.auto.modes.PreloadAndCharge;
 import frc.robot.auto.modes.PreloadPickupCharge;
@@ -16,6 +17,7 @@ public class AutoManager {
     Test,
     PreloadAndCharge,
     PreloadPickupCharge,
+    CenterPreloadAndCharge,
     NoAuto
   }
 
@@ -28,12 +30,14 @@ public class AutoManager {
   private final AutoCommand m_test;
   private final AutoCommand m_preloadAndCharge;
   private final AutoCommand m_preloadPickupCharge;
+  private final AutoCommand m_centerPreloadAndCharge;
   private final AutoCommand m_noAuto;
 
   public AutoManager(Claw claw, Elevator elevator, Drive drive) {
     m_test = new Test(drive);
     m_preloadAndCharge = new PreloadAndCharge(drive, claw, elevator);
     m_preloadPickupCharge = new PreloadPickupCharge(drive, claw, elevator);
+    m_centerPreloadAndCharge = new CenterPreloadAndCharge(drive, claw, elevator);
     m_noAuto = new NoAuto();
   }
 
@@ -55,6 +59,9 @@ public class AutoManager {
         break;
       case PreloadPickupCharge:
         m_currentMode = m_preloadPickupCharge;
+        break;
+      case CenterPreloadAndCharge:
+        m_currentMode = m_centerPreloadAndCharge;
         break;
       case NoAuto:
         m_currentMode = m_noAuto;

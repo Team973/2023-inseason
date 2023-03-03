@@ -57,7 +57,7 @@ public class Robot extends TimedRobot {
 
   private static boolean m_autoRan = false;
 
-  private static final double GOT_IT_DELAY_MSEC = 300.0;
+  private static final double GOT_IT_DELAY_MSEC = 0.0;
   private static double m_gotItStartTime;
   private static boolean m_gotIt;
 
@@ -126,7 +126,10 @@ public class Robot extends TimedRobot {
   public void robotInit() {
     try {
       GreyDashClient.setAvailableAutoModes(
-          AutoMode.Test, AutoMode.PreloadAndCharge, AutoMode.NoAuto);
+          AutoMode.Test,
+          AutoMode.PreloadAndCharge,
+          AutoMode.CenterPreloadAndCharge,
+          AutoMode.NoAuto);
       GreyDashClient.setSelectedAuto(AutoMode.PreloadAndCharge);
 
       GreyDashClient.setAvailableGamePieces(GamePiece.Cone, GamePiece.Cube, GamePiece.None);
@@ -173,13 +176,13 @@ public class Robot extends TimedRobot {
       switch (DriverStation.getAlliance()) {
         case Blue:
           if (side == AutoSide.Left) {
-            m_calculatedAlliance = Alliance.Red;
-          } else {
             m_calculatedAlliance = Alliance.Blue;
+          } else {
+            m_calculatedAlliance = Alliance.Red;
           }
           break;
         case Red:
-          if (side == AutoSide.Right) {
+          if (side == AutoSide.Left) {
             m_calculatedAlliance = Alliance.Blue;
           } else {
             m_calculatedAlliance = Alliance.Red;
@@ -225,7 +228,6 @@ public class Robot extends TimedRobot {
   @Override
   public void autonomousPeriodic() {
     try {
-      System.out.println(getCurrentGamePiece());
       m_autoManager.run();
     } catch (Exception e) {
       logException(e);
@@ -317,7 +319,7 @@ public class Robot extends TimedRobot {
       // BOTH //
       //////////
       // Stow elevator/wrist
-      if (m_driverStick.getLeftTriggerAxis() > 0.5 || m_operatorStick.getAButton()) {
+      if (m_driverStick.getLeftTriggerAxis() > 0.5) {
         m_elevator.setHeight(Elevator.Presets.stow);
         m_claw.setWristPreset(Claw.WristPreset.Stow);
       }
@@ -326,6 +328,11 @@ public class Robot extends TimedRobot {
       // CO-DRIVER CONTROLS //
       ////////////////////////
       double operatorStickRightY = -MathUtil.applyDeadband(m_operatorStick.getRawAxis(5), 0.1);
+
+      if (m_operatorStick.getAButton()) {
+        m_elevator.setHeight(Elevator.Presets.miniHp);
+        m_claw.setWristPreset(Claw.WristPreset.MiniHp);
+      }
 
       // Elevator height preset
       switch (m_operatorStick.getPOV()) {

@@ -16,9 +16,8 @@ import frc.robot.subsystems.Claw.WristPreset;
 import frc.robot.subsystems.Drive;
 import frc.robot.subsystems.Elevator;
 
-public class PreloadAndCharge extends SequentialCommand {
-
-  public PreloadAndCharge(Drive drive, Claw claw, Elevator elevator) {
+public class CenterPreloadAndCharge extends SequentialCommand {
+  public CenterPreloadAndCharge(Drive drive, Claw claw, Elevator elevator) {
     super(
         new IntakeCommand(claw, IntakeState.In, 100),
         new ElevatorPresetCommand(elevator, Elevator.Presets.high, 4000),
@@ -29,7 +28,7 @@ public class PreloadAndCharge extends SequentialCommand {
             new ElevatorPresetCommand(elevator, Elevator.Presets.stow, 1000),
             new WristPresetCommand(claw, WristPreset.Stow, 2000),
             new PathPlannerTrajectoryCommand(
-                drive, TrajectoryManager.getPath(TrajectoryManager.PreloadAndCharge))),
+                drive, TrajectoryManager.getPath(TrajectoryManager.CenterPreloadAndCharge))),
         new BalanceCommand(drive, 5000));
   }
 }

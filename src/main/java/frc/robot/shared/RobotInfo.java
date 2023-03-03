@@ -137,4 +137,5 @@ public final class RobotInfo {
             new Translation2d(-TRACKWIDTH_METERS / 2.0, WHEELBASE_METERS / 2.0),
             new Translation2d(-TRACKWIDTH_METERS / 2.0, -WHEELBASE_METERS / 2.0));
   }
+  ;
 }

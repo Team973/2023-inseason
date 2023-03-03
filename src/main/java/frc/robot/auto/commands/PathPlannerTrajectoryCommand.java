@@ -12,17 +12,29 @@ public class PathPlannerTrajectoryCommand extends AutoCommand {
 
   private final Determinator m_determinator;
   private DriveTrajectoryCommand m_trajectoryCommand;
+  private final boolean m_doZero;
 
   public PathPlannerTrajectoryCommand(Drive drive, Determinator determinator) {
     m_drive = drive;
     m_determinator = determinator;
     m_trajectoryCommand = null;
+    m_doZero = true;
+  }
+
+  public PathPlannerTrajectoryCommand(Drive drive, boolean doZero, Determinator determinator) {
+    m_drive = drive;
+    m_determinator = determinator;
+    m_trajectoryCommand = null;
+    m_doZero = doZero;
   }
 
   public void init() {
     var path = m_determinator.determine();
     m_trajectoryCommand = new DriveTrajectoryCommand(m_drive, path);
-    m_drive.resetOdometry(path.getInitialHolonomicPose());
+    m_trajectoryCommand.init();
+    if (m_doZero) {
+      m_drive.resetOdometry(path.getInitialHolonomicPose());
+    }
   }
 
   public void run() {

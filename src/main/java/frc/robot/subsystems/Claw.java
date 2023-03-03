@@ -29,8 +29,9 @@ public class Claw implements Subsystem {
     public static final double mid = -104.79;
     public static final double high = -88.39;
     public static final double hp = -96.91;
-    public static final double right = -63.0;
+    public static final double right = -65.0;
     public static final double stow = STOW_OFFSET;
+    public static final double miniHp = -80.0;
   }
 
   public static class CubePresets {
@@ -39,8 +40,9 @@ public class Claw implements Subsystem {
     public static final double mid = -112.22;
     public static final double high = -105.09;
     public static final double hp = -98.84;
-    public static final double right = -63.0;
+    public static final double right = -65.0;
     public static final double stow = STOW_OFFSET;
+    public static final double miniHp = -83.5;
   }
 
   @Setter @Getter private IntakeState m_intakeState = IntakeState.Neutral;
@@ -86,6 +88,7 @@ public class Claw implements Subsystem {
     HP,
     Stow,
     ConeRight,
+    MiniHp,
     Manual
   }
 
@@ -195,6 +198,12 @@ public class Claw implements Subsystem {
           setWristTargetAngle(ConePresets.right);
         }
         break;
+      case MiniHp:
+        if (currentGamePiece == GamePiece.Cube) {
+          setWristTargetAngle(CubePresets.miniHp);
+        } else {
+          setWristTargetAngle(ConePresets.miniHp);
+        }
       case Manual:
       default:
         break;
