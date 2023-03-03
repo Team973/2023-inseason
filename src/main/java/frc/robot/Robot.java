@@ -125,6 +125,8 @@ public class Robot extends TimedRobot {
           AutoMode.PreloadPickupCharge,
           AutoMode.NoAuto);
       GreyDashClient.setAvailableGamePieces(GamePiece.Cone, GamePiece.Cube, GamePiece.None);
+      GreyDashClient.setSelectedStagingGamePieces(
+          GamePiece.Cone, GamePiece.Cone, GamePiece.Cube, GamePiece.Cube);
 
       GreyDashServer greyDashServer = new GreyDashServer(8080);
       greyDashServer.run();

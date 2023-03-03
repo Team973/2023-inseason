@@ -2,6 +2,7 @@ package frc.robot.greydash;
 
 import static frc.robot.greydash.GreyDashConstants.*;
 
+import java.util.Arrays;
 import java.util.HashSet;
 
 import frc.robot.AutoManager.AutoMode;
@@ -12,6 +13,7 @@ import edu.wpi.first.networktables.DoublePublisher;
 import edu.wpi.first.networktables.NetworkTable;
 import edu.wpi.first.networktables.NetworkTableInstance;
 import edu.wpi.first.networktables.StringArrayPublisher;
+import edu.wpi.first.networktables.StringArraySubscriber;
 import edu.wpi.first.networktables.StringPublisher;
 import edu.wpi.first.networktables.StringSubscriber;
 import edu.wpi.first.wpilibj.DriverStation;
@@ -52,6 +54,11 @@ public final class GreyDashClient {
   private static final StringPublisher m_autoSideSelectedPublisher =
       m_autoTable.getStringTopic(AUTO_SIDE_SELECTED_TOPIC).publish();
 
+  private static final StringArraySubscriber m_stagingSelectionSubscriber =
+      m_autoTable.getStringArrayTopic(STAGING_SELECTION_TOPIC).subscribe(new String[0]);
+  private static final StringArrayPublisher m_stagingSelectionPublisher =
+      m_autoTable.getStringArrayTopic(STAGING_SELECTION_TOPIC).publish();
+
   // Match Topics
   private static final DoublePublisher m_matchTime =
       m_matchTable.getDoubleTopic(MATCH_TIME_TOPIC).publish();
@@ -90,11 +97,7 @@ public final class GreyDashClient {
    * @see #getAutoSelected()
    */
   public static void setAvailableAutoModes(final AutoMode... modes) {
-    String[] modeStrings = new String[modes.length];
-    for (int i = 0; i < modes.length; i++) {
-      modeStrings[i] = modes[i].toString();
-    }
-    m_availableAutoModes.set(modeStrings);
+    m_availableAutoModes.set(Arrays.stream(modes).map(Enum::toString).toArray(String[]::new));
   }
 
   /**
@@ -125,11 +128,7 @@ public final class GreyDashClient {
    * @see #getSelectedGamePiece()
    */
   public static void setAvailableGamePieces(final GamePiece... gamePieces) {
-    String[] gamePieceStrings = new String[gamePieces.length];
-    for (int i = 0; i < gamePieces.length; i++) {
-      gamePieceStrings[i] = gamePieces[i].toString();
-    }
-    m_availableGamePieces.set(gamePieceStrings);
+    m_availableGamePieces.set(Arrays.stream(gamePieces).map(Enum::toString).toArray(String[]::new));
   }
 
   /**
@@ -158,11 +157,8 @@ public final class GreyDashClient {
    * @see #getSelectedAutoSide()
    */
   public static void setAvailableAutoSides(final AutoSide... autoSides) {
-    String[] autoSideStrings = new String[autoSides.length];
-    for (int i = 0; i < autoSides.length; i++) {
-      autoSideStrings[i] = autoSides[i].toString();
-    }
-    m_availableAutoSides.set(autoSideStrings);
+    m_availableAutoSides.set(
+        Arrays.stream(autoSides).map((side) -> side.toString()).toArray(String[]::new));
   }
 
   /**
@@ -183,6 +179,29 @@ public final class GreyDashClient {
    */
   public static void setSelectedAutoSide(final AutoSide autoSide) {
     m_autoSideSelectedPublisher.set(autoSide.toString());
+  }
+
+  /**
+   * Set the selected staging GamePieces to GreyDash from the Robot. Used to initialize the default
+   * dropdown.
+   */
+  public static void setSelectedStagingGamePieces(final GamePiece... gamePieces) {
+    if (gamePieces.length != 4) {
+      throw new IllegalArgumentException("Length of staging GamePieces must be equal to 4.");
+    }
+    m_stagingSelectionPublisher.set(
+        Arrays.stream(gamePieces).map((piece) -> piece.toString()).toArray(String[]::new));
+  }
+
+  /**
+   * Gets the selected staging GamePieces from the dashboard's dropdown menu.
+   *
+   * @return The selected staging GamePieces.
+   */
+  public static GamePiece[] getSelectedStagingGamePieces() {
+    return Arrays.stream(m_stagingSelectionSubscriber.get())
+        .map((piece) -> GamePiece.valueOf(piece))
+        .toArray(GamePiece[]::new);
   }
 
   /** Periodic update method. This should be called periodically to update the dashboard. */
