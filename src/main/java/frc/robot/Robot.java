@@ -10,7 +10,7 @@ import java.io.FileWriter;
 import java.io.PrintWriter;
 
 import frc.robot.AutoManager.AutoMode;
-import frc.robot.auto.commands.TrajectoryManager;
+import frc.robot.AutoManager.AutoSide;
 import frc.robot.greydash.GreyDashClient;
 import frc.robot.greydash.GreyDashServer;
 import frc.robot.shared.Constants.GamePiece;
@@ -30,6 +30,8 @@ import edu.wpi.first.math.MathUtil;
 import edu.wpi.first.math.filter.SlewRateLimiter;
 import edu.wpi.first.math.geometry.Translation2d;
 import edu.wpi.first.wpilibj.Compressor;
+import edu.wpi.first.wpilibj.DriverStation;
+import edu.wpi.first.wpilibj.DriverStation.Alliance;
 import edu.wpi.first.wpilibj.PneumaticsModuleType;
 import edu.wpi.first.wpilibj.RobotBase;
 import edu.wpi.first.wpilibj.TimedRobot;
@@ -47,8 +49,11 @@ import lombok.experimental.Accessors;
 @Accessors(prefix = "m_")
 public class Robot extends TimedRobot {
   @Setter @Getter private static GamePiece m_currentGamePiece = GamePiece.None;
+  @Getter private static GamePiece m_preloadGamePiece = GamePiece.None;
 
   @Getter private static boolean m_exceptionHappened = false;
+
+  @Getter private static Alliance m_calculatedAlliance;
 
   private static boolean m_autoRan = false;
 
@@ -60,9 +65,7 @@ public class Robot extends TimedRobot {
   private final Claw m_claw = new Claw();
   private final Drive m_drive = new Drive();
   private final CANdleManager m_candleManager = new CANdleManager();
-  private final TrajectoryManager m_trajectoryManager = new TrajectoryManager();
-  private final AutoManager m_autoManager =
-      new AutoManager(m_claw, m_elevator, m_drive, m_trajectoryManager);
+  private final AutoManager m_autoManager = new AutoManager(m_claw, m_elevator, m_drive);
 
   private final XboxController m_driverStick = new XboxController(0);
   private final XboxController m_operatorStick = new XboxController(1);
@@ -84,6 +87,10 @@ public class Robot extends TimedRobot {
       }
 
       System.err.println(e);
+
+      if (isSimulation()) {
+        throw e;
+      }
     } catch (Exception ie) {
       throw new RuntimeException("Could not write to exception log file", ie);
     }
@@ -119,14 +126,16 @@ public class Robot extends TimedRobot {
   public void robotInit() {
     try {
       GreyDashClient.setAvailableAutoModes(
-          AutoMode.Test,
-          AutoMode.OneCone,
-          AutoMode.PreloadAndCharge,
-          AutoMode.PreloadPickupCharge,
-          AutoMode.NoAuto);
+          AutoMode.Test, AutoMode.PreloadAndCharge, AutoMode.NoAuto);
+      GreyDashClient.setSelectedAuto(AutoMode.PreloadAndCharge);
+
       GreyDashClient.setAvailableGamePieces(GamePiece.Cone, GamePiece.Cube, GamePiece.None);
       GreyDashClient.setSelectedStagingGamePieces(
           GamePiece.Cone, GamePiece.Cone, GamePiece.Cube, GamePiece.Cube);
+      GreyDashClient.setSelectedGamePiece(GamePiece.Cone);
+
+      GreyDashClient.setAvailableAutoSides(AutoSide.Left, AutoSide.Right);
+      GreyDashClient.setSelectedAutoSide(AutoSide.Left);
 
       GreyDashServer greyDashServer = new GreyDashServer(8080);
       greyDashServer.run();
@@ -158,6 +167,28 @@ public class Robot extends TimedRobot {
 
       // Auto Selection
       m_autoManager.selectAuto(GreyDashClient.getAutoSelected());
+
+      AutoSide side = GreyDashClient.getSelectedAutoSide();
+
+      switch (DriverStation.getAlliance()) {
+        case Blue:
+          if (side == AutoSide.Left) {
+            m_calculatedAlliance = Alliance.Red;
+          } else {
+            m_calculatedAlliance = Alliance.Blue;
+          }
+          break;
+        case Red:
+          if (side == AutoSide.Right) {
+            m_calculatedAlliance = Alliance.Blue;
+          } else {
+            m_calculatedAlliance = Alliance.Red;
+          }
+          break;
+        case Invalid:
+          m_calculatedAlliance = Alliance.Blue;
+          break;
+      }
 
       // CANdle
       if (!m_exceptionHappened
@@ -194,6 +225,7 @@ public class Robot extends TimedRobot {
   @Override
   public void autonomousPeriodic() {
     try {
+      System.out.println(getCurrentGamePiece());
       m_autoManager.run();
     } catch (Exception e) {
       logException(e);
@@ -390,7 +422,7 @@ public class Robot extends TimedRobot {
   public void disabledPeriodic() {
     try {
       if (!m_autoRan) {
-        m_currentGamePiece = GreyDashClient.getSelectedGamePiece();
+        m_preloadGamePiece = GreyDashClient.getSelectedGamePiece();
       }
     } catch (Exception e) {
       logException(e);

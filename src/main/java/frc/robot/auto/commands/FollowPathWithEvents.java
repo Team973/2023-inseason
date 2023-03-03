@@ -2,11 +2,10 @@ package frc.robot.auto.commands;
 
 import java.util.*;
 
+import frc.robot.auto.TrajectoryManager.Determinator;
 import frc.robot.shared.AutoCommand;
 import frc.robot.subsystems.Drive;
 
-import com.pathplanner.lib.PathConstraints;
-import com.pathplanner.lib.PathPlanner;
 import com.pathplanner.lib.PathPlannerTrajectory;
 import edu.wpi.first.wpilibj.Timer;
 
@@ -21,13 +20,10 @@ public class FollowPathWithEvents extends AutoCommand {
   private boolean isCompleted = true;
 
   public FollowPathWithEvents(
-      Drive drive,
-      String pathFile,
-      PathConstraints constraints,
-      boolean reversed,
-      Map<String, AutoCommand> eventMap) {
-    PathPlannerTrajectory path = PathPlanner.loadPath(pathFile, constraints, reversed);
-    this.pathFollowingCommand = new PathPlannerTrajectoryCommand(drive, path);
+      Drive drive, Determinator determinator, Map<String, AutoCommand> eventMap) {
+    // TODO: This is wrong, I am doing it to make things work. FIX IT BEFORE USE!
+    PathPlannerTrajectory path = determinator.determine();
+    this.pathFollowingCommand = new PathPlannerTrajectoryCommand(drive, determinator);
     this.pathMarkers = path.getMarkers();
     this.eventMap = eventMap;
   }

@@ -1,8 +1,6 @@
 package frc.robot;
 
-import frc.robot.auto.commands.TrajectoryManager;
 import frc.robot.auto.modes.NoAuto;
-import frc.robot.auto.modes.OneCone;
 import frc.robot.auto.modes.PreloadAndCharge;
 import frc.robot.auto.modes.PreloadPickupCharge;
 import frc.robot.auto.modes.Test;
@@ -16,7 +14,6 @@ public class AutoManager {
 
   public enum AutoMode {
     Test,
-    OneCone,
     PreloadAndCharge,
     PreloadPickupCharge,
     NoAuto
@@ -29,15 +26,12 @@ public class AutoManager {
   }
 
   private final AutoCommand m_test;
-  private final AutoCommand m_oneCone;
   private final AutoCommand m_preloadAndCharge;
   private final AutoCommand m_preloadPickupCharge;
   private final AutoCommand m_noAuto;
 
-  public AutoManager(
-      Claw claw, Elevator elevator, Drive drive, TrajectoryManager trajectoryManager) {
-    m_test = new Test(drive, trajectoryManager);
-    m_oneCone = new OneCone(drive, claw, elevator, trajectoryManager);
+  public AutoManager(Claw claw, Elevator elevator, Drive drive) {
+    m_test = new Test(drive);
     m_preloadAndCharge = new PreloadAndCharge(drive, claw, elevator);
     m_preloadPickupCharge = new PreloadPickupCharge(drive, claw, elevator);
     m_noAuto = new NoAuto();
@@ -55,9 +49,6 @@ public class AutoManager {
     switch (mode) {
       case Test:
         m_currentMode = m_test;
-        break;
-      case OneCone:
-        m_currentMode = m_oneCone;
         break;
       case PreloadAndCharge:
         m_currentMode = m_preloadAndCharge;
