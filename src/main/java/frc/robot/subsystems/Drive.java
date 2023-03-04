@@ -50,6 +50,8 @@ public class Drive implements Subsystem {
   public static class AnglePresets {
     public static final double TOWARDS_HP = 0.0;
     public static final double TOWARDS_DS = 180.0;
+    public static final double TOWARDS_MHP_RED = -90.0;
+    public static final double TOWARDS_MHP_BLUE = 90.0;
   }
 
   private final HolonomicDriveController m_controller;
