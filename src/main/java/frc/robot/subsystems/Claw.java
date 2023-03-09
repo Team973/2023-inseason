@@ -245,6 +245,9 @@ public class Claw implements Subsystem {
     SmartDashboard.putString("Claw preset", m_wristPreset.toString());
     SmartDashboard.putBoolean("Game Piece", m_hasGamePiece);
     SmartDashboard.putBoolean("Cone Sensor", getConeSensor());
+    SmartDashboard.putNumber("Wrist Angle", getClawCurrentAngle());
+    SmartDashboard.putNumber("Wrist Stator", m_wristMotor.getStatorCurrent().getValue());
+    SmartDashboard.putBoolean("Wrist Sensor", getWristHall());
   }
 
   public boolean getWristHall() {
@@ -368,6 +371,10 @@ public class Claw implements Subsystem {
      */
 
     m_lastGamePiece = currentGamePiece;
+
+    if (getWristHall() && Math.abs(m_wristMotor.getStatorCurrent().getValue()) > 50.0) {
+      m_wristMotor.setRotorPosition(STOW_OFFSET / 360.0 / ClawInfo.GEAR_RATIO);
+    }
   }
 
   public void reset() {

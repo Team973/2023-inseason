@@ -4,6 +4,7 @@ import frc.robot.auto.TrajectoryManager.Determinator;
 import frc.robot.shared.AutoCommand;
 import frc.robot.subsystems.Drive;
 
+import edu.wpi.first.math.geometry.Translation2d;
 import lombok.experimental.Accessors;
 
 @Accessors(prefix = "m_")
@@ -47,5 +48,7 @@ public class PathPlannerTrajectoryCommand extends AutoCommand {
     return m_trajectoryCommand != null ? m_trajectoryCommand.isCompleted() : true;
   }
 
-  public void postComplete(boolean interrupted) {}
+  public void postComplete(boolean interrupted) {
+    m_drive.driveInput(new Translation2d(0.0, 0.0), 0.0, true);
+  }
 }
