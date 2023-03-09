@@ -125,7 +125,7 @@ public class Robot extends TimedRobot {
           AutoMode.CenterPreloadAndCharge,
           AutoMode.PreloadPickupCharge,
           AutoMode.NoAuto);
-      GreyDashClient.setSelectedAuto(AutoMode.CenterPreloadAndCharge);
+      GreyDashClient.setSelectedAuto(AutoMode.Test);
 
       GreyDashClient.setAvailableGamePieces(GamePiece.Cone, GamePiece.Cube, GamePiece.None);
       GreyDashClient.setSelectedStagingGamePieces(

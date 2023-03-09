@@ -9,6 +9,10 @@ public class Test extends SequentialCommand {
   public Test(Drive drive) {
     super(
         new PathPlannerTrajectoryCommand(
-            drive, TrajectoryManager.getPath(TrajectoryManager.DriveBack)));
+            drive, TrajectoryManager.getPathSegment(TrajectoryManager.CenterPreloadAndPickup, 0)),
+        new PathPlannerTrajectoryCommand(
+            drive,
+            false,
+            TrajectoryManager.getPathSegment(TrajectoryManager.CenterPreloadAndPickup, 1)));
   }
 }
