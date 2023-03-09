@@ -29,8 +29,9 @@ public class Claw implements Subsystem {
     public static final double mid = -104.79;
     public static final double high = -88.39;
     public static final double hp = -96.91;
-    public static final double right = -63.0;
+    public static final double right = -65.0;
     public static final double stow = STOW_OFFSET;
+    public static final double miniHp = -80.0;
   }
 
   public static class CubePresets {
@@ -39,8 +40,9 @@ public class Claw implements Subsystem {
     public static final double mid = -112.22;
     public static final double high = -105.09;
     public static final double hp = -98.84;
-    public static final double right = -63.0;
+    public static final double right = -65.0;
     public static final double stow = STOW_OFFSET;
+    public static final double miniHp = -83.5;
   }
 
   @Setter @Getter private IntakeState m_intakeState = IntakeState.Neutral;
@@ -49,7 +51,10 @@ public class Claw implements Subsystem {
 
   private final GreyTalonFX m_intakeMotor;
   private final GreyTalonFX m_wristMotor;
+
   private final DigitalInput m_wristHall;
+  private final DigitalInput m_coneSensor;
+
   private static final double STOW_OFFSET = 31.04;
 
   private GamePiece m_lastGamePiece = GamePiece.None;
@@ -86,6 +91,7 @@ public class Claw implements Subsystem {
     HP,
     Stow,
     ConeRight,
+    MiniHp,
     Manual
   }
 
@@ -95,6 +101,8 @@ public class Claw implements Subsystem {
     m_intakeMotor = new GreyTalonFX(ClawInfo.INTAKE_FX_ID, RobotInfo.CANIVORE_NAME);
     m_wristMotor = new GreyTalonFX(ClawInfo.WRIST_FX_ID, RobotInfo.CANIVORE_NAME);
     m_wristHall = new DigitalInput(ClawInfo.WRIST_HALL_ID);
+    m_coneSensor = new DigitalInput(ClawInfo.CONE_SENSOR_ID);
+
     configIntakeMotor();
     configWristMotor();
 
@@ -195,6 +203,12 @@ public class Claw implements Subsystem {
           setWristTargetAngle(ConePresets.right);
         }
         break;
+      case MiniHp:
+        if (currentGamePiece == GamePiece.Cube) {
+          setWristTargetAngle(CubePresets.miniHp);
+        } else {
+          setWristTargetAngle(ConePresets.miniHp);
+        }
       case Manual:
       default:
         break;
@@ -206,11 +220,20 @@ public class Claw implements Subsystem {
   }
 
   private boolean checkForGamePiece() {
-    boolean check = Math.abs(m_intakeStator) > m_statorCurrentLimit - 10.0;
+    boolean atStatorLimit = Math.abs(m_intakeStator) > m_statorCurrentLimit - 10.0;
+    boolean check = atStatorLimit;
+    if (Robot.getCurrentGamePiece() == GamePiece.Cone) {
+      check = getConeSensor() && atStatorLimit;
+    }
+
     if (check) {
       m_hasGamePiece = true;
     }
     return m_hasGamePiece;
+  }
+
+  private boolean getConeSensor() {
+    return m_coneSensor.get();
   }
 
   public void dashboardUpdate() {
@@ -221,6 +244,7 @@ public class Claw implements Subsystem {
     SmartDashboard.putNumber("Claw Angle Target", m_targetAngle);
     SmartDashboard.putString("Claw preset", m_wristPreset.toString());
     SmartDashboard.putBoolean("Game Piece", m_hasGamePiece);
+    SmartDashboard.putBoolean("Cone Sensor", getConeSensor());
   }
 
   public boolean getWristHall() {
@@ -348,6 +372,8 @@ public class Claw implements Subsystem {
 
   public void reset() {
     setIntakeState(IntakeState.Neutral);
+    setWristPreset(WristPreset.Stow);
+    m_wristMotor.setRotorPosition(STOW_OFFSET / 360.0 / ClawInfo.GEAR_RATIO);
   }
 
   public boolean isAtAngle() {

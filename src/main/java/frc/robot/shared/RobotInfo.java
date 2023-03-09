@@ -16,7 +16,8 @@ public final class RobotInfo {
   public static class ClawInfo {
     public static final int WRIST_FX_ID = 19;
     public static final int INTAKE_FX_ID = 15;
-    public static final int WRIST_HALL_ID = 4;
+    public static final int WRIST_HALL_ID = 5;
+    public static final int CONE_SENSOR_ID = 4;
     public static final double GEAR_RATIO = (1.0 / 4.0) * (1.0 / 4.0) * (16.0 / 42.0);
   }
 
@@ -42,17 +43,17 @@ public final class RobotInfo {
     public static final int FRONT_RIGHT_MODULE_DRIVE_MOTOR = 5;
     public static final int FRONT_RIGHT_MODULE_STEER_MOTOR = 6;
     public static final int FRONT_RIGHT_MODULE_STEER_ENCODER = 7;
-    public static final double FRONT_RIGHT_MODULE_STEER_OFFSET = 55.28;
+    public static final double FRONT_RIGHT_MODULE_STEER_OFFSET = 304.189;
 
     public static final int BACK_LEFT_MODULE_DRIVE_MOTOR = 8;
     public static final int BACK_LEFT_MODULE_STEER_MOTOR = 9;
     public static final int BACK_LEFT_MODULE_STEER_ENCODER = 10;
-    public static final double BACK_LEFT_MODULE_STEER_OFFSET = 20.03;
+    public static final double BACK_LEFT_MODULE_STEER_OFFSET = 20.566;
 
-    public static final int BACK_RIGHT_MODULE_DRIVE_MOTOR = 11;
-    public static final int BACK_RIGHT_MODULE_STEER_MOTOR = 12;
-    public static final int BACK_RIGHT_MODULE_STEER_ENCODER = 13;
-    public static final double BACK_RIGHT_MODULE_STEER_OFFSET = 95.71;
+    public static final int BACK_RIGHT_MODULE_DRIVE_MOTOR = 27;
+    public static final int BACK_RIGHT_MODULE_STEER_MOTOR = 26;
+    public static final int BACK_RIGHT_MODULE_STEER_ENCODER = 28;
+    public static final double BACK_RIGHT_MODULE_STEER_OFFSET = 294.34;
 
     public static final double DRIVE_GEAR_RATIO =
         1 / ((12.0 / 42.0) * (28.0 / 18.0) * (15.0 / 45.0)); // 6.75:1
@@ -137,4 +138,5 @@ public final class RobotInfo {
             new Translation2d(-TRACKWIDTH_METERS / 2.0, WHEELBASE_METERS / 2.0),
             new Translation2d(-TRACKWIDTH_METERS / 2.0, -WHEELBASE_METERS / 2.0));
   }
+  ;
 }

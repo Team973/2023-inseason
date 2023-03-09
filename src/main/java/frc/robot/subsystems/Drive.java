@@ -1,5 +1,6 @@
 package frc.robot.subsystems;
 
+import frc.robot.greydash.GreyDashClient;
 import frc.robot.shared.RobotInfo;
 import frc.robot.shared.RobotInfo.DriveInfo;
 import frc.robot.shared.Subsystem;
@@ -49,6 +50,8 @@ public class Drive implements Subsystem {
   public static class AnglePresets {
     public static final double TOWARDS_HP = 0.0;
     public static final double TOWARDS_DS = 180.0;
+    public static final double TOWARDS_MHP_RED = -90.0;
+    public static final double TOWARDS_MHP_BLUE = 90.0;
   }
 
   private final HolonomicDriveController m_controller;
@@ -235,7 +238,20 @@ public class Drive implements Subsystem {
     return positions;
   }
 
+  public void enableBrakeMode() {
+    for (var mod : m_swerveModules) {
+      mod.driveBrake();
+    }
+  }
+
+  public void disableBrakeMode() {
+    for (var mod : m_swerveModules) {
+      mod.driveNeutral();
+    }
+  }
+
   public void dashboardUpdate() {
+    GreyDashClient.setGyroAngle(getGyroscopeRotation().getDegrees());
     double states[] = new double[8];
     int index = 0;
 

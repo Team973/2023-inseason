@@ -17,9 +17,7 @@ public class SetDrivePositionCommand extends AutoCommand {
   }
 
   @Override
-  public void init() {
-    m_drive.resetOdometry(m_pose);
-  }
+  public void init() {}
 
   @Override
   public void run() {

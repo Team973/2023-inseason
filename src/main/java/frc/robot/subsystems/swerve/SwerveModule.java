@@ -28,6 +28,8 @@ public class SwerveModule {
   private CANcoder m_angleEncoder;
   private Rotation2d lastAngle;
 
+  private final TalonFXConfiguration m_driveMotorConfig;
+
   SimpleMotorFeedforward feedforward =
       new SimpleMotorFeedforward(DriveInfo.driveKS, DriveInfo.driveKV, DriveInfo.driveKA);
 
@@ -50,6 +52,7 @@ public class SwerveModule {
 
     /* Drive Motor Config */
     m_driveMotor = new GreyTalonFX(moduleConfig.driveMotorID, RobotInfo.CANIVORE_NAME);
+    m_driveMotorConfig = new TalonFXConfiguration();
     configDriveMotor();
 
     BaseStatusSignalValue.waitForAll(0.5, m_angleEncoder.getAbsolutePosition());
@@ -88,20 +91,19 @@ public class SwerveModule {
   }
 
   private void configDriveMotor() {
-    var motorConfig = new TalonFXConfiguration();
-    motorConfig.MotorOutput.Inverted = InvertedValue.Clockwise_Positive;
+    m_driveMotorConfig.MotorOutput.Inverted = InvertedValue.Clockwise_Positive;
 
-    motorConfig.Slot0.kP = 0.00973;
-    motorConfig.Slot0.kI = 0.0;
-    motorConfig.Slot0.kD = 0.0;
-    motorConfig.Slot0.kV = 0.00973;
+    m_driveMotorConfig.Slot0.kP = 0.00973;
+    m_driveMotorConfig.Slot0.kI = 0.0;
+    m_driveMotorConfig.Slot0.kD = 0.0;
+    m_driveMotorConfig.Slot0.kV = 0.00973;
 
-    motorConfig.CurrentLimits.StatorCurrentLimit = 100.0;
-    motorConfig.CurrentLimits.StatorCurrentLimitEnable = true;
-    motorConfig.CurrentLimits.SupplyCurrentLimit = 80.0;
-    motorConfig.CurrentLimits.SupplyCurrentLimitEnable = true;
+    m_driveMotorConfig.CurrentLimits.StatorCurrentLimit = 100.0;
+    m_driveMotorConfig.CurrentLimits.StatorCurrentLimitEnable = true;
+    m_driveMotorConfig.CurrentLimits.SupplyCurrentLimit = 80.0;
+    m_driveMotorConfig.CurrentLimits.SupplyCurrentLimitEnable = true;
 
-    m_driveMotor.getConfigurator().apply(motorConfig);
+    m_driveMotor.getConfigurator().apply(m_driveMotorConfig);
     m_driveMotor.setRotorPosition(0.0);
   }
 
@@ -169,5 +171,15 @@ public class SwerveModule {
     m_angleMotor.setControl(
         m_anglePosition.withPosition(angle.getRotations() * DriveInfo.ANGLE_GEAR_RATIO));
     lastAngle = angle;
+  }
+
+  public void driveBrake() {
+    m_driveMotorConfig.MotorOutput.NeutralMode = NeutralModeValue.Brake;
+    m_driveMotor.getConfigurator().apply(m_driveMotorConfig);
+  }
+
+  public void driveNeutral() {
+    m_driveMotorConfig.MotorOutput.NeutralMode = NeutralModeValue.Coast;
+    m_driveMotor.getConfigurator().apply(m_driveMotorConfig);
   }
 }

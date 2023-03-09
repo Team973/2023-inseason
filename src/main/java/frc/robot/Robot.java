@@ -10,11 +10,9 @@ import java.io.FileWriter;
 import java.io.PrintWriter;
 
 import frc.robot.AutoManager.AutoMode;
-import frc.robot.auto.commands.TrajectoryManager;
+import frc.robot.AutoManager.AutoSide;
 import frc.robot.greydash.GreyDashClient;
-import frc.robot.greydash.GreyDashServer;
 import frc.robot.shared.Constants.GamePiece;
-import frc.robot.shared.Conversions;
 import frc.robot.subsystems.CANdleManager;
 import frc.robot.subsystems.CANdleManager.LightState;
 import frc.robot.subsystems.Claw;
@@ -30,6 +28,8 @@ import edu.wpi.first.math.MathUtil;
 import edu.wpi.first.math.filter.SlewRateLimiter;
 import edu.wpi.first.math.geometry.Translation2d;
 import edu.wpi.first.wpilibj.Compressor;
+import edu.wpi.first.wpilibj.DriverStation;
+import edu.wpi.first.wpilibj.DriverStation.Alliance;
 import edu.wpi.first.wpilibj.PneumaticsModuleType;
 import edu.wpi.first.wpilibj.RobotBase;
 import edu.wpi.first.wpilibj.TimedRobot;
@@ -47,22 +47,19 @@ import lombok.experimental.Accessors;
 @Accessors(prefix = "m_")
 public class Robot extends TimedRobot {
   @Setter @Getter private static GamePiece m_currentGamePiece = GamePiece.None;
+  @Getter private static GamePiece m_preloadGamePiece = GamePiece.None;
 
   @Getter private static boolean m_exceptionHappened = false;
 
-  private static boolean m_autoRan = false;
+  @Getter private static Alliance m_calculatedAlliance;
 
-  private static final double GOT_IT_DELAY_MSEC = 300.0;
-  private static double m_gotItStartTime;
-  private static boolean m_gotIt;
+  private static boolean m_autoRan = false;
 
   private final Elevator m_elevator = new Elevator();
   private final Claw m_claw = new Claw();
   private final Drive m_drive = new Drive();
   private final CANdleManager m_candleManager = new CANdleManager();
-  private final TrajectoryManager m_trajectoryManager = new TrajectoryManager();
-  private final AutoManager m_autoManager =
-      new AutoManager(m_claw, m_elevator, m_drive, m_trajectoryManager);
+  private final AutoManager m_autoManager = new AutoManager(m_claw, m_elevator, m_drive);
 
   private final XboxController m_driverStick = new XboxController(0);
   private final XboxController m_operatorStick = new XboxController(1);
@@ -84,6 +81,10 @@ public class Robot extends TimedRobot {
       }
 
       System.err.println(e);
+
+      if (isSimulation()) {
+        throw e;
+      }
     } catch (Exception ie) {
       throw new RuntimeException("Could not write to exception log file", ie);
     }
@@ -120,14 +121,19 @@ public class Robot extends TimedRobot {
     try {
       GreyDashClient.setAvailableAutoModes(
           AutoMode.Test,
-          AutoMode.OneCone,
           AutoMode.PreloadAndCharge,
+          AutoMode.CenterPreloadAndCharge,
           AutoMode.PreloadPickupCharge,
           AutoMode.NoAuto);
-      GreyDashClient.setAvailableGamePieces(GamePiece.Cone, GamePiece.Cube, GamePiece.None);
+      GreyDashClient.setSelectedAuto(AutoMode.CenterPreloadAndCharge);
 
-      GreyDashServer greyDashServer = new GreyDashServer(8080);
-      greyDashServer.run();
+      GreyDashClient.setAvailableGamePieces(GamePiece.Cone, GamePiece.Cube, GamePiece.None);
+      GreyDashClient.setSelectedStagingGamePieces(
+          GamePiece.Cone, GamePiece.Cone, GamePiece.Cube, GamePiece.Cube);
+      GreyDashClient.setSelectedGamePiece(GamePiece.Cone);
+
+      GreyDashClient.setAvailableAutoSides(AutoSide.Left, AutoSide.Right);
+      GreyDashClient.setSelectedAutoSide(AutoSide.Left);
 
       this.resetSubsystems();
     } catch (Exception e) {
@@ -156,6 +162,28 @@ public class Robot extends TimedRobot {
 
       // Auto Selection
       m_autoManager.selectAuto(GreyDashClient.getAutoSelected());
+
+      AutoSide side = GreyDashClient.getSelectedAutoSide();
+
+      switch (DriverStation.getAlliance()) {
+        case Blue:
+          if (side == AutoSide.Left) {
+            m_calculatedAlliance = Alliance.Blue;
+          } else {
+            m_calculatedAlliance = Alliance.Red;
+          }
+          break;
+        case Red:
+          if (side == AutoSide.Left) {
+            m_calculatedAlliance = Alliance.Blue;
+          } else {
+            m_calculatedAlliance = Alliance.Red;
+          }
+          break;
+        case Invalid:
+          m_calculatedAlliance = Alliance.Blue;
+          break;
+      }
 
       // CANdle
       if (!m_exceptionHappened
@@ -204,6 +232,8 @@ public class Robot extends TimedRobot {
     try {
       m_compressor.enableDigital();
       m_claw.setWristState(WristState.Manual);
+      m_drive.setTargetRobotAngle(m_drive.getNormalizedGyroYaw());
+      m_drive.disableBrakeMode();
     } catch (Exception e) {
       logException(e);
     }
@@ -238,6 +268,11 @@ public class Robot extends TimedRobot {
       } else if (m_driverStick.getBButton()) {
         m_drive.setRotationControl(RotationControl.ClosedLoop);
         m_drive.setTargetRobotAngle(Drive.AnglePresets.TOWARDS_HP);
+      } else if (m_driverStick.getXButton()) {
+        m_drive.setTargetRobotAngle(
+            DriverStation.getAlliance() == Alliance.Red
+                ? Drive.AnglePresets.TOWARDS_MHP_RED
+                : Drive.AnglePresets.TOWARDS_MHP_BLUE);
       } else if (rot == 0.0) {
         if (m_driverStick.getYButtonReleased() || m_driverStick.getBButtonReleased()) {
           m_drive.setTargetRobotAngle(m_drive.getNormalizedGyroYaw());
@@ -283,7 +318,7 @@ public class Robot extends TimedRobot {
       // BOTH //
       //////////
       // Stow elevator/wrist
-      if (m_driverStick.getLeftTriggerAxis() > 0.5 || m_operatorStick.getAButton()) {
+      if (m_driverStick.getLeftTriggerAxis() > 0.5) {
         m_elevator.setHeight(Elevator.Presets.stow);
         m_claw.setWristPreset(Claw.WristPreset.Stow);
       }
@@ -292,6 +327,12 @@ public class Robot extends TimedRobot {
       // CO-DRIVER CONTROLS //
       ////////////////////////
       double operatorStickRightY = -MathUtil.applyDeadband(m_operatorStick.getRawAxis(5), 0.1);
+
+      if (m_operatorStick.getAButton()) {
+        m_elevator.setHeight(Elevator.Presets.miniHp);
+        m_claw.setWristPreset(Claw.WristPreset.MiniHp);
+        m_currentGamePiece = GamePiece.None;
+      }
 
       // Elevator height preset
       switch (m_operatorStick.getPOV()) {
@@ -316,6 +357,7 @@ public class Robot extends TimedRobot {
         case 270:
           m_elevator.setHeight(Elevator.Presets.hp);
           m_claw.setWristPreset(Claw.WristPreset.HP);
+          m_currentGamePiece = GamePiece.None;
           break;
         default:
           break;
@@ -347,17 +389,10 @@ public class Robot extends TimedRobot {
 
       // Got it!
       if (m_claw.getIntakeState() == IntakeState.In && m_claw.isHasGamePiece()) {
-        if (!m_gotIt) {
-          m_gotItStartTime = Conversions.Time.getMsecTime();
-          m_gotIt = true;
-        }
         m_candleManager.setLightState(LightState.GotIt);
 
         m_claw.setWristPreset(WristPreset.Stow);
-        if (Conversions.Time.getMsecTime() - m_gotItStartTime > GOT_IT_DELAY_MSEC) {
-          m_elevator.setHeight(Elevator.Presets.stow);
-          m_gotIt = false;
-        }
+        m_elevator.setHeight(Elevator.Presets.stow);
       }
 
       // Manually Control Wrist
@@ -367,6 +402,10 @@ public class Robot extends TimedRobot {
         m_claw.setWristMotorOutput(wristJoystickInput);
       } else {
         m_claw.setWristState(WristState.ClosedLoop);
+      }
+
+      if (m_operatorStick.getStartButton()) {
+        m_claw.reset();
       }
     } catch (Exception e) {
       logException(e);
@@ -388,7 +427,12 @@ public class Robot extends TimedRobot {
   public void disabledPeriodic() {
     try {
       if (!m_autoRan) {
-        m_currentGamePiece = GreyDashClient.getSelectedGamePiece();
+        m_preloadGamePiece = GreyDashClient.getSelectedGamePiece();
+      }
+      if (m_driverStick.getAButton()) {
+        m_drive.enableBrakeMode();
+      } else {
+        m_drive.disableBrakeMode();
       }
     } catch (Exception e) {
       logException(e);

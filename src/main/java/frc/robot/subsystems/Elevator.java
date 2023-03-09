@@ -23,7 +23,7 @@ public class Elevator implements Subsystem {
     /** Inches from floor */
     public static final double floor = 9.25;
     /** Inches from floor */
-    public static final double hybrid = 12.6;
+    public static final double hybrid = 14.6;
     /** Inches from floor */
     public static final double mid = 22.3;
     /** Inches from floor */
@@ -32,6 +32,8 @@ public class Elevator implements Subsystem {
     public static final double high = 27.4;
     /** Inches from floor */
     public static final double stow = 0.0;
+    /** Inches from floor */
+    public static final double miniHp = 21.5;
   }
 
   private final GreyTalonFX m_elevatorMotor;
@@ -187,5 +189,6 @@ public class Elevator implements Subsystem {
 
   public void reset() {
     setElevatorOutput(0.0);
+    m_elevatorMotor.setRotorPosition(0.0);
   }
 }
