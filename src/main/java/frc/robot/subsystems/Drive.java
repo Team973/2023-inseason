@@ -78,10 +78,10 @@ public class Drive implements Subsystem {
 
     m_controller =
         new HolonomicDriveController(
-            new PIDController(1.0, 0.0, 0.0),
-            new PIDController(1.0, 0.0, 0.0),
+            new PIDController(1.5, 0.0, 0.0),
+            new PIDController(1.5, 0.0, 0.0),
             new ProfiledPIDController(
-                5.0,
+                10.0,
                 0.0,
                 0.0,
                 new TrapezoidProfile.Constraints(
