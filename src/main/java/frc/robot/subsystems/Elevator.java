@@ -189,5 +189,6 @@ public class Elevator implements Subsystem {
 
   public void reset() {
     setElevatorOutput(0.0);
+    m_elevatorMotor.setRotorPosition(0.0);
   }
 }

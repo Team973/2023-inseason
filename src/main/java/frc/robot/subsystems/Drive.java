@@ -238,6 +238,18 @@ public class Drive implements Subsystem {
     return positions;
   }
 
+  public void enableBrakeMode() {
+    for (var mod : m_swerveModules) {
+      mod.driveBrake();
+    }
+  }
+
+  public void disableBrakeMode() {
+    for (var mod : m_swerveModules) {
+      mod.driveNeutral();
+    }
+  }
+
   public void dashboardUpdate() {
     GreyDashClient.setGyroAngle(getGyroscopeRotation().getDegrees());
     double states[] = new double[8];

@@ -24,14 +24,18 @@ public class TrajectoryManager {
 
   public static final TrajectoryPair CenterPreloadAndCharge =
       new TrajectoryPair(
-          "CenterPreloadAndCharge", new PathConstraints(4, 3), true, Arrays.asList(GamePiece.Cone));
+          "CenterPreloadAndCharge",
+          true,
+          new PathConstraints(4, 3),
+          true,
+          Arrays.asList(GamePiece.Cone));
 
   public static final TrajectoryPair PreloadPickupCharge =
       new TrajectoryPair(
           "PreloadPickupCharge",
           true,
           new PathConstraints(4, 3),
-          true,
+          false,
           Arrays.asList(GamePiece.Cone));
 
   public static class TrajectoryPair {

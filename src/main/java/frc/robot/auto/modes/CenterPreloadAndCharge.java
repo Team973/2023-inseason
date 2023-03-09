@@ -9,6 +9,7 @@ import frc.robot.auto.commands.SetCurrentGamePieceCommand;
 import frc.robot.auto.commands.WristPresetCommand;
 import frc.robot.auto.commands.util.ConcurrentCommand;
 import frc.robot.auto.commands.util.SequentialCommand;
+import frc.robot.auto.commands.util.WaitCommand;
 import frc.robot.shared.Constants.GamePiece;
 import frc.robot.subsystems.Claw;
 import frc.robot.subsystems.Claw.IntakeState;
@@ -28,7 +29,13 @@ public class CenterPreloadAndCharge extends SequentialCommand {
             new ElevatorPresetCommand(elevator, Elevator.Presets.stow, 1000),
             new WristPresetCommand(claw, WristPreset.Stow, 2000),
             new PathPlannerTrajectoryCommand(
-                drive, TrajectoryManager.getPath(TrajectoryManager.CenterPreloadAndCharge))),
+                drive,
+                TrajectoryManager.getPathSegment(TrajectoryManager.CenterPreloadAndCharge, 0))),
+        new WaitCommand(1000),
+        new PathPlannerTrajectoryCommand(
+            drive,
+            false,
+            TrajectoryManager.getPathSegment(TrajectoryManager.CenterPreloadAndCharge, 1)),
         new BalanceCommand(drive, 5000));
   }
 }

@@ -12,7 +12,6 @@ import java.io.PrintWriter;
 import frc.robot.AutoManager.AutoMode;
 import frc.robot.AutoManager.AutoSide;
 import frc.robot.greydash.GreyDashClient;
-import frc.robot.greydash.GreyDashServer;
 import frc.robot.shared.Constants.GamePiece;
 import frc.robot.subsystems.CANdleManager;
 import frc.robot.subsystems.CANdleManager.LightState;
@@ -124,8 +123,9 @@ public class Robot extends TimedRobot {
           AutoMode.Test,
           AutoMode.PreloadAndCharge,
           AutoMode.CenterPreloadAndCharge,
+          AutoMode.PreloadPickupCharge,
           AutoMode.NoAuto);
-      GreyDashClient.setSelectedAuto(AutoMode.PreloadAndCharge);
+      GreyDashClient.setSelectedAuto(AutoMode.CenterPreloadAndCharge);
 
       GreyDashClient.setAvailableGamePieces(GamePiece.Cone, GamePiece.Cube, GamePiece.None);
       GreyDashClient.setSelectedStagingGamePieces(
@@ -134,9 +134,6 @@ public class Robot extends TimedRobot {
 
       GreyDashClient.setAvailableAutoSides(AutoSide.Left, AutoSide.Right);
       GreyDashClient.setSelectedAutoSide(AutoSide.Left);
-
-      GreyDashServer greyDashServer = new GreyDashServer(8080);
-      greyDashServer.run();
 
       this.resetSubsystems();
     } catch (Exception e) {
@@ -235,6 +232,8 @@ public class Robot extends TimedRobot {
     try {
       m_compressor.enableDigital();
       m_claw.setWristState(WristState.Manual);
+      m_drive.setTargetRobotAngle(m_drive.getNormalizedGyroYaw());
+      m_drive.disableBrakeMode();
     } catch (Exception e) {
       logException(e);
     }
@@ -332,6 +331,7 @@ public class Robot extends TimedRobot {
       if (m_operatorStick.getAButton()) {
         m_elevator.setHeight(Elevator.Presets.miniHp);
         m_claw.setWristPreset(Claw.WristPreset.MiniHp);
+        m_currentGamePiece = GamePiece.None;
       }
 
       // Elevator height preset
@@ -357,6 +357,7 @@ public class Robot extends TimedRobot {
         case 270:
           m_elevator.setHeight(Elevator.Presets.hp);
           m_claw.setWristPreset(Claw.WristPreset.HP);
+          m_currentGamePiece = GamePiece.None;
           break;
         default:
           break;
@@ -402,6 +403,10 @@ public class Robot extends TimedRobot {
       } else {
         m_claw.setWristState(WristState.ClosedLoop);
       }
+
+      if (m_operatorStick.getStartButton()) {
+        m_claw.reset();
+      }
     } catch (Exception e) {
       logException(e);
     }
@@ -423,6 +428,11 @@ public class Robot extends TimedRobot {
     try {
       if (!m_autoRan) {
         m_preloadGamePiece = GreyDashClient.getSelectedGamePiece();
+      }
+      if (m_driverStick.getAButton()) {
+        m_drive.enableBrakeMode();
+      } else {
+        m_drive.disableBrakeMode();
       }
     } catch (Exception e) {
       logException(e);
