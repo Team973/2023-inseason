@@ -2,7 +2,9 @@ package frc.robot.auto.modes;
 
 import frc.robot.auto.TrajectoryManager;
 import frc.robot.auto.commands.PathPlannerTrajectoryCommand;
+import frc.robot.auto.commands.ResetPositionCommand;
 import frc.robot.auto.commands.util.SequentialCommand;
+import frc.robot.auto.commands.util.WaitCommand;
 import frc.robot.subsystems.Drive;
 
 public class Test extends SequentialCommand {
@@ -10,6 +12,8 @@ public class Test extends SequentialCommand {
     super(
         new PathPlannerTrajectoryCommand(
             drive, TrajectoryManager.getPathSegment(TrajectoryManager.CenterPreloadAndPickup, 0)),
+        new WaitCommand(1000),
+        new ResetPositionCommand(drive),
         new PathPlannerTrajectoryCommand(
             drive,
             false,
