@@ -24,25 +24,27 @@ import lombok.experimental.Accessors;
 public class Claw implements Subsystem {
 
   public static class ConePresets {
-    public static final double floor = -102.30;
-    public static final double hybrid = -155.90;
-    public static final double mid = -104.79;
-    public static final double high = -88.39;
-    public static final double hp = -96.91;
-    public static final double right = -65.0;
+    public static final double floor = -108.76;
+    public static final double hybrid = -163.90;
+    public static final double mid = -110.79;
+    public static final double high = -94.39;
+    public static final double hp = -102.91;
+    public static final double right = -71.0;
     public static final double stow = STOW_OFFSET;
-    public static final double miniHp = -80.0;
+    public static final double miniHp = -86.0;
+    public static final double offset = STOW_OFFSET - 10;
   }
 
   public static class CubePresets {
-    public static final double floor = -115;
-    public static final double hybrid = -155.90;
-    public static final double mid = -112.22;
-    public static final double high = -105.09;
-    public static final double hp = -98.84;
-    public static final double right = -65.0;
+    public static final double floor = -121;
+    public static final double hybrid = -161.90;
+    public static final double mid = -118.22;
+    public static final double high = -111.09;
+    public static final double hp = -104.84;
+    public static final double right = -71.0;
     public static final double stow = STOW_OFFSET;
-    public static final double miniHp = -83.5;
+    public static final double miniHp = -89.5;
+    public static final double offset = STOW_OFFSET - 10;
   }
 
   @Setter @Getter private IntakeState m_intakeState = IntakeState.Neutral;
@@ -92,7 +94,8 @@ public class Claw implements Subsystem {
     Stow,
     ConeRight,
     MiniHp,
-    Manual
+    Manual,
+    Offset
   }
 
   private static final double WRIST_FF = 0.4;
@@ -209,7 +212,14 @@ public class Claw implements Subsystem {
         } else {
           setWristTargetAngle(ConePresets.miniHp);
         }
+      case Offset:
+
       case Manual:
+        if (currentGamePiece == GamePiece.Cube) {
+          setWristTargetAngle(CubePresets.offset);
+        } else {
+          setWristTargetAngle(ConePresets.offset);
+        }
       default:
         break;
     }
@@ -372,9 +382,11 @@ public class Claw implements Subsystem {
 
     m_lastGamePiece = currentGamePiece;
 
+    /*
     if (getWristHall() && Math.abs(m_wristMotor.getStatorCurrent().getValue()) > 50.0) {
       m_wristMotor.setRotorPosition(STOW_OFFSET / 360.0 / ClawInfo.GEAR_RATIO);
     }
+    */
   }
 
   public void reset() {

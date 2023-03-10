@@ -78,8 +78,8 @@ public class Drive implements Subsystem {
 
     m_controller =
         new HolonomicDriveController(
-            new PIDController(1.5, 0.0, 0.0),
-            new PIDController(1.5, 0.0, 0.0),
+            new PIDController(1.3, 0.0, 0.0),
+            new PIDController(1.3, 0.0, 0.0),
             new ProfiledPIDController(
                 10.0,
                 0.0,

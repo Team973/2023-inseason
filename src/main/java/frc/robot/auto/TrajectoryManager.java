@@ -46,7 +46,7 @@ public class TrajectoryManager {
       new TrajectoryPair(
           "CenterPreloadAndPickup",
           true,
-          new PathConstraints(4, 3),
+          new PathConstraints(1, 2),
           false,
           Arrays.asList(GamePiece.Cone));
 

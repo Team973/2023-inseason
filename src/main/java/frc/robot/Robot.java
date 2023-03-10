@@ -13,6 +13,7 @@ import frc.robot.AutoManager.AutoMode;
 import frc.robot.AutoManager.AutoSide;
 import frc.robot.greydash.GreyDashClient;
 import frc.robot.shared.Constants.GamePiece;
+import frc.robot.shared.LimelightHelpers;
 import frc.robot.subsystems.CANdleManager;
 import frc.robot.subsystems.CANdleManager.LightState;
 import frc.robot.subsystems.Claw;
@@ -125,7 +126,7 @@ public class Robot extends TimedRobot {
           AutoMode.CenterPreloadAndCharge,
           AutoMode.PreloadPickupCharge,
           AutoMode.NoAuto);
-      GreyDashClient.setSelectedAuto(AutoMode.Test);
+      GreyDashClient.setSelectedAuto(AutoMode.PreloadPickupCharge);
 
       GreyDashClient.setAvailableGamePieces(GamePiece.Cone, GamePiece.Cube, GamePiece.None);
       GreyDashClient.setSelectedStagingGamePieces(
@@ -208,6 +209,7 @@ public class Robot extends TimedRobot {
   @Override
   public void autonomousInit() {
     try {
+      LimelightHelpers.setPipelineIndex("", 1);
       m_compressor.enableDigital();
       m_autoManager.init();
       m_autoRan = true;
@@ -230,6 +232,7 @@ public class Robot extends TimedRobot {
   @Override
   public void teleopInit() {
     try {
+      LimelightHelpers.setPipelineIndex("", 0);
       m_compressor.enableDigital();
       m_claw.setWristState(WristState.Manual);
       m_drive.setTargetRobotAngle(m_drive.getNormalizedGyroYaw());

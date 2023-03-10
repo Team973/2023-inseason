@@ -1,7 +1,6 @@
 package frc.robot.auto.commands.util;
 
 import java.util.HashSet;
-import java.util.Iterator;
 
 import frc.robot.shared.AutoCommand;
 
@@ -9,7 +8,7 @@ import com.google.common.collect.ImmutableList;
 
 public class ConcurrentCommand extends AutoCommand {
   private final ImmutableList<AutoCommand> m_cmdList;
-  private HashSet<AutoCommand> m_unfinishedCmds;
+  private HashSet<AutoCommand> m_finishedCmds;
   private Double m_timeout = null;
 
   private boolean m_cmdsNeedInit = true;
@@ -21,9 +20,7 @@ public class ConcurrentCommand extends AutoCommand {
    */
   public ConcurrentCommand(AutoCommand... commands) {
     this.m_cmdList = ImmutableList.copyOf(commands);
-    m_unfinishedCmds = new HashSet<>();
-
-    m_unfinishedCmds.addAll(m_cmdList);
+    m_finishedCmds = new HashSet<>();
   }
 
   /**
@@ -41,6 +38,10 @@ public class ConcurrentCommand extends AutoCommand {
     if (m_timeout != null) {
       setTargetMsec(m_timeout);
     }
+
+    for (var command : m_cmdList) {
+      command.init();
+    }
   }
 
   public void run() {
@@ -48,29 +49,34 @@ public class ConcurrentCommand extends AutoCommand {
       return;
     }
 
-    Iterator<AutoCommand> iterator = m_unfinishedCmds.iterator();
-    while (iterator.hasNext()) {
-      AutoCommand command = iterator.next();
-      if (m_cmdsNeedInit) {
-        command.init();
+    for (var command : m_cmdList) {
+      if (m_finishedCmds.contains(command)) {
+        continue;
       }
 
       command.run();
 
       if (command.isCompleted()) {
         command.postComplete(false);
-        iterator.remove();
+        m_finishedCmds.add(command);
       } else if (command.hasElapsed()) {
         command.postComplete(true);
-        iterator.remove();
+        m_finishedCmds.add(command);
       }
     }
-    m_cmdsNeedInit = false;
   }
 
   public boolean isCompleted() {
-    return m_unfinishedCmds.size() == 0;
+    return m_finishedCmds.size() == m_cmdList.size();
   }
 
-  public void postComplete(boolean interrupted) {}
+  public void postComplete(boolean interrupted) {
+    if (interrupted) {
+      for (var command : m_cmdList) {
+        if (!m_finishedCmds.contains(command)) {
+          command.postComplete(true);
+        }
+      }
+    }
+  }
 }
