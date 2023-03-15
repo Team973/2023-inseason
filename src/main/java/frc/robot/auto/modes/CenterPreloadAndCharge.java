@@ -21,13 +21,17 @@ public class CenterPreloadAndCharge extends SequentialCommand {
   public CenterPreloadAndCharge(Drive drive, Claw claw, Elevator elevator) {
     super(
         new IntakeCommand(claw, IntakeState.In, 100),
+        new WristPresetCommand(claw, WristPreset.Offset, 10.0, 500),
         new ElevatorPresetCommand(elevator, Elevator.Presets.high, 4000),
-        new WristPresetCommand(claw, WristPreset.High, 2000),
+        new WristPresetCommand(claw, WristPreset.High, 10.0, 2000),
         new IntakeCommand(claw, IntakeState.Out, 200),
+        new ConcurrentCommand(
+            new WristPresetCommand(claw, WristPreset.HighBack, 5.0, 500),
+            new IntakeCommand(claw, IntakeState.Out, 200)),
         new SetCurrentGamePieceCommand(GamePiece.None),
         new ConcurrentCommand(
             new ElevatorPresetCommand(elevator, Elevator.Presets.stow, 1000),
-            new WristPresetCommand(claw, WristPreset.Stow, 2000),
+            new WristPresetCommand(claw, WristPreset.Stow, 10.0, 2000),
             new PathPlannerTrajectoryCommand(
                 drive,
                 TrajectoryManager.getPathSegment(TrajectoryManager.CenterPreloadAndCharge, 0))),

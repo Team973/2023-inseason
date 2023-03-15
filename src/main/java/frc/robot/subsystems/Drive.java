@@ -52,6 +52,10 @@ public class Drive implements Subsystem {
     public static final double TOWARDS_DS = 180.0;
     public static final double TOWARDS_MHP_RED = -90.0;
     public static final double TOWARDS_MHP_BLUE = 90.0;
+    public static final double TOWARDS_WS_BLUE = 45.0;
+    public static final double TOWARDS_WSR_BLUE = 135.0;
+    public static final double TOWARDS_WS_RED = -45.0;
+    public static final double TOWARDS_WSR_RED = -135.0;
   }
 
   private final HolonomicDriveController m_controller;
@@ -78,8 +82,8 @@ public class Drive implements Subsystem {
 
     m_controller =
         new HolonomicDriveController(
-            new PIDController(1.5, 0.0, 0.0),
-            new PIDController(1.5, 0.0, 0.0),
+            new PIDController(1.3, 0.0, 0.0),
+            new PIDController(1.3, 0.0, 0.0),
             new ProfiledPIDController(
                 10.0,
                 0.0,

@@ -42,6 +42,22 @@ public class TrajectoryManager {
       new TrajectoryPair(
           "DriveBack", false, new PathConstraints(4, 3), true, Arrays.asList(GamePiece.Cone));
 
+  public static final TrajectoryPair CenterPreloadAndPickup =
+      new TrajectoryPair(
+          "CenterPreloadAndPickup",
+          true,
+          new PathConstraints(1, 2),
+          false,
+          Arrays.asList(GamePiece.Cone));
+
+  public static final TrajectoryPair PreloadPickupScoreCharge =
+      new TrajectoryPair(
+          "PreloadPickupScoreCharge",
+          true,
+          new PathConstraints(4, 3),
+          false,
+          Arrays.asList(GamePiece.Cone));
+
   public static class TrajectoryPair {
 
     private final HashMap<GamePiece, List<PathPlannerTrajectory>> gamePieceMapping;

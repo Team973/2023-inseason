@@ -35,25 +35,25 @@ public final class RobotInfo {
   public static class DriveInfo {
     public static final int PIGEON_ID = 1;
 
-    public static final int FRONT_LEFT_MODULE_DRIVE_MOTOR = 2;
-    public static final int FRONT_LEFT_MODULE_STEER_MOTOR = 3;
-    public static final int FRONT_LEFT_MODULE_STEER_ENCODER = 4;
-    public static final double FRONT_LEFT_MODULE_STEER_OFFSET = 237.04;
+    public static final int FRONT_LEFT_MODULE_DRIVE_MOTOR = 8;
+    public static final int FRONT_LEFT_MODULE_STEER_MOTOR = 9;
+    public static final int FRONT_LEFT_MODULE_STEER_ENCODER = 10;
+    public static final double FRONT_LEFT_MODULE_STEER_OFFSET = 324.31;
 
     public static final int FRONT_RIGHT_MODULE_DRIVE_MOTOR = 5;
     public static final int FRONT_RIGHT_MODULE_STEER_MOTOR = 6;
     public static final int FRONT_RIGHT_MODULE_STEER_ENCODER = 7;
     public static final double FRONT_RIGHT_MODULE_STEER_OFFSET = 304.189;
 
-    public static final int BACK_LEFT_MODULE_DRIVE_MOTOR = 8;
-    public static final int BACK_LEFT_MODULE_STEER_MOTOR = 9;
-    public static final int BACK_LEFT_MODULE_STEER_ENCODER = 10;
-    public static final double BACK_LEFT_MODULE_STEER_OFFSET = 20.566;
+    public static final int BACK_LEFT_MODULE_DRIVE_MOTOR = 11;
+    public static final int BACK_LEFT_MODULE_STEER_MOTOR = 12;
+    public static final int BACK_LEFT_MODULE_STEER_ENCODER = 13;
+    public static final double BACK_LEFT_MODULE_STEER_OFFSET = 262.79;
 
     public static final int BACK_RIGHT_MODULE_DRIVE_MOTOR = 27;
     public static final int BACK_RIGHT_MODULE_STEER_MOTOR = 26;
     public static final int BACK_RIGHT_MODULE_STEER_ENCODER = 28;
-    public static final double BACK_RIGHT_MODULE_STEER_OFFSET = 294.34;
+    public static final double BACK_RIGHT_MODULE_STEER_OFFSET = 80.94;
 
     public static final double DRIVE_GEAR_RATIO =
         1 / ((12.0 / 42.0) * (28.0 / 18.0) * (15.0 / 45.0)); // 6.75:1
