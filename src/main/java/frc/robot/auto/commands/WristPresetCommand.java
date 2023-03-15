@@ -15,6 +15,7 @@ import lombok.AllArgsConstructor;
 public class WristPresetCommand extends AutoCommand {
   private final Claw m_claw;
   private final WristPreset m_preset;
+  private final double m_minAngleVelocity;
   private final double m_targetMsec;
 
   // Called when the command is initially scheduled.
@@ -28,7 +29,7 @@ public class WristPresetCommand extends AutoCommand {
   public void run() {}
 
   public boolean isCompleted() {
-    return m_claw.isAtAngle();
+    return m_claw.isAtAngle() && Math.abs(m_claw.getWristVelocity()) < m_minAngleVelocity;
   }
 
   public void postComplete(boolean interrupted) {}

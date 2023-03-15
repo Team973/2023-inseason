@@ -24,22 +24,24 @@ import lombok.experimental.Accessors;
 public class Claw implements Subsystem {
 
   public static class ConePresets {
-    public static final double floor = -108.76;
+    public static final double floor = -105.76;
     public static final double hybrid = -163.90;
     public static final double mid = -110.79;
     public static final double high = -94.39;
+    public static final double highBack = high + 20.0;
     public static final double hp = -102.91;
-    public static final double right = -71.0;
+    public static final double right = -74.0;
     public static final double stow = STOW_OFFSET;
     public static final double miniHp = -86.0;
     public static final double offset = STOW_OFFSET - 10;
   }
 
   public static class CubePresets {
-    public static final double floor = -121;
+    public static final double floor = -113;
     public static final double hybrid = -161.90;
     public static final double mid = -118.22;
     public static final double high = -111.09;
+    public static final double highBack = high + 10.0;
     public static final double hp = -104.84;
     public static final double right = -71.0;
     public static final double stow = STOW_OFFSET;
@@ -58,6 +60,7 @@ public class Claw implements Subsystem {
   private final DigitalInput m_coneSensor;
 
   private static final double STOW_OFFSET = 31.04;
+  private static final double TENSED_STOW_OFFSET = 37.21;
 
   private GamePiece m_lastGamePiece = GamePiece.None;
   @Getter private boolean m_hasGamePiece = false;
@@ -90,6 +93,7 @@ public class Claw implements Subsystem {
     Hybrid,
     Mid,
     High,
+    HighBack,
     HP,
     Stow,
     ConeRight,
@@ -185,6 +189,13 @@ public class Claw implements Subsystem {
           setWristTargetAngle(ConePresets.high);
         }
         break;
+      case HighBack:
+        if (currentGamePiece == GamePiece.Cube) {
+          setWristTargetAngle(CubePresets.highBack);
+        } else {
+          setWristTargetAngle(ConePresets.highBack);
+        }
+        break;
       case HP:
         if (currentGamePiece == GamePiece.Cube) {
           setWristTargetAngle(CubePresets.hp);
@@ -212,14 +223,15 @@ public class Claw implements Subsystem {
         } else {
           setWristTargetAngle(ConePresets.miniHp);
         }
+        break;
       case Offset:
-
-      case Manual:
         if (currentGamePiece == GamePiece.Cube) {
           setWristTargetAngle(CubePresets.offset);
         } else {
           setWristTargetAngle(ConePresets.offset);
         }
+        break;
+      case Manual:
       default:
         break;
     }
@@ -244,6 +256,10 @@ public class Claw implements Subsystem {
 
   private boolean getConeSensor() {
     return m_coneSensor.get();
+  }
+
+  public double getWristVelocity() {
+    return m_wristMotor.getVelocity().getValue() * ClawInfo.GEAR_RATIO * 360.0;
   }
 
   public void dashboardUpdate() {
@@ -286,7 +302,7 @@ public class Claw implements Subsystem {
         if (currentGamePiece == GamePiece.Cube) {
           m_intakeMotorOutput = 0.3;
         } else {
-          m_intakeMotorOutput = -0.5;
+          m_intakeMotorOutput = -1.0;
         }
         break;
       case Hold:
@@ -349,6 +365,13 @@ public class Claw implements Subsystem {
           setWristTargetAngle(ConePresets.high);
         }
         break;
+      case HighBack:
+        if (currentGamePiece == GamePiece.Cube) {
+          setWristTargetAngle(CubePresets.highBack);
+        } else {
+          setWristTargetAngle(ConePresets.highBack);
+        }
+        break;
       case HP:
         if (currentGamePiece == GamePiece.Cube) {
           setWristTargetAngle(CubePresets.hp);
@@ -374,14 +397,8 @@ public class Claw implements Subsystem {
       default:
         break;
     }
-    /*
-     * if (getWristHall()) {
-     * m_wristMotor.setRotorPosition(STOW_OFFSET);
-     * }
-     */
 
     m_lastGamePiece = currentGamePiece;
-
     /*
     if (getWristHall() && Math.abs(m_wristMotor.getStatorCurrent().getValue()) > 50.0) {
       m_wristMotor.setRotorPosition(STOW_OFFSET / 360.0 / ClawInfo.GEAR_RATIO);
@@ -392,7 +409,7 @@ public class Claw implements Subsystem {
   public void reset() {
     setIntakeState(IntakeState.Neutral);
     setWristPreset(WristPreset.Stow);
-    m_wristMotor.setRotorPosition(STOW_OFFSET / 360.0 / ClawInfo.GEAR_RATIO);
+    m_wristMotor.setRotorPosition(TENSED_STOW_OFFSET / 360.0 / ClawInfo.GEAR_RATIO);
   }
 
   public boolean isAtAngle() {

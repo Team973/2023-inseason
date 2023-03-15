@@ -8,10 +8,11 @@ import static frc.robot.shared.RobotInfo.*;
 
 import java.io.FileWriter;
 import java.io.PrintWriter;
+import java.util.Arrays;
+import java.util.List;
 
 import frc.robot.AutoManager.AutoMode;
 import frc.robot.AutoManager.AutoSide;
-import frc.robot.greydash.GreyDashClient;
 import frc.robot.shared.Constants.GamePiece;
 import frc.robot.shared.LimelightHelpers;
 import frc.robot.subsystems.CANdleManager;
@@ -35,6 +36,7 @@ import edu.wpi.first.wpilibj.PneumaticsModuleType;
 import edu.wpi.first.wpilibj.RobotBase;
 import edu.wpi.first.wpilibj.TimedRobot;
 import edu.wpi.first.wpilibj.XboxController;
+import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import lombok.Getter;
 import lombok.Setter;
 import lombok.experimental.Accessors;
@@ -48,7 +50,7 @@ import lombok.experimental.Accessors;
 @Accessors(prefix = "m_")
 public class Robot extends TimedRobot {
   @Setter @Getter private static GamePiece m_currentGamePiece = GamePiece.None;
-  @Getter private static GamePiece m_preloadGamePiece = GamePiece.None;
+  @Getter private static GamePiece m_preloadGamePiece = GamePiece.Cone;
 
   @Getter private static boolean m_exceptionHappened = false;
 
@@ -69,6 +71,17 @@ public class Robot extends TimedRobot {
 
   private final Compressor m_compressor =
       new Compressor(COMPRESSOR_ID, PneumaticsModuleType.CTREPCM);
+
+  private final List<AutoMode> m_availableAutoModes =
+      Arrays.asList(
+          AutoMode.PreloadPickupCharge,
+          AutoMode.Test,
+          AutoMode.PreloadAndCharge,
+          AutoMode.CenterPreloadAndCharge,
+          AutoMode.PreloadPickupScoreCharge,
+          AutoMode.NoAuto);
+  private int m_selectedMode = 0;
+  private AutoSide m_selectedAutoSide = AutoSide.Left;
 
   private void logException(Exception e) {
     try {
@@ -120,22 +133,6 @@ public class Robot extends TimedRobot {
   @Override
   public void robotInit() {
     try {
-      GreyDashClient.setAvailableAutoModes(
-          AutoMode.Test,
-          AutoMode.PreloadAndCharge,
-          AutoMode.CenterPreloadAndCharge,
-          AutoMode.PreloadPickupCharge,
-          AutoMode.NoAuto);
-      GreyDashClient.setSelectedAuto(AutoMode.PreloadPickupCharge);
-
-      GreyDashClient.setAvailableGamePieces(GamePiece.Cone, GamePiece.Cube, GamePiece.None);
-      GreyDashClient.setSelectedStagingGamePieces(
-          GamePiece.Cone, GamePiece.Cone, GamePiece.Cube, GamePiece.Cube);
-      GreyDashClient.setSelectedGamePiece(GamePiece.Cone);
-
-      GreyDashClient.setAvailableAutoSides(AutoSide.Left, AutoSide.Right);
-      GreyDashClient.setSelectedAutoSide(AutoSide.Left);
-
       this.resetSubsystems();
     } catch (Exception e) {
       logException(e);
@@ -157,15 +154,9 @@ public class Robot extends TimedRobot {
       if (isEnabled()) {
         updateSubsystems();
       }
-      // GreyDash
-      GreyDashClient.update();
       dashboardUpdateSubsystems();
 
-      // Auto Selection
-      m_autoManager.selectAuto(GreyDashClient.getAutoSelected());
-
-      AutoSide side = GreyDashClient.getSelectedAutoSide();
-
+      AutoSide side = m_selectedAutoSide;
       switch (DriverStation.getAlliance()) {
         case Blue:
           if (side == AutoSide.Left) {
@@ -271,11 +262,16 @@ public class Robot extends TimedRobot {
       } else if (m_driverStick.getBButton()) {
         m_drive.setRotationControl(RotationControl.ClosedLoop);
         m_drive.setTargetRobotAngle(Drive.AnglePresets.TOWARDS_HP);
+      } else if (m_driverStick.getAButton()) {
+        m_drive.setTargetRobotAngle(
+            DriverStation.getAlliance() == Alliance.Red
+                ? Drive.AnglePresets.TOWARDS_WS_RED
+                : Drive.AnglePresets.TOWARDS_WS_BLUE);
       } else if (m_driverStick.getXButton()) {
         m_drive.setTargetRobotAngle(
             DriverStation.getAlliance() == Alliance.Red
-                ? Drive.AnglePresets.TOWARDS_MHP_RED
-                : Drive.AnglePresets.TOWARDS_MHP_BLUE);
+                ? Drive.AnglePresets.TOWARDS_WSR_RED
+                : Drive.AnglePresets.TOWARDS_WSR_BLUE);
       } else if (rot == 0.0) {
         if (m_driverStick.getYButtonReleased() || m_driverStick.getBButtonReleased()) {
           m_drive.setTargetRobotAngle(m_drive.getNormalizedGyroYaw());
@@ -429,9 +425,39 @@ public class Robot extends TimedRobot {
   @Override
   public void disabledPeriodic() {
     try {
-      if (!m_autoRan) {
-        m_preloadGamePiece = GreyDashClient.getSelectedGamePiece();
+      if (m_operatorStick.getYButtonPressed()) {
+        m_selectedMode += 1;
       }
+      if (m_operatorStick.getAButtonPressed()) {
+        m_selectedMode -= 1;
+      }
+      if (m_selectedMode >= m_availableAutoModes.size()) {
+        m_selectedMode = 0;
+      }
+      if (m_selectedMode < 0) {
+        m_selectedMode = m_availableAutoModes.size() - 1;
+      }
+
+      if (m_operatorStick.getXButtonPressed()) {
+        m_selectedAutoSide = AutoSide.Left;
+      }
+      if (m_operatorStick.getBButtonPressed()) {
+        m_selectedAutoSide = AutoSide.Right;
+      }
+
+      if (m_operatorStick.getLeftBumperPressed()) {
+        m_preloadGamePiece = GamePiece.Cone;
+      }
+      if (m_operatorStick.getRightBumperPressed()) {
+        m_preloadGamePiece = GamePiece.Cube;
+      }
+
+      SmartDashboard.putString("DB/String 0", m_availableAutoModes.get(m_selectedMode).toString());
+      SmartDashboard.putString("DB/String 1", m_selectedAutoSide.toString());
+      SmartDashboard.putString("DB/String 2", m_preloadGamePiece.toString());
+
+      m_autoManager.selectAuto(m_availableAutoModes.get(m_selectedMode));
+
       if (m_driverStick.getAButton()) {
         m_drive.enableBrakeMode();
       } else {

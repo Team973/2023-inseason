@@ -17,30 +17,26 @@ import frc.robot.subsystems.Claw.WristPreset;
 import frc.robot.subsystems.Drive;
 import frc.robot.subsystems.Elevator;
 
-public class PreloadPickupCharge extends SequentialCommand {
+public class PreloadPickupScoreCharge extends SequentialCommand {
 
-  public PreloadPickupCharge(Drive drive, Claw claw, Elevator elevator) {
+  public PreloadPickupScoreCharge(Drive drive, Claw claw, Elevator elevator) {
     super(
         // Score preload
-        new IntakeCommand(claw, IntakeState.In, 100),
+        new IntakeCommand(claw, IntakeState.In, 200),
         new WristPresetCommand(claw, WristPreset.Offset, 10.0, 500),
         new ElevatorPresetCommand(elevator, Elevator.Presets.high, 4000),
-        new WristPresetCommand(claw, WristPreset.High, 10.0, 2000),
-        new IntakeCommand(claw, IntakeState.Out, 200),
-        new ConcurrentCommand(
-            new WristPresetCommand(claw, WristPreset.HighBack, 5.0, 500),
-            new IntakeCommand(claw, IntakeState.Out, 200)),
+        new WristPresetCommand(claw, WristPreset.High, 1.0, 2000),
+        new IntakeCommand(claw, IntakeState.Out, 500),
+        new WaitCommand(200),
         new SetCurrentGamePieceCommand(GamePiece.None),
 
         // Drive to pickup
         new ConcurrentCommand(
-            new IntakeCommand(claw, IntakeState.Out, 500),
-            new SequentialCommand(
-                new WaitCommand(500),
-                new ElevatorPresetCommand(elevator, Elevator.Presets.stow, 1000),
-                new WristPresetCommand(claw, WristPreset.Stow, 10.0, 2000)),
+            new ElevatorPresetCommand(elevator, Elevator.Presets.stow, 1000),
+            new WristPresetCommand(claw, WristPreset.Stow, 10.0, 2000),
             new PathPlannerTrajectoryCommand(
-                drive, TrajectoryManager.getPathSegment(TrajectoryManager.PreloadPickupCharge, 0)),
+                drive,
+                TrajectoryManager.getPathSegment(TrajectoryManager.PreloadPickupScoreCharge, 0)),
             new SequentialCommand(
                 new WaitCommand(2000),
                 new SetCurrentGamePieceCommand(GamePiece.Cone),
@@ -53,12 +49,20 @@ public class PreloadPickupCharge extends SequentialCommand {
         new ConcurrentCommand(
             new ElevatorPresetCommand(elevator, Elevator.Presets.stow, 1000),
             new WristPresetCommand(claw, WristPreset.Stow, 10.0, 1000)),
-
-        // Balance
         new PathPlannerTrajectoryCommand(
             drive,
             false,
-            TrajectoryManager.getPathSegment(TrajectoryManager.PreloadPickupCharge, 1)),
+            TrajectoryManager.getPathSegment(TrajectoryManager.PreloadPickupScoreCharge, 1)),
+        new WristPresetCommand(claw, WristPreset.Offset, 10.0, 500),
+        new ElevatorPresetCommand(elevator, Elevator.Presets.high, 4000),
+        new WristPresetCommand(claw, WristPreset.High, 10.0, 2000),
+        new IntakeCommand(claw, IntakeState.Out, 500),
+        new WaitCommand(200),
+        new SetCurrentGamePieceCommand(GamePiece.None),
+        new PathPlannerTrajectoryCommand(
+            drive,
+            false,
+            TrajectoryManager.getPathSegment(TrajectoryManager.PreloadPickupScoreCharge, 2)),
         new BalanceCommand(drive, 5000));
   }
 }
