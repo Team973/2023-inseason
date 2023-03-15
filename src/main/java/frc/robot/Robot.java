@@ -19,12 +19,13 @@ import frc.robot.subsystems.CANdleManager;
 import frc.robot.subsystems.CANdleManager.LightState;
 import frc.robot.subsystems.Claw;
 import frc.robot.subsystems.Claw.IntakeState;
-import frc.robot.subsystems.Claw.WristPreset;
-import frc.robot.subsystems.Claw.WristState;
 import frc.robot.subsystems.Drive;
 import frc.robot.subsystems.Drive.RotationControl;
 import frc.robot.subsystems.Elevator;
 import frc.robot.subsystems.Elevator.ElevatorState;
+import frc.robot.subsystems.Wrist;
+import frc.robot.subsystems.Wrist.WristPreset;
+import frc.robot.subsystems.Wrist.WristState;
 
 import edu.wpi.first.math.MathUtil;
 import edu.wpi.first.math.filter.SlewRateLimiter;
@@ -59,10 +60,11 @@ public class Robot extends TimedRobot {
   private static boolean m_autoRan = false;
 
   private final Elevator m_elevator = new Elevator();
+  private final Wrist m_wrist = new Wrist();
   private final Claw m_claw = new Claw();
   private final Drive m_drive = new Drive();
   private final CANdleManager m_candleManager = new CANdleManager();
-  private final AutoManager m_autoManager = new AutoManager(m_claw, m_elevator, m_drive);
+  private final AutoManager m_autoManager = new AutoManager(m_claw, m_elevator, m_drive, m_wrist);
 
   private final XboxController m_driverStick = new XboxController(0);
   private final XboxController m_operatorStick = new XboxController(1);
@@ -106,6 +108,7 @@ public class Robot extends TimedRobot {
 
   private void dashboardUpdateSubsystems() {
     m_elevator.dashboardUpdate();
+    m_wrist.dashboardUpdate();
     m_claw.dashboardUpdate();
     m_drive.dashboardUpdate();
     m_candleManager.dashboardUpdate();
@@ -114,6 +117,7 @@ public class Robot extends TimedRobot {
   /** Update subsystems. Called me when enabled. */
   private void updateSubsystems() {
     m_elevator.update();
+    m_wrist.update();
     m_claw.update();
     m_drive.update();
   }
@@ -121,6 +125,7 @@ public class Robot extends TimedRobot {
   /** Reset subsystems. Called me when initializing. */
   private void resetSubsystems() {
     m_elevator.reset();
+    m_wrist.reset();
     m_claw.reset();
     m_drive.reset();
     m_candleManager.reset();
@@ -225,7 +230,7 @@ public class Robot extends TimedRobot {
     try {
       LimelightHelpers.setPipelineIndex("", 0);
       m_compressor.enableDigital();
-      m_claw.setWristState(WristState.Manual);
+      m_wrist.setState(WristState.Manual);
       m_drive.setTargetRobotAngle(m_drive.getNormalizedGyroYaw());
       m_drive.disableBrakeMode();
     } catch (Exception e) {
@@ -288,14 +293,14 @@ public class Robot extends TimedRobot {
 
       // Score
       if (m_driverStick.getLeftBumper()) {
-        if (m_claw.isHasGamePiece() && (m_claw.getWristPreset() == WristPreset.Stow)) {
-          m_claw.setWristPreset(WristPreset.ConeRight);
+        if (m_claw.isHasGamePiece() && (m_wrist.getPreset() == WristPreset.Stow)) {
+          m_wrist.setPreset(WristPreset.ConeRight);
         }
         m_claw.setIntakeState(IntakeState.Out);
       } else if (m_claw.getIntakeState() == IntakeState.Out) {
         m_claw.setIntakeState(IntakeState.Neutral);
         m_currentGamePiece = GamePiece.None;
-        m_claw.setWristPreset(WristPreset.Stow);
+        m_wrist.setPreset(WristPreset.Stow);
         m_elevator.setHeight(Elevator.Presets.stow);
       }
 
@@ -303,13 +308,13 @@ public class Robot extends TimedRobot {
       if (m_driverStick.getRightTriggerAxis() > 0.1) {
         m_elevator.setElevatorState(ElevatorState.ClosedLoop);
         m_elevator.setHeight(Elevator.Presets.floor);
-        m_claw.setWristState(WristState.ClosedLoop);
+        m_wrist.setState(WristState.ClosedLoop);
         m_currentGamePiece = GamePiece.Cone;
         m_claw.setIntakeState(IntakeState.In);
         if (m_driverStick.getRightTriggerAxis() > 0.9) {
-          m_claw.setWristPreset(WristPreset.Floor);
+          m_wrist.setPreset(WristPreset.Floor);
         } else {
-          m_claw.setWristPreset(WristPreset.ConeRight);
+          m_wrist.setPreset(WristPreset.ConeRight);
         }
       }
 
@@ -319,7 +324,7 @@ public class Robot extends TimedRobot {
       // Stow elevator/wrist
       if (m_driverStick.getLeftTriggerAxis() > 0.5) {
         m_elevator.setHeight(Elevator.Presets.stow);
-        m_claw.setWristPreset(Claw.WristPreset.Stow);
+        m_wrist.setPreset(WristPreset.Stow);
       }
 
       ////////////////////////
@@ -329,7 +334,7 @@ public class Robot extends TimedRobot {
 
       if (m_operatorStick.getAButton()) {
         m_elevator.setHeight(Elevator.Presets.miniHp);
-        m_claw.setWristPreset(Claw.WristPreset.MiniHp);
+        m_wrist.setPreset(WristPreset.MiniHp);
         m_currentGamePiece = GamePiece.None;
       }
 
@@ -337,25 +342,25 @@ public class Robot extends TimedRobot {
       switch (m_operatorStick.getPOV()) {
         case 0:
           m_elevator.setHeight(Elevator.Presets.high);
-          m_claw.setWristPreset(Claw.WristPreset.High);
+          m_wrist.setPreset(WristPreset.High);
           break;
         case 90:
           m_elevator.setHeight(Elevator.Presets.mid);
-          m_claw.setWristPreset(Claw.WristPreset.Mid);
+          m_wrist.setPreset(WristPreset.Mid);
           break;
         case 180:
           // If we have a game piece, go to hybrid, otherwise go to floor
           if (m_claw.isHasGamePiece()) {
             m_elevator.setHeight(Elevator.Presets.hybrid);
-            m_claw.setWristPreset(Claw.WristPreset.Hybrid);
+            m_wrist.setPreset(WristPreset.Hybrid);
           } else {
             m_elevator.setHeight(Elevator.Presets.floor);
-            m_claw.setWristPreset(Claw.WristPreset.Floor);
+            m_wrist.setPreset(WristPreset.Floor);
           }
           break;
         case 270:
           m_elevator.setHeight(Elevator.Presets.hp);
-          m_claw.setWristPreset(Claw.WristPreset.HP);
+          m_wrist.setPreset(WristPreset.HP);
           m_currentGamePiece = GamePiece.None;
           break;
         default:
@@ -390,17 +395,17 @@ public class Robot extends TimedRobot {
       if (m_claw.getIntakeState() == IntakeState.In && m_claw.isHasGamePiece()) {
         m_candleManager.setLightState(LightState.GotIt);
 
-        m_claw.setWristPreset(WristPreset.Stow);
+        m_wrist.setPreset(WristPreset.Stow);
         m_elevator.setHeight(Elevator.Presets.stow);
       }
 
       // Manually Control Wrist
       double wristJoystickInput = -MathUtil.applyDeadband(m_operatorStick.getLeftY(), 0.12) * 0.25;
       if (wristJoystickInput != 0.0 && m_driverStick.getRightTriggerAxis() <= 0.1) {
-        m_claw.setWristState(WristState.Manual);
-        m_claw.setWristMotorOutput(wristJoystickInput);
+        m_wrist.setState(WristState.Manual);
+        m_wrist.setMotorOutput(wristJoystickInput);
       } else {
-        m_claw.setWristState(WristState.ClosedLoop);
+        m_wrist.setState(WristState.ClosedLoop);
       }
 
       if (m_operatorStick.getStartButton()) {

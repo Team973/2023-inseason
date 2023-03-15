@@ -10,6 +10,7 @@ import frc.robot.shared.AutoCommand;
 import frc.robot.subsystems.Claw;
 import frc.robot.subsystems.Drive;
 import frc.robot.subsystems.Elevator;
+import frc.robot.subsystems.Wrist;
 
 public class AutoManager {
   private AutoCommand m_currentMode;
@@ -36,12 +37,12 @@ public class AutoManager {
   private final AutoCommand m_noAuto;
   private final AutoCommand m_preloadPickupScoreCharge;
 
-  public AutoManager(Claw claw, Elevator elevator, Drive drive) {
+  public AutoManager(Claw claw, Elevator elevator, Drive drive, Wrist wrist) {
     m_test = new Test(drive);
-    m_preloadAndCharge = new PreloadAndCharge(drive, claw, elevator);
-    m_preloadPickupCharge = new PreloadPickupCharge(drive, claw, elevator);
-    m_centerPreloadAndCharge = new CenterPreloadAndCharge(drive, claw, elevator);
-    m_preloadPickupScoreCharge = new PreloadPickupScoreCharge(drive, claw, elevator);
+    m_preloadAndCharge = new PreloadAndCharge(drive, claw, elevator, wrist);
+    m_preloadPickupCharge = new PreloadPickupCharge(drive, claw, elevator, wrist);
+    m_centerPreloadAndCharge = new CenterPreloadAndCharge(drive, claw, elevator, wrist);
+    m_preloadPickupScoreCharge = new PreloadPickupScoreCharge(drive, claw, elevator, wrist);
     m_noAuto = new NoAuto();
   }
 
