@@ -25,7 +25,7 @@ public class PreloadPickupScoreCharge extends SequentialCommand {
         // Score preload
         new IntakeCommand(claw, IntakeState.In, 200),
         new WristPresetCommand(wrist, WristPreset.Offset, 10.0, 500),
-        new ElevatorPresetCommand(elevator, Elevator.Presets.high, 4000),
+        new ElevatorPresetCommand(elevator, Elevator.Preset.High, 4000),
         new WristPresetCommand(wrist, WristPreset.High, 1.0, 2000),
         new IntakeCommand(claw, IntakeState.Out, 500),
         new WaitCommand(200),
@@ -33,7 +33,7 @@ public class PreloadPickupScoreCharge extends SequentialCommand {
 
         // Drive to pickup
         new ConcurrentCommand(
-            new ElevatorPresetCommand(elevator, Elevator.Presets.stow, 1000),
+            new ElevatorPresetCommand(elevator, Elevator.Preset.Stow, 1000),
             new WristPresetCommand(wrist, WristPreset.Stow, 10.0, 2000),
             new PathPlannerTrajectoryCommand(
                 drive,
@@ -42,20 +42,20 @@ public class PreloadPickupScoreCharge extends SequentialCommand {
                 new WaitCommand(2000),
                 new SetCurrentGamePieceCommand(GamePiece.Cone),
                 new ConcurrentCommand(
-                    new ElevatorPresetCommand(elevator, Elevator.Presets.floor, 4000),
+                    new ElevatorPresetCommand(elevator, Elevator.Preset.Floor, 4000),
                     new WristPresetCommand(wrist, WristPreset.Floor, 10.0, 2000),
                     new IntakeCommand(claw, IntakeState.In, 1000)))),
 
         // Stow
         new ConcurrentCommand(
-            new ElevatorPresetCommand(elevator, Elevator.Presets.stow, 1000),
+            new ElevatorPresetCommand(elevator, Elevator.Preset.Stow, 1000),
             new WristPresetCommand(wrist, WristPreset.Stow, 10.0, 1000)),
         new PathPlannerTrajectoryCommand(
             drive,
             false,
             TrajectoryManager.getPathSegment(TrajectoryManager.PreloadPickupScoreCharge, 1)),
         new WristPresetCommand(wrist, WristPreset.Offset, 10.0, 500),
-        new ElevatorPresetCommand(elevator, Elevator.Presets.high, 4000),
+        new ElevatorPresetCommand(elevator, Elevator.Preset.High, 4000),
         new WristPresetCommand(wrist, WristPreset.High, 10.0, 2000),
         new IntakeCommand(claw, IntakeState.Out, 500),
         new WaitCommand(200),
