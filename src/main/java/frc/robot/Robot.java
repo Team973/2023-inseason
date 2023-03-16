@@ -301,13 +301,13 @@ public class Robot extends TimedRobot {
         m_claw.setIntakeState(IntakeState.Neutral);
         m_currentGamePiece = GamePiece.None;
         m_wrist.setPreset(WristPreset.Stow);
-        m_elevator.setHeight(Elevator.Presets.stow);
+        m_elevator.setPreset(Elevator.Preset.Stow);
       }
 
       // Right Cone
       if (m_driverStick.getRightTriggerAxis() > 0.1) {
         m_elevator.setElevatorState(ElevatorState.ClosedLoop);
-        m_elevator.setHeight(Elevator.Presets.floor);
+        m_elevator.setPreset(Elevator.Preset.Floor);
         m_wrist.setState(WristState.ClosedLoop);
         m_currentGamePiece = GamePiece.Cone;
         m_claw.setIntakeState(IntakeState.In);
@@ -323,7 +323,7 @@ public class Robot extends TimedRobot {
       //////////
       // Stow elevator/wrist
       if (m_driverStick.getLeftTriggerAxis() > 0.5) {
-        m_elevator.setHeight(Elevator.Presets.stow);
+        m_elevator.setPreset(Elevator.Preset.Stow);
         m_wrist.setPreset(WristPreset.Stow);
       }
 
@@ -333,7 +333,7 @@ public class Robot extends TimedRobot {
       double operatorStickRightY = -MathUtil.applyDeadband(m_operatorStick.getRawAxis(5), 0.1);
 
       if (m_operatorStick.getAButton()) {
-        m_elevator.setHeight(Elevator.Presets.miniHp);
+        m_elevator.setPreset(Elevator.Preset.MiniHp);
         m_wrist.setPreset(WristPreset.MiniHp);
         m_currentGamePiece = GamePiece.None;
       }
@@ -341,25 +341,25 @@ public class Robot extends TimedRobot {
       // Elevator height preset
       switch (m_operatorStick.getPOV()) {
         case 0:
-          m_elevator.setHeight(Elevator.Presets.high);
+          m_elevator.setPreset(Elevator.Preset.High);
           m_wrist.setPreset(WristPreset.High);
           break;
         case 90:
-          m_elevator.setHeight(Elevator.Presets.mid);
+          m_elevator.setPreset(Elevator.Preset.Mid);
           m_wrist.setPreset(WristPreset.Mid);
           break;
         case 180:
           // If we have a game piece, go to hybrid, otherwise go to floor
           if (m_claw.isHasGamePiece()) {
-            m_elevator.setHeight(Elevator.Presets.hybrid);
+            m_elevator.setPreset(Elevator.Preset.Hybrid);
             m_wrist.setPreset(WristPreset.Hybrid);
           } else {
-            m_elevator.setHeight(Elevator.Presets.floor);
+            m_elevator.setPreset(Elevator.Preset.Floor);
             m_wrist.setPreset(WristPreset.Floor);
           }
           break;
         case 270:
-          m_elevator.setHeight(Elevator.Presets.hp);
+          m_elevator.setPreset(Elevator.Preset.Hp);
           m_wrist.setPreset(WristPreset.HP);
           m_currentGamePiece = GamePiece.None;
           break;
@@ -371,9 +371,6 @@ public class Robot extends TimedRobot {
       if (operatorStickRightY != 0.0) {
         m_elevator.setElevatorState(ElevatorState.Manual);
         m_elevator.setElevatorOutput(operatorStickRightY);
-      } else if (m_elevator.getElevatorState() == ElevatorState.Manual) {
-        m_elevator.setHeight(m_elevator.getHeight());
-        m_elevator.setElevatorState(ElevatorState.ClosedLoop);
       } else {
         m_elevator.setElevatorState(ElevatorState.ClosedLoop);
       }
@@ -396,7 +393,7 @@ public class Robot extends TimedRobot {
         m_candleManager.setLightState(LightState.GotIt);
 
         m_wrist.setPreset(WristPreset.Stow);
-        m_elevator.setHeight(Elevator.Presets.stow);
+        m_elevator.setPreset(Elevator.Preset.Stow);
       }
 
       // Manually Control Wrist
