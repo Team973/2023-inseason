@@ -54,12 +54,8 @@ public class Wrist implements Subsystem {
     public static final double preStow = STOW_OFFSET + 10;
   }
 
-  @Setter
-  @Getter
-  private WristState m_state = WristState.Manual;
-  @Setter
-  @Getter
-  private WristPreset m_preset = WristPreset.Stow;
+  @Setter @Getter private WristState m_state = WristState.Manual;
+  @Setter @Getter private WristPreset m_preset = WristPreset.Stow;
 
   private final GreyTalonFX m_wristMotor;
 
@@ -67,12 +63,12 @@ public class Wrist implements Subsystem {
 
   private double m_targetAngle = STOW_OFFSET;
 
-  @Setter
-  private double m_motorOutput = 0.0;
+  @Setter private double m_motorOutput = 0.0;
 
   private final double ANGLE_TOLERANCE = 1.0; // degrees
 
-  private final PositionVoltage m_wristPosition = new PositionVoltage(m_targetAngle / 360.0 / ClawInfo.GEAR_RATIO);
+  private final PositionVoltage m_wristPosition =
+      new PositionVoltage(m_targetAngle / 360.0 / ClawInfo.GEAR_RATIO);
 
   public enum WristState {
     Manual,
