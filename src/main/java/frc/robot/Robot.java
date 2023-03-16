@@ -44,19 +44,27 @@ import lombok.Setter;
 import lombok.experimental.Accessors;
 
 /**
- * The VM is configured to automatically run this class, and to call the functions corresponding to
- * each mode, as described in the TimedRobot documentation. If you change the name of this class or
- * the package after creating this project, you must also update the build.gradle file in the
+ * The VM is configured to automatically run this class, and to call the
+ * functions corresponding to
+ * each mode, as described in the TimedRobot documentation. If you change the
+ * name of this class or
+ * the package after creating this project, you must also update the
+ * build.gradle file in the
  * project.
  */
 @Accessors(prefix = "m_")
 public class Robot extends TimedRobot {
-  @Setter @Getter private static GamePiece m_currentGamePiece = GamePiece.None;
-  @Getter private static GamePiece m_preloadGamePiece = GamePiece.Cone;
+  @Setter
+  @Getter
+  private static GamePiece m_currentGamePiece = GamePiece.None;
+  @Getter
+  private static GamePiece m_preloadGamePiece = GamePiece.Cone;
 
-  @Getter private static boolean m_exceptionHappened = false;
+  @Getter
+  private static boolean m_exceptionHappened = false;
 
-  @Getter private static Alliance m_calculatedAlliance;
+  @Getter
+  private static Alliance m_calculatedAlliance;
 
   private static boolean m_autoRan = false;
 
@@ -73,17 +81,15 @@ public class Robot extends TimedRobot {
 
   private final SlewRateLimiter m_rotLimiter = new SlewRateLimiter(3);
 
-  private final Compressor m_compressor =
-      new Compressor(COMPRESSOR_ID, PneumaticsModuleType.CTREPCM);
+  private final Compressor m_compressor = new Compressor(COMPRESSOR_ID, PneumaticsModuleType.CTREPCM);
 
-  private final List<AutoMode> m_availableAutoModes =
-      Arrays.asList(
-          AutoMode.PreloadPickupCharge,
-          AutoMode.Test,
-          AutoMode.PreloadAndCharge,
-          AutoMode.CenterPreloadAndCharge,
-          AutoMode.PreloadPickupScoreCharge,
-          AutoMode.NoAuto);
+  private final List<AutoMode> m_availableAutoModes = Arrays.asList(
+      AutoMode.PreloadPickupCharge,
+      AutoMode.Test,
+      AutoMode.PreloadAndCharge,
+      AutoMode.CenterPreloadAndCharge,
+      AutoMode.PreloadPickupScoreCharge,
+      AutoMode.NoAuto);
   private int m_selectedMode = 0;
   private AutoSide m_selectedAutoSide = AutoSide.Left;
 
@@ -137,7 +143,8 @@ public class Robot extends TimedRobot {
   }
 
   /**
-   * This function is run when the robot is first started up and should be used for any
+   * This function is run when the robot is first started up and should be used
+   * for any
    * initialization code.
    */
   @Override
@@ -150,10 +157,13 @@ public class Robot extends TimedRobot {
   }
 
   /**
-   * This function is called every 20 ms, no matter the mode. Use this for items like diagnostics
+   * This function is called every 20 ms, no matter the mode. Use this for items
+   * like diagnostics
    * that you want ran during disabled, autonomous, teleoperated and test.
    *
-   * <p>This runs after the mode specific periodic functions, but before LiveWindow and
+   * <p>
+   * This runs after the mode specific periodic functions, but before LiveWindow
+   * and
    * SmartDashboard integrated updating.
    */
   @Override
@@ -198,13 +208,20 @@ public class Robot extends TimedRobot {
   }
 
   /**
-   * This autonomous (along with the chooser code above) shows how to select between different
-   * autonomous modes using the dashboard. The sendable chooser code works with the Java
-   * SmartDashboard. If you prefer the LabVIEW Dashboard, remove all of the chooser code and
-   * uncomment the getString line to get the auto name from the text box below the Gyro
+   * This autonomous (along with the chooser code above) shows how to select
+   * between different
+   * autonomous modes using the dashboard. The sendable chooser code works with
+   * the Java
+   * SmartDashboard. If you prefer the LabVIEW Dashboard, remove all of the
+   * chooser code and
+   * uncomment the getString line to get the auto name from the text box below the
+   * Gyro
    *
-   * <p>You can add additional auto modes by adding additional comparisons to the switch structure
-   * below with additional strings. If using the SendableChooser make sure to add them to the
+   * <p>
+   * You can add additional auto modes by adding additional comparisons to the
+   * switch structure
+   * below with additional strings. If using the SendableChooser make sure to add
+   * them to the
    * chooser code above as well.
    */
   @Override
@@ -253,15 +270,13 @@ public class Robot extends TimedRobot {
       final double xSpeed = -MathUtil.applyDeadband(m_driverStick.getRawAxis(1), 0.12);
       final double ySpeed = -MathUtil.applyDeadband(m_driverStick.getRawAxis(0), 0.12);
 
-      double rot =
-          -m_rotLimiter.calculate(MathUtil.applyDeadband(m_driverStick.getRawAxis(4), 0.09))
-              * DriveInfo.MAX_ANGULAR_VELOCITY_RADIANS_PER_SECOND;
+      double rot = -m_rotLimiter.calculate(MathUtil.applyDeadband(m_driverStick.getRawAxis(4), 0.09))
+          * DriveInfo.MAX_ANGULAR_VELOCITY_RADIANS_PER_SECOND;
       if (m_elevator.getHeight() > 15.0) {
         rot *= 0.5;
       }
 
-      Translation2d translation =
-          new Translation2d(xSpeed, ySpeed).times(DriveInfo.MAX_VELOCITY_METERS_PER_SECOND);
+      Translation2d translation = new Translation2d(xSpeed, ySpeed).times(DriveInfo.MAX_VELOCITY_METERS_PER_SECOND);
 
       m_drive.driveInput(translation, rot, true);
 
@@ -306,13 +321,13 @@ public class Robot extends TimedRobot {
         m_claw.setIntakeState(IntakeState.Neutral);
         m_currentGamePiece = GamePiece.None;
         m_wrist.setPreset(WristPreset.Stow);
-        m_elevator.setHeight(Elevator.Presets.stow);
+        m_elevator.setPreset(Elevator.Preset.Stow);
       }
 
       // Right Cone
       if (m_driverStick.getRightTriggerAxis() > 0.1) {
         m_elevator.setElevatorState(ElevatorState.ClosedLoop);
-        m_elevator.setHeight(Elevator.Presets.floor);
+        m_elevator.setPreset(Elevator.Preset.Floor);
         m_wrist.setState(WristState.ClosedLoop);
         m_currentGamePiece = GamePiece.Cone;
         m_claw.setIntakeState(IntakeState.In);
@@ -328,7 +343,7 @@ public class Robot extends TimedRobot {
       //////////
       // Stow elevator/wrist
       if (m_driverStick.getLeftTriggerAxis() > 0.5) {
-        m_elevator.setHeight(Elevator.Presets.stow);
+        m_elevator.setPreset(Elevator.Preset.Stow);
         m_superStructure.wristStow();
       }
 
@@ -338,7 +353,7 @@ public class Robot extends TimedRobot {
       double operatorStickRightY = -MathUtil.applyDeadband(m_operatorStick.getRawAxis(5), 0.1);
 
       if (m_operatorStick.getAButton()) {
-        m_elevator.setHeight(Elevator.Presets.miniHp);
+        m_elevator.setPreset(Elevator.Preset.MiniHp);
         m_wrist.setPreset(WristPreset.MiniHp);
         m_currentGamePiece = GamePiece.None;
       }
@@ -346,25 +361,25 @@ public class Robot extends TimedRobot {
       // Elevator height preset
       switch (m_operatorStick.getPOV()) {
         case 0:
-          m_elevator.setHeight(Elevator.Presets.high);
+          m_elevator.setPreset(Elevator.Preset.High);
           m_wrist.setPreset(WristPreset.High);
           break;
         case 90:
-          m_elevator.setHeight(Elevator.Presets.mid);
+          m_elevator.setPreset(Elevator.Preset.Mid);
           m_wrist.setPreset(WristPreset.Mid);
           break;
         case 180:
           // If we have a game piece, go to hybrid, otherwise go to floor
           if (m_claw.isHasGamePiece()) {
-            m_elevator.setHeight(Elevator.Presets.hybrid);
+            m_elevator.setPreset(Elevator.Preset.Hybrid);
             m_wrist.setPreset(WristPreset.Hybrid);
           } else {
-            m_elevator.setHeight(Elevator.Presets.floor);
+            m_elevator.setPreset(Elevator.Preset.Floor);
             m_wrist.setPreset(WristPreset.Floor);
           }
           break;
         case 270:
-          m_elevator.setHeight(Elevator.Presets.hp);
+          m_elevator.setPreset(Elevator.Preset.Hp);
           m_wrist.setPreset(WristPreset.HP);
           m_currentGamePiece = GamePiece.None;
           break;
@@ -376,9 +391,6 @@ public class Robot extends TimedRobot {
       if (operatorStickRightY != 0.0) {
         m_elevator.setElevatorState(ElevatorState.Manual);
         m_elevator.setElevatorOutput(operatorStickRightY);
-      } else if (m_elevator.getElevatorState() == ElevatorState.Manual) {
-        m_elevator.setHeight(m_elevator.getHeight());
-        m_elevator.setElevatorState(ElevatorState.ClosedLoop);
       } else {
         m_elevator.setElevatorState(ElevatorState.ClosedLoop);
       }
@@ -401,7 +413,7 @@ public class Robot extends TimedRobot {
         m_candleManager.setLightState(LightState.GotIt);
 
         m_wrist.setPreset(WristPreset.Stow);
-        m_elevator.setHeight(Elevator.Presets.stow);
+        m_elevator.setPreset(Elevator.Preset.Stow);
       }
 
       // Manually Control Wrist
