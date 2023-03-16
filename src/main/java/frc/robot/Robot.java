@@ -23,6 +23,7 @@ import frc.robot.subsystems.Drive;
 import frc.robot.subsystems.Drive.RotationControl;
 import frc.robot.subsystems.Elevator;
 import frc.robot.subsystems.Elevator.ElevatorState;
+import frc.robot.subsystems.Superstructure;
 import frc.robot.subsystems.Wrist;
 import frc.robot.subsystems.Wrist.WristPreset;
 import frc.robot.subsystems.Wrist.WristState;
@@ -65,6 +66,7 @@ public class Robot extends TimedRobot {
   private final Drive m_drive = new Drive();
   private final CANdleManager m_candleManager = new CANdleManager();
   private final AutoManager m_autoManager = new AutoManager(m_claw, m_elevator, m_drive, m_wrist);
+  private final Superstructure m_superStructure = new Superstructure();
 
   private final XboxController m_driverStick = new XboxController(0);
   private final XboxController m_operatorStick = new XboxController(1);
@@ -112,6 +114,7 @@ public class Robot extends TimedRobot {
     m_claw.dashboardUpdate();
     m_drive.dashboardUpdate();
     m_candleManager.dashboardUpdate();
+    m_superStructure.dashboardUpdate();
   }
 
   /** Update subsystems. Called me when enabled. */
@@ -120,6 +123,7 @@ public class Robot extends TimedRobot {
     m_wrist.update();
     m_claw.update();
     m_drive.update();
+    m_superStructure.update();
   }
 
   /** Reset subsystems. Called me when initializing. */
@@ -129,6 +133,7 @@ public class Robot extends TimedRobot {
     m_claw.reset();
     m_drive.reset();
     m_candleManager.reset();
+    m_superStructure.reset();
   }
 
   /**
@@ -324,7 +329,7 @@ public class Robot extends TimedRobot {
       // Stow elevator/wrist
       if (m_driverStick.getLeftTriggerAxis() > 0.5) {
         m_elevator.setHeight(Elevator.Presets.stow);
-        m_wrist.setPreset(WristPreset.Stow);
+        m_superStructure.wristStow();
       }
 
       ////////////////////////
@@ -401,6 +406,7 @@ public class Robot extends TimedRobot {
 
       // Manually Control Wrist
       double wristJoystickInput = -MathUtil.applyDeadband(m_operatorStick.getLeftY(), 0.12) * 0.25;
+
       if (wristJoystickInput != 0.0 && m_driverStick.getRightTriggerAxis() <= 0.1) {
         m_wrist.setState(WristState.Manual);
         m_wrist.setMotorOutput(wristJoystickInput);

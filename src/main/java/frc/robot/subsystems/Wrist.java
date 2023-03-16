@@ -37,6 +37,7 @@ public class Wrist implements Subsystem {
     public static final double stow = STOW_OFFSET;
     public static final double miniHp = -86.0;
     public static final double offset = STOW_OFFSET - 10;
+    public static final double preStow = STOW_OFFSET + 10;
   }
 
   public static class CubePresets {
@@ -50,6 +51,7 @@ public class Wrist implements Subsystem {
     public static final double stow = STOW_OFFSET;
     public static final double miniHp = -89.5;
     public static final double offset = STOW_OFFSET - 10;
+    public static final double preStow = STOW_OFFSET + 10;
   }
 
   @Setter @Getter private WristState m_state = WristState.Manual;
@@ -84,7 +86,8 @@ public class Wrist implements Subsystem {
     ConeRight,
     MiniHp,
     Manual,
-    Offset
+    Offset,
+    PreStow
   }
 
   public Wrist() {
@@ -213,6 +216,13 @@ public class Wrist implements Subsystem {
           setTargetAngleDegrees(CubePresets.offset);
         } else {
           setTargetAngleDegrees(ConePresets.offset);
+        }
+        break;
+      case PreStow:
+        if (currentGamePiece == GamePiece.Cube) {
+          setTargetAngleDegrees(CubePresets.preStow);
+        } else {
+          setTargetAngleDegrees(ConePresets.preStow);
         }
         break;
       case Manual:
