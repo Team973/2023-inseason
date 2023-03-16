@@ -53,7 +53,7 @@ public class Wrist implements Subsystem {
   }
 
   @Setter @Getter private WristState m_state = WristState.Manual;
-  @Getter private WristPreset m_preset = WristPreset.Stow;
+  @Setter @Getter private WristPreset m_preset = WristPreset.Stow;
 
   private final GreyTalonFX m_wristMotor;
 
@@ -74,17 +74,33 @@ public class Wrist implements Subsystem {
   }
 
   public enum WristPreset {
-    Floor,
-    Hybrid,
-    Mid,
-    High,
-    HighBack,
-    HP,
-    Stow,
-    ConeRight,
-    MiniHp,
-    Manual,
-    Offset
+    Floor(-113, -105.76),
+    Hybrid(-161.9, -163.9),
+    Mid(-118.22, -110.79),
+    High(-111.09, -94.39),
+    HighBack(-101.09, -74.39),
+    HP(-104.84, -102.91),
+    Stow(STOW_OFFSET, STOW_OFFSET),
+    ConeRight(-71.0, -74.0),
+    MiniHp(-89.5, -86.0),
+    Manual(0.0, 0.0),
+    Offset(STOW_OFFSET - 10, STOW_OFFSET - 10);
+
+    private final double cube;
+    private final double cone;
+
+    WristPreset(double cube, double cone) {
+      this.cube = cube;
+      this.cone = cone;
+    }
+
+    public double getCubePreset() {
+      return this.cube;
+    }
+
+    public double getConePreset() {
+      return this.cone;
+    }
   }
 
   public Wrist() {
@@ -148,79 +164,6 @@ public class Wrist implements Subsystem {
     return Math.abs(getCurrentAngleDegrees() - m_targetAngle) < ANGLE_TOLERANCE;
   }
 
-  public void setPreset(WristPreset preset) {
-    m_preset = preset;
-    GamePiece currentGamePiece = Robot.getCurrentGamePiece();
-    switch (m_preset) {
-      case Floor:
-        if (currentGamePiece == GamePiece.Cube) {
-          setTargetAngleDegrees(CubePresets.floor);
-        } else {
-          setTargetAngleDegrees(ConePresets.floor);
-        }
-        break;
-      case Mid:
-        if (currentGamePiece == GamePiece.Cube) {
-          setTargetAngleDegrees(CubePresets.mid);
-        } else {
-          setTargetAngleDegrees(ConePresets.mid);
-        }
-        break;
-      case High:
-        if (currentGamePiece == GamePiece.Cube) {
-          setTargetAngleDegrees(CubePresets.high);
-        } else {
-          setTargetAngleDegrees(ConePresets.high);
-        }
-        break;
-      case HighBack:
-        if (currentGamePiece == GamePiece.Cube) {
-          setTargetAngleDegrees(CubePresets.highBack);
-        } else {
-          setTargetAngleDegrees(ConePresets.highBack);
-        }
-        break;
-      case HP:
-        if (currentGamePiece == GamePiece.Cube) {
-          setTargetAngleDegrees(CubePresets.hp);
-        } else {
-          setTargetAngleDegrees(ConePresets.hp);
-        }
-        break;
-      case Stow:
-        if (currentGamePiece == GamePiece.Cube) {
-          setTargetAngleDegrees(CubePresets.stow);
-        } else {
-          setTargetAngleDegrees(ConePresets.stow);
-        }
-        break;
-      case ConeRight:
-        if (currentGamePiece == GamePiece.Cube) {
-          setTargetAngleDegrees(CubePresets.stow);
-        } else {
-          setTargetAngleDegrees(ConePresets.right);
-        }
-        break;
-      case MiniHp:
-        if (currentGamePiece == GamePiece.Cube) {
-          setTargetAngleDegrees(CubePresets.miniHp);
-        } else {
-          setTargetAngleDegrees(ConePresets.miniHp);
-        }
-        break;
-      case Offset:
-        if (currentGamePiece == GamePiece.Cube) {
-          setTargetAngleDegrees(CubePresets.offset);
-        } else {
-          setTargetAngleDegrees(ConePresets.offset);
-        }
-        break;
-      case Manual:
-      default:
-        break;
-    }
-  }
-
   @Override
   public void dashboardUpdate() {
     SmartDashboard.putNumber("Wrist Angle", getCurrentAngleDegrees());
@@ -233,74 +176,18 @@ public class Wrist implements Subsystem {
   @Override
   public void update() {
     GamePiece currentGamePiece = Robot.getCurrentGamePiece();
-
-    switch (m_preset) {
-      case Floor:
-        if (currentGamePiece == GamePiece.Cube) {
-          setTargetAngleDegrees(CubePresets.floor);
-        } else {
-          setTargetAngleDegrees(ConePresets.floor);
-        }
-        break;
-      case Hybrid:
-        if (currentGamePiece == GamePiece.Cube) {
-          setTargetAngleDegrees(CubePresets.hybrid);
-        } else {
-          setTargetAngleDegrees(ConePresets.hybrid);
-        }
-        break;
-      case Mid:
-        if (currentGamePiece == GamePiece.Cube) {
-          setTargetAngleDegrees(CubePresets.mid);
-        } else {
-          setTargetAngleDegrees(ConePresets.mid);
-        }
-        break;
-      case High:
-        if (currentGamePiece == GamePiece.Cube) {
-          setTargetAngleDegrees(CubePresets.high);
-        } else {
-          setTargetAngleDegrees(ConePresets.high);
-        }
-        break;
-      case HighBack:
-        if (currentGamePiece == GamePiece.Cube) {
-          setTargetAngleDegrees(CubePresets.highBack);
-        } else {
-          setTargetAngleDegrees(ConePresets.highBack);
-        }
-        break;
-      case HP:
-        if (currentGamePiece == GamePiece.Cube) {
-          setTargetAngleDegrees(CubePresets.hp);
-        } else {
-          setTargetAngleDegrees(ConePresets.hp);
-        }
-        break;
-      case Stow:
-        if (currentGamePiece == GamePiece.Cube) {
-          setTargetAngleDegrees(CubePresets.stow);
-        } else {
-          setTargetAngleDegrees(ConePresets.stow);
-        }
-        break;
-      case ConeRight:
-        if (currentGamePiece == GamePiece.Cube) {
-          setTargetAngleDegrees(CubePresets.right);
-        } else {
-          setTargetAngleDegrees(ConePresets.right);
-        }
-        break;
-      case Manual:
-      default:
-        break;
+    if (m_preset == WristPreset.Manual) {
+      setTargetAngleDegrees(getCurrentAngleDegrees());
+    } else if (currentGamePiece == GamePiece.Cube) {
+      setTargetAngleDegrees(m_preset.getCubePreset());
+    } else {
+      setTargetAngleDegrees(m_preset.getConePreset());
     }
 
     switch (m_state) {
       case Manual:
-        m_wristMotor.set(m_motorOutput);
-        setTargetAngleDegrees(getCurrentAngleDegrees());
         setPreset(WristPreset.Manual);
+        m_wristMotor.set(m_motorOutput);
         break;
       case ClosedLoop:
         m_wristMotor.setControl(
