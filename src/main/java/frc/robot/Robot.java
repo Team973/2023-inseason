@@ -393,14 +393,6 @@ public class Robot extends TimedRobot {
         m_claw.setIntakeState(IntakeState.Hold);
       }
 
-      // Got it!
-      if (m_claw.getIntakeState() == IntakeState.In && m_claw.isHasGamePiece()) {
-        m_candleManager.setLightState(LightState.GotIt);
-
-        m_wrist.setPreset(WristPreset.Stow);
-        m_elevator.setPreset(Elevator.Preset.Stow);
-      }
-
       // Manually Control Wrist
       double wristJoystickInput = -MathUtil.applyDeadband(m_operatorStick.getLeftY(), 0.12) * 0.25;
 
