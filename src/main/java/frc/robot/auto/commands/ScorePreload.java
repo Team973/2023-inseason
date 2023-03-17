@@ -13,6 +13,7 @@ import frc.robot.subsystems.Wrist.WristPreset;
 public class ScorePreload extends AutoCommand {
   public ScorePreload(GamePiece gamePiece, Claw claw, Wrist wrist, Elevator elevator) {
     new SequentialCommand(
+        new SetCurrentGamePieceCommand(gamePiece),
         new IntakeCommand(claw, IntakeState.In, 200),
         new WristPresetCommand(wrist, WristPreset.Offset, 10.0, 500),
         new ElevatorPresetCommand(elevator, Elevator.Preset.High, 4000),
