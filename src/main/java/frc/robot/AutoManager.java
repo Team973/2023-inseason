@@ -1,5 +1,8 @@
 package frc.robot;
 
+import java.util.Arrays;
+import java.util.List;
+
 import frc.robot.auto.modes.CenterPreloadAndCharge;
 import frc.robot.auto.modes.NoAuto;
 import frc.robot.auto.modes.PreloadAndCharge;
@@ -14,6 +17,15 @@ import frc.robot.subsystems.Wrist;
 
 public class AutoManager {
   private AutoCommand m_currentMode;
+  private final List<AutoMode> m_availableAutoModes =
+      Arrays.asList(
+          AutoMode.PreloadPickupCharge,
+          AutoMode.Test,
+          AutoMode.PreloadAndCharge,
+          AutoMode.CenterPreloadAndCharge,
+          AutoMode.PreloadPickupScoreCharge,
+          AutoMode.NoAuto);
+  private int m_selectedMode = 0;
 
   public enum AutoMode {
     Test,
@@ -21,7 +33,7 @@ public class AutoManager {
     PreloadPickupCharge,
     CenterPreloadAndCharge,
     PreloadPickupScoreCharge,
-    NoAuto
+    NoAuto,
   }
 
   public enum AutoSide {
@@ -46,15 +58,34 @@ public class AutoManager {
     m_noAuto = new NoAuto();
   }
 
+  public void increment() {
+    m_selectedMode += 1;
+  }
+
+  public void decrement() {
+    m_selectedMode -= 1;
+  }
+
+  public AutoMode returnSelectedMode() {
+    if (m_selectedMode >= m_availableAutoModes.size()) {
+      m_selectedMode = 0;
+    }
+    if (m_selectedMode < 0) {
+      m_selectedMode = m_availableAutoModes.size() - 1;
+    }
+    return m_availableAutoModes.get(m_selectedMode);
+  }
+
   public void run() {
     m_currentMode.run();
   }
 
   public void init() {
+    selectAuto(m_availableAutoModes.get(m_selectedMode));
     m_currentMode.init();
   }
 
-  public void selectAuto(AutoMode mode) {
+  private void selectAuto(AutoMode mode) {
     switch (mode) {
       case Test:
         m_currentMode = m_test;

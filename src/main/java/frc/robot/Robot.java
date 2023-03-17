@@ -8,10 +8,7 @@ import static frc.robot.shared.RobotInfo.*;
 
 import java.io.FileWriter;
 import java.io.PrintWriter;
-import java.util.Arrays;
-import java.util.List;
 
-import frc.robot.AutoManager.AutoMode;
 import frc.robot.AutoManager.AutoSide;
 import frc.robot.shared.Constants.GamePiece;
 import frc.robot.shared.LimelightHelpers;
@@ -74,15 +71,6 @@ public class Robot extends TimedRobot {
   private final Compressor m_compressor =
       new Compressor(COMPRESSOR_ID, PneumaticsModuleType.CTREPCM);
 
-  private final List<AutoMode> m_availableAutoModes =
-      Arrays.asList(
-          AutoMode.PreloadPickupCharge,
-          AutoMode.Test,
-          AutoMode.PreloadAndCharge,
-          AutoMode.CenterPreloadAndCharge,
-          AutoMode.PreloadPickupScoreCharge,
-          AutoMode.NoAuto);
-  private int m_selectedMode = 0;
   private AutoSide m_selectedAutoSide = AutoSide.Left;
 
   private void logException(Exception e) {
@@ -431,16 +419,10 @@ public class Robot extends TimedRobot {
   public void disabledPeriodic() {
     try {
       if (m_operatorStick.getYButtonPressed()) {
-        m_selectedMode += 1;
+        m_autoManager.increment();
       }
       if (m_operatorStick.getAButtonPressed()) {
-        m_selectedMode -= 1;
-      }
-      if (m_selectedMode >= m_availableAutoModes.size()) {
-        m_selectedMode = 0;
-      }
-      if (m_selectedMode < 0) {
-        m_selectedMode = m_availableAutoModes.size() - 1;
+        m_autoManager.decrement();
       }
 
       if (m_operatorStick.getXButtonPressed()) {
@@ -457,11 +439,9 @@ public class Robot extends TimedRobot {
         m_preloadGamePiece = GamePiece.Cube;
       }
 
-      SmartDashboard.putString("DB/String 0", m_availableAutoModes.get(m_selectedMode).toString());
+      SmartDashboard.putString("DB/String 0", m_autoManager.returnSelectedMode().toString());
       SmartDashboard.putString("DB/String 1", m_selectedAutoSide.toString());
       SmartDashboard.putString("DB/String 2", m_preloadGamePiece.toString());
-
-      m_autoManager.selectAuto(m_availableAutoModes.get(m_selectedMode));
 
       if (m_driverStick.getAButton()) {
         m_drive.enableBrakeMode();
