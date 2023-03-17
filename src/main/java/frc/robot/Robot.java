@@ -66,7 +66,7 @@ public class Robot extends TimedRobot {
   private final Drive m_drive = new Drive();
   private final CANdleManager m_candleManager = new CANdleManager();
   private final AutoManager m_autoManager = new AutoManager(m_claw, m_elevator, m_drive, m_wrist);
-  private final Superstructure m_superStructure = new Superstructure();
+  private final Superstructure m_superStructure = new Superstructure(m_wrist, m_elevator);
 
   private final XboxController m_driverStick = new XboxController(0);
   private final XboxController m_operatorStick = new XboxController(1);
@@ -329,7 +329,7 @@ public class Robot extends TimedRobot {
       // Stow elevator/wrist
       if (m_driverStick.getLeftTriggerAxis() > 0.5) {
         m_elevator.setPreset(Elevator.Preset.Stow);
-        m_superStructure.wristStow();
+        m_wrist.setPreset(WristPreset.Stow);
       }
 
       ////////////////////////
