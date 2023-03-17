@@ -1,11 +1,10 @@
 package frc.robot.subsystems;
 
-import frc.robot.Robot;
-import frc.robot.shared.Constants.GamePiece;
 import frc.robot.shared.GreyTalonFX;
 import frc.robot.shared.RobotInfo;
 import frc.robot.shared.RobotInfo.ClawInfo;
 import frc.robot.shared.Subsystem;
+import frc.robot.subsystems.Superstructure.GamePiece;
 
 import com.ctre.phoenixpro.configs.TalonFXConfiguration;
 import com.ctre.phoenixpro.controls.PositionVoltage;
@@ -178,7 +177,7 @@ public class Wrist implements Subsystem {
 
   @Override
   public void update() {
-    GamePiece currentGamePiece = Robot.getCurrentGamePiece();
+    GamePiece currentGamePiece = Superstructure.getCurrentGamePiece();
     if (m_preset == WristPreset.Manual) {
       setTargetAngleDegrees(getCurrentAngleDegrees());
     } else if (currentGamePiece == GamePiece.Cube) {

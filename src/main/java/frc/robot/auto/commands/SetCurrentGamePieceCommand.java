@@ -1,8 +1,8 @@
 package frc.robot.auto.commands;
 
-import frc.robot.Robot;
 import frc.robot.shared.AutoCommand;
-import frc.robot.shared.Constants.GamePiece;
+import frc.robot.subsystems.Superstructure;
+import frc.robot.subsystems.Superstructure.GamePiece;
 
 import lombok.AllArgsConstructor;
 
@@ -12,7 +12,7 @@ public class SetCurrentGamePieceCommand extends AutoCommand {
 
   @Override
   public void init() {
-    Robot.setCurrentGamePiece(m_gamePiece);
+    Superstructure.setCurrentGamePiece(m_gamePiece);
   }
 
   @Override
