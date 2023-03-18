@@ -167,6 +167,10 @@ public class Wrist implements Subsystem {
     return Math.abs(getCurrentAngleDegrees() - m_targetAngle) < ANGLE_TOLERANCE;
   }
 
+  public boolean isCollisionFree() {
+    return m_targetAngle < ConePresets.preStow;
+  }
+
   @Override
   public void dashboardUpdate() {
     SmartDashboard.putNumber("Wrist Angle", getCurrentAngleDegrees());

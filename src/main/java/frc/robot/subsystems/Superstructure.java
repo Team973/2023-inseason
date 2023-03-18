@@ -1,7 +1,7 @@
 package frc.robot.subsystems;
 
 import frc.robot.shared.Subsystem;
-import frc.robot.subsystems.Wrist.WristPreset;
+import frc.robot.subsystems.Elevator.ElevatorState;
 
 import lombok.RequiredArgsConstructor;
 
@@ -14,9 +14,10 @@ public class Superstructure implements Subsystem {
   public void dashboardUpdate() {}
 
   public void update() {
-    if ((Math.abs(m_elevator.getHeight() - m_elevator.getPreset().getValue()) > 2.0)
-        && m_wrist.getPreset() == WristPreset.Stow) {
-      m_wrist.setPreset(WristPreset.PreStow);
+    if (!m_wrist.isCollisionFree()) {
+      m_elevator.setElevatorState(ElevatorState.WaitForWrist);
+    } else {
+      m_elevator.setElevatorState(ElevatorState.ClosedLoop);
     }
   }
 

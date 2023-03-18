@@ -13,7 +13,6 @@ import com.ctre.phoenixpro.signals.InvertedValue;
 import edu.wpi.first.wpilibj.DigitalInput;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import lombok.Getter;
-import lombok.Setter;
 import lombok.experimental.Accessors;
 
 @Accessors(prefix = "m_")
@@ -42,7 +41,7 @@ public class Elevator implements Subsystem {
 
   private static final double MAX_HEIGHT = 27.58;
 
-  @Getter @Setter private ElevatorState m_elevatorState = ElevatorState.Manual;
+  @Getter private ElevatorState m_elevatorState = ElevatorState.Manual;
   @Getter private Preset m_preset = Preset.Stow;
 
   private final MotionMagicVoltage m_elevatorMotionMagic =
@@ -52,7 +51,9 @@ public class Elevator implements Subsystem {
     /** Manually control the motors with the joystick */
     Manual,
     /** Control the motors using position with Motion Magic. */
-    ClosedLoop
+    ClosedLoop,
+    /** Wait for the wrist to prestow. */
+    WaitForWrist
   }
 
   public enum Preset {
@@ -159,6 +160,10 @@ public class Elevator implements Subsystem {
     return isAtHeight(getHeightFromPosition(m_targetPosition));
   }
 
+  public void setElevatorState(ElevatorState newState) {
+    setElevatorState(newState);
+  }
+
   public void dashboardUpdate() {
     SmartDashboard.putNumber("Elevator Position", getPosition());
     SmartDashboard.putNumber("Elevator Target Position", m_targetPosition);
@@ -188,6 +193,11 @@ public class Elevator implements Subsystem {
         } else {
           m_elevatorOutput = clamp(m_elevatorOutput, 0.2, -0.2);
         }
+
+        if (getElevatorState() == ElevatorState.WaitForWrist) {
+          setElevatorState(ElevatorState.Manual);
+        }
+
         m_elevatorMotor.set(m_elevatorOutput);
 
         m_targetPosition = getPosition();
@@ -195,6 +205,13 @@ public class Elevator implements Subsystem {
       case ClosedLoop:
         double motorPosition = m_targetPosition / SPROCKET_CIRCUMFERENCE / GEAR_RATIO;
         m_elevatorMotor.setControl(m_elevatorMotionMagic.withPosition(motorPosition));
+        break;
+      case WaitForWrist:
+        if (getElevatorState() == ElevatorState.Manual) {
+          return;
+        }
+
+        setPreset(m_preset);
         break;
       default:
         break;
