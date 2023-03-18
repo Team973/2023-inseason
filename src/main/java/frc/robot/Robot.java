@@ -408,6 +408,12 @@ public class Robot extends TimedRobot {
       if (m_operatorStick.getStartButton()) {
         m_claw.reset();
       }
+
+      // Align with cone node
+      if (m_driverStick.getRightBumper()) {
+        var pose = LimelightHelpers.getTargetPose3d_CameraSpace("");
+        m_drive.setTargetRobotAngle(pose.getRotation().getAngle());
+      }
     } catch (Exception e) {
       logException(e);
     }
