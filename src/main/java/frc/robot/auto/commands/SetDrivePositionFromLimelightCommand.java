@@ -1,28 +1,25 @@
 package frc.robot.auto.commands;
 
 import frc.robot.shared.AutoCommand;
+import frc.robot.shared.LimelightHelpers;
 import frc.robot.subsystems.Drive;
 
-import edu.wpi.first.math.geometry.Pose2d;
-
-public class SetDrivePositionCommand extends AutoCommand {
+public class SetDrivePositionFromLimelightCommand extends AutoCommand {
 
   private final Drive m_drive;
 
-  private final Pose2d m_pose;
-
-  public SetDrivePositionCommand(Drive drive, Pose2d pose) {
+  public SetDrivePositionFromLimelightCommand(Drive drive) {
     m_drive = drive;
-    m_pose = pose;
   }
 
   @Override
-  public void init() {}
+  public void init() {
+    var pose = LimelightHelpers.getBotPose2d_wpiBlue("");
+    m_drive.resetOdometry(pose);
+  }
 
   @Override
-  public void run() {
-    // Do nothing
-  }
+  public void run() {}
 
   @Override
   public boolean isCompleted() {

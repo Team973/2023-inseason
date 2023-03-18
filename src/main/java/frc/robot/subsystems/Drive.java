@@ -1,5 +1,6 @@
 package frc.robot.subsystems;
 
+import frc.robot.greydash.GreyDashClient;
 import frc.robot.shared.RobotInfo;
 import frc.robot.shared.RobotInfo.DriveInfo;
 import frc.robot.shared.Subsystem;
@@ -7,12 +8,14 @@ import frc.robot.subsystems.swerve.SwerveModule;
 
 import com.ctre.phoenixpro.configs.Pigeon2Configuration;
 import com.ctre.phoenixpro.hardware.Pigeon2;
+import com.google.common.collect.ImmutableList;
 import edu.wpi.first.math.controller.HolonomicDriveController;
 import edu.wpi.first.math.controller.PIDController;
 import edu.wpi.first.math.controller.ProfiledPIDController;
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.geometry.Translation2d;
+import edu.wpi.first.math.geometry.Twist2d;
 import edu.wpi.first.math.kinematics.ChassisSpeeds;
 import edu.wpi.first.math.kinematics.SwerveDriveKinematics;
 import edu.wpi.first.math.kinematics.SwerveDriveOdometry;
@@ -28,6 +31,7 @@ import lombok.experimental.Accessors;
 public class Drive implements Subsystem {
   private SwerveDriveOdometry swerveOdometry;
   private SwerveModule[] m_swerveModules;
+  private ChassisSpeeds m_currentChassisSpeeds;
 
   private final Pigeon2 m_pigeon;
   private double m_gyroOffsetDegrees;
@@ -48,6 +52,12 @@ public class Drive implements Subsystem {
   public static class AnglePresets {
     public static final double TOWARDS_HP = 0.0;
     public static final double TOWARDS_DS = 180.0;
+    public static final double TOWARDS_MHP_RED = -90.0;
+    public static final double TOWARDS_MHP_BLUE = 90.0;
+    public static final double TOWARDS_WS_BLUE = 45.0;
+    public static final double TOWARDS_WSR_BLUE = 135.0;
+    public static final double TOWARDS_WS_RED = -45.0;
+    public static final double TOWARDS_WSR_RED = -135.0;
   }
 
   private final HolonomicDriveController m_controller;
@@ -68,16 +78,18 @@ public class Drive implements Subsystem {
           new SwerveModule(3, DriveInfo.BACK_RIGHT_CONSTANTS)
         };
 
+    m_currentChassisSpeeds = new ChassisSpeeds();
+
     swerveOdometry =
         new SwerveDriveOdometry(
             DriveInfo.SWERVE_KINEMATICS, getGyroscopeRotation(), getPositions());
 
     m_controller =
         new HolonomicDriveController(
-            new PIDController(1.0, 0.0, 0.0),
-            new PIDController(1.0, 0.0, 0.0),
+            new PIDController(1.3, 0.0, 0.0),
+            new PIDController(1.3, 0.0, 0.0),
             new ProfiledPIDController(
-                5.0,
+                10.0,
                 0.0,
                 0.0,
                 new TrapezoidProfile.Constraints(
@@ -93,6 +105,7 @@ public class Drive implements Subsystem {
       }
       driveInput(new Translation2d(pitchCorrection, 0.0), 0.0, true);
     } else {
+      m_currentChassisSpeeds = new ChassisSpeeds();
       for (SwerveModule swerveModule : m_swerveModules) {
         swerveModule.setDesiredState(new SwerveModuleState(0.0, Rotation2d.fromDegrees(90)), true);
       }
@@ -108,6 +121,7 @@ public class Drive implements Subsystem {
       }
       driveInput(new Translation2d(rollCorrection, 0.0), 0.0, true);
     } else {
+      m_currentChassisSpeeds = new ChassisSpeeds();
       for (SwerveModule swerveModule : m_swerveModules) {
         swerveModule.setDesiredState(new SwerveModuleState(0.0, Rotation2d.fromDegrees(0)), true);
       }
@@ -130,38 +144,15 @@ public class Drive implements Subsystem {
       m_targetRobotAngle = getNormalizedGyroYaw();
     }
 
-    ChassisSpeeds des_chassis_speeds =
+    m_currentChassisSpeeds =
         fieldRelative
             ? ChassisSpeeds.fromFieldRelativeSpeeds(
                 translation.getX(), translation.getY(), rotation, getGyroscopeRotation())
             : new ChassisSpeeds(translation.getX(), translation.getY(), rotation);
-    /*
-     * TODO: Test this 254 code to handle drift in spinning translation
-     * Pose2d robot_pose_vel =
-     * new Pose2d(
-     * des_chassis_speeds.vxMetersPerSecond * Constants.kLooperDt,
-     * des_chassis_speeds.vyMetersPerSecond * Constants.kLooperDt,
-     * new Rotation2d(des_chassis_speeds.omegaRadiansPerSecond *
-     * Constants.kLooperDt));
-     * Pose2d robot_cur_pose = new Pose2d();
-     * Twist2d twist_vel = robot_cur_pose.log(robot_pose_vel);
-     * ChassisSpeeds updated_chassis_speeds =
-     * new ChassisSpeeds(
-     * twist_vel.dx / Constants.kLooperDt,
-     * twist_vel.dy / Constants.kLooperDt,
-     * twist_vel.dtheta / Constants.kLooperDt);
-     *
-     */
-    SwerveModuleState[] swerveModuleStates =
-        DriveInfo.SWERVE_KINEMATICS.toSwerveModuleStates(des_chassis_speeds);
-    // SWERVE_DRIVE_KINEMATICS.toSwerveModuleStates(updated_chassis_speeds);
-
-    setModuleStates(swerveModuleStates);
   }
 
   public void driveInput(State state, Rotation2d rotation) {
-    var desiredStates = m_controller.calculate(getPose(), state, rotation);
-    setModuleStates(DriveInfo.SWERVE_KINEMATICS.toSwerveModuleStates(desiredStates));
+    m_currentChassisSpeeds = m_controller.calculate(getPose(), state, rotation);
   }
 
   public double getGyroPitch() {
@@ -234,7 +225,20 @@ public class Drive implements Subsystem {
     return positions;
   }
 
+  public void enableBrakeMode() {
+    for (var mod : m_swerveModules) {
+      mod.driveBrake();
+    }
+  }
+
+  public void disableBrakeMode() {
+    for (var mod : m_swerveModules) {
+      mod.driveNeutral();
+    }
+  }
+
   public void dashboardUpdate() {
+    GreyDashClient.setGyroAngle(getGyroscopeRotation().getDegrees());
     double states[] = new double[8];
     int index = 0;
 
@@ -253,10 +257,32 @@ public class Drive implements Subsystem {
     SmartDashboard.putNumberArray("swerve/actual", states);
     SmartDashboard.putNumber("pitch", m_pigeon.getPitch().getValue());
     SmartDashboard.putNumber("roll", m_pigeon.getRoll().getValue());
+    SmartDashboard.putNumberArray(
+        "swerve/odometry",
+        ImmutableList.of(
+                getPose().getTranslation().getX(),
+                getPose().getTranslation().getY(),
+                getPose().getRotation().getDegrees())
+            .toArray(Double[]::new));
   }
 
   public void update() {
     swerveOdometry.update(getGyroscopeRotation(), getPositions());
+
+    Pose2d robot_pose_vel =
+        new Pose2d(
+            m_currentChassisSpeeds.vxMetersPerSecond * 0.03,
+            m_currentChassisSpeeds.vyMetersPerSecond * 0.03,
+            new Rotation2d(m_currentChassisSpeeds.omegaRadiansPerSecond * 0.03));
+    Pose2d robot_cur_pose = new Pose2d();
+    Twist2d twist_vel = robot_cur_pose.log(robot_pose_vel);
+    ChassisSpeeds updated_chassis_speeds =
+        new ChassisSpeeds(twist_vel.dx / 0.03, twist_vel.dy / 0.03, twist_vel.dtheta / 0.03);
+
+    SwerveModuleState[] swerveModuleStates =
+        DriveInfo.SWERVE_KINEMATICS.toSwerveModuleStates(updated_chassis_speeds);
+
+    setModuleStates(swerveModuleStates);
   }
 
   public void reset() {

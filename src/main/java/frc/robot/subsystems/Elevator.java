@@ -19,21 +19,6 @@ import lombok.experimental.Accessors;
 @Accessors(prefix = "m_")
 public class Elevator implements Subsystem {
 
-  public static class Presets {
-    /** Inches from floor */
-    public static final double floor = 9.25;
-    /** Inches from floor */
-    public static final double hybrid = 12.6;
-    /** Inches from floor */
-    public static final double mid = 22.3;
-    /** Inches from floor */
-    public static final double hp = 27.4;
-    /** Inches from floor */
-    public static final double high = 27.4;
-    /** Inches from floor */
-    public static final double stow = 0.0;
-  }
-
   private final GreyTalonFX m_elevatorMotor;
   private final GreyTalonFX m_elevatorFollowerMotor;
 
@@ -58,6 +43,7 @@ public class Elevator implements Subsystem {
   private static final double MAX_HEIGHT = 27.58;
 
   @Getter @Setter private ElevatorState m_elevatorState = ElevatorState.Manual;
+  @Getter private Preset m_preset = Preset.Stow;
 
   private final MotionMagicVoltage m_elevatorMotionMagic =
       new MotionMagicVoltage(0.0, false, 0.04, 0, true);
@@ -67,6 +53,26 @@ public class Elevator implements Subsystem {
     Manual,
     /** Control the motors using position with Motion Magic. */
     ClosedLoop
+  }
+
+  public enum Preset {
+    Floor(9.25),
+    Hybrid(14.6),
+    Mid(22.3),
+    Hp(27.4),
+    High(27.4),
+    Stow(0.0),
+    MiniHp(21.5);
+
+    private final double value;
+
+    Preset(double value) {
+      this.value = value;
+    }
+
+    public double getValue() {
+      return this.value;
+    }
   }
 
   public Elevator() {
@@ -120,6 +126,11 @@ public class Elevator implements Subsystem {
     m_targetPosition = getPositionFromHeight(height - STOW_OFFSET);
   }
 
+  public void setPreset(Preset preset) {
+    m_preset = preset;
+    setHeight(preset.getValue());
+  }
+
   private double getPositionFromHeight(double height) {
     return height / SIN_OF_ANGLE;
   }
@@ -142,6 +153,10 @@ public class Elevator implements Subsystem {
 
   public boolean isAtHeight(double height) {
     return Math.abs(height - getHeight()) < 0.5;
+  }
+
+  public boolean isAtTargetHeight() {
+    return isAtHeight(getHeightFromPosition(m_targetPosition));
   }
 
   public void dashboardUpdate() {
@@ -173,8 +188,9 @@ public class Elevator implements Subsystem {
         } else {
           m_elevatorOutput = clamp(m_elevatorOutput, 0.2, -0.2);
         }
-
         m_elevatorMotor.set(m_elevatorOutput);
+
+        m_targetPosition = getPosition();
         break;
       case ClosedLoop:
         double motorPosition = m_targetPosition / SPROCKET_CIRCUMFERENCE / GEAR_RATIO;
@@ -187,5 +203,6 @@ public class Elevator implements Subsystem {
 
   public void reset() {
     setElevatorOutput(0.0);
+    m_elevatorMotor.setRotorPosition(0.0);
   }
 }
