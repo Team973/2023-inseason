@@ -66,7 +66,7 @@ public class AutoManager {
     m_selectedMode -= 1;
   }
 
-  public AutoMode returnSelectedMode() {
+  public AutoMode getSelectedMode() {
     if (m_selectedMode >= m_availableAutoModes.size()) {
       m_selectedMode = 0;
     }
