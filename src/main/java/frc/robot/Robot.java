@@ -419,10 +419,10 @@ public class Robot extends TimedRobot {
   public void disabledPeriodic() {
     try {
       if (m_operatorStick.getYButtonPressed()) {
-        m_autoManager.increment();
+        m_autoManager.selectNextAutoMode();
       }
       if (m_operatorStick.getAButtonPressed()) {
-        m_autoManager.decrement();
+        m_autoManager.selectPreviousAutoMode();
       }
 
       if (m_operatorStick.getXButtonPressed()) {
@@ -439,7 +439,7 @@ public class Robot extends TimedRobot {
         m_preloadGamePiece = GamePiece.Cube;
       }
 
-      SmartDashboard.putString("DB/String 0", m_autoManager.returnSelectedMode().toString());
+      SmartDashboard.putString("DB/String 0", m_autoManager.getSelectedAutoMode().toString());
       SmartDashboard.putString("DB/String 1", m_selectedAutoSide.toString());
       SmartDashboard.putString("DB/String 2", m_preloadGamePiece.toString());
 

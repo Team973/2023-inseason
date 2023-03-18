@@ -1,7 +1,6 @@
 package frc.robot;
 
 import java.util.Arrays;
-import java.util.List;
 
 import frc.robot.auto.modes.CenterPreloadAndCharge;
 import frc.robot.auto.modes.NoAuto;
@@ -10,22 +9,29 @@ import frc.robot.auto.modes.PreloadPickupCharge;
 import frc.robot.auto.modes.PreloadPickupScoreCharge;
 import frc.robot.auto.modes.Test;
 import frc.robot.shared.AutoCommand;
+import frc.robot.shared.CircularIterator;
 import frc.robot.subsystems.Claw;
 import frc.robot.subsystems.Drive;
 import frc.robot.subsystems.Elevator;
 import frc.robot.subsystems.Wrist;
 
+import lombok.Getter;
+import lombok.experimental.Accessors;
+
+@Accessors(prefix = "m_")
 public class AutoManager {
   private AutoCommand m_currentMode;
-  private final List<AutoMode> m_availableAutoModes =
-      Arrays.asList(
-          AutoMode.PreloadPickupCharge,
-          AutoMode.Test,
-          AutoMode.PreloadAndCharge,
-          AutoMode.CenterPreloadAndCharge,
-          AutoMode.PreloadPickupScoreCharge,
-          AutoMode.NoAuto);
-  private int m_selectedMode = 0;
+  private final CircularIterator<AutoMode> m_autoModeIterator =
+      new CircularIterator<>(
+          Arrays.asList(
+              AutoMode.NoAuto,
+              AutoMode.Test,
+              AutoMode.PreloadAndCharge,
+              AutoMode.CenterPreloadAndCharge,
+              AutoMode.PreloadPickupScoreCharge,
+              AutoMode.PreloadPickupCharge));
+
+  @Getter private AutoMode m_selectedAutoMode;
 
   public enum AutoMode {
     Test,
@@ -56,24 +62,7 @@ public class AutoManager {
     m_centerPreloadAndCharge = new CenterPreloadAndCharge(drive, claw, elevator, wrist);
     m_preloadPickupScoreCharge = new PreloadPickupScoreCharge(drive, claw, elevator, wrist);
     m_noAuto = new NoAuto();
-  }
-
-  public void increment() {
-    m_selectedMode += 1;
-  }
-
-  public void decrement() {
-    m_selectedMode -= 1;
-  }
-
-  public AutoMode returnSelectedMode() {
-    if (m_selectedMode >= m_availableAutoModes.size()) {
-      m_selectedMode = 0;
-    }
-    if (m_selectedMode < 0) {
-      m_selectedMode = m_availableAutoModes.size() - 1;
-    }
-    return m_availableAutoModes.get(m_selectedMode);
+    selectAuto(m_autoModeIterator.next());
   }
 
   public void run() {
@@ -81,11 +70,19 @@ public class AutoManager {
   }
 
   public void init() {
-    selectAuto(m_availableAutoModes.get(m_selectedMode));
     m_currentMode.init();
   }
 
+  public void selectNextAutoMode() {
+    selectAuto(m_autoModeIterator.next());
+  }
+
+  public void selectPreviousAutoMode() {
+    selectAuto(m_autoModeIterator.previous());
+  }
+
   private void selectAuto(AutoMode mode) {
+    m_selectedAutoMode = mode;
     switch (mode) {
       case Test:
         m_currentMode = m_test;
