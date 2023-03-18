@@ -14,7 +14,8 @@ public class Superstructure implements Subsystem {
   public void dashboardUpdate() {}
 
   public void update() {
-    if (m_elevator.getHeight() != m_elevator.getPreset().getValue()) {
+    if ((Math.abs(m_elevator.getHeight() - m_elevator.getPreset().getValue()) > 2.0)
+        && m_wrist.getPreset() == WristPreset.Stow) {
       m_wrist.setPreset(WristPreset.PreStow);
     }
   }
