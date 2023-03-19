@@ -5,6 +5,7 @@ import frc.robot.auto.commands.BalanceCommand;
 import frc.robot.auto.commands.ElevatorPresetCommand;
 import frc.robot.auto.commands.IntakeCommand;
 import frc.robot.auto.commands.PathPlannerTrajectoryCommand;
+import frc.robot.auto.commands.ScorePreloadCommand;
 import frc.robot.auto.commands.SetCurrentGamePieceCommand;
 import frc.robot.auto.commands.WristPresetCommand;
 import frc.robot.auto.commands.util.ConcurrentCommand;
@@ -22,14 +23,7 @@ public class PreloadPickupScoreCharge extends SequentialCommand {
 
   public PreloadPickupScoreCharge(Drive drive, Claw claw, Elevator elevator, Wrist wrist) {
     super(
-        // Score preload
-        new IntakeCommand(claw, IntakeState.In, 200),
-        new WristPresetCommand(wrist, WristPreset.Offset, 10.0, 500),
-        new ElevatorPresetCommand(elevator, Elevator.Preset.High, 4000),
-        new WristPresetCommand(wrist, WristPreset.High, 1.0, 2000),
-        new IntakeCommand(claw, IntakeState.Out, 500),
-        new WaitCommand(200),
-        new SetCurrentGamePieceCommand(GamePiece.None),
+        new ScorePreloadCommand(GamePiece.Cone, claw, wrist, elevator),
 
         // Drive to pickup
         new ConcurrentCommand(
