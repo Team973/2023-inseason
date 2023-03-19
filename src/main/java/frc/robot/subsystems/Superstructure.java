@@ -3,10 +3,22 @@ package frc.robot.subsystems;
 import frc.robot.shared.Subsystem;
 import frc.robot.subsystems.Elevator.ElevatorState;
 
+import lombok.Getter;
 import lombok.RequiredArgsConstructor;
+import lombok.Setter;
+import lombok.experimental.Accessors;
 
+@Accessors(prefix = "m_")
 @RequiredArgsConstructor
 public class Superstructure implements Subsystem {
+  /** Game Piece options. */
+  public enum GamePiece {
+    Cube,
+    Cone,
+    None
+  }
+
+  @Setter @Getter private static GamePiece m_currentGamePiece = GamePiece.None;
 
   private final Wrist m_wrist;
   private final Elevator m_elevator;

@@ -8,12 +8,8 @@ import static frc.robot.shared.RobotInfo.*;
 
 import java.io.FileWriter;
 import java.io.PrintWriter;
-import java.util.Arrays;
-import java.util.List;
 
-import frc.robot.AutoManager.AutoMode;
 import frc.robot.AutoManager.AutoSide;
-import frc.robot.shared.Constants.GamePiece;
 import frc.robot.shared.LimelightHelpers;
 import frc.robot.subsystems.CANdleManager;
 import frc.robot.subsystems.CANdleManager.LightState;
@@ -24,6 +20,7 @@ import frc.robot.subsystems.Drive.RotationControl;
 import frc.robot.subsystems.Elevator;
 import frc.robot.subsystems.Elevator.ElevatorState;
 import frc.robot.subsystems.Superstructure;
+import frc.robot.subsystems.Superstructure.GamePiece;
 import frc.robot.subsystems.Wrist;
 import frc.robot.subsystems.Wrist.WristPreset;
 import frc.robot.subsystems.Wrist.WristState;
@@ -40,7 +37,6 @@ import edu.wpi.first.wpilibj.TimedRobot;
 import edu.wpi.first.wpilibj.XboxController;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import lombok.Getter;
-import lombok.Setter;
 import lombok.experimental.Accessors;
 
 /**
@@ -51,7 +47,8 @@ import lombok.experimental.Accessors;
  */
 @Accessors(prefix = "m_")
 public class Robot extends TimedRobot {
-  @Setter @Getter private static GamePiece m_currentGamePiece = GamePiece.None;
+  private static GamePiece m_currentGamePiece = GamePiece.None;
+
   @Getter private static GamePiece m_preloadGamePiece = GamePiece.Cone;
 
   @Getter private static boolean m_exceptionHappened = false;
@@ -76,15 +73,6 @@ public class Robot extends TimedRobot {
   private final Compressor m_compressor =
       new Compressor(COMPRESSOR_ID, PneumaticsModuleType.CTREPCM);
 
-  private final List<AutoMode> m_availableAutoModes =
-      Arrays.asList(
-          AutoMode.PreloadPickupCharge,
-          AutoMode.Test,
-          AutoMode.PreloadAndCharge,
-          AutoMode.CenterPreloadAndCharge,
-          AutoMode.PreloadPickupScoreCharge,
-          AutoMode.NoAuto);
-  private int m_selectedMode = 0;
   private AutoSide m_selectedAutoSide = AutoSide.Left;
 
   private void logException(Exception e) {
@@ -192,6 +180,8 @@ public class Robot extends TimedRobot {
           || !isDisabled() && m_candleManager.getLightState() != LightState.GotIt) {
         m_candleManager.setLightWithGamePiece();
       }
+
+      m_currentGamePiece = Superstructure.getCurrentGamePiece();
     } catch (Exception e) {
       logException(e);
     }
@@ -304,7 +294,7 @@ public class Robot extends TimedRobot {
         m_claw.setIntakeState(IntakeState.Out);
       } else if (m_claw.getIntakeState() == IntakeState.Out) {
         m_claw.setIntakeState(IntakeState.Neutral);
-        m_currentGamePiece = GamePiece.None;
+        Superstructure.setCurrentGamePiece(GamePiece.None);
         m_wrist.setPreset(WristPreset.Stow);
         m_elevator.setPreset(Elevator.Preset.Stow);
       }
@@ -314,7 +304,7 @@ public class Robot extends TimedRobot {
         m_elevator.setElevatorState(ElevatorState.ClosedLoop);
         m_elevator.setPreset(Elevator.Preset.Floor);
         m_wrist.setState(WristState.ClosedLoop);
-        m_currentGamePiece = GamePiece.Cone;
+        Superstructure.setCurrentGamePiece(GamePiece.Cone);
         m_claw.setIntakeState(IntakeState.In);
         if (m_driverStick.getRightTriggerAxis() > 0.9) {
           m_wrist.setPreset(WristPreset.Floor);
@@ -340,7 +330,7 @@ public class Robot extends TimedRobot {
       if (m_operatorStick.getAButton()) {
         m_elevator.setPreset(Elevator.Preset.MiniHp);
         m_wrist.setPreset(WristPreset.MiniHp);
-        m_currentGamePiece = GamePiece.None;
+        Superstructure.setCurrentGamePiece(GamePiece.None);
       }
 
       // Elevator height preset
@@ -366,7 +356,7 @@ public class Robot extends TimedRobot {
         case 270:
           m_elevator.setPreset(Elevator.Preset.Hp);
           m_wrist.setPreset(WristPreset.HP);
-          m_currentGamePiece = GamePiece.None;
+          Superstructure.setCurrentGamePiece(GamePiece.None);
           break;
         default:
           break;
@@ -384,10 +374,10 @@ public class Robot extends TimedRobot {
 
       // Intake
       if (m_operatorStick.getRightTriggerAxis() > 0.5) {
-        m_currentGamePiece = GamePiece.Cone;
+        Superstructure.setCurrentGamePiece(GamePiece.Cone);
         m_claw.setIntakeState(IntakeState.In);
       } else if (m_operatorStick.getLeftTriggerAxis() > 0.5) {
-        m_currentGamePiece = GamePiece.Cube;
+        Superstructure.setCurrentGamePiece(GamePiece.Cube);
         m_claw.setIntakeState(IntakeState.In);
       } else if (m_claw.getIntakeState() != IntakeState.Out
           && m_claw.getIntakeState() != IntakeState.Neutral
@@ -436,16 +426,10 @@ public class Robot extends TimedRobot {
   public void disabledPeriodic() {
     try {
       if (m_operatorStick.getYButtonPressed()) {
-        m_selectedMode += 1;
+        m_autoManager.increment();
       }
       if (m_operatorStick.getAButtonPressed()) {
-        m_selectedMode -= 1;
-      }
-      if (m_selectedMode >= m_availableAutoModes.size()) {
-        m_selectedMode = 0;
-      }
-      if (m_selectedMode < 0) {
-        m_selectedMode = m_availableAutoModes.size() - 1;
+        m_autoManager.decrement();
       }
 
       if (m_operatorStick.getXButtonPressed()) {
@@ -462,11 +446,9 @@ public class Robot extends TimedRobot {
         m_preloadGamePiece = GamePiece.Cube;
       }
 
-      SmartDashboard.putString("DB/String 0", m_availableAutoModes.get(m_selectedMode).toString());
+      SmartDashboard.putString("DB/String 0", m_autoManager.getSelectedMode().toString());
       SmartDashboard.putString("DB/String 1", m_selectedAutoSide.toString());
       SmartDashboard.putString("DB/String 2", m_preloadGamePiece.toString());
-
-      m_autoManager.selectAuto(m_availableAutoModes.get(m_selectedMode));
 
       if (m_driverStick.getAButton()) {
         m_drive.enableBrakeMode();

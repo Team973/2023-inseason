@@ -2,11 +2,10 @@ package frc.robot.subsystems;
 
 import static frc.robot.shared.RobotInfo.*;
 
-import frc.robot.Robot;
-import frc.robot.shared.Constants.GamePiece;
 import frc.robot.shared.GreyTalonFX;
 import frc.robot.shared.RobotInfo;
 import frc.robot.shared.Subsystem;
+import frc.robot.subsystems.Superstructure.GamePiece;
 
 import com.ctre.phoenixpro.configs.TalonFXConfiguration;
 import edu.wpi.first.wpilibj.DigitalInput;
@@ -60,7 +59,7 @@ public class Claw implements Subsystem {
   private boolean checkForGamePiece() {
     boolean atStatorLimit = Math.abs(m_intakeStator) > m_statorCurrentLimit - 10.0;
     boolean check = atStatorLimit;
-    if (Robot.getCurrentGamePiece() == GamePiece.Cone) {
+    if (Superstructure.getCurrentGamePiece() == GamePiece.Cone) {
       check = getConeSensor() && atStatorLimit;
     }
 
@@ -83,7 +82,7 @@ public class Claw implements Subsystem {
   }
 
   public void update() {
-    GamePiece currentGamePiece = Robot.getCurrentGamePiece();
+    GamePiece currentGamePiece = Superstructure.getCurrentGamePiece();
     m_intakeStator = m_intakeMotor.getStatorCurrent().getValue();
     checkForGamePiece();
 
