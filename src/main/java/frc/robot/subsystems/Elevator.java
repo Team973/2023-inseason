@@ -207,10 +207,6 @@ public class Elevator implements Subsystem {
         m_elevatorMotor.setControl(m_elevatorMotionMagic.withPosition(motorPosition));
         break;
       case WaitForWrist:
-        if (getElevatorState() == ElevatorState.Manual) {
-          return;
-        }
-
         setPreset(m_preset);
         break;
       default:

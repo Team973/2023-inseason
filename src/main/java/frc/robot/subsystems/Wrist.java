@@ -168,7 +168,7 @@ public class Wrist implements Subsystem {
   }
 
   public boolean isCollisionFree() {
-    return m_targetAngle < ConePresets.preStow;
+    return m_targetAngle <= ConePresets.preStow;
   }
 
   @Override

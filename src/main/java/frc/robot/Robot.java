@@ -376,8 +376,10 @@ public class Robot extends TimedRobot {
       if (operatorStickRightY != 0.0) {
         m_elevator.setElevatorState(ElevatorState.Manual);
         m_elevator.setElevatorOutput(operatorStickRightY);
+        m_superStructure.joystickPressed(true);
       } else {
         m_elevator.setElevatorState(ElevatorState.ClosedLoop);
+        m_superStructure.joystickPressed(false);
       }
 
       // Intake
