@@ -258,7 +258,17 @@ public class Robot extends TimedRobot {
       Translation2d translation =
           new Translation2d(xSpeed, ySpeed).times(DriveInfo.MAX_VELOCITY_METERS_PER_SECOND);
 
-      m_drive.driveInput(translation, rot, true);
+      boolean fieldRelative = true;
+
+      // Align with cone node
+      if (m_driverStick.getRightBumper()) {
+        var pose = LimelightHelpers.getTargetPose3d_CameraSpace("");
+        translation = new Translation2d(0.0, 0.0);
+        rot = pose.getRotation().getAngle();
+        fieldRelative = false;
+      }
+
+      m_drive.driveInput(translation, rot, fieldRelative);
 
       // Closed loop drive angle
       if (m_driverStick.getYButton()) {
@@ -407,12 +417,6 @@ public class Robot extends TimedRobot {
 
       if (m_operatorStick.getStartButton()) {
         m_claw.reset();
-      }
-
-      // Align with cone node
-      if (m_driverStick.getRightBumper()) {
-        var pose = LimelightHelpers.getTargetPose3d_CameraSpace("");
-        m_drive.setTargetRobotAngle(pose.getRotation().getAngle());
       }
     } catch (Exception e) {
       logException(e);
