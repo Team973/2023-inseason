@@ -91,7 +91,9 @@ public class Robot extends TimedRobot {
           AutoMode.CenterPreloadAndCharge,
           AutoMode.PreloadPickupScoreCharge,
           AutoMode.NoAuto);
+
   private int m_selectedMode = 0;
+
   private AutoSide m_selectedAutoSide = AutoSide.Left;
 
   private void logException(Exception e) {
@@ -446,36 +448,50 @@ public class Robot extends TimedRobot {
     try {
       if (!m_autoRan) {
         m_currentGamePiece = GreyDashClient.getSelectedGamePiece();
+      }
 
-        switch (m_autoSetupStep) {
-          case AutoWaiting:
-            m_candleManager.setLightState(LightState.GotIt);
+      if (m_operatorStick.getYButtonPressed()) {
+        m_autoManager.increment();
+      }
+      if (m_operatorStick.getAButtonPressed()) {
+        m_autoManager.decrement();
+      }
 
-            if (m_autoSelected != AutoMode.NoAuto) {
-              m_autoSetupStep = AutoSetupMode.PreloadWaiting;
-            }
-            break;
-          case PreloadWaiting:
-            m_candleManager.setLightState(LightState.PreloadWaiting);
+      switch (m_autoSetupStep) {
+        case AutoWaiting:
+          m_candleManager.setLightState(LightState.GotIt);
 
-            // Go back if we choose no auto, continue if we choose a game piece
-            if (m_autoSelected == AutoMode.NoAuto) {
-              m_autoSetupStep = AutoSetupMode.AutoWaiting;
-            } else if (m_currentGamePiece != GamePiece.None) {
-              m_autoSetupStep = AutoSetupMode.AutoSelected;
-            }
-            break;
-          case AutoSelected:
-            m_candleManager.setLightState(LightState.AutoSelected);
+          if (m_autoSelected != AutoMode.NoAuto) {
+            m_autoSetupStep = AutoSetupMode.PreloadWaiting;
+          }
+          break;
+        case PreloadWaiting:
+          m_candleManager.setLightState(LightState.PreloadWaiting);
 
-            // Go back if we lose the auto or the game piece
-            if (m_autoSelected == AutoMode.NoAuto || m_currentGamePiece == GamePiece.None) {
-              m_autoSetupStep = AutoSetupMode.AutoWaiting;
-            }
-            break;
-          default:
-            break;
-        }
+          // Go back if we choose no auto, continue if we choose a game piece
+          if (m_autoSelected == AutoMode.NoAuto) {
+            m_autoSetupStep = AutoSetupMode.AutoWaiting;
+          } else if (m_currentGamePiece != GamePiece.None) {
+            m_autoSetupStep = AutoSetupMode.AutoSelected;
+          }
+          break;
+        case AutoSelected:
+          m_candleManager.setLightState(LightState.AutoSelected);
+
+          // Go back if we lose the auto or the game piece
+          if (m_autoSelected == AutoMode.NoAuto || m_currentGamePiece == GamePiece.None) {
+            m_autoSetupStep = AutoSetupMode.AutoWaiting;
+          }
+          break;
+        default:
+          break;
+      }
+      SmartDashboard.putString("DB/String 0", m_autoManager.getSelectedMode().toString());
+      SmartDashboard.putString("DB/String 1", m_selectedAutoSide.toString());
+      SmartDashboard.putString("DB/String 2", m_preloadGamePiece.toString());
+
+      if (m_driverStick.getAButton()) {
+        m_drive.enableBrakeMode();
       } else {
         m_candleManager.setLightState(LightState.RainbowBarf);
         if (m_operatorStick.getYButtonPressed()) {
