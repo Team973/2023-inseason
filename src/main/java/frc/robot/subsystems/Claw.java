@@ -19,15 +19,18 @@ import lombok.experimental.Accessors;
 public class Claw implements Subsystem {
   @Setter @Getter private IntakeState m_intakeState = IntakeState.Neutral;
 
-  private final GreyTalonFX m_intakeMotor;
+  private final GreyTalonFX m_bottomRollerMotor;
+  private final GreyTalonFX m_topRollerMotor;
 
   private final DigitalInput m_coneSensor;
 
   private GamePiece m_lastGamePiece = GamePiece.None;
   @Getter private boolean m_hasGamePiece = false;
 
-  private double m_intakeStator = 0.0;
-  private double m_intakeMotorOutput = 0.0;
+  private double m_bottomRollerStator = 0.0;
+  private double m_topRollerStator = 0.0;
+  private double m_bottomRollerOutput = 0.0;
+  private double m_topRollerOutput = 0.0;
   private double m_statorCurrentLimit = 70.0;
   private double m_supplyCurrentLimit = 100.0;
 
@@ -39,7 +42,8 @@ public class Claw implements Subsystem {
   }
 
   public Claw() {
-    m_intakeMotor = new GreyTalonFX(ClawInfo.INTAKE_FX_ID, RobotInfo.CANIVORE_NAME);
+    m_bottomRollerMotor = new GreyTalonFX(ClawInfo.BOTTOM_ROLLER_FX_ID, RobotInfo.CANIVORE_NAME);
+    m_topRollerMotor = new GreyTalonFX(ClawInfo.TOP_ROLLER_FX_ID, RobotInfo.CANIVORE_NAME);
     m_coneSensor = new DigitalInput(ClawInfo.CONE_SENSOR_ID);
 
     configIntakeMotor();
@@ -54,17 +58,27 @@ public class Claw implements Subsystem {
     motorConfig.CurrentLimits.StatorCurrentLimit = m_statorCurrentLimit;
     motorConfig.CurrentLimits.StatorCurrentLimitEnable = true;
 
-    m_intakeMotor.getConfigurator().apply(motorConfig);
+    m_bottomRollerMotor.getConfigurator().apply(motorConfig);
+    m_topRollerMotor.getConfigurator().apply(motorConfig);
   }
 
   private boolean checkForGamePiece() {
-    boolean atStatorLimit = Math.abs(m_intakeStator) > m_statorCurrentLimit - 10.0;
-    boolean check = atStatorLimit;
-    if (Robot.getCurrentGamePiece() == GamePiece.Cone) {
-      check = getConeSensor() && atStatorLimit;
+    boolean gamePiece = false;
+
+    // If we have a cube, we want to check the stator current of the bottom roller
+    if (Robot.getCurrentGamePiece() == GamePiece.Cube) {
+      gamePiece = Math.abs(m_bottomRollerStator) > m_statorCurrentLimit - 10.0;
+    }
+    // If we have a cone, we want to check the banner sensor and the average stator
+    // current of the top and bottom rollers
+    else {
+      gamePiece =
+          getConeSensor()
+              && Math.abs((m_bottomRollerStator + m_topRollerStator) / 2.0)
+                  > m_statorCurrentLimit - 10.0;
     }
 
-    if (check) {
+    if (gamePiece) {
       m_hasGamePiece = true;
     }
     return m_hasGamePiece;
@@ -75,16 +89,17 @@ public class Claw implements Subsystem {
   }
 
   public void dashboardUpdate() {
-    SmartDashboard.putNumber("Intake Stator", m_intakeStator);
-    SmartDashboard.putNumber("Intake Supply", m_intakeMotor.getSupplyCurrent().getValue());
-    SmartDashboard.putNumber("Intake Velocity", m_intakeMotor.getVelocity().getValue());
+    SmartDashboard.putNumber("Intake Stator", m_bottomRollerStator);
+    SmartDashboard.putNumber("Intake Supply", m_bottomRollerMotor.getSupplyCurrent().getValue());
+    SmartDashboard.putNumber("Intake Velocity", m_bottomRollerMotor.getVelocity().getValue());
     SmartDashboard.putBoolean("Game Piece", m_hasGamePiece);
     SmartDashboard.putBoolean("Cone Sensor", getConeSensor());
   }
 
   public void update() {
     GamePiece currentGamePiece = Robot.getCurrentGamePiece();
-    m_intakeStator = m_intakeMotor.getStatorCurrent().getValue();
+    m_bottomRollerStator = m_bottomRollerMotor.getStatorCurrent().getValue();
+    m_topRollerStator = m_topRollerMotor.getStatorCurrent().getValue();
     checkForGamePiece();
 
     if (currentGamePiece != m_lastGamePiece || currentGamePiece == GamePiece.None) {
@@ -94,33 +109,44 @@ public class Claw implements Subsystem {
     switch (m_intakeState) {
       case In:
         if (currentGamePiece == GamePiece.Cube) {
-          m_intakeMotorOutput = -0.5;
+          m_bottomRollerOutput = -0.5;
         } else {
-          m_intakeMotorOutput = 0.8;
+          m_bottomRollerOutput = 0.8;
         }
         break;
       case Out:
         m_hasGamePiece = false;
         if (currentGamePiece == GamePiece.Cube) {
-          m_intakeMotorOutput = 0.3;
+          m_bottomRollerOutput = 0.3;
         } else {
-          m_intakeMotorOutput = -1.0;
+          m_bottomRollerOutput = -1.0;
         }
         break;
       case Hold:
         if (currentGamePiece == GamePiece.Cube) {
-          m_intakeMotorOutput = -0.1;
+          m_bottomRollerOutput = -0.1;
         } else {
-          m_intakeMotorOutput = 0.1;
+          m_bottomRollerOutput = 0.1;
         }
         break;
       case Neutral:
       default:
-        m_intakeMotorOutput = 0.0;
+        m_bottomRollerOutput = 0.0;
+        m_topRollerOutput = 0.0;
         break;
     }
 
-    m_intakeMotor.set(m_intakeMotorOutput);
+    // If we have a cone, we want the top roller to be the same speed as the bottom
+    // in the opposite direction (by default). If we have a cube, we want the top
+    // roller to not move.
+    if (currentGamePiece == GamePiece.Cube) {
+      m_topRollerOutput = 0.0;
+    } else {
+      m_topRollerOutput = m_bottomRollerOutput;
+    }
+
+    m_bottomRollerMotor.set(m_bottomRollerOutput);
+    m_topRollerMotor.set(m_topRollerOutput);
 
     m_lastGamePiece = currentGamePiece;
   }
