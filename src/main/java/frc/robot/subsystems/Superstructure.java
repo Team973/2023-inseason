@@ -4,9 +4,9 @@ import frc.robot.shared.Subsystem;
 import frc.robot.subsystems.Elevator.ElevatorState;
 
 import lombok.Getter;
+import lombok.RequiredArgsConstructor;
 import lombok.Setter;
 import lombok.experimental.Accessors;
-import lombok.RequiredArgsConstructor;
 
 @Accessors(prefix = "m_")
 @RequiredArgsConstructor
