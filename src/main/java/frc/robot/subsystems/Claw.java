@@ -23,6 +23,8 @@ public class Claw implements Subsystem {
 
   private final DigitalInput m_coneSensor;
 
+  // private CANcoder m_angleEncoder;
+
   private GamePiece m_lastGamePiece = GamePiece.None;
   @Getter private boolean m_hasGamePiece = false;
 
@@ -42,6 +44,10 @@ public class Claw implements Subsystem {
     m_intakeMotor = new GreyTalonFX(ClawInfo.INTAKE_FX_ID, RobotInfo.CANIVORE_NAME);
     m_coneSensor = new DigitalInput(ClawInfo.CONE_SENSOR_ID);
 
+    /* Angle Encoder Config */
+    // m_angleEncoder = new CANcoder(.cancoderID, RobotInfo.CANIVORE_NAME);
+    // configAngleEncoder();
+
     configIntakeMotor();
   }
 
@@ -56,6 +62,11 @@ public class Claw implements Subsystem {
 
     m_intakeMotor.getConfigurator().apply(motorConfig);
   }
+
+  /*private void configAngleEncoder() {
+    var encoderConfig = new CANcoderConfiguration();
+    m_angleEncoder.getConfigurator().apply(encoderConfig);
+  }*/
 
   private boolean checkForGamePiece() {
     boolean atStatorLimit = Math.abs(m_intakeStator) > m_statorCurrentLimit - 10.0;
@@ -78,6 +89,7 @@ public class Claw implements Subsystem {
     SmartDashboard.putNumber("Intake Stator", m_intakeStator);
     SmartDashboard.putNumber("Intake Supply", m_intakeMotor.getSupplyCurrent().getValue());
     SmartDashboard.putNumber("Intake Velocity", m_intakeMotor.getVelocity().getValue());
+    // SmartDashboard.putNumber("Intake Encoder", m_angleEncoder);
     SmartDashboard.putBoolean("Game Piece", m_hasGamePiece);
     SmartDashboard.putBoolean("Cone Sensor", getConeSensor());
   }
