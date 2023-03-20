@@ -136,11 +136,14 @@ public class Claw implements Subsystem {
         break;
     }
 
-    // If we have a cone, we want the top roller to be the same speed as the bottom
-    // in the opposite direction (by default). If we have a cube, we want the top
-    // roller to not move.
+    // If we have a cube, run the top roller in the same direction of the bottom.
+    // Otherwise, run the top roller in the opposite direction of the bottom.
     if (currentGamePiece == GamePiece.Cube) {
-      m_topRollerOutput = 0.0;
+      if (m_intakeState != IntakeState.Hold) {
+        m_topRollerOutput = -m_bottomRollerOutput;
+      } else {
+        m_topRollerOutput = 0.0;
+      }
     } else {
       m_topRollerOutput = m_bottomRollerOutput;
     }
