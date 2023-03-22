@@ -28,6 +28,7 @@ import frc.robot.subsystems.Wrist.WristPreset;
 import frc.robot.subsystems.Wrist.WristState;
 
 import edu.wpi.first.math.MathUtil;
+import edu.wpi.first.math.controller.PIDController;
 import edu.wpi.first.math.filter.SlewRateLimiter;
 import edu.wpi.first.math.geometry.Translation2d;
 import edu.wpi.first.wpilibj.Compressor;
@@ -264,7 +265,9 @@ public class Robot extends TimedRobot {
       if (m_driverStick.getRightBumper()) {
         var pose = LimelightHelpers.getTargetPose3d_CameraSpace("");
         translation = new Translation2d(0.0, 0.0);
-        rot = pose.getRotation().getAngle();
+        var pid = new PIDController(0.0, 0.0, 0.0);
+        pid.setSetpoint(pose.getRotation().getAngle());
+        rot = pid.getVelocityError();
         fieldRelative = false;
       }
 
