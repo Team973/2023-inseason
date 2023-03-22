@@ -13,7 +13,7 @@ import java.util.List;
 
 import frc.robot.AutoManager.AutoMode;
 import frc.robot.AutoManager.AutoSide;
-import frc.robot.auto.commands.DoubleFeederPickupCommand;
+import frc.robot.auto.commands.DoubleFeederScoreCommand;
 import frc.robot.shared.Constants.GamePiece;
 import frc.robot.shared.LimelightHelpers;
 import frc.robot.subsystems.CANdleManager;
@@ -260,7 +260,7 @@ public class Robot extends TimedRobot {
           new Translation2d(xSpeed, ySpeed).times(DriveInfo.MAX_VELOCITY_METERS_PER_SECOND);
 
       if (m_driverStick.getRightBumper()) {
-        new DoubleFeederPickupCommand(m_drive, m_elevator, m_wrist, m_claw, m_currentGamePiece);
+        new DoubleFeederScoreCommand(m_drive, m_elevator, m_wrist, m_claw, m_currentGamePiece);
       }
 
       m_drive.driveInput(translation, rot, true);

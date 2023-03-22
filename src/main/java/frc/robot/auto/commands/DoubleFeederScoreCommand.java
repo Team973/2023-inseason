@@ -14,10 +14,10 @@ import frc.robot.subsystems.Wrist.WristPreset;
 
 import edu.wpi.first.math.geometry.Translation2d;
 
-public class DoubleFeederPickupCommand extends AutoCommand {
+public class DoubleFeederScoreCommand extends AutoCommand {
   SequentialCommand m_command;
 
-  public DoubleFeederPickupCommand(
+  public DoubleFeederScoreCommand(
       Drive drive, Elevator elevator, Wrist wrist, Claw claw, GamePiece gamePiece) {
     var pose = LimelightHelpers.getTargetPose3d_CameraSpace("");
 
