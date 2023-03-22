@@ -47,8 +47,6 @@ import lombok.experimental.Accessors;
  */
 @Accessors(prefix = "m_")
 public class Robot extends TimedRobot {
-  private static GamePiece m_currentGamePiece = GamePiece.None;
-
   @Getter private static GamePiece m_preloadGamePiece = GamePiece.Cone;
 
   @Getter private static boolean m_exceptionHappened = false;
@@ -180,8 +178,6 @@ public class Robot extends TimedRobot {
           || !isDisabled() && m_candleManager.getLightState() != LightState.GotIt) {
         m_candleManager.setLightWithGamePiece();
       }
-
-      m_currentGamePiece = Superstructure.getCurrentGamePiece();
     } catch (Exception e) {
       logException(e);
     }
@@ -366,10 +362,10 @@ public class Robot extends TimedRobot {
       if (operatorStickRightY != 0.0) {
         m_elevator.setElevatorState(ElevatorState.Manual);
         m_elevator.setElevatorOutput(operatorStickRightY);
-        m_superStructure.joystickPressed(true);
+        m_superStructure.setJoystickPressed(true);
       } else {
         m_elevator.setElevatorState(ElevatorState.ClosedLoop);
-        m_superStructure.joystickPressed(false);
+        m_superStructure.setJoystickPressed(false);
       }
 
       // Intake

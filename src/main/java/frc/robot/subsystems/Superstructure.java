@@ -23,11 +23,7 @@ public class Superstructure implements Subsystem {
   private final Wrist m_wrist;
   private final Elevator m_elevator;
 
-  private boolean m_joystickPressed;
-
-  public void joystickPressed(boolean pressed) {
-    m_joystickPressed = pressed;
-  }
+  @Setter private boolean m_joystickPressed;
 
   public void dashboardUpdate() {}
 

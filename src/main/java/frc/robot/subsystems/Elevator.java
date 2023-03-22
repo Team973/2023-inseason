@@ -13,6 +13,7 @@ import com.ctre.phoenixpro.signals.InvertedValue;
 import edu.wpi.first.wpilibj.DigitalInput;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import lombok.Getter;
+import lombok.Setter;
 import lombok.experimental.Accessors;
 
 @Accessors(prefix = "m_")
@@ -41,7 +42,7 @@ public class Elevator implements Subsystem {
 
   private static final double MAX_HEIGHT = 27.58;
 
-  @Getter private ElevatorState m_elevatorState = ElevatorState.Manual;
+  @Getter @Setter private ElevatorState m_elevatorState = ElevatorState.Manual;
   @Getter private Preset m_preset = Preset.Stow;
 
   private final MotionMagicVoltage m_elevatorMotionMagic =
@@ -160,10 +161,6 @@ public class Elevator implements Subsystem {
     return isAtHeight(getHeightFromPosition(m_targetPosition));
   }
 
-  public void setElevatorState(ElevatorState newState) {
-    setElevatorState(newState);
-  }
-
   public void dashboardUpdate() {
     SmartDashboard.putNumber("Elevator Position", getPosition());
     SmartDashboard.putNumber("Elevator Target Position", m_targetPosition);
@@ -192,10 +189,6 @@ public class Elevator implements Subsystem {
           m_elevatorOutput = clamp(m_elevatorOutput, 1.0, 0.0);
         } else {
           m_elevatorOutput = clamp(m_elevatorOutput, 0.2, -0.2);
-        }
-
-        if (getElevatorState() == ElevatorState.WaitForWrist) {
-          setElevatorState(ElevatorState.Manual);
         }
 
         m_elevatorMotor.set(m_elevatorOutput);
