@@ -8,8 +8,12 @@ import static frc.robot.shared.RobotInfo.*;
 
 import java.io.FileWriter;
 import java.io.PrintWriter;
+import java.util.Arrays;
+import java.util.List;
 
+import frc.robot.AutoManager.AutoMode;
 import frc.robot.AutoManager.AutoSide;
+import frc.robot.auto.commands.DoubleFeederPickupCommand;
 import frc.robot.shared.Constants.GamePiece;
 import frc.robot.shared.LimelightHelpers;
 import frc.robot.subsystems.CANdleManager;
@@ -71,6 +75,15 @@ public class Robot extends TimedRobot {
   private final Compressor m_compressor =
       new Compressor(COMPRESSOR_ID, PneumaticsModuleType.CTREPCM);
 
+  private final List<AutoMode> m_availableAutoModes =
+      Arrays.asList(
+          AutoMode.PreloadPickupCharge,
+          AutoMode.Test,
+          AutoMode.PreloadAndCharge,
+          AutoMode.CenterPreloadAndCharge,
+          AutoMode.PreloadPickupScoreCharge,
+          AutoMode.NoAuto);
+  private int m_selectedMode = 0;
   private AutoSide m_selectedAutoSide = AutoSide.Left;
 
   private void logException(Exception e) {
@@ -245,6 +258,10 @@ public class Robot extends TimedRobot {
 
       Translation2d translation =
           new Translation2d(xSpeed, ySpeed).times(DriveInfo.MAX_VELOCITY_METERS_PER_SECOND);
+
+      if (m_driverStick.getRightBumper()) {
+        new DoubleFeederPickupCommand(m_drive, m_elevator, m_wrist, m_claw, m_currentGamePiece);
+      }
 
       m_drive.driveInput(translation, rot, true);
 
