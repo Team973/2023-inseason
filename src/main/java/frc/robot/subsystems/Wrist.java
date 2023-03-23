@@ -27,7 +27,7 @@ public class Wrist implements Subsystem {
 
   private static final double STOW_OFFSET = 31.3;
   private static final double WRIST_FF = 0.4; // 0.4
-  private double ENCODER_OFFSET = 289.77;
+  private double ENCODER_OFFSET = 317.98;
 
   @Setter @Getter private WristState m_state = WristState.Manual;
   @Setter @Getter private WristPreset m_preset = WristPreset.Stow;
@@ -134,6 +134,10 @@ public class Wrist implements Subsystem {
     return (m_encoder.getAbsolutePosition().getValue() * 360.0) - ENCODER_OFFSET;
   }
 
+  private double getRawAngleDegrees() {
+    return m_encoder.getAbsolutePosition().getValue() * 360.0;
+  }
+
   private void setTargetAngleDegrees(double angle) {
     m_targetAngle = angle;
   }
@@ -158,6 +162,7 @@ public class Wrist implements Subsystem {
     SmartDashboard.putNumber("Wrist Stator", m_wristMotor.getStatorCurrent().getValue());
     SmartDashboard.putBoolean("Wrist Sensor", getWristHall());
     SmartDashboard.putNumber("Wrist Absolute Encoder", m_encoder.getAbsolutePosition().getValue());
+    SmartDashboard.putNumber("Wrist Raw Angle", getRawAngleDegrees());
   }
 
   @Override
@@ -190,6 +195,5 @@ public class Wrist implements Subsystem {
   @Override
   public void reset() {
     setPreset(WristPreset.Stow);
-    ENCODER_OFFSET = m_encoder.getAbsolutePosition().getValue() * 360.0;
   }
 }
