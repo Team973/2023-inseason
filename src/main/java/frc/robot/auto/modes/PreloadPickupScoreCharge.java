@@ -33,31 +33,36 @@ public class PreloadPickupScoreCharge extends SequentialCommand {
                 drive,
                 TrajectoryManager.getPathSegment(TrajectoryManager.PreloadPickupScoreCharge, 0)),
             new SequentialCommand(
-                new WaitCommand(2000),
-                new SetCurrentGamePieceCommand(GamePiece.Cone),
+                new WaitCommand(1000),
+                new SetCurrentGamePieceCommand(GamePiece.Cube),
                 new ConcurrentCommand(
-                    new ElevatorPresetCommand(elevator, Elevator.Preset.Floor, 4000),
-                    new WristPresetCommand(wrist, WristPreset.Floor, 10.0, 2000),
-                    new IntakeCommand(claw, IntakeState.In, 1000)))),
-
-        // Stow
+                    new ElevatorPresetCommand(elevator, Elevator.Preset.Floor, 1000),
+                    new WristPresetCommand(wrist, WristPreset.Floor, 10.0, 1000),
+                    new IntakeCommand(claw, IntakeState.In, 2000)))),
         new ConcurrentCommand(
             new ElevatorPresetCommand(elevator, Elevator.Preset.Stow, 1000),
             new WristPresetCommand(wrist, WristPreset.Stow, 10.0, 1000)),
-        new PathPlannerTrajectoryCommand(
-            drive,
-            false,
-            TrajectoryManager.getPathSegment(TrajectoryManager.PreloadPickupScoreCharge, 1)),
-        new WristPresetCommand(wrist, WristPreset.Offset, 10.0, 500),
-        new ElevatorPresetCommand(elevator, Elevator.Preset.High, 4000),
-        new WristPresetCommand(wrist, WristPreset.High, 10.0, 2000),
+        new ConcurrentCommand(
+            new PathPlannerTrajectoryCommand(
+                drive,
+                false,
+                TrajectoryManager.getPathSegment(TrajectoryManager.PreloadPickupScoreCharge, 1)),
+            new SequentialCommand(
+                new WaitCommand(1500),
+                new ConcurrentCommand(
+                    new ElevatorPresetCommand(elevator, Elevator.Preset.High, 1000),
+                    new WristPresetCommand(wrist, WristPreset.High, 10.0, 1000)))),
+        new WaitCommand(500),
         new IntakeCommand(claw, IntakeState.Out, 500),
         new WaitCommand(200),
         new SetCurrentGamePieceCommand(GamePiece.None),
-        new PathPlannerTrajectoryCommand(
-            drive,
-            false,
-            TrajectoryManager.getPathSegment(TrajectoryManager.PreloadPickupScoreCharge, 2)),
+        new ConcurrentCommand(
+            new ElevatorPresetCommand(elevator, Elevator.Preset.Stow, 1000),
+            new WristPresetCommand(wrist, WristPreset.Stow, 10.0, 1000),
+            new PathPlannerTrajectoryCommand(
+                drive,
+                false,
+                TrajectoryManager.getPathSegment(TrajectoryManager.PreloadPickupScoreCharge, 2))),
         new BalanceCommand(drive, 5000));
   }
 }
