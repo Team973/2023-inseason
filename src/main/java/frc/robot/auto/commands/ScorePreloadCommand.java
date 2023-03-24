@@ -1,5 +1,6 @@
 package frc.robot.auto.commands;
 
+import frc.robot.auto.commands.util.ConcurrentCommand;
 import frc.robot.auto.commands.util.SequentialCommand;
 import frc.robot.auto.commands.util.WaitCommand;
 import frc.robot.shared.AutoCommand;
@@ -11,20 +12,26 @@ import frc.robot.subsystems.Wrist;
 import frc.robot.subsystems.Wrist.WristPreset;
 
 public class ScorePreloadCommand extends AutoCommand {
-  SequentialCommand m_command;
+  AutoCommand m_command;
 
-  public ScorePreloadCommand(GamePiece gamePiece, Claw claw, Wrist wrist, Elevator elevator) {
+  public ScorePreloadCommand(
+      GamePiece gamePiece,
+      Elevator.Preset elevatorPreset,
+      WristPreset wristPreset,
+      Claw claw,
+      Wrist wrist,
+      Elevator elevator) {
     m_command =
-        new SequentialCommand(
+        new ConcurrentCommand(
             new SetCurrentGamePieceCommand(gamePiece),
-            new IntakeCommand(claw, IntakeState.In, 200),
-            new WristPresetCommand(wrist, WristPreset.Offset, 10.0, 500),
-            new ElevatorPresetCommand(elevator, Elevator.Preset.High, 4000),
-            new WristPresetCommand(wrist, WristPreset.High, 1.0, 2000),
-            new WaitCommand(200),
-            new IntakeCommand(claw, IntakeState.Out, 500),
-            new WaitCommand(200),
-            new SetCurrentGamePieceCommand(GamePiece.None));
+            new IntakeCommand(claw, IntakeState.In, 3000),
+            new SequentialCommand(
+                new WristPresetCommand(wrist, WristPreset.Offset, 10.0, 500),
+                new ElevatorPresetCommand(elevator, elevatorPreset, 4000),
+                new WristPresetCommand(wrist, wristPreset, 1.0, 2000),
+                new IntakeCommand(claw, IntakeState.Out, 500),
+                new WaitCommand(200),
+                new SetCurrentGamePieceCommand(GamePiece.None)));
   }
 
   @Override
