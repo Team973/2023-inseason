@@ -58,6 +58,14 @@ public class TrajectoryManager {
           false,
           Arrays.asList(GamePiece.Cone));
 
+  public static final TrajectoryPair PreloadScoreTwo =
+      new TrajectoryPair(
+          "PreloadScoreTwo", true, new PathConstraints(4, 3), false, Arrays.asList(GamePiece.Cone));
+
+  public static final TrajectoryPair CenterPreloadPickupAndCharge =
+      new TrajectoryPair(
+          "PreloadScoreTwo", true, new PathConstraints(4, 3), false, Arrays.asList(GamePiece.Cone));
+
   public static class TrajectoryPair {
 
     private final HashMap<GamePiece, List<PathPlannerTrajectory>> gamePieceMapping;
