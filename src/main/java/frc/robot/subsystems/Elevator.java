@@ -61,6 +61,7 @@ public class Elevator implements Subsystem {
     Mid(22.3),
     Hp(27.4),
     High(27.4),
+    HighOffset(High.getValue() - 2.0),
     Stow(0.0),
     MiniHp(21.5);
 
@@ -93,16 +94,16 @@ public class Elevator implements Subsystem {
     motorConfig.CurrentLimits.StatorCurrentLimitEnable = true;
 
     // Position PID Parameters
-    motorConfig.Slot0.kP = 4.4;
+    motorConfig.Slot0.kP = 5.4;
     motorConfig.Slot0.kI = 0.0;
     motorConfig.Slot0.kD = 0.0;
     motorConfig.Slot0.kS = 0.0;
 
-    motorConfig.MotionMagic.MotionMagicCruiseVelocity = 75.0;
-    motorConfig.MotionMagic.MotionMagicAcceleration = 210.0;
+    motorConfig.MotionMagic.MotionMagicCruiseVelocity = 55.0;
+    motorConfig.MotionMagic.MotionMagicAcceleration = 180.0;
 
     // Set motor to follow A
-    m_elevatorMotor.getConfigurator().apply(motorConfig);
+    m_elevatorMotor.getConfigurator().apply(motorConfig, 0.2);
     m_elevatorFollowerMotor.getConfigurator().apply(new TalonFXConfiguration());
     m_elevatorFollowerMotor.setControl(new Follower(ElevatorInfo.FX_ID, false));
 
@@ -167,6 +168,10 @@ public class Elevator implements Subsystem {
     SmartDashboard.putNumber("Elevator Position", getPosition());
     SmartDashboard.putBoolean("Elevator Bottom Hall", getBottomHall());
     SmartDashboard.putBoolean("Elevator Top Hall", getTopHall());
+    SmartDashboard.putNumber(
+        "Elevator Supply Current", m_elevatorMotor.getSupplyCurrent().getValue());
+    SmartDashboard.putNumber(
+        "Elevator Stator Current", m_elevatorMotor.getStatorCurrent().getValue());
   }
 
   public void update() {

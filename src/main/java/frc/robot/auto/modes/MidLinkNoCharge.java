@@ -57,11 +57,32 @@ public class MidLinkNoCharge extends SequentialCommand {
                 new ConcurrentCommand(
                     new WristPresetCommand(wrist, WristPreset.Stow, 10.0, 1000),
                     new ElevatorPresetCommand(elevator, Elevator.Preset.Stow, 1000))),
+            new ConcurrentCommand(
+                new SequentialCommand(
+                    new WaitCommand(1000),
+                    new SetCurrentGamePieceCommand(GamePiece.Cone),
+                    new ConcurrentCommand(
+                        new ElevatorPresetCommand(elevator, Elevator.Preset.Floor, 1000),
+                        new WristPresetCommand(wrist, WristPreset.Floor, 10.0, 1000),
+                        new IntakeCommand(claw, IntakeState.In, 2000))),
+                new PathPlannerTrajectoryCommand(
+                    drive,
+                    false,
+                    TrajectoryManager.getPathSegment(TrajectoryManager.MidLinkNoCharge, 2)))),
+        new ConcurrentCommand(
+            new ElevatorPresetCommand(elevator, Elevator.Preset.Stow, 1000),
+            new WristPresetCommand(wrist, WristPreset.Stow, 10.0, 1000),
             new PathPlannerTrajectoryCommand(
                 drive,
                 false,
-                TrajectoryManager.getPathSegment(TrajectoryManager.MidLinkNoCharge, 2))),
-        new PathPlannerTrajectoryCommand(
-            drive, false, TrajectoryManager.getPathSegment(TrajectoryManager.MidLinkNoCharge, 3)));
+                TrajectoryManager.getPathSegment(TrajectoryManager.MidLinkNoCharge, 3)),
+            new SequentialCommand(
+                new WaitCommand(1500),
+                new ConcurrentCommand(
+                    new ElevatorPresetCommand(elevator, Elevator.Preset.Mid, 1000),
+                    new WristPresetCommand(wrist, WristPreset.Mid, 10.0, 1000)))),
+        new IntakeCommand(claw, IntakeState.Out, 500),
+        new WristPresetCommand(wrist, WristPreset.Stow, 10.0, 1000),
+        new ElevatorPresetCommand(elevator, Elevator.Preset.Stow, 1000));
   }
 }

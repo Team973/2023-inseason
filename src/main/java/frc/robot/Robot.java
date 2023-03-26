@@ -429,13 +429,6 @@ public class Robot extends TimedRobot {
         m_selectedAutoSide = AutoSide.Right;
       }
 
-      if (m_operatorStick.getLeftBumperPressed()) {
-        m_preloadGamePiece = GamePiece.Cone;
-      }
-      if (m_operatorStick.getRightBumperPressed()) {
-        m_preloadGamePiece = GamePiece.Cube;
-      }
-
       SmartDashboard.putString("DB/String 0", m_autoManager.getSelectedMode().toString());
       SmartDashboard.putString("DB/String 1", m_selectedAutoSide.toString());
       SmartDashboard.putString("DB/String 2", m_preloadGamePiece.toString());

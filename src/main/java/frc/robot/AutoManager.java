@@ -54,7 +54,7 @@ public class AutoManager {
   private final AutoCommand m_midLinkNoCharge;
 
   public AutoManager(Claw claw, Elevator elevator, Drive drive, Wrist wrist) {
-    m_test = new Test(drive);
+    m_test = new Test(claw, wrist, elevator);
     m_preloadAndCharge = new PreloadAndCharge(drive, claw, elevator, wrist);
     m_preloadPickupCharge = new PreloadPickupCharge(drive, claw, elevator, wrist);
     m_centerPreloadAndCharge = new CenterPreloadAndCharge(drive, claw, elevator, wrist);

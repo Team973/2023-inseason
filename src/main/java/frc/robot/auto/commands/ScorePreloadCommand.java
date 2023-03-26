@@ -24,14 +24,16 @@ public class ScorePreloadCommand extends AutoCommand {
     m_command =
         new ConcurrentCommand(
             new SetCurrentGamePieceCommand(gamePiece),
-            new IntakeCommand(claw, IntakeState.In, 3000),
+            new IntakeCommand(claw, IntakeState.In, 4000),
             new SequentialCommand(
-                new WristPresetCommand(wrist, WristPreset.Offset, 10.0, 500),
-                new ElevatorPresetCommand(elevator, elevatorPreset, 4000),
+                new WristPresetCommand(wrist, WristPreset.Offset, 10.0, 100),
+                new ElevatorPresetCommand(elevator, elevatorPreset, 2000),
                 new WristPresetCommand(wrist, wristPreset, 1.0, 2000),
-                new IntakeCommand(claw, IntakeState.Out, 500),
+                new WaitCommand(800),
+                new IntakeCommand(claw, IntakeState.Out, 800),
                 new WaitCommand(200),
-                new SetCurrentGamePieceCommand(GamePiece.None)));
+                new SetCurrentGamePieceCommand(GamePiece.None),
+                new ElevatorPresetCommand(elevator, Elevator.Preset.HighOffset, 500)));
   }
 
   @Override

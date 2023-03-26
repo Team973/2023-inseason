@@ -28,8 +28,10 @@ public class PreloadPickupScoreCharge extends SequentialCommand {
 
         // Drive to pickup
         new ConcurrentCommand(
-            new ElevatorPresetCommand(elevator, Elevator.Preset.Stow, 1000),
-            new WristPresetCommand(wrist, WristPreset.Stow, 10.0, 2000),
+            new SequentialCommand(
+                new WaitCommand(200),
+                new ElevatorPresetCommand(elevator, Elevator.Preset.Stow, 1000),
+                new WristPresetCommand(wrist, WristPreset.Stow, 10.0, 2000)),
             new PathPlannerTrajectoryCommand(
                 drive,
                 TrajectoryManager.getPathSegment(TrajectoryManager.PreloadPickupScoreCharge, 0)),
