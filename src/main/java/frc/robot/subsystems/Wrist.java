@@ -1,14 +1,13 @@
 package frc.robot.subsystems;
 
 import frc.robot.Robot;
+import frc.robot.devices.GreyTalonFX;
 import frc.robot.shared.Constants.GamePiece;
-import frc.robot.shared.GreyTalonFX;
 import frc.robot.shared.RobotInfo;
 import frc.robot.shared.RobotInfo.ClawInfo;
 import frc.robot.shared.Subsystem;
 
 import com.ctre.phoenixpro.configs.CANcoderConfiguration;
-import com.ctre.phoenixpro.configs.TalonFXConfiguration;
 import com.ctre.phoenixpro.controls.PositionVoltage;
 import com.ctre.phoenixpro.hardware.CANcoder;
 import com.ctre.phoenixpro.signals.AbsoluteSensorRangeValue;
@@ -92,7 +91,7 @@ public class Wrist implements Subsystem {
   }
 
   private void configWristMotor() {
-    var motorConfig = new TalonFXConfiguration();
+    var motorConfig = m_wristMotor.getConfig();
 
     // Motor Directions
     motorConfig.MotorOutput.Inverted = InvertedValue.Clockwise_Positive;
@@ -120,7 +119,7 @@ public class Wrist implements Subsystem {
     motorConfig.Slot0.kD = 0.0;
     motorConfig.Slot0.kS = 0.0;
 
-    m_wristMotor.getConfigurator().apply(motorConfig);
+    m_wristMotor.setConfig(motorConfig);
   }
 
   private void configEncoder() {

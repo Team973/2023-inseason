@@ -2,11 +2,10 @@ package frc.robot.subsystems;
 
 import static frc.robot.shared.RobotInfo.*;
 
-import frc.robot.shared.GreyTalonFX;
+import frc.robot.devices.GreyTalonFX;
 import frc.robot.shared.RobotInfo;
 import frc.robot.shared.Subsystem;
 
-import com.ctre.phoenixpro.configs.TalonFXConfiguration;
 import com.ctre.phoenixpro.controls.Follower;
 import com.ctre.phoenixpro.controls.MotionMagicVoltage;
 import com.ctre.phoenixpro.signals.InvertedValue;
@@ -82,7 +81,7 @@ public class Elevator implements Subsystem {
     m_topHall = new DigitalInput(ElevatorInfo.TOP_HALL_SENSOR_ID);
 
     // Factory Default
-    var motorConfig = new TalonFXConfiguration();
+    var motorConfig = m_elevatorMotor.getConfig();
     // Motor Directions
     motorConfig.MotorOutput.Inverted = InvertedValue.Clockwise_Positive;
 
@@ -102,8 +101,7 @@ public class Elevator implements Subsystem {
     motorConfig.MotionMagic.MotionMagicAcceleration = 210.0;
 
     // Set motor to follow A
-    m_elevatorMotor.getConfigurator().apply(motorConfig);
-    m_elevatorFollowerMotor.getConfigurator().apply(new TalonFXConfiguration());
+    m_elevatorMotor.setConfig(motorConfig);
     m_elevatorFollowerMotor.setControl(new Follower(ElevatorInfo.FX_ID, false));
 
     m_elevatorMotor.setRotorPosition(0.0);

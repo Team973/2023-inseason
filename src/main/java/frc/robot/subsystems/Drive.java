@@ -1,13 +1,11 @@
 package frc.robot.subsystems;
 
+import frc.robot.devices.GreyPigeon;
 import frc.robot.greydash.GreyDashClient;
-import frc.robot.shared.RobotInfo;
 import frc.robot.shared.RobotInfo.DriveInfo;
 import frc.robot.shared.Subsystem;
 import frc.robot.subsystems.swerve.SwerveModule;
 
-import com.ctre.phoenixpro.configs.Pigeon2Configuration;
-import com.ctre.phoenixpro.hardware.Pigeon2;
 import com.google.common.collect.ImmutableList;
 import edu.wpi.first.math.controller.HolonomicDriveController;
 import edu.wpi.first.math.controller.PIDController;
@@ -24,6 +22,7 @@ import edu.wpi.first.math.kinematics.SwerveModuleState;
 import edu.wpi.first.math.trajectory.Trajectory.State;
 import edu.wpi.first.math.trajectory.TrapezoidProfile;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
+import lombok.Getter;
 import lombok.Setter;
 import lombok.experimental.Accessors;
 
@@ -33,10 +32,9 @@ public class Drive implements Subsystem {
   private SwerveModule[] m_swerveModules;
   private ChassisSpeeds m_currentChassisSpeeds;
 
-  private final Pigeon2 m_pigeon;
-  private double m_gyroOffsetDegrees;
+  @Getter private final GreyPigeon m_pigeon;
 
-  @Setter private double m_targetRobotAngle = 0.0;
+  @Setter private Rotation2d m_targetRobotAngle = new Rotation2d();
 
   @Setter private RotationControl m_rotationControl = RotationControl.OpenLoop;
 
@@ -50,25 +48,20 @@ public class Drive implements Subsystem {
   }
 
   public static class AnglePresets {
-    public static final double TOWARDS_HP = 0.0;
-    public static final double TOWARDS_DS = 180.0;
-    public static final double TOWARDS_MHP_RED = -90.0;
-    public static final double TOWARDS_MHP_BLUE = 90.0;
-    public static final double TOWARDS_WS_BLUE = 45.0;
-    public static final double TOWARDS_WSR_BLUE = 135.0;
-    public static final double TOWARDS_WS_RED = -45.0;
-    public static final double TOWARDS_WSR_RED = -135.0;
+    public static final Rotation2d TOWARDS_HP = Rotation2d.fromDegrees(0.0);
+    public static final Rotation2d TOWARDS_DS = Rotation2d.fromDegrees(180.0);
+    public static final Rotation2d TOWARDS_MHP_RED = Rotation2d.fromDegrees(-90.0);
+    public static final Rotation2d TOWARDS_MHP_BLUE = Rotation2d.fromDegrees(90.0);
+    public static final Rotation2d TOWARDS_WS_BLUE = Rotation2d.fromDegrees(45.0);
+    public static final Rotation2d TOWARDS_WSR_BLUE = Rotation2d.fromDegrees(135.0);
+    public static final Rotation2d TOWARDS_WS_RED = Rotation2d.fromDegrees(-45.0);
+    public static final Rotation2d TOWARDS_WSR_RED = Rotation2d.fromDegrees(-135.0);
   }
 
   private final HolonomicDriveController m_controller;
 
   public Drive() {
-    m_pigeon = new Pigeon2(DriveInfo.PIGEON_ID, RobotInfo.CANIVORE_NAME);
-    m_pigeon.getConfigurator().apply(new Pigeon2Configuration());
-
-    m_gyroOffsetDegrees = m_pigeon.getYaw().getValue();
-
-    resetGyro();
+    m_pigeon = new GreyPigeon();
 
     m_swerveModules =
         new SwerveModule[] {
@@ -81,8 +74,7 @@ public class Drive implements Subsystem {
     m_currentChassisSpeeds = new ChassisSpeeds();
 
     swerveOdometry =
-        new SwerveDriveOdometry(
-            DriveInfo.SWERVE_KINEMATICS, getGyroscopeRotation(), getPositions());
+        new SwerveDriveOdometry(DriveInfo.SWERVE_KINEMATICS, m_pigeon.getYaw(), getPositions());
 
     m_controller =
         new HolonomicDriveController(
@@ -97,10 +89,10 @@ public class Drive implements Subsystem {
   }
 
   public void balanceDrivePitch() {
-    double pitch = getGyroPitch();
+    double pitch = m_pigeon.getPitch().getDegrees();
     if (Math.abs(pitch) > 5.0) {
       double pitchCorrection = m_balancePitchController.calculate(pitch, 0.0);
-      if (Math.abs(getNormalizedGyroYaw() - 180) < 30.0) {
+      if (Math.abs(m_pigeon.getNormalizedYaw().getDegrees() - 180) < 30.0) {
         pitchCorrection *= -1.0;
       }
       driveInput(new Translation2d(pitchCorrection, 0.0), 0.0, true);
@@ -113,10 +105,10 @@ public class Drive implements Subsystem {
   }
 
   public void balanceDriveRoll() {
-    double roll = getGyroRoll();
+    double roll = m_pigeon.getRoll().getDegrees();
     if (Math.abs(roll) > 5.0) {
       double rollCorrection = m_balanceRollController.calculate(roll, 0.0);
-      if (Math.abs(getNormalizedGyroYaw() - 270) < 30.0) {
+      if (Math.abs(m_pigeon.getNormalizedYaw().getDegrees() - 270) < 30.0) {
         rollCorrection *= -1.0;
       }
       driveInput(new Translation2d(rollCorrection, 0.0), 0.0, true);
@@ -131,7 +123,7 @@ public class Drive implements Subsystem {
   public void driveInput(Translation2d translation, double rotationVal, boolean fieldRelative) {
     double rotation = rotationVal;
     if (m_rotationControl == RotationControl.ClosedLoop) {
-      double diff = m_targetRobotAngle - getNormalizedGyroYaw();
+      double diff = m_targetRobotAngle.minus(m_pigeon.getNormalizedYaw()).getDegrees();
       if (diff > 180) {
         diff -= 360;
       } else if (diff < -180) {
@@ -139,50 +131,22 @@ public class Drive implements Subsystem {
       }
 
       rotation =
-          m_rotationController.calculate(getNormalizedGyroYaw(), getNormalizedGyroYaw() + diff);
+          m_rotationController.calculate(
+              m_pigeon.getNormalizedYaw().getDegrees(),
+              m_pigeon.getNormalizedYaw().getDegrees() + diff);
     } else if (rotation != 0.0) {
-      m_targetRobotAngle = getNormalizedGyroYaw();
+      m_targetRobotAngle = m_pigeon.getNormalizedYaw();
     }
 
     m_currentChassisSpeeds =
         fieldRelative
             ? ChassisSpeeds.fromFieldRelativeSpeeds(
-                translation.getX(), translation.getY(), rotation, getGyroscopeRotation())
+                translation.getX(), translation.getY(), rotation, m_pigeon.getNormalizedYaw())
             : new ChassisSpeeds(translation.getX(), translation.getY(), rotation);
   }
 
   public void driveInput(State state, Rotation2d rotation) {
     m_currentChassisSpeeds = m_controller.calculate(getPose(), state, rotation);
-  }
-
-  public double getGyroPitch() {
-    return m_pigeon.getPitch().getValue();
-  }
-
-  public double getGyroRoll() {
-    return m_pigeon.getRoll().getValue();
-  }
-
-  public double getGyroYaw() {
-    return m_pigeon.getYaw().getValue() - m_gyroOffsetDegrees;
-  }
-
-  public double getNormalizedGyroYaw() {
-    double rawYaw = getGyroYaw();
-    double normalizedYaw = Math.IEEEremainder(rawYaw, 360.0);
-    if (normalizedYaw < 0) {
-      normalizedYaw += 360.0;
-    }
-    return normalizedYaw;
-  }
-
-  public Rotation2d getGyroscopeRotation() {
-    return Rotation2d.fromDegrees(getGyroYaw());
-  }
-
-  public void resetGyro() {
-    // TODO: do a better reset here.
-    m_gyroOffsetDegrees = m_pigeon.getYaw().getValue();
   }
 
   /* Used by Auto */
@@ -207,8 +171,7 @@ public class Drive implements Subsystem {
   }
 
   public void resetOdometry(Pose2d pose) {
-    m_gyroOffsetDegrees += pose.getRotation().getDegrees();
-    swerveOdometry.resetPosition(getGyroscopeRotation(), getPositions(), pose);
+    swerveOdometry.resetPosition(m_pigeon.getYaw(), getPositions(), pose);
   }
 
   public void resetModules() {
@@ -238,7 +201,7 @@ public class Drive implements Subsystem {
   }
 
   public void dashboardUpdate() {
-    GreyDashClient.setGyroAngle(getGyroscopeRotation().getDegrees());
+    GreyDashClient.setGyroAngle(m_pigeon.getYaw().getDegrees());
     double states[] = new double[8];
     int index = 0;
 
@@ -255,8 +218,8 @@ public class Drive implements Subsystem {
       index += 2;
     }
     SmartDashboard.putNumberArray("swerve/actual", states);
-    SmartDashboard.putNumber("pitch", m_pigeon.getPitch().getValue());
-    SmartDashboard.putNumber("roll", m_pigeon.getRoll().getValue());
+    SmartDashboard.putNumber("pitch", m_pigeon.getPitch().getDegrees());
+    SmartDashboard.putNumber("roll", m_pigeon.getRoll().getDegrees());
     SmartDashboard.putNumberArray(
         "swerve/odometry",
         ImmutableList.of(
@@ -267,7 +230,7 @@ public class Drive implements Subsystem {
   }
 
   public void update() {
-    swerveOdometry.update(getGyroscopeRotation(), getPositions());
+    swerveOdometry.update(m_pigeon.getYaw(), getPositions());
 
     Pose2d robot_pose_vel =
         new Pose2d(
@@ -286,8 +249,8 @@ public class Drive implements Subsystem {
   }
 
   public void reset() {
-    resetGyro();
-    m_targetRobotAngle = getGyroYaw();
+    m_pigeon.reset();
+    m_targetRobotAngle = m_pigeon.getYaw();
     resetOdometry(new Pose2d());
   }
 }

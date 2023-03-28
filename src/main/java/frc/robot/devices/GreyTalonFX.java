@@ -1,6 +1,6 @@
-package frc.robot.shared;
+package frc.robot.devices;
 
-import com.ctre.phoenixpro.configs.TalonFXConfiguration;
+import com.ctre.phoenixpro.configs.TalonFXConfigurator;
 import com.ctre.phoenixpro.hardware.TalonFX;
 import com.ctre.phoenixpro.signals.FeedbackSensorSourceValue;
 import com.ctre.phoenixpro.signals.ForwardLimitSourceValue;
@@ -9,18 +9,26 @@ import com.ctre.phoenixpro.signals.InvertedValue;
 import com.ctre.phoenixpro.signals.NeutralModeValue;
 import com.ctre.phoenixpro.signals.ReverseLimitSourceValue;
 import com.ctre.phoenixpro.signals.ReverseLimitTypeValue;
+import lombok.EqualsAndHashCode;
 
+/** A GreyTalonFX is a TalonFX with a default configuration. */
+@EqualsAndHashCode(callSuper = true)
 public class GreyTalonFX extends TalonFX {
-
   public GreyTalonFX(int deviceNumber) {
     this(deviceNumber, "");
   }
 
+  private GreyTalonFXConfiguration m_currentConfig;
+
   public GreyTalonFX(int deviceNumber, String canbus) {
     super(deviceNumber, canbus);
+    factoryDefault();
+  }
 
+  /** Factory default the TalonFX. */
+  public void factoryDefault() {
     // Factory Default
-    var motorConfig = new TalonFXConfiguration();
+    var motorConfig = new GreyTalonFXConfiguration();
 
     // Audio Config
     motorConfig.Audio.BeepOnBoot = true;
@@ -105,6 +113,38 @@ public class GreyTalonFX extends TalonFX {
     motorConfig.MotionMagic.MotionMagicJerk = 0.0;
 
     // Apply configurator
-    this.getConfigurator().apply(motorConfig);
+    setConfig(motorConfig);
+  }
+
+  /**
+   * Get the current configuration of the TalonFX.
+   *
+   * @return A deep copy of the current configuration.
+   */
+  public GreyTalonFXConfiguration getConfig() {
+    return new GreyTalonFXConfiguration(m_currentConfig);
+  }
+
+  /**
+   * Set the configuration of the TalonFX.
+   *
+   * @param config The configuration to apply.
+   */
+  public void setConfig(GreyTalonFXConfiguration config) {
+    if (m_currentConfig == null || !m_currentConfig.equals(config)) {
+      this.getConfigurator().apply(config);
+      m_currentConfig = config;
+    }
+  }
+
+  /**
+   * Get the configurator for the TalonFX.
+   *
+   * @return The configurator for the TalonFX.
+   * @deprecated Use {@link #getConfig()} and {@link #setConfig(GreyTalonFXConfiguration)} instead.
+   */
+  @Deprecated
+  public TalonFXConfigurator getConfigurator() {
+    return super.getConfigurator();
   }
 }

@@ -1,13 +1,13 @@
 package frc.robot.subsystems.swerve;
 
-import frc.robot.shared.GreyTalonFX;
+import frc.robot.devices.GreyTalonFX;
+import frc.robot.devices.GreyTalonFXConfiguration;
 import frc.robot.shared.RobotInfo;
 import frc.robot.shared.RobotInfo.DriveInfo;
 import frc.robot.shared.SwerveModuleConfig;
 
 import com.ctre.phoenixpro.BaseStatusSignalValue;
 import com.ctre.phoenixpro.configs.CANcoderConfiguration;
-import com.ctre.phoenixpro.configs.TalonFXConfiguration;
 import com.ctre.phoenixpro.controls.PositionDutyCycle;
 import com.ctre.phoenixpro.controls.VelocityDutyCycle;
 import com.ctre.phoenixpro.hardware.CANcoder;
@@ -28,7 +28,7 @@ public class SwerveModule {
   private CANcoder m_angleEncoder;
   private Rotation2d lastAngle;
 
-  private final TalonFXConfiguration m_driveMotorConfig;
+  private final GreyTalonFXConfiguration m_driveMotorConfig;
 
   SimpleMotorFeedforward feedforward =
       new SimpleMotorFeedforward(DriveInfo.driveKS, DriveInfo.driveKV, DriveInfo.driveKA);
@@ -52,7 +52,7 @@ public class SwerveModule {
 
     /* Drive Motor Config */
     m_driveMotor = new GreyTalonFX(moduleConfig.driveMotorID, RobotInfo.CANIVORE_NAME);
-    m_driveMotorConfig = new TalonFXConfiguration();
+    m_driveMotorConfig = m_driveMotor.getConfig();
     configDriveMotor();
 
     BaseStatusSignalValue.waitForAll(0.5, m_angleEncoder.getAbsolutePosition());
@@ -69,7 +69,7 @@ public class SwerveModule {
   }
 
   private void configAngleMotor() {
-    var motorConfig = new TalonFXConfiguration();
+    var motorConfig = m_angleMotor.getConfig();
 
     motorConfig.MotorOutput.Inverted = InvertedValue.Clockwise_Positive;
     motorConfig.MotorOutput.NeutralMode = NeutralModeValue.Coast;
@@ -85,7 +85,7 @@ public class SwerveModule {
     motorConfig.CurrentLimits.SupplyCurrentLimit = 150.0;
     motorConfig.CurrentLimits.SupplyCurrentLimitEnable = true;
 
-    m_angleMotor.getConfigurator().apply(motorConfig);
+    m_angleMotor.setConfig(motorConfig);
 
     resetToAbsolute();
   }
@@ -103,7 +103,7 @@ public class SwerveModule {
     m_driveMotorConfig.CurrentLimits.SupplyCurrentLimit = 80.0;
     m_driveMotorConfig.CurrentLimits.SupplyCurrentLimitEnable = true;
 
-    m_driveMotor.getConfigurator().apply(m_driveMotorConfig);
+    m_driveMotor.setConfig(m_driveMotorConfig);
     m_driveMotor.setRotorPosition(0.0);
   }
 
@@ -175,11 +175,11 @@ public class SwerveModule {
 
   public void driveBrake() {
     m_driveMotorConfig.MotorOutput.NeutralMode = NeutralModeValue.Brake;
-    m_driveMotor.getConfigurator().apply(m_driveMotorConfig);
+    m_driveMotor.setConfig(m_driveMotorConfig);
   }
 
   public void driveNeutral() {
     m_driveMotorConfig.MotorOutput.NeutralMode = NeutralModeValue.Coast;
-    m_driveMotor.getConfigurator().apply(m_driveMotorConfig);
+    m_driveMotor.setConfig(m_driveMotorConfig);
   }
 }

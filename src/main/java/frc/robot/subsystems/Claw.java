@@ -3,12 +3,11 @@ package frc.robot.subsystems;
 import static frc.robot.shared.RobotInfo.*;
 
 import frc.robot.Robot;
+import frc.robot.devices.GreyTalonFX;
 import frc.robot.shared.Constants.GamePiece;
-import frc.robot.shared.GreyTalonFX;
 import frc.robot.shared.RobotInfo;
 import frc.robot.shared.Subsystem;
 
-import com.ctre.phoenixpro.configs.TalonFXConfiguration;
 import edu.wpi.first.wpilibj.DigitalInput;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import lombok.Getter;
@@ -46,7 +45,7 @@ public class Claw implements Subsystem {
   }
 
   private void configIntakeMotor() {
-    var motorConfig = new TalonFXConfiguration();
+    var motorConfig = m_intakeMotor.getConfig();
 
     // Current limits
     motorConfig.CurrentLimits.SupplyCurrentLimit = m_supplyCurrentLimit;
@@ -54,7 +53,7 @@ public class Claw implements Subsystem {
     motorConfig.CurrentLimits.StatorCurrentLimit = m_statorCurrentLimit;
     motorConfig.CurrentLimits.StatorCurrentLimitEnable = true;
 
-    m_intakeMotor.getConfigurator().apply(motorConfig);
+    m_intakeMotor.setConfig(motorConfig);
   }
 
   private boolean checkForGamePiece() {
