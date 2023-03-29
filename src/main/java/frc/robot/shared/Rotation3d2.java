@@ -17,6 +17,15 @@ public class Rotation3d2 extends Rotation3d {
   }
 
   /**
+   * Constructs a Rotation3d2 from a Rotation3d.
+   *
+   * @param rotation3d The Rotation3d to copy.
+   */
+  public Rotation3d2(Rotation3d rotation3d) {
+    this(rotation3d.getQuaternion());
+  }
+
+  /**
    * Constructs a Rotation3d from three Rotation2d.
    *
    * @param x The Rotation2d around the x axis (roll).
@@ -125,5 +134,45 @@ public class Rotation3d2 extends Rotation3d {
    */
   public Rotation2d getRoll() {
     return Rotation2d.fromRadians(getY());
+  }
+
+  @Override
+  public Rotation3d2 plus(Rotation3d other) {
+    return new Rotation3d2(super.plus(other));
+  }
+
+  @Override
+  public Rotation3d2 minus(Rotation3d other) {
+    return new Rotation3d2(super.minus(other));
+  }
+
+  @Override
+  public Rotation3d unaryMinus() {
+    return new Rotation3d2(super.unaryMinus());
+  }
+
+  @Override
+  public Rotation3d times(double scalar) {
+    return new Rotation3d2(super.times(scalar));
+  }
+
+  @Override
+  public Rotation3d2 div(double scalar) {
+    return new Rotation3d2(super.div(scalar));
+  }
+
+  @Override
+  public Rotation3d2 rotateBy(Rotation3d other) {
+    return new Rotation3d2(other.getQuaternion().times(getQuaternion()));
+  }
+
+  @Override
+  public String toString() {
+    return String.format("Rotation3d2(%s)", getQuaternion());
+  }
+
+  @Override
+  public Rotation3d interpolate(Rotation3d endValue, double t) {
+    return new Rotation3d2(super.interpolate(endValue, t));
   }
 }
