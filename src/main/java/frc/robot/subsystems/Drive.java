@@ -141,7 +141,7 @@ public class Drive implements Subsystem {
     m_currentChassisSpeeds =
         fieldRelative
             ? ChassisSpeeds.fromFieldRelativeSpeeds(
-                translation.getX(), translation.getY(), rotation, m_pigeon.getNormalizedYaw())
+                translation.getX(), translation.getY(), rotation, m_pigeon.getYaw())
             : new ChassisSpeeds(translation.getX(), translation.getY(), rotation);
   }
 
