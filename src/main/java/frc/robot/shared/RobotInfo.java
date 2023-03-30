@@ -57,8 +57,8 @@ public final class RobotInfo {
     public static final double BACK_RIGHT_MODULE_STEER_OFFSET = 80.94;
 
     public static final double DRIVE_GEAR_RATIO =
-        1 / ((12.0 / 42.0) * (28.0 / 18.0) * (15.0 / 45.0)); // 6.75:1
-    public static final double ANGLE_GEAR_RATIO = 1 / ((8.0 / 24.0) * (14.0 / 72.0)); // 15.43:1
+        ((12.0 / 42.0) * (28.0 / 18.0) * (15.0 / 45.0)); // 1:6.75
+    public static final double ANGLE_GEAR_RATIO = ((8.0 / 24.0) * (14.0 / 72.0)); // 1:15.43
 
     public static final double WHEEL_DIAMETER_METERS = 0.1016;
     public static final double WHEEL_CIRCUMFERENCE_METERS = WHEEL_DIAMETER_METERS * Math.PI;
@@ -82,6 +82,7 @@ public final class RobotInfo {
     public static final double ANGLE_KI = 0.0;
     public static final double ANGLE_KD = 0.1;
     public static final double ANGLE_KF = 0.0;
+    public static final double ANGLE_KV = 0.0;
 
     /* Drive Motor PID Values */
     public static final double DRIVE_KP = 0.0;
@@ -91,9 +92,9 @@ public final class RobotInfo {
 
     /* Drive Motor Characterization Values */
     // divide by 12 to convert from volts to percent output for CTRE
-    public static final double driveKS = (0.0 / 12);
-    public static final double driveKV = (0.0 / 12);
-    public static final double driveKA = (0.0 / 12);
+    public static final double DRIVE_KS = (0.0 / 12);
+    public static final double DRIVE_KV = (0.0 / 12);
+    public static final double DRIVE_KA = (0.0 / 12);
 
     /* Motor Inverts */
     public static final boolean DRIVE_MOTOR_INVERT = true;

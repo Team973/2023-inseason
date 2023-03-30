@@ -28,7 +28,7 @@ import lombok.experimental.Accessors;
 
 @Accessors(prefix = "m_")
 public class Drive implements Subsystem {
-  private SwerveDriveOdometry swerveOdometry;
+  private SwerveDriveOdometry m_swerveOdometry;
   private SwerveModule[] m_swerveModules;
   private ChassisSpeeds m_currentChassisSpeeds;
 
@@ -73,7 +73,7 @@ public class Drive implements Subsystem {
 
     m_currentChassisSpeeds = new ChassisSpeeds();
 
-    swerveOdometry =
+    m_swerveOdometry =
         new SwerveDriveOdometry(DriveInfo.SWERVE_KINEMATICS, m_pigeon.getYaw(), getPositions());
 
     m_controller =
@@ -122,8 +122,9 @@ public class Drive implements Subsystem {
 
   public void driveInput(Translation2d translation, double rotationVal, boolean fieldRelative) {
     double rotation = rotationVal;
+    final Rotation2d currentYaw = m_pigeon.getNormalizedYaw();
     if (m_rotationControl == RotationControl.ClosedLoop) {
-      double diff = m_targetRobotAngle.minus(m_pigeon.getNormalizedYaw()).getDegrees();
+      double diff = m_targetRobotAngle.minus(currentYaw).getDegrees();
       if (diff > 180) {
         diff -= 360;
       } else if (diff < -180) {
@@ -131,9 +132,7 @@ public class Drive implements Subsystem {
       }
 
       rotation =
-          m_rotationController.calculate(
-              m_pigeon.getNormalizedYaw().getDegrees(),
-              m_pigeon.getNormalizedYaw().getDegrees() + diff);
+          m_rotationController.calculate(currentYaw.getDegrees(), currentYaw.getDegrees() + diff);
     } else if (rotation != 0.0) {
       m_targetRobotAngle = m_pigeon.getNormalizedYaw();
     }
@@ -167,11 +166,11 @@ public class Drive implements Subsystem {
   }
 
   public Pose2d getPose() {
-    return swerveOdometry.getPoseMeters();
+    return m_swerveOdometry.getPoseMeters();
   }
 
   public void resetOdometry(Pose2d pose) {
-    swerveOdometry.resetPosition(m_pigeon.getYaw(), getPositions(), pose);
+    m_swerveOdometry.resetPosition(m_pigeon.getYaw(), getPositions(), pose);
   }
 
   public void resetModules() {
@@ -210,7 +209,6 @@ public class Drive implements Subsystem {
           "Mod " + mod.moduleNumber + " Cancoder", mod.getCanCoder().getDegrees());
       SmartDashboard.putNumber(
           "Mod " + mod.moduleNumber + " Integrated", mod.getState().angle.getDegrees());
-      SmartDashboard.putNumber("Mod " + mod.moduleNumber + " Raw", mod.getAngleRaw());
       SmartDashboard.putNumber(
           "Mod " + mod.moduleNumber + " Velocity", mod.getState().speedMetersPerSecond);
       states[index] = mod.getState().angle.getDegrees();
@@ -230,7 +228,7 @@ public class Drive implements Subsystem {
   }
 
   public void update() {
-    swerveOdometry.update(m_pigeon.getYaw(), getPositions());
+    m_swerveOdometry.update(m_pigeon.getYaw(), getPositions());
 
     Pose2d robot_pose_vel =
         new Pose2d(

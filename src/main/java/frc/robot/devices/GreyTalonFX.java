@@ -1,5 +1,6 @@
 package frc.robot.devices;
 
+import com.ctre.phoenixpro.StatusCode;
 import com.ctre.phoenixpro.configs.TalonFXConfigurator;
 import com.ctre.phoenixpro.hardware.TalonFX;
 import com.ctre.phoenixpro.signals.FeedbackSensorSourceValue;
@@ -9,21 +10,69 @@ import com.ctre.phoenixpro.signals.InvertedValue;
 import com.ctre.phoenixpro.signals.NeutralModeValue;
 import com.ctre.phoenixpro.signals.ReverseLimitSourceValue;
 import com.ctre.phoenixpro.signals.ReverseLimitTypeValue;
+import edu.wpi.first.math.geometry.Rotation2d;
 import lombok.EqualsAndHashCode;
+import lombok.Getter;
+import lombok.Setter;
+import lombok.experimental.Accessors;
 
 /** A GreyTalonFX is a TalonFX with a default configuration. */
+@Accessors(prefix = "m_")
 @EqualsAndHashCode(callSuper = true)
 public class GreyTalonFX extends TalonFX {
+  @Setter @Getter private double m_gearRatio;
+
+  /**
+   * Create a GreyTalonFX.
+   *
+   * <p>Note: Creates with a gear ratio of 1.0.
+   *
+   * @param deviceNumber TalonFX device number
+   */
   public GreyTalonFX(int deviceNumber) {
-    this(deviceNumber, "");
+    this(deviceNumber, "", 1.0);
+  }
+
+  /**
+   * Create a GreyTalonFX with a gear ratio.
+   *
+   * <p>For example, if the pinion is 10 teeth and the gear is 50 teeth, the gear ratio is 1:5 and
+   * therefore the value is 0.2.
+   *
+   * @param deviceNumber TalonFX device number
+   * @param gearRatio Gear ratio (output / input, driving:driven)
+   */
+  public GreyTalonFX(int deviceNumber, double gearRatio) {
+    this(deviceNumber, "", gearRatio);
+  }
+
+  /**
+   * Create a GreyTalonFX.
+   *
+   * @param deviceNumber TalonFX device number
+   * @param canbus CAN bus name
+   */
+  public GreyTalonFX(int deviceNumber, String canbus) {
+    this(deviceNumber, canbus, 1.0);
+  }
+
+  /**
+   * Create a GreyTalonFX with a gear ratio.
+   *
+   * <p>For example, if the pinion is 10 teeth and the gear is 50 teeth, the gear ratio is 1:5 and
+   * therefore the value is 0.2.
+   *
+   * @param deviceNumber TalonFX device number
+   * @param canbus CAN bus name
+   * @param gearRatio Gear ratio (output / input, driving:driven)
+   */
+  public GreyTalonFX(int deviceNumber, String canbus, double gearRatio) {
+    super(deviceNumber, canbus);
+    factoryDefault();
+    m_gearRatio = gearRatio;
   }
 
   private GreyTalonFXConfiguration m_currentConfig;
-
-  public GreyTalonFX(int deviceNumber, String canbus) {
-    super(deviceNumber, canbus);
-    factoryDefault();
-  }
 
   /** Factory default the TalonFX. */
   public void factoryDefault() {
@@ -146,5 +195,79 @@ public class GreyTalonFX extends TalonFX {
   @Deprecated
   public TalonFXConfigurator getConfigurator() {
     return super.getConfigurator();
+  }
+
+  /**
+   * Get the current Rotation2d of the TalonFX.
+   *
+   * @return The current Rotation2d of the TalonFX.
+   */
+  public Rotation2d getRawPositionRotation2d() {
+    return Rotation2d.fromRotations(getRotorPosition().getValue());
+  }
+
+  /**
+   * Get the current position Rotation2d of the TalonFX through the gear ratio.
+   *
+   * @return The current position Rotation2d of the TalonFX through the gear ratio.
+   */
+  public Rotation2d getPositionRotation2d() {
+    return getRawPositionRotation2d().times(m_gearRatio);
+  }
+
+  /**
+   * Get the current velocity Rotation2d of the TalonFX.
+   *
+   * @return The current velocity Rotation2d of the TalonFX.
+   */
+  public Rotation2d getRawVelocityRotation2d() {
+    return Rotation2d.fromRotations(getRotorVelocity().getValue());
+  }
+
+  /**
+   * Get the current velocity Rotation2d of the TalonFX through the gear ratio.
+   *
+   * @return The current velocity Rotation2d of the TalonFX through the gear ratio.
+   */
+  public Rotation2d getVelocityRotation2d() {
+    return getRawVelocityRotation2d().times(m_gearRatio);
+  }
+
+  /**
+   * Set the current position Rotation2d of the TalonFX.
+   *
+   * @return The current velocity Rotation2d of the TalonFX.
+   */
+  public StatusCode setRawRotorPositionRotation2d(Rotation2d position) {
+    return setRotorPosition(position.getRotations());
+  }
+
+  /**
+   * Set the current position Rotation2d of the TalonFX through the gear ratio.
+   *
+   * @return The current velocity Rotation2d of the TalonFX through the gear ratio.
+   */
+  public StatusCode setRotorPositionRotation2d(Rotation2d position) {
+    return setRawRotorPositionRotation2d(position.div(m_gearRatio));
+  }
+
+  /**
+   * Convert through the gear ratio to get the rotor's respective Rotation2d.
+   *
+   * @param rotation The Rotation2d on the output to convert.
+   * @return The Rotation2d on the rotor.
+   */
+  public Rotation2d convertToRotorRotation2d(Rotation2d outputRotation) {
+    return outputRotation.div(m_gearRatio);
+  }
+
+  /**
+   * Convert through the gear ratio to get the output's respective Rotation2d.
+   *
+   * @param rotation The Rotation2d on the rotor to convert.
+   * @return The Rotation2d on the output.
+   */
+  public Rotation2d convertToOutputRotation2d(Rotation2d rotorRotation) {
+    return rotorRotation.times(m_gearRatio);
   }
 }
