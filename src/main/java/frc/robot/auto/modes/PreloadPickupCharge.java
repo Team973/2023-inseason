@@ -23,7 +23,8 @@ public class PreloadPickupCharge extends SequentialCommand {
 
   public PreloadPickupCharge(Drive drive, Claw claw, Elevator elevator, Wrist wrist) {
     super(
-        new ScorePreloadCommand(GamePiece.Cone, claw, wrist, elevator),
+        new ScorePreloadCommand(
+            GamePiece.Cone, Elevator.Preset.High, WristPreset.High, claw, wrist, elevator),
 
         // Drive to pickup
         new ConcurrentCommand(

@@ -4,6 +4,7 @@ import java.util.Arrays;
 import java.util.List;
 
 import frc.robot.auto.modes.CenterPreloadAndCharge;
+import frc.robot.auto.modes.MidLinkNoCharge;
 import frc.robot.auto.modes.NoAuto;
 import frc.robot.auto.modes.PreloadAndCharge;
 import frc.robot.auto.modes.PreloadPickupCharge;
@@ -19,11 +20,12 @@ public class AutoManager {
   private AutoCommand m_currentMode;
   private final List<AutoMode> m_availableAutoModes =
       Arrays.asList(
+          AutoMode.PreloadPickupScoreCharge,
+          AutoMode.MidLinkNoCharge,
           AutoMode.PreloadPickupCharge,
           AutoMode.Test,
           AutoMode.PreloadAndCharge,
           AutoMode.CenterPreloadAndCharge,
-          AutoMode.PreloadPickupScoreCharge,
           AutoMode.NoAuto);
   private int m_selectedMode = 0;
 
@@ -33,6 +35,7 @@ public class AutoManager {
     PreloadPickupCharge,
     CenterPreloadAndCharge,
     PreloadPickupScoreCharge,
+    MidLinkNoCharge,
     NoAuto,
   }
 
@@ -48,13 +51,15 @@ public class AutoManager {
   private final AutoCommand m_centerPreloadAndCharge;
   private final AutoCommand m_noAuto;
   private final AutoCommand m_preloadPickupScoreCharge;
+  private final AutoCommand m_midLinkNoCharge;
 
   public AutoManager(Claw claw, Elevator elevator, Drive drive, Wrist wrist) {
-    m_test = new Test(drive);
+    m_test = new Test(claw, wrist, elevator);
     m_preloadAndCharge = new PreloadAndCharge(drive, claw, elevator, wrist);
     m_preloadPickupCharge = new PreloadPickupCharge(drive, claw, elevator, wrist);
     m_centerPreloadAndCharge = new CenterPreloadAndCharge(drive, claw, elevator, wrist);
     m_preloadPickupScoreCharge = new PreloadPickupScoreCharge(drive, claw, elevator, wrist);
+    m_midLinkNoCharge = new MidLinkNoCharge(drive, claw, elevator, wrist);
     m_noAuto = new NoAuto();
   }
 
@@ -101,6 +106,9 @@ public class AutoManager {
         break;
       case PreloadPickupScoreCharge:
         m_currentMode = m_preloadPickupScoreCharge;
+        break;
+      case MidLinkNoCharge:
+        m_currentMode = m_midLinkNoCharge;
         break;
       case NoAuto:
         m_currentMode = m_noAuto;

@@ -30,7 +30,7 @@ public class Wrist implements Subsystem {
   private double ENCODER_OFFSET = 317.98;
 
   @Setter @Getter private WristState m_state = WristState.Manual;
-  @Setter @Getter private WristPreset m_preset = WristPreset.Stow;
+  @Getter private WristPreset m_preset = WristPreset.Stow;
 
   private final CANcoder m_encoder;
   private final GreyTalonFX m_wristMotor;
@@ -52,12 +52,12 @@ public class Wrist implements Subsystem {
   }
 
   public enum WristPreset {
-    Floor(-113, -105.76),
+    Floor(-117, -111.76),
     Hybrid(-161.9, -163.9),
     Mid(-118.22, -110.79),
-    High(-111.09, -94.39),
+    High(-111.09, -96.39),
     HighBack(-101.09, -74.39),
-    HP(-104.84, -102.91),
+    HP(-106.84, -103.91),
     Stow(STOW_OFFSET, STOW_OFFSET),
     ConeRight(-71.0, -74.0),
     MiniHp(-89.5, -86.0),
@@ -130,6 +130,19 @@ public class Wrist implements Subsystem {
     m_encoder.getConfigurator().apply(encoderConfig);
   }
 
+  public void setPreset(WristPreset nextPreset) {
+    GamePiece currentGamePiece = Robot.getCurrentGamePiece();
+    m_preset = nextPreset;
+    // TODO handle cycle bug
+    if (m_preset == WristPreset.Manual && m_state != WristState.ClosedLoop) {
+      setTargetAngleDegrees(getCurrentAngleDegrees());
+    } else if (currentGamePiece == GamePiece.Cube) {
+      setTargetAngleDegrees(m_preset.getCubePreset());
+    } else {
+      setTargetAngleDegrees(m_preset.getConePreset());
+    }
+  }
+
   public double getCurrentAngleDegrees() {
     return (m_encoder.getAbsolutePosition().getValue() * 360.0) - ENCODER_OFFSET;
   }
@@ -168,8 +181,10 @@ public class Wrist implements Subsystem {
   @Override
   public void update() {
     GamePiece currentGamePiece = Robot.getCurrentGamePiece();
-    if (m_preset == WristPreset.Manual) {
+    if (m_preset == WristPreset.Manual && m_state != WristState.ClosedLoop) {
       setTargetAngleDegrees(getCurrentAngleDegrees());
+    } else if (m_preset == WristPreset.Manual && m_state == WristState.ClosedLoop) {
+      // Intentionally left blank
     } else if (currentGamePiece == GamePiece.Cube) {
       setTargetAngleDegrees(m_preset.getCubePreset());
     } else {

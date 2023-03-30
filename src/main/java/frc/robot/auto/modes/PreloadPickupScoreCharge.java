@@ -23,12 +23,15 @@ public class PreloadPickupScoreCharge extends SequentialCommand {
 
   public PreloadPickupScoreCharge(Drive drive, Claw claw, Elevator elevator, Wrist wrist) {
     super(
-        new ScorePreloadCommand(GamePiece.Cone, claw, wrist, elevator),
+        new ScorePreloadCommand(
+            GamePiece.Cone, Elevator.Preset.High, WristPreset.High, claw, wrist, elevator),
 
         // Drive to pickup
         new ConcurrentCommand(
-            new ElevatorPresetCommand(elevator, Elevator.Preset.Stow, 1000),
-            new WristPresetCommand(wrist, WristPreset.Stow, 10.0, 2000),
+            new SequentialCommand(
+                new WaitCommand(200),
+                new ElevatorPresetCommand(elevator, Elevator.Preset.Stow, 1000),
+                new WristPresetCommand(wrist, WristPreset.Stow, 10.0, 2000)),
             new PathPlannerTrajectoryCommand(
                 drive,
                 TrajectoryManager.getPathSegment(TrajectoryManager.PreloadPickupScoreCharge, 0)),
@@ -52,17 +55,18 @@ public class PreloadPickupScoreCharge extends SequentialCommand {
                 new ConcurrentCommand(
                     new ElevatorPresetCommand(elevator, Elevator.Preset.High, 1000),
                     new WristPresetCommand(wrist, WristPreset.High, 10.0, 1000)))),
-        new WaitCommand(500),
         new IntakeCommand(claw, IntakeState.Out, 500),
-        new WaitCommand(200),
-        new SetCurrentGamePieceCommand(GamePiece.None),
         new ConcurrentCommand(
-            new ElevatorPresetCommand(elevator, Elevator.Preset.Stow, 1000),
-            new WristPresetCommand(wrist, WristPreset.Stow, 10.0, 1000),
+            new SequentialCommand(
+                new WaitCommand(500),
+                new ConcurrentCommand(
+                    new WristPresetCommand(wrist, WristPreset.Stow, 10.0, 1000),
+                    new ElevatorPresetCommand(elevator, Elevator.Preset.Stow, 1000))),
             new PathPlannerTrajectoryCommand(
                 drive,
                 false,
                 TrajectoryManager.getPathSegment(TrajectoryManager.PreloadPickupScoreCharge, 2))),
+        new SetCurrentGamePieceCommand(GamePiece.None),
         new BalanceCommand(drive, 5000));
   }
 }
