@@ -147,12 +147,12 @@ public class StandardizedRotation3d extends Rotation3d {
   }
 
   @Override
-  public Rotation3d unaryMinus() {
+  public StandardizedRotation3d unaryMinus() {
     return new StandardizedRotation3d(super.unaryMinus());
   }
 
   @Override
-  public Rotation3d times(double scalar) {
+  public StandardizedRotation3d times(double scalar) {
     return new StandardizedRotation3d(super.times(scalar));
   }
 

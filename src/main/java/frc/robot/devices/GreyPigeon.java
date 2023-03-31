@@ -13,7 +13,7 @@ public class GreyPigeon {
   private final Pigeon2 m_pigeon;
   private StandardizedRotation3d m_offset;
 
-  private static final double LEVEL_TOLERANCE_DEG = 2.0;
+  private static final double DEFAULT_LEVEL_TOLERANCE_DEG = 2.0;
 
   /** Creates a new GreyPigeon. */
   public GreyPigeon() {
@@ -115,10 +115,20 @@ public class GreyPigeon {
    * @return Whether the Pigeon2 is level.
    */
   public boolean isLevel() {
+    return isLevel(DEFAULT_LEVEL_TOLERANCE_DEG);
+  }
+
+  /**
+   * Returns whether the Pigeon2 is level within the specified tolerance.
+   *
+   * @param tolerance The tolerance in degrees.
+   * @return Whether the Pigeon2 is level within the specified tolerance.
+   */
+  public boolean isLevel(double tolerance) {
     double pitch = getPitch().getDegrees();
     double roll = getRoll().getDegrees();
 
-    return Math.abs(pitch) <= LEVEL_TOLERANCE_DEG && Math.abs(roll) <= LEVEL_TOLERANCE_DEG;
+    return Math.abs(pitch) <= tolerance && Math.abs(roll) <= tolerance;
   }
 
   /** Resets the offset to the current yaw, pitch, and roll. */
