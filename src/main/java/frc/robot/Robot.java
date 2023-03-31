@@ -20,6 +20,8 @@ import frc.robot.subsystems.Drive;
 import frc.robot.subsystems.Drive.RotationControl;
 import frc.robot.subsystems.Elevator;
 import frc.robot.subsystems.Elevator.ElevatorState;
+import frc.robot.subsystems.Superstructure;
+import frc.robot.subsystems.Superstructure.GlobalState;
 import frc.robot.subsystems.Wrist;
 import frc.robot.subsystems.Wrist.WristPreset;
 import frc.robot.subsystems.Wrist.WristState;
@@ -62,7 +64,7 @@ public class Robot extends TimedRobot {
   private final Drive m_drive = new Drive();
   private final CANdleManager m_candleManager = new CANdleManager();
   private final AutoManager m_autoManager = new AutoManager(m_claw, m_elevator, m_drive, m_wrist);
-
+  private final Superstructure m_superstructure = new Superstructure(m_elevator, m_wrist, m_claw);
   private final XboxController m_driverStick = new XboxController(0);
   private final XboxController m_operatorStick = new XboxController(1);
 
@@ -100,6 +102,7 @@ public class Robot extends TimedRobot {
     m_claw.dashboardUpdate();
     m_drive.dashboardUpdate();
     m_candleManager.dashboardUpdate();
+    m_superstructure.dashboardUpdate();
   }
 
   /** Update subsystems. Called me when enabled. */
@@ -108,6 +111,7 @@ public class Robot extends TimedRobot {
     m_wrist.update();
     m_claw.update();
     m_drive.update();
+    m_superstructure.update();
   }
 
   /** Reset subsystems. Called me when initializing. */
@@ -117,6 +121,7 @@ public class Robot extends TimedRobot {
     m_claw.reset();
     m_drive.reset();
     m_candleManager.reset();
+    m_superstructure.reset();
   }
 
   /**
@@ -311,8 +316,7 @@ public class Robot extends TimedRobot {
       //////////
       // Stow elevator/wrist
       if (m_driverStick.getLeftTriggerAxis() > 0.5) {
-        m_elevator.setPreset(Elevator.Preset.Stow);
-        m_wrist.setPreset(WristPreset.Stow);
+        m_superstructure.setGlobalState(GlobalState.Stow);
       }
 
       ////////////////////////
@@ -329,26 +333,21 @@ public class Robot extends TimedRobot {
       // Elevator height preset
       switch (m_operatorStick.getPOV()) {
         case 0:
-          m_elevator.setPreset(Elevator.Preset.High);
-          m_wrist.setPreset(WristPreset.High);
+          m_superstructure.setGlobalState(GlobalState.ScoreHigh);
           break;
         case 90:
-          m_elevator.setPreset(Elevator.Preset.Mid);
-          m_wrist.setPreset(WristPreset.Mid);
+          m_superstructure.setGlobalState(GlobalState.ScoreMid);
           break;
         case 180:
           // If we have a game piece, go to hybrid, otherwise go to floor
           if (m_claw.isHasGamePiece()) {
-            m_elevator.setPreset(Elevator.Preset.Hybrid);
-            m_wrist.setPreset(WristPreset.Hybrid);
+            m_superstructure.setGlobalState(GlobalState.ScoreLow);
           } else {
-            m_elevator.setPreset(Elevator.Preset.Floor);
-            m_wrist.setPreset(WristPreset.Floor);
+            m_superstructure.setGlobalState(GlobalState.FloorLoad);
           }
           break;
         case 270:
-          m_elevator.setPreset(Elevator.Preset.Hp);
-          m_wrist.setPreset(WristPreset.HP);
+          m_superstructure.setGlobalState(GlobalState.HpLoad);
           m_currentGamePiece = GamePiece.None;
           break;
         default:
