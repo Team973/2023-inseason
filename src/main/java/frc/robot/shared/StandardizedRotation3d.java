@@ -9,10 +9,10 @@ import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.geometry.Rotation3d;
 import edu.wpi.first.math.numbers.N3;
 
-public class Rotation3d2 extends Rotation3d {
+public class StandardizedRotation3d extends Rotation3d {
 
   /** Constructs a Rotation3d with a default angle of 0 degrees. */
-  public Rotation3d2() {
+  public StandardizedRotation3d() {
     super();
   }
 
@@ -21,7 +21,7 @@ public class Rotation3d2 extends Rotation3d {
    *
    * @param rotation3d The Rotation3d to copy.
    */
-  public Rotation3d2(Rotation3d rotation3d) {
+  public StandardizedRotation3d(Rotation3d rotation3d) {
     this(rotation3d.getQuaternion());
   }
 
@@ -32,7 +32,7 @@ public class Rotation3d2 extends Rotation3d {
    * @param y The Rotation2d around the y axis (pitch).
    * @param z The Rotation2d around the z axis (yaw).
    */
-  public Rotation3d2(Rotation2d x, Rotation2d y, Rotation2d z) {
+  public StandardizedRotation3d(Rotation2d x, Rotation2d y, Rotation2d z) {
     this(x.getRadians(), y.getRadians(), z.getRadians());
   }
 
@@ -42,7 +42,7 @@ public class Rotation3d2 extends Rotation3d {
    * @param q The quaternion.
    */
   @JsonCreator
-  public Rotation3d2(@JsonProperty(required = true, value = "quaternion") Quaternion q) {
+  public StandardizedRotation3d(@JsonProperty(required = true, value = "quaternion") Quaternion q) {
     super(q);
   }
 
@@ -60,7 +60,7 @@ public class Rotation3d2 extends Rotation3d {
    * @param pitch The counterclockwise rotation angle around the Y axis (pitch) in radians.
    * @param yaw The counterclockwise rotation angle around the Z axis (yaw) in radians.
    */
-  public Rotation3d2(double roll, double pitch, double yaw) {
+  public StandardizedRotation3d(double roll, double pitch, double yaw) {
     super(roll, pitch, yaw);
   }
 
@@ -71,7 +71,7 @@ public class Rotation3d2 extends Rotation3d {
    *
    * @param rvec The rotation vector.
    */
-  public Rotation3d2(Vector<N3> rvec) {
+  public StandardizedRotation3d(Vector<N3> rvec) {
     super(rvec);
   }
 
@@ -82,7 +82,7 @@ public class Rotation3d2 extends Rotation3d {
    * @param axis The rotation axis.
    * @param angleRadians The rotation around the axis in radians.
    */
-  public Rotation3d2(Vector<N3> axis, double angleRadians) {
+  public StandardizedRotation3d(Vector<N3> axis, double angleRadians) {
     super(axis, angleRadians);
   }
 
@@ -92,7 +92,7 @@ public class Rotation3d2 extends Rotation3d {
    * @param rotationMatrix The rotation matrix.
    * @throws IllegalArgumentException if the rotation matrix isn't special orthogonal.
    */
-  public Rotation3d2(Matrix<N3, N3> rotationMatrix) {
+  public StandardizedRotation3d(Matrix<N3, N3> rotationMatrix) {
     super(rotationMatrix);
   }
 
@@ -105,7 +105,7 @@ public class Rotation3d2 extends Rotation3d {
    * @param initial The initial vector.
    * @param last The final vector.
    */
-  public Rotation3d2(Vector<N3> initial, Vector<N3> last) {
+  public StandardizedRotation3d(Vector<N3> initial, Vector<N3> last) {
     super(initial, last);
   }
 
@@ -137,33 +137,33 @@ public class Rotation3d2 extends Rotation3d {
   }
 
   @Override
-  public Rotation3d2 plus(Rotation3d other) {
-    return new Rotation3d2(super.plus(other));
+  public StandardizedRotation3d plus(Rotation3d other) {
+    return new StandardizedRotation3d(super.plus(other));
   }
 
   @Override
-  public Rotation3d2 minus(Rotation3d other) {
-    return new Rotation3d2(super.minus(other));
+  public StandardizedRotation3d minus(Rotation3d other) {
+    return new StandardizedRotation3d(super.minus(other));
   }
 
   @Override
   public Rotation3d unaryMinus() {
-    return new Rotation3d2(super.unaryMinus());
+    return new StandardizedRotation3d(super.unaryMinus());
   }
 
   @Override
   public Rotation3d times(double scalar) {
-    return new Rotation3d2(super.times(scalar));
+    return new StandardizedRotation3d(super.times(scalar));
   }
 
   @Override
-  public Rotation3d2 div(double scalar) {
-    return new Rotation3d2(super.div(scalar));
+  public StandardizedRotation3d div(double scalar) {
+    return new StandardizedRotation3d(super.div(scalar));
   }
 
   @Override
-  public Rotation3d2 rotateBy(Rotation3d other) {
-    return new Rotation3d2(other.getQuaternion().times(getQuaternion()));
+  public StandardizedRotation3d rotateBy(Rotation3d other) {
+    return new StandardizedRotation3d(other.getQuaternion().times(getQuaternion()));
   }
 
   @Override
@@ -172,7 +172,7 @@ public class Rotation3d2 extends Rotation3d {
   }
 
   @Override
-  public Rotation3d interpolate(Rotation3d endValue, double t) {
-    return new Rotation3d2(super.interpolate(endValue, t));
+  public StandardizedRotation3d interpolate(Rotation3d endValue, double t) {
+    return new StandardizedRotation3d(super.interpolate(endValue, t));
   }
 }

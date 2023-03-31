@@ -5,6 +5,8 @@ import frc.robot.devices.GreyTalonFXConfiguration;
 import frc.robot.shared.RobotInfo;
 import frc.robot.shared.RobotInfo.DriveInfo;
 import frc.robot.shared.SwerveModuleConfig;
+import frc.robot.shared.mechanisms.GearedMechanism;
+import frc.robot.shared.mechanisms.LinearMechanism;
 
 import com.ctre.phoenixpro.BaseStatusSignalValue;
 import com.ctre.phoenixpro.configs.CANcoderConfiguration;
@@ -21,11 +23,14 @@ import edu.wpi.first.math.kinematics.SwerveModulePosition;
 import edu.wpi.first.math.kinematics.SwerveModuleState;
 
 public class SwerveModule {
-  public int moduleNumber;
-  private Rotation2d m_angleOffset;
-  private GreyTalonFX m_angleMotor;
-  private GreyTalonFX m_driveMotor;
-  private CANcoder m_angleEncoder;
+  public final int moduleNumber;
+  private final Rotation2d m_angleOffset;
+  private final GreyTalonFX m_angleMotor;
+  private final GreyTalonFX m_driveMotor;
+  private final CANcoder m_angleEncoder;
+  private final LinearMechanism m_driveMechanism =
+      new LinearMechanism(DriveInfo.DRIVE_GEAR_RATIO, DriveInfo.WHEEL_DIAMETER_METERS);
+  private final GearedMechanism m_angleMechanism = new GearedMechanism(DriveInfo.ANGLE_GEAR_RATIO);
   private SwerveModuleState m_lastState;
 
   private final GreyTalonFXConfiguration m_driveMotorConfig;
@@ -47,15 +52,11 @@ public class SwerveModule {
     configAngleEncoder();
 
     /* Angle Motor Config */
-    m_angleMotor =
-        new GreyTalonFX(
-            moduleConfig.angleMotorID, RobotInfo.CANIVORE_NAME, DriveInfo.ANGLE_GEAR_RATIO);
+    m_angleMotor = new GreyTalonFX(moduleConfig.angleMotorID, RobotInfo.CANIVORE_NAME);
     configAngleMotor();
 
     /* Drive Motor Config */
-    m_driveMotor =
-        new GreyTalonFX(
-            moduleConfig.driveMotorID, RobotInfo.CANIVORE_NAME, DriveInfo.DRIVE_GEAR_RATIO);
+    m_driveMotor = new GreyTalonFX(moduleConfig.driveMotorID, RobotInfo.CANIVORE_NAME);
     m_driveMotorConfig = m_driveMotor.getConfig();
     configDriveMotor();
 
@@ -120,22 +121,21 @@ public class SwerveModule {
   }
 
   public SwerveModuleState getState() {
-    double wheelRPS = m_driveMotor.getVelocityRotation2d().getRotations();
-    double velocityInMPS = wheelRPS * DriveInfo.WHEEL_CIRCUMFERENCE_METERS;
+    double velocityInMPS =
+        m_driveMechanism.getOutputDistanceFromRotorRotation(
+            m_driveMotor.getRotorVelocityRotation2d());
 
     return new SwerveModuleState(velocityInMPS, getAngleMotorRotation2d());
   }
 
-  public Rotation2d getDriveMotorRotation2d() {
-    return m_driveMotor.getPositionRotation2d();
+  public Rotation2d getAngleMotorRotation2d() {
+    return m_angleMechanism.getOutputRotationFromRotorRotation(
+        m_driveMotor.getRotorPositionRotation2d());
   }
 
   public double getDriveMotorMeters() {
-    return getDriveMotorRotation2d().getRotations() * DriveInfo.WHEEL_CIRCUMFERENCE_METERS;
-  }
-
-  public Rotation2d getAngleMotorRotation2d() {
-    return m_angleMotor.getPositionRotation2d();
+    return m_driveMechanism.getOutputDistanceFromRotorRotation(
+        m_driveMotor.getRotorPositionRotation2d());
   }
 
   public SwerveModulePosition getPosition() {
@@ -164,9 +164,7 @@ public class SwerveModule {
     desiredState = CTREModuleState.optimize(desiredState, getState().angle);
 
     Rotation2d desiredFalconVelocityInRPS =
-        m_driveMotor.convertToRotorRotation2d(
-            Rotation2d.fromRotations(
-                desiredState.speedMetersPerSecond / DriveInfo.WHEEL_CIRCUMFERENCE_METERS));
+        m_driveMechanism.getRotorRotationFromOutputDistance(desiredState.speedMetersPerSecond);
 
     if (desiredState.speedMetersPerSecond != m_lastState.speedMetersPerSecond) {
       m_driveMotor.setControl(
@@ -190,7 +188,7 @@ public class SwerveModule {
     if (angle != m_lastState.angle) {
       m_angleMotor.setControl(
           m_anglePosition.withPosition(
-              m_angleMotor.convertToRotorRotation2d(angle).getRotations()));
+              m_angleMechanism.getRotorRotationFromOutputRotation(angle).getRotations()));
     }
     m_lastState = getState();
   }

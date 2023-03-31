@@ -2,7 +2,7 @@ package frc.robot.devices;
 
 import frc.robot.shared.RobotInfo;
 import frc.robot.shared.RobotInfo.DriveInfo;
-import frc.robot.shared.Rotation3d2;
+import frc.robot.shared.StandardizedRotation3d;
 
 import com.ctre.phoenixpro.configs.Pigeon2Configuration;
 import com.ctre.phoenixpro.hardware.Pigeon2;
@@ -11,7 +11,7 @@ import edu.wpi.first.math.geometry.Rotation2d;
 /** GreyPidgeon - Pigeon2 wrapper class */
 public class GreyPigeon {
   private final Pigeon2 m_pigeon;
-  private Rotation3d2 m_offset;
+  private StandardizedRotation3d m_offset;
 
   private static final double LEVEL_TOLERANCE_DEG = 2.0;
 
@@ -28,7 +28,7 @@ public class GreyPigeon {
    *
    * @return A Rotation3d2 object containing the adjusted yaw, pitch, and roll from the Pigeon2.
    */
-  public Rotation3d2 getRotation() {
+  public StandardizedRotation3d getRotation() {
     return getRawRotation().minus(m_offset);
   }
 
@@ -37,8 +37,8 @@ public class GreyPigeon {
    *
    * @return A Rotation3d2 object containing the raw yaw, pitch, and roll from the Pigeon2.
    */
-  public Rotation3d2 getRawRotation() {
-    return new Rotation3d2(getRawYaw(), getRawPitch(), getRawRoll());
+  public StandardizedRotation3d getRawRotation() {
+    return new StandardizedRotation3d(getRawYaw(), getRawPitch(), getRawRoll());
   }
 
   /**
