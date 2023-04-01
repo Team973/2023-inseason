@@ -293,8 +293,7 @@ public class Robot extends TimedRobot {
       } else if (m_claw.getIntakeState() == IntakeState.Out) {
         m_claw.setIntakeState(IntakeState.Neutral);
         m_currentGamePiece = GamePiece.None;
-        m_wrist.setPreset(WristPreset.Stow);
-        m_elevator.setPreset(Elevator.Preset.Stow);
+        m_superstructure.setGlobalState(GlobalState.Stow);
       }
 
       // Right Cone
@@ -378,9 +377,7 @@ public class Robot extends TimedRobot {
       // Got it!
       if (m_claw.getIntakeState() == IntakeState.In && m_claw.isHasGamePiece()) {
         m_candleManager.setLightState(LightState.GotIt);
-
-        m_wrist.setPreset(WristPreset.Stow);
-        m_elevator.setPreset(Elevator.Preset.Stow);
+        m_superstructure.setGlobalState(GlobalState.Stow);
       }
 
       // Manually Control Wrist
