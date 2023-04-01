@@ -4,6 +4,7 @@ import java.util.Arrays;
 import java.util.List;
 
 import frc.robot.auto.modes.CenterPreloadAndCharge;
+import frc.robot.auto.modes.CenterPreloadPickupAndCharge;
 import frc.robot.auto.modes.MidLinkNoCharge;
 import frc.robot.auto.modes.NoAuto;
 import frc.robot.auto.modes.PreloadAndCharge;
@@ -34,6 +35,7 @@ public class AutoManager {
     PreloadAndCharge,
     PreloadPickupCharge,
     CenterPreloadAndCharge,
+    CenterPreloadPickupAndCharge,
     PreloadPickupScoreCharge,
     MidLinkNoCharge,
     NoAuto,
@@ -48,6 +50,7 @@ public class AutoManager {
   private final AutoCommand m_test;
   private final AutoCommand m_preloadAndCharge;
   private final AutoCommand m_preloadPickupCharge;
+  private final AutoCommand m_centerPreloadPickupAndCharge;
   private final AutoCommand m_centerPreloadAndCharge;
   private final AutoCommand m_noAuto;
   private final AutoCommand m_preloadPickupScoreCharge;
@@ -58,6 +61,7 @@ public class AutoManager {
     m_preloadAndCharge = new PreloadAndCharge(drive, claw, elevator, wrist);
     m_preloadPickupCharge = new PreloadPickupCharge(drive, claw, elevator, wrist);
     m_centerPreloadAndCharge = new CenterPreloadAndCharge(drive, claw, elevator, wrist);
+    m_centerPreloadPickupAndCharge = new CenterPreloadPickupAndCharge(drive, claw, elevator, wrist);
     m_preloadPickupScoreCharge = new PreloadPickupScoreCharge(drive, claw, elevator, wrist);
     m_midLinkNoCharge = new MidLinkNoCharge(drive, claw, elevator, wrist);
     m_noAuto = new NoAuto();
