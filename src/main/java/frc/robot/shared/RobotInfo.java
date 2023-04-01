@@ -57,7 +57,7 @@ public final class RobotInfo {
     public static final double BACK_RIGHT_MODULE_STEER_OFFSET = 80.94;
 
     public static final double DRIVE_GEAR_RATIO =
-        1 / ((12.0 / 42.0) * (28.0 / 18.0) * (15.0 / 45.0)); // 6.75:1
+        1 / ((14.0 / 45.0) * (28.0 / 18.0) * (15.0 / 45.0)); // 6.75:1
     public static final double ANGLE_GEAR_RATIO = 1 / ((8.0 / 24.0) * (14.0 / 72.0)); // 15.43:1
 
     public static final double WHEEL_DIAMETER_METERS = 0.1016;
