@@ -57,7 +57,7 @@ public class Wrist implements Subsystem {
     Mid(-118.22, -110.79),
     High(-111.09, -96.39),
     HighBack(-101.09, -74.39),
-    HP(-106.84, -103.91),
+    Hp(-106.84, -103.91),
     Stow(STOW_OFFSET, STOW_OFFSET),
     ConeRight(-71.0, -74.0),
     MiniHp(-89.5, -86.0),

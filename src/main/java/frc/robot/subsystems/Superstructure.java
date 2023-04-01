@@ -19,6 +19,7 @@ public class Superstructure implements Subsystem {
     None
   }
 
+  /** Robot global state. */
   public enum GlobalState {
     ScoreHigh,
     ScoreMid,
@@ -33,39 +34,40 @@ public class Superstructure implements Subsystem {
   private final Wrist m_wrist;
   private final Claw m_claw;
 
-  @Override
-  public void dashboardUpdate() {
-    // TODO Auto-generated method stub
-
+  public void setPresets(Elevator.Preset elevatorPreset) {
+    m_elevator.setPreset(elevatorPreset);
+    String wristPreset = elevatorPreset.toString();
+    if (Math.abs(elevatorPreset.getValue() - m_elevator.getHeight()) < 0.5) {
+      m_wrist.setPreset(WristPreset.valueOf(wristPreset));
+    } else {
+      m_wrist.setPreset(WristPreset.Offset);
+    }
   }
+
+  @Override
+  public void dashboardUpdate() {}
 
   @Override
   public void update() {
     switch (m_globalState) {
       case ScoreHigh:
-        m_elevator.setPreset(Elevator.Preset.High);
-        m_wrist.setPreset(WristPreset.High);
+        setPresets(Elevator.Preset.High);
         break;
       case ScoreMid:
-        m_elevator.setPreset(Elevator.Preset.Mid);
-        m_wrist.setPreset(WristPreset.Mid);
+        setPresets(Elevator.Preset.Mid);
         break;
       case ScoreLow:
-        m_elevator.setPreset(Elevator.Preset.Hybrid);
-        m_wrist.setPreset(WristPreset.Hybrid);
+        setPresets(Elevator.Preset.Hybrid);
         break;
       case Stow:
-        m_elevator.setPreset(Elevator.Preset.Stow);
-        m_wrist.setPreset(WristPreset.Stow);
+        setPresets(Elevator.Preset.Stow);
         break;
       case HpLoad:
-        m_elevator.setPreset(Elevator.Preset.Hp);
-        m_wrist.setPreset(WristPreset.HP);
+        setPresets(Elevator.Preset.Hp);
         m_claw.setIntakeState(IntakeState.In);
         break;
       case FloorLoad:
-        m_elevator.setPreset(Elevator.Preset.Floor);
-        m_wrist.setPreset(WristPreset.Floor);
+        setPresets(Elevator.Preset.Floor);
         m_claw.setIntakeState(IntakeState.In);
         break;
     }
