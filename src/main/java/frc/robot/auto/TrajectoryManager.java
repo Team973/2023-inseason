@@ -7,7 +7,7 @@ import java.util.List;
 import java.util.Set;
 
 import frc.robot.Robot;
-import frc.robot.shared.Constants.GamePiece;
+import frc.robot.subsystems.Superstructure.GamePiece;
 
 import com.pathplanner.lib.PathConstraints;
 import com.pathplanner.lib.PathPlanner;

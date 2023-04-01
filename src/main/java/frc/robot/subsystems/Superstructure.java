@@ -12,6 +12,13 @@ import lombok.experimental.Accessors;
 @Accessors(prefix = "m_")
 @RequiredArgsConstructor
 public class Superstructure implements Subsystem {
+  /** Game Piece options. */
+  public enum GamePiece {
+    Cube,
+    Cone,
+    None
+  }
+
   public enum GlobalState {
     ScoreHigh,
     ScoreMid,

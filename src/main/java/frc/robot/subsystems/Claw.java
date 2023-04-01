@@ -3,10 +3,10 @@ package frc.robot.subsystems;
 import static frc.robot.shared.RobotInfo.*;
 
 import frc.robot.Robot;
-import frc.robot.shared.Constants.GamePiece;
 import frc.robot.shared.GreyTalonFX;
 import frc.robot.shared.RobotInfo;
 import frc.robot.shared.Subsystem;
+import frc.robot.subsystems.Superstructure.GamePiece;
 
 import com.ctre.phoenixpro.configs.TalonFXConfiguration;
 import edu.wpi.first.wpilibj.DigitalInput;

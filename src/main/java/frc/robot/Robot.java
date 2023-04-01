@@ -10,7 +10,6 @@ import java.io.FileWriter;
 import java.io.PrintWriter;
 
 import frc.robot.AutoManager.AutoSide;
-import frc.robot.shared.Constants.GamePiece;
 import frc.robot.shared.LimelightHelpers;
 import frc.robot.subsystems.CANdleManager;
 import frc.robot.subsystems.CANdleManager.LightState;
@@ -21,6 +20,7 @@ import frc.robot.subsystems.Drive.RotationControl;
 import frc.robot.subsystems.Elevator;
 import frc.robot.subsystems.Elevator.ElevatorState;
 import frc.robot.subsystems.Superstructure;
+import frc.robot.subsystems.Superstructure.GamePiece;
 import frc.robot.subsystems.Superstructure.GlobalState;
 import frc.robot.subsystems.Wrist;
 import frc.robot.subsystems.Wrist.WristPreset;
