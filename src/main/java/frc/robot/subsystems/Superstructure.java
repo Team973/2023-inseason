@@ -1,7 +1,7 @@
 package frc.robot.subsystems;
 
 import frc.robot.shared.Subsystem;
-import frc.robot.subsystems.Claw.IntakeState;
+import frc.robot.subsystems.Elevator.Preset;
 import frc.robot.subsystems.Wrist.WristPreset;
 
 import lombok.Getter;
@@ -32,52 +32,56 @@ public class Superstructure implements Subsystem {
   @Getter @Setter private GlobalState m_globalState;
   private final Elevator m_elevator;
   private final Wrist m_wrist;
-  private final Claw m_claw;
-
-  public void setPresets(Elevator.Preset elevatorPreset, boolean intakeIn) {
-    m_elevator.setPreset(elevatorPreset);
-    String wristPreset = elevatorPreset.toString();
-    if (Math.abs(elevatorPreset.getValue() - m_elevator.getHeight()) < 0.5) {
-      m_wrist.setPreset(WristPreset.valueOf(wristPreset));
-    } else {
-      m_wrist.setPreset(WristPreset.Offset);
-    }
-    if (intakeIn) {
-      m_claw.setIntakeState(IntakeState.In);
-    }
-  }
 
   @Override
   public void dashboardUpdate() {}
 
   @Override
   public void update() {
+    Elevator.Preset elevatorPreset;
+    WristPreset wristPreset;
+
     switch (m_globalState) {
       case ScoreHigh:
-        setPresets(Elevator.Preset.High, false);
+        elevatorPreset = Preset.High;
+        wristPreset = WristPreset.High;
         break;
       case ScoreMid:
-        setPresets(Elevator.Preset.Mid, false);
+        elevatorPreset = Preset.Mid;
+        wristPreset = WristPreset.Mid;
         break;
       case ScoreLow:
-        setPresets(Elevator.Preset.Hybrid, false);
+        elevatorPreset = Preset.Hybrid;
+        wristPreset = WristPreset.Hybrid;
         break;
       case Stow:
-        setPresets(Elevator.Preset.Stow, false);
+        elevatorPreset = Preset.Stow;
+        wristPreset = WristPreset.Stow;
         break;
       case HpLoad:
-        setPresets(Elevator.Preset.Hp, true);
+        elevatorPreset = Preset.Hp;
+        wristPreset = WristPreset.Hp;
         break;
       case FloorLoad:
-        setPresets(Elevator.Preset.Floor, true);
+        elevatorPreset = Preset.Floor;
+        wristPreset = WristPreset.Floor;
         break;
       default:
+        elevatorPreset = Preset.Stow;
+        wristPreset = WristPreset.Stow;
         break;
     }
+
+    if (Math.abs(elevatorPreset.getValue() - m_elevator.getHeight()) >= 0.5) {
+      wristPreset = WristPreset.Offset;
+    }
+
+    m_elevator.setPreset(elevatorPreset);
+    m_wrist.setPreset(wristPreset);
   }
 
   @Override
   public void reset() {
-    setGlobalState(null);
+    setGlobalState(GlobalState.Stow);
   }
 }
