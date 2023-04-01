@@ -50,6 +50,22 @@ public class TrajectoryManager {
           false,
           Arrays.asList(GamePiece.Cone));
 
+  public static final TrajectoryPair PreloadDoubleShootFar =
+      new TrajectoryPair(
+          "PreloadDoubleShootFar",
+          true,
+          new PathConstraints(1, 2),
+          false,
+          Arrays.asList(GamePiece.Cone));
+
+  public static final TrajectoryPair PreloadDoubleShootClose =
+      new TrajectoryPair(
+          "PreloadDoubleShootCLose",
+          true,
+          new PathConstraints(1, 2),
+          false,
+          Arrays.asList(GamePiece.Cone));
+
   public static final TrajectoryPair PreloadPickupScoreCharge =
       new TrajectoryPair(
           "PreloadPickupScoreCharge",
