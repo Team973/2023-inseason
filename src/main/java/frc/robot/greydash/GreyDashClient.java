@@ -6,7 +6,6 @@ import java.util.Arrays;
 import java.util.HashSet;
 
 import frc.robot.AutoManager.AutoMode;
-import frc.robot.AutoManager.AutoSide;
 import frc.robot.shared.Constants.GamePiece;
 
 import edu.wpi.first.networktables.DoublePublisher;
@@ -46,13 +45,6 @@ public final class GreyDashClient {
       m_autoTable.getStringTopic(GAME_PIECE_SELECTED_TOPIC).subscribe(GamePiece.None.toString());
   private static final StringPublisher m_gamePieceSelectedPublisher =
       m_autoTable.getStringTopic(GAME_PIECE_SELECTED_TOPIC).publish();
-
-  private static final StringArrayPublisher m_availableAutoSides =
-      m_autoTable.getStringArrayTopic(AVAILABLE_AUTO_SIDES_TOPIC).publish();
-  private static final StringSubscriber m_autoSideSelectedSubscriber =
-      m_autoTable.getStringTopic(AUTO_SIDE_SELECTED_TOPIC).subscribe(AutoSide.Left.toString());
-  private static final StringPublisher m_autoSideSelectedPublisher =
-      m_autoTable.getStringTopic(AUTO_SIDE_SELECTED_TOPIC).publish();
 
   private static final StringArraySubscriber m_stagingSelectionSubscriber =
       m_autoTable.getStringArrayTopic(STAGING_SELECTION_TOPIC).subscribe(new String[0]);
@@ -148,37 +140,6 @@ public final class GreyDashClient {
    */
   public static void setSelectedGamePiece(final GamePiece gamePiece) {
     m_gamePieceSelectedPublisher.set(gamePiece.toString());
-  }
-
-  /**
-   * Sets the available auto side options in the dashboard's dropdown menu.
-   *
-   * @param autoSides The available auto sides.
-   * @see #getSelectedAutoSide()
-   */
-  public static void setAvailableAutoSides(final AutoSide... autoSides) {
-    m_availableAutoSides.set(
-        Arrays.stream(autoSides).map((side) -> side.toString()).toArray(String[]::new));
-  }
-
-  /**
-   * Gets the selected auto side from the dashboard's dropdown menu.
-   *
-   * @return The selected auto side.
-   * @see #setAvailableAutoSides(String...)
-   */
-  public static AutoSide getSelectedAutoSide() {
-    return AutoSide.valueOf(m_autoSideSelectedSubscriber.get());
-  }
-
-  /**
-   * Sets the selected auto side to GreyDash from the Robot. Used to initialize the default
-   * dropdown.
-   *
-   * @param autoSide The default auto side.
-   */
-  public static void setSelectedAutoSide(final AutoSide autoSide) {
-    m_autoSideSelectedPublisher.set(autoSide.toString());
   }
 
   /**
