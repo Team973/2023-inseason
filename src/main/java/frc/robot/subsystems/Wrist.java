@@ -2,13 +2,13 @@ package frc.robot.subsystems;
 
 import frc.robot.Robot;
 import frc.robot.devices.GreyTalonFX;
+import frc.robot.devices.GreyTalonFX.ControlMode;
 import frc.robot.shared.Constants.GamePiece;
 import frc.robot.shared.RobotInfo;
 import frc.robot.shared.RobotInfo.ClawInfo;
 import frc.robot.shared.Subsystem;
 
 import com.ctre.phoenixpro.configs.CANcoderConfiguration;
-import com.ctre.phoenixpro.controls.PositionVoltage;
 import com.ctre.phoenixpro.hardware.CANcoder;
 import com.ctre.phoenixpro.signals.AbsoluteSensorRangeValue;
 import com.ctre.phoenixpro.signals.FeedbackSensorSourceValue;
@@ -41,9 +41,6 @@ public class Wrist implements Subsystem {
   @Setter private double m_motorOutput = 0.0;
 
   private final double ANGLE_TOLERANCE = 1.0; // degrees
-
-  private final PositionVoltage m_wristPosition =
-      new PositionVoltage((m_targetAngle + ENCODER_OFFSET) / 360.0);
 
   public enum WristState {
     Manual,
@@ -193,13 +190,14 @@ public class Wrist implements Subsystem {
     switch (m_state) {
       case Manual:
         setPreset(WristPreset.Manual);
-        m_wristMotor.set(m_motorOutput);
+        m_wristMotor.setControl(ControlMode.DutyCycleOut, m_motorOutput);
         break;
       case ClosedLoop:
         m_wristMotor.setControl(
-            m_wristPosition
-                .withPosition((m_targetAngle + ENCODER_OFFSET) / 360.0)
-                .withFeedForward(Math.sin(Math.toRadians(getCurrentAngleDegrees())) * -WRIST_FF));
+            ControlMode.PositionVoltage,
+            (m_targetAngle + ENCODER_OFFSET) / 360.0,
+            true,
+            Math.sin(Math.toRadians(getCurrentAngleDegrees())) * -WRIST_FF);
         break;
       default:
         break;

@@ -4,6 +4,7 @@ import static frc.robot.shared.RobotInfo.*;
 
 import frc.robot.Robot;
 import frc.robot.devices.GreyTalonFX;
+import frc.robot.devices.GreyTalonFX.ControlMode;
 import frc.robot.shared.Constants.GamePiece;
 import frc.robot.shared.RobotInfo;
 import frc.robot.shared.Subsystem;
@@ -119,7 +120,7 @@ public class Claw implements Subsystem {
         break;
     }
 
-    m_intakeMotor.set(m_intakeMotorOutput);
+    m_intakeMotor.setControl(ControlMode.DutyCycleOut, m_intakeMotorOutput);
 
     m_lastGamePiece = currentGamePiece;
   }

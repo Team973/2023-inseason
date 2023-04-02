@@ -2,6 +2,15 @@ package frc.robot.devices;
 
 import com.ctre.phoenixpro.StatusCode;
 import com.ctre.phoenixpro.configs.TalonFXConfigurator;
+import com.ctre.phoenixpro.controls.ControlRequest;
+import com.ctre.phoenixpro.controls.DutyCycleOut;
+import com.ctre.phoenixpro.controls.MotionMagicDutyCycle;
+import com.ctre.phoenixpro.controls.MotionMagicVoltage;
+import com.ctre.phoenixpro.controls.PositionDutyCycle;
+import com.ctre.phoenixpro.controls.PositionVoltage;
+import com.ctre.phoenixpro.controls.VelocityDutyCycle;
+import com.ctre.phoenixpro.controls.VelocityVoltage;
+import com.ctre.phoenixpro.controls.VoltageOut;
 import com.ctre.phoenixpro.hardware.TalonFX;
 import com.ctre.phoenixpro.signals.FeedbackSensorSourceValue;
 import com.ctre.phoenixpro.signals.ForwardLimitSourceValue;
@@ -11,6 +20,7 @@ import com.ctre.phoenixpro.signals.NeutralModeValue;
 import com.ctre.phoenixpro.signals.ReverseLimitSourceValue;
 import com.ctre.phoenixpro.signals.ReverseLimitTypeValue;
 import edu.wpi.first.math.geometry.Rotation2d;
+import lombok.Data;
 import lombok.EqualsAndHashCode;
 import lombok.experimental.Accessors;
 
@@ -18,6 +28,36 @@ import lombok.experimental.Accessors;
 @Accessors(prefix = "m_")
 @EqualsAndHashCode(callSuper = true)
 public class GreyTalonFX extends TalonFX {
+  private static final double FOC_INTERCEPT_RPM = 5088.5;
+  private boolean m_lastOptimizedFOC = true;
+
+  public enum ControlMode {
+    PercentOutput,
+    DutyCycleOut,
+    MotionMagicDutyCycle,
+    MotionMagicTorqueCurrentFOC,
+    MotionMagicVoltage,
+    NeutralOut,
+    PositionDutyCycle,
+    PositionTorqueCurrentFOC,
+    PositionVoltage,
+    StaticBrake,
+    TorqueCurrentFOC,
+    VelocityDutyCycle,
+    VelocityTorqueCurrentFOC,
+    VelocityVoltage,
+    VoltageOut
+  }
+
+  @Data
+  public class OutputParams {
+    private final ControlMode m_controlMode;
+    private final double m_demand;
+    private final boolean m_enableFOC;
+    private final double m_feedForward;
+    private final int m_slot;
+    private final boolean m_overrideBrakeDurNeutral;
+  }
 
   /**
    * Create a GreyTalonFX.
@@ -40,6 +80,8 @@ public class GreyTalonFX extends TalonFX {
   }
 
   private GreyTalonFXConfiguration m_currentConfig;
+  private OutputParams m_lastOutputParams;
+  private StatusCode m_lastControlCode;
 
   /** Factory default the TalonFX. */
   public void factoryDefault() {
@@ -154,9 +196,6 @@ public class GreyTalonFX extends TalonFX {
   }
 
   /**
-   * Get the configurator for the TalonFX.
-   *
-   * @return The configurator for the TalonFX.
    * @deprecated Use {@link #getConfig()} and {@link #setConfig(GreyTalonFXConfiguration)} instead.
    */
   @Deprecated
@@ -185,9 +224,273 @@ public class GreyTalonFX extends TalonFX {
   /**
    * Set the current position Rotation2d of the TalonFX.
    *
-   * @return The current velocity Rotation2d of the TalonFX.
+   * @return Status Code of the request, 0 is OK.
    */
   public StatusCode setRotorPositionRotation2d(Rotation2d position) {
     return setRotorPosition(position.getRotations());
+  }
+
+  /**
+   * Determine whether trap or FOC should be used.
+   *
+   * <p>FOC is used when the motor is below the intercept RPM, and trap is used when the motor is
+   * above the intercept RPM. The intercept RPM is determined by the FOC_INTERCEPT_RPM constant. It
+   * will only switch between trap and FOC when the motor is more than 2% outside of the intercept
+   * RPM.
+   *
+   * @return Whether trap or FOC should be used.
+   */
+  public boolean optimizedFOC() {
+    double speedRPM = getRotorVelocity().getValue() * 60.0;
+    double tolerance = FOC_INTERCEPT_RPM * 0.02;
+
+    if (m_lastOptimizedFOC) {
+      if (speedRPM >= FOC_INTERCEPT_RPM + tolerance) {
+        m_lastOptimizedFOC = false;
+      }
+    } else {
+      if (speedRPM <= FOC_INTERCEPT_RPM - tolerance) {
+        m_lastOptimizedFOC = true;
+      }
+    }
+
+    return m_lastOptimizedFOC;
+  }
+
+  /**
+   * Set the output of the TalonFX with optimized FOC.
+   *
+   * <p>By default FOC is enabled, Feedforward is disabled, and PID Slot 0 is used
+   *
+   * @param controlMode The control mode to use.
+   * @param demand The demand to use.
+   * @return Status Code of the request, 0 is OK.
+   */
+  public StatusCode setControl(ControlMode controlMode, double demand) {
+    return setControl(controlMode, demand, optimizedFOC(), 0.0, 0, false);
+  }
+
+  /**
+   * Set the output of the TalonFX with optimized FOC.
+   *
+   * @param controlMode The control mode to use.
+   * @param demand The demand to use.
+   * @param pidSlot The PID slot to use.
+   * @return Status Code of the request, 0 is OK.
+   */
+  public StatusCode setControl(ControlMode controlMode, double demand, int pidSlot) {
+    return setControl(controlMode, demand, optimizedFOC(), 0.0, pidSlot, false);
+  }
+
+  /**
+   * Set the output of the TalonFX with optimized FOC.
+   *
+   * <p>By default PID Slot 0 is used
+   *
+   * @param controlMode The control mode to use.
+   * @param demand The demand to use.
+   * @param feedForward The feed forward to use.
+   * @return Status Code of the request, 0 is OK.
+   */
+  public StatusCode setControl(ControlMode controlMode, double demand, double feedForward) {
+    return setControl(controlMode, demand, optimizedFOC(), feedForward, 0, false);
+  }
+
+  /**
+   * Set the output of the TalonFX.
+   *
+   * <p>By default Feedforward is disabled and PID Slot 0 is used
+   *
+   * @param controlMode The control mode to use.
+   * @param demand The demand to use.
+   * @param enableFOC Set to true to use FOC commutation, which increases peak power by ~15%. Set to
+   *     false to use trapezoidal commutation. FOC improves motor performance by leveraging torque
+   *     (current) control. However, this may be inconvenient for applications that require
+   *     specifying duty cycle or voltage. CTR-Electronics has developed a hybrid method that
+   *     combines the performances gains of FOC while still allowing applications to provide
+   *     duty-cycle or voltage demand. This not to be confused with simple sinusoidal control or
+   *     phase voltage control which lacks the performance gains.
+   * @return Status Code of the request, 0 is OK.
+   */
+  public StatusCode setControl(ControlMode controlMode, double demand, boolean enableFOC) {
+    return setControl(controlMode, demand, enableFOC, 0.0, 0, false);
+  }
+
+  /**
+   * Set the output of the TalonFX.
+   *
+   * <p>By default PID Slot 0 is used
+   *
+   * @param controlMode The control mode to use.
+   * @param demand The demand to use.
+   * @param enableFOC Set to true to use FOC commutation, which increases peak power by ~15%. Set to
+   *     false to use trapezoidal commutation. FOC improves motor performance by leveraging torque
+   *     (current) control. However, this may be inconvenient for applications that require
+   *     specifying duty cycle or voltage. CTR-Electronics has developed a hybrid method that
+   *     combines the performances gains of FOC while still allowing applications to provide
+   *     duty-cycle or voltage demand. This not to be confused with simple sinusoidal control or
+   *     phase voltage control which lacks the performance gains.
+   * @param feedForward The feed forward to use.
+   * @return Status Code of the request, 0 is OK.
+   */
+  public StatusCode setControl(
+      ControlMode controlMode, double demand, boolean enableFOC, double feedForward) {
+    return setControl(controlMode, demand, enableFOC, feedForward, 0, false);
+  }
+
+  /**
+   * Set the output of the TalonFX.
+   *
+   * @param controlMode The control mode to use.
+   * @param demand The demand to use.
+   * @param enableFOC Set to true to use FOC commutation, which increases peak power by ~15%. Set to
+   *     false to use trapezoidal commutation. FOC improves motor performance by leveraging torque
+   *     (current) control. However, this may be inconvenient for applications that require
+   *     specifying duty cycle or voltage. CTR-Electronics has developed a hybrid method that
+   *     combines the performances gains of FOC while still allowing applications to provide
+   *     duty-cycle or voltage demand. This not to be confused with simple sinusoidal control or
+   *     phase voltage control which lacks the performance gains.
+   * @param feedForward The feed forward to use.
+   * @param slot Select which gains are applied by selecting the slot. Use the configuration api to
+   *     set the gain values for the selected slot before enabling this feature. Slot must be within
+   *     [0,2].
+   * @param overrideBrakeDurNeutral Set to true to static-brake the rotor when output is zero (or
+   *     within deadband). Set to false to use the NeutralMode configuration setting (default). This
+   *     flag exists to provide the fundamental behavior of this control when output is zero, which
+   *     is to provide 0V to the motor.
+   * @return Status Code of the request, 0 is OK.
+   */
+  public StatusCode setControl(
+      ControlMode controlMode,
+      double demand,
+      boolean enableFOC,
+      double feedForward,
+      int slot,
+      boolean overrideBrakeDurNeutral) {
+
+    ControlRequest motorOutput = new DutyCycleOut(0.0);
+
+    var currentOutputParams =
+        new OutputParams(
+            controlMode, demand, enableFOC, feedForward, slot, overrideBrakeDurNeutral);
+
+    if (!m_lastOutputParams.equals(currentOutputParams)) {
+
+      switch (controlMode) {
+        case PercentOutput:
+        case DutyCycleOut:
+          motorOutput = new DutyCycleOut(demand, enableFOC, overrideBrakeDurNeutral);
+          break;
+        case MotionMagicDutyCycle:
+          motorOutput =
+              new MotionMagicDutyCycle(
+                  demand, enableFOC, feedForward, slot, overrideBrakeDurNeutral);
+          break;
+        case MotionMagicVoltage:
+          motorOutput =
+              new MotionMagicVoltage(demand, enableFOC, feedForward, slot, overrideBrakeDurNeutral);
+          break;
+        case PositionDutyCycle:
+          motorOutput =
+              new PositionDutyCycle(demand, enableFOC, feedForward, slot, overrideBrakeDurNeutral);
+          break;
+        case PositionVoltage:
+          motorOutput =
+              new PositionVoltage(demand, enableFOC, feedForward, slot, overrideBrakeDurNeutral);
+          break;
+        case VelocityDutyCycle:
+          motorOutput =
+              new VelocityDutyCycle(demand, enableFOC, feedForward, slot, overrideBrakeDurNeutral);
+          break;
+        case VelocityVoltage:
+          motorOutput =
+              new VelocityVoltage(demand, enableFOC, feedForward, slot, overrideBrakeDurNeutral);
+          break;
+        default:
+          // Uses the above DutyCycleOut set to 0.0
+          break;
+      }
+
+      m_lastOutputParams = currentOutputParams;
+      m_lastControlCode = super.setControl(motorOutput);
+    }
+    return m_lastControlCode;
+  }
+
+  @Deprecated
+  public void set(double speed) {
+    super.set(speed);
+  }
+
+  /**
+   * @deprecated Use {@link #setControl(ControlMode, double, double)} instead.
+   */
+  @Deprecated
+  public StatusCode setControl(ControlRequest controlRequest) {
+    return super.setControl(controlRequest);
+  }
+
+  /**
+   * @deprecated Use {@link #setControl(ControlMode, double, double)} instead.
+   */
+  @Deprecated
+  public StatusCode setControl(DutyCycleOut request) {
+    return super.setControl(request);
+  }
+
+  /**
+   * @deprecated Use {@link #setControl(ControlMode, double, double)} instead.
+   */
+  @Deprecated
+  public StatusCode setControl(VoltageOut request) {
+    return super.setControl(request);
+  }
+
+  /**
+   * @deprecated Use {@link #setControl(ControlMode, double, double)} instead.
+   */
+  @Deprecated
+  public StatusCode setControl(PositionDutyCycle request) {
+    return super.setControl(request);
+  }
+
+  /**
+   * @deprecated Use {@link #setControl(ControlMode, double, double)} instead.
+   */
+  @Deprecated
+  public StatusCode setControl(PositionVoltage request) {
+    return super.setControl(request);
+  }
+
+  /**
+   * @deprecated Use {@link #setControl(ControlMode, double, double)} instead.
+   */
+  @Deprecated
+  public StatusCode setControl(VelocityDutyCycle request) {
+    return super.setControl(request);
+  }
+
+  /**
+   * @deprecated Use {@link #setControl(ControlMode, double, double)} instead.
+   */
+  @Deprecated
+  public StatusCode setControl(VelocityVoltage request) {
+    return super.setControl(request);
+  }
+
+  /**
+   * @deprecated Use {@link #setControl(ControlMode, double, double)} instead.
+   */
+  @Deprecated
+  public StatusCode setControl(MotionMagicDutyCycle request) {
+    return super.setControl(request);
+  }
+
+  /**
+   * @deprecated Use {@link #setControl(ControlMode, double, double)} instead.
+   */
+  @Deprecated
+  public StatusCode setControl(MotionMagicVoltage request) {
+    return super.setControl(request);
   }
 }

@@ -8,7 +8,7 @@ import com.ctre.phoenixpro.configs.Pigeon2Configuration;
 import com.ctre.phoenixpro.hardware.Pigeon2;
 import edu.wpi.first.math.geometry.Rotation2d;
 
-/** GreyPidgeon - Pigeon2 wrapper class */
+/** GreyPigeon - Pigeon2 wrapper class */
 public class GreyPigeon {
   private final Pigeon2 m_pigeon;
   private StandardizedRotation3d m_offset;

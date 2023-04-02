@@ -3,12 +3,12 @@ package frc.robot.subsystems;
 import static frc.robot.shared.RobotInfo.*;
 
 import frc.robot.devices.GreyTalonFX;
+import frc.robot.devices.GreyTalonFX.ControlMode;
 import frc.robot.shared.RobotInfo;
 import frc.robot.shared.Subsystem;
 import frc.robot.shared.mechanisms.LinearMechanism;
 
 import com.ctre.phoenixpro.controls.Follower;
-import com.ctre.phoenixpro.controls.MotionMagicVoltage;
 import com.ctre.phoenixpro.signals.InvertedValue;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.wpilibj.DigitalInput;
@@ -47,9 +47,6 @@ public class Elevator implements Subsystem {
 
   @Getter @Setter private ElevatorState m_elevatorState = ElevatorState.Manual;
   @Getter private Preset m_preset = Preset.Stow;
-
-  private final MotionMagicVoltage m_elevatorMotionMagic =
-      new MotionMagicVoltage(0.0, false, 0.04, 0, true);
 
   public enum ElevatorState {
     /** Manually control the motors with the joystick */
@@ -195,14 +192,13 @@ public class Elevator implements Subsystem {
         } else {
           m_elevatorOutput = clamp(m_elevatorOutput, 0.2, -0.2);
         }
-        m_elevatorMotor.set(m_elevatorOutput);
-
+        m_elevatorMotor.setControl(ControlMode.DutyCycleOut, m_elevatorOutput);
         m_targetPosition = getPosition();
         break;
       case ClosedLoop:
         Rotation2d motorPosition = m_mechanism.getRotorRotationFromOutputDistance(getPosition());
         m_elevatorMotor.setControl(
-            m_elevatorMotionMagic.withPosition(motorPosition.getRotations()));
+            ControlMode.MotionMagicVoltage, motorPosition.getRotations(), false, 0.04, 0, true);
         break;
       default:
         break;

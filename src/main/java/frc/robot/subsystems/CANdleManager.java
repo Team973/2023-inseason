@@ -99,6 +99,7 @@ public class CANdleManager implements Subsystem {
         break;
       case Balance:
         m_candle.setLEDs(255, 140, 0);
+        break;
       case Off:
         m_candle.setLEDs(0, 0, 0); // set the CANdle LEDs to be offs
         break;

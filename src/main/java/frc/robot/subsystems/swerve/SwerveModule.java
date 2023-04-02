@@ -1,6 +1,7 @@
 package frc.robot.subsystems.swerve;
 
 import frc.robot.devices.GreyTalonFX;
+import frc.robot.devices.GreyTalonFX.ControlMode;
 import frc.robot.devices.GreyTalonFXConfiguration;
 import frc.robot.shared.RobotInfo;
 import frc.robot.shared.RobotInfo.DriveInfo;
@@ -10,8 +11,6 @@ import frc.robot.shared.mechanisms.LinearMechanism;
 
 import com.ctre.phoenixpro.BaseStatusSignalValue;
 import com.ctre.phoenixpro.configs.CANcoderConfiguration;
-import com.ctre.phoenixpro.controls.PositionDutyCycle;
-import com.ctre.phoenixpro.controls.VelocityDutyCycle;
 import com.ctre.phoenixpro.hardware.CANcoder;
 import com.ctre.phoenixpro.signals.AbsoluteSensorRangeValue;
 import com.ctre.phoenixpro.signals.InvertedValue;
@@ -37,11 +36,6 @@ public class SwerveModule {
 
   SimpleMotorFeedforward m_feedforward =
       new SimpleMotorFeedforward(DriveInfo.DRIVE_KS, DriveInfo.DRIVE_KV, DriveInfo.DRIVE_KA);
-
-  private PositionDutyCycle m_anglePosition = new PositionDutyCycle(0.0);
-
-  private VelocityDutyCycle m_driveVelocity =
-      new VelocityDutyCycle(0.0, true, m_feedforward.calculate(0.0), 0, false);
 
   public SwerveModule(int moduleNumber, SwerveModuleConfig moduleConfig) {
     this.moduleNumber = moduleNumber;
@@ -168,9 +162,10 @@ public class SwerveModule {
 
     if (desiredState.speedMetersPerSecond != m_lastState.speedMetersPerSecond) {
       m_driveMotor.setControl(
-          m_driveVelocity
-              .withVelocity(desiredFalconVelocityInRPS.getRotations())
-              .withFeedForward(m_feedforward.calculate(desiredState.speedMetersPerSecond)));
+          ControlMode.VelocityDutyCycle,
+          desiredFalconVelocityInRPS.getRotations(),
+          true,
+          m_feedforward.calculate(desiredState.speedMetersPerSecond));
     }
 
     Rotation2d angle = desiredState.angle;
@@ -187,8 +182,8 @@ public class SwerveModule {
     // Prevent module rotation if angle is the same as the previous angle.
     if (angle != m_lastState.angle) {
       m_angleMotor.setControl(
-          m_anglePosition.withPosition(
-              m_angleMechanism.getRotorRotationFromOutputRotation(angle).getRotations()));
+          ControlMode.PositionDutyCycle,
+          m_angleMechanism.getRotorRotationFromOutputRotation(angle).getRotations());
     }
     m_lastState = getState();
   }
