@@ -54,8 +54,6 @@ public class Robot extends TimedRobot {
 
   @Getter private static Alliance m_calculatedAlliance;
 
-  private static boolean m_autoRan = false;
-
   private final Elevator m_elevator = new Elevator();
   private final Wrist m_wrist = new Wrist();
   private final Claw m_claw = new Claw();
@@ -196,7 +194,6 @@ public class Robot extends TimedRobot {
       LimelightHelpers.setPipelineIndex("", 1);
       m_compressor.enableDigital();
       m_autoManager.init();
-      m_autoRan = true;
     } catch (Exception e) {
       logException(e);
     }
