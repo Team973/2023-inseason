@@ -433,11 +433,6 @@ public class Robot extends TimedRobot {
       SmartDashboard.putString("DB/String 1", m_selectedAutoSide.toString());
       SmartDashboard.putString("DB/String 2", m_preloadGamePiece.toString());
 
-      if (m_driverStick.getAButton()) {
-        m_drive.enableBrakeMode();
-      } else {
-        m_drive.disableBrakeMode();
-      }
     } catch (Exception e) {
       logException(e);
     }
