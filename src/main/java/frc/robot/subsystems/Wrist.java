@@ -7,12 +7,15 @@ import frc.robot.shared.RobotInfo;
 import frc.robot.shared.RobotInfo.ClawInfo;
 import frc.robot.shared.Subsystem;
 
+import com.ctre.phoenixpro.configs.CANcoderConfiguration;
 import com.ctre.phoenixpro.configs.TalonFXConfiguration;
 import com.ctre.phoenixpro.controls.PositionVoltage;
+import com.ctre.phoenixpro.hardware.CANcoder;
+import com.ctre.phoenixpro.signals.AbsoluteSensorRangeValue;
 import com.ctre.phoenixpro.signals.FeedbackSensorSourceValue;
 import com.ctre.phoenixpro.signals.InvertedValue;
 import com.ctre.phoenixpro.signals.NeutralModeValue;
-import edu.wpi.first.math.geometry.Rotation2d;
+import com.ctre.phoenixpro.signals.SensorDirectionValue;
 import edu.wpi.first.wpilibj.DigitalInput;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import lombok.Getter;
@@ -22,39 +25,14 @@ import lombok.experimental.Accessors;
 @Accessors(prefix = "m_")
 public class Wrist implements Subsystem {
 
-  private static final double STOW_OFFSET = 31.04;
-  private static final double TENSED_STOW_OFFSET = 37.21;
-  private static final double WRIST_FF = 0.4;
-
-  public static class ConePresets {
-    public static final double floor = -105.76;
-    public static final double hybrid = -163.90;
-    public static final double mid = -110.79;
-    public static final double high = -94.39;
-    public static final double highBack = high + 20.0;
-    public static final double hp = -102.91;
-    public static final double right = -74.0;
-    public static final double stow = STOW_OFFSET;
-    public static final double miniHp = -86.0;
-    public static final double offset = STOW_OFFSET - 10;
-  }
-
-  public static class CubePresets {
-    public static final double floor = -113;
-    public static final double hybrid = -161.90;
-    public static final double mid = -118.22;
-    public static final double high = -111.09;
-    public static final double highBack = high + 10.0;
-    public static final double hp = -104.84;
-    public static final double right = -71.0;
-    public static final double stow = STOW_OFFSET;
-    public static final double miniHp = -89.5;
-    public static final double offset = STOW_OFFSET - 10;
-  }
+  private static final double STOW_OFFSET = 31.3;
+  private static final double WRIST_FF = 0.4; // 0.4
+  private double ENCODER_OFFSET = 317.98;
 
   @Setter @Getter private WristState m_state = WristState.Manual;
-  @Setter @Getter private WristPreset m_preset = WristPreset.Stow;
+  @Getter private WristPreset m_preset = WristPreset.Stow;
 
+  private final CANcoder m_encoder;
   private final GreyTalonFX m_wristMotor;
 
   private final DigitalInput m_wristHall;
@@ -66,7 +44,7 @@ public class Wrist implements Subsystem {
   private final double ANGLE_TOLERANCE = 1.0; // degrees
 
   private final PositionVoltage m_wristPosition =
-      new PositionVoltage(m_targetAngle / 360.0 / ClawInfo.GEAR_RATIO);
+      new PositionVoltage((m_targetAngle + ENCODER_OFFSET) / 360.0);
 
   public enum WristState {
     Manual,
@@ -74,12 +52,12 @@ public class Wrist implements Subsystem {
   }
 
   public enum WristPreset {
-    Floor(-113, -105.76),
+    Floor(-117, -111.76),
     Hybrid(-161.9, -163.9),
     Mid(-118.22, -110.79),
-    High(-111.09, -94.39),
+    High(-111.09, -96.39),
     HighBack(-101.09, -74.39),
-    HP(-104.84, -102.91),
+    HP(-106.84, -103.91),
     Stow(STOW_OFFSET, STOW_OFFSET),
     ConeRight(-71.0, -74.0),
     MiniHp(-89.5, -86.0),
@@ -104,12 +82,13 @@ public class Wrist implements Subsystem {
   }
 
   public Wrist() {
+    m_encoder = new CANcoder(ClawInfo.WRIST_ENCODER_ID, RobotInfo.CANIVORE_NAME);
+    configEncoder();
+
     m_wristMotor = new GreyTalonFX(ClawInfo.WRIST_FX_ID, RobotInfo.CANIVORE_NAME);
     configWristMotor();
 
     m_wristHall = new DigitalInput(ClawInfo.WRIST_HALL_ID);
-
-    m_wristMotor.setRotorPosition(STOW_OFFSET / ClawInfo.GEAR_RATIO / 360.0);
   }
 
   private void configWristMotor() {
@@ -128,14 +107,15 @@ public class Wrist implements Subsystem {
     motorConfig.CurrentLimits.StatorCurrentLimitEnable = true;
 
     // Motor feedback
-    motorConfig.Feedback.FeedbackSensorSource = FeedbackSensorSourceValue.RotorSensor;
+    motorConfig.Feedback.FeedbackSensorSource = FeedbackSensorSourceValue.RemoteCANcoder;
+    motorConfig.Feedback.FeedbackRemoteSensorID = ClawInfo.WRIST_ENCODER_ID;
 
     // Ramp rate
     motorConfig.OpenLoopRamps.DutyCycleOpenLoopRampPeriod = 0.0;
     motorConfig.ClosedLoopRamps.DutyCycleClosedLoopRampPeriod = 0.0;
 
     // Position PID Parameters
-    motorConfig.Slot0.kP = 2.0;
+    motorConfig.Slot0.kP = 84.0;
     motorConfig.Slot0.kI = 0.0;
     motorConfig.Slot0.kD = 0.0;
     motorConfig.Slot0.kS = 0.0;
@@ -143,9 +123,32 @@ public class Wrist implements Subsystem {
     m_wristMotor.getConfigurator().apply(motorConfig);
   }
 
+  private void configEncoder() {
+    var encoderConfig = new CANcoderConfiguration();
+    encoderConfig.MagnetSensor.SensorDirection = SensorDirectionValue.CounterClockwise_Positive;
+    encoderConfig.MagnetSensor.AbsoluteSensorRange = AbsoluteSensorRangeValue.Unsigned_0To1;
+    m_encoder.getConfigurator().apply(encoderConfig);
+  }
+
+  public void setPreset(WristPreset nextPreset) {
+    GamePiece currentGamePiece = Robot.getCurrentGamePiece();
+    m_preset = nextPreset;
+    // TODO handle cycle bug
+    if (m_preset == WristPreset.Manual && m_state != WristState.ClosedLoop) {
+      setTargetAngleDegrees(getCurrentAngleDegrees());
+    } else if (currentGamePiece == GamePiece.Cube) {
+      setTargetAngleDegrees(m_preset.getCubePreset());
+    } else {
+      setTargetAngleDegrees(m_preset.getConePreset());
+    }
+  }
+
   public double getCurrentAngleDegrees() {
-    double rot = m_wristMotor.getRotorPosition().getValue() * ClawInfo.GEAR_RATIO;
-    return Rotation2d.fromRotations(rot).getDegrees();
+    return (m_encoder.getAbsolutePosition().getValue() * 360.0) - ENCODER_OFFSET;
+  }
+
+  private double getRawAngleDegrees() {
+    return m_encoder.getAbsolutePosition().getValue() * 360.0;
   }
 
   private void setTargetAngleDegrees(double angle) {
@@ -153,7 +156,7 @@ public class Wrist implements Subsystem {
   }
 
   public double getVelocity() {
-    return m_wristMotor.getVelocity().getValue() * ClawInfo.GEAR_RATIO * 360.0;
+    return m_encoder.getVelocity().getValue() * 360.0;
   }
 
   public boolean getWristHall() {
@@ -171,13 +174,17 @@ public class Wrist implements Subsystem {
     SmartDashboard.putString("Wrist Preset", m_preset.toString());
     SmartDashboard.putNumber("Wrist Stator", m_wristMotor.getStatorCurrent().getValue());
     SmartDashboard.putBoolean("Wrist Sensor", getWristHall());
+    SmartDashboard.putNumber("Wrist Absolute Encoder", m_encoder.getAbsolutePosition().getValue());
+    SmartDashboard.putNumber("Wrist Raw Angle", getRawAngleDegrees());
   }
 
   @Override
   public void update() {
     GamePiece currentGamePiece = Robot.getCurrentGamePiece();
-    if (m_preset == WristPreset.Manual) {
+    if (m_preset == WristPreset.Manual && m_state != WristState.ClosedLoop) {
       setTargetAngleDegrees(getCurrentAngleDegrees());
+    } else if (m_preset == WristPreset.Manual && m_state == WristState.ClosedLoop) {
+      // Intentionally left blank
     } else if (currentGamePiece == GamePiece.Cube) {
       setTargetAngleDegrees(m_preset.getCubePreset());
     } else {
@@ -192,7 +199,7 @@ public class Wrist implements Subsystem {
       case ClosedLoop:
         m_wristMotor.setControl(
             m_wristPosition
-                .withPosition(m_targetAngle / 360.0 / ClawInfo.GEAR_RATIO)
+                .withPosition((m_targetAngle + ENCODER_OFFSET) / 360.0)
                 .withFeedForward(Math.sin(Math.toRadians(getCurrentAngleDegrees())) * -WRIST_FF));
         break;
       default:
@@ -203,6 +210,5 @@ public class Wrist implements Subsystem {
   @Override
   public void reset() {
     setPreset(WristPreset.Stow);
-    m_wristMotor.setRotorPosition(TENSED_STOW_OFFSET / 360.0 / ClawInfo.GEAR_RATIO);
   }
 }

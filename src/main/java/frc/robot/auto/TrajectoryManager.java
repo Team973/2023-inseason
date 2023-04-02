@@ -38,10 +38,6 @@ public class TrajectoryManager {
           false,
           Arrays.asList(GamePiece.Cone));
 
-  public static final TrajectoryPair DriveBack =
-      new TrajectoryPair(
-          "DriveBack", false, new PathConstraints(4, 3), true, Arrays.asList(GamePiece.Cone));
-
   public static final TrajectoryPair CenterPreloadAndPickup =
       new TrajectoryPair(
           "CenterPreloadAndPickup",
@@ -57,6 +53,10 @@ public class TrajectoryManager {
           new PathConstraints(4, 3),
           false,
           Arrays.asList(GamePiece.Cone));
+
+  public static final TrajectoryPair MidLinkNoCharge =
+      new TrajectoryPair(
+          "LinkMid", true, new PathConstraints(4, 3), false, Arrays.asList(GamePiece.Cone));
 
   public static class TrajectoryPair {
 
