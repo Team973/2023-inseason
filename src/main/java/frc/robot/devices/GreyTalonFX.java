@@ -28,6 +28,8 @@ import lombok.experimental.Accessors;
 @Accessors(prefix = "m_")
 @EqualsAndHashCode(callSuper = true)
 public class GreyTalonFX extends TalonFX {
+  // see:
+  // https://docs.google.com/spreadsheets/d/1cdySrJRMEgjMhgvOm5zbGFtuejurvd-CIxzr0Xd3ua8/edit#gid=0
   private static final double FOC_INTERCEPT_RPM = 5088.5;
   private boolean m_lastOptimizedFOC = true;
 
@@ -374,8 +376,7 @@ public class GreyTalonFX extends TalonFX {
         new OutputParams(
             controlMode, demand, enableFOC, feedForward, slot, overrideBrakeDurNeutral);
 
-    if (!m_lastOutputParams.equals(currentOutputParams)) {
-
+    if (m_lastOutputParams == null || !m_lastOutputParams.equals(currentOutputParams)) {
       switch (controlMode) {
         case PercentOutput:
         case DutyCycleOut:
