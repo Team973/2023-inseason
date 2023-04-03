@@ -25,7 +25,7 @@ import lombok.experimental.Accessors;
 @Accessors(prefix = "m_")
 public class Wrist implements Subsystem {
 
-  private static final double STOW_OFFSET = 31.3;
+  private static final double STOW_OFFSET = 30.8;
   private static final double WRIST_FF = 0.4; // 0.4
   private double ENCODER_OFFSET = 104.15;
 
@@ -62,7 +62,7 @@ public class Wrist implements Subsystem {
     ConeRight(-71.0, -74.0),
     MiniHp(-89.5, -86.0),
     Manual(0.0, 0.0),
-    Offset(STOW_OFFSET - 10, STOW_OFFSET - 10);
+    PreStow(STOW_OFFSET - 10, STOW_OFFSET - 10);
 
     private final double cube;
     private final double cone;
