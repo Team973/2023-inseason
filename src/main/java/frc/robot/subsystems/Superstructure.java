@@ -72,10 +72,8 @@ public class Superstructure implements Subsystem {
         break;
     }
 
-    if (Math.abs(elevatorPreset.getValue() - m_elevator.getHeight()) >= 0.5
-        && (m_wrist.getPreset() == WristPreset.Stow
-            || Math.abs(m_wrist.getCurrentAngleDegrees() - m_wrist.getPreset().getConePreset())
-                >= 15.0)) {
+    if ((Math.abs(elevatorPreset.getValue() - m_elevator.getHeight()) >= 5.0)
+        && (m_wrist.getCurrentAngleDegrees() > 0.0)) {
       wristPreset = WristPreset.PreStow;
     }
 

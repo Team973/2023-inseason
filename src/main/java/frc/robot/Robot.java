@@ -298,12 +298,6 @@ public class Robot extends TimedRobot {
       ////////////////////////
       double operatorStickRightY = -MathUtil.applyDeadband(m_operatorStick.getRawAxis(5), 0.1);
 
-      if (m_operatorStick.getAButton()) {
-        m_elevator.setPreset(Elevator.Preset.MiniHp);
-        m_wrist.setPreset(WristPreset.MiniHp);
-        m_currentGamePiece = GamePiece.None;
-      }
-
       // Elevator height preset
       switch (m_operatorStick.getPOV()) {
         case 0:

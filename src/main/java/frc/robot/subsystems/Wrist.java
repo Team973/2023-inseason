@@ -25,9 +25,9 @@ import lombok.experimental.Accessors;
 @Accessors(prefix = "m_")
 public class Wrist implements Subsystem {
 
-  private static final double STOW_OFFSET = 30.8;
+  private static final double STOW_OFFSET = 32.25;
   private static final double WRIST_FF = 0.4; // 0.4
-  private double ENCODER_OFFSET = 104.15;
+  private double ENCODER_OFFSET = 281.95;
 
   @Setter @Getter private WristState m_state = WristState.Manual;
   @Getter private WristPreset m_preset = WristPreset.Stow;
