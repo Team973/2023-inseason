@@ -25,13 +25,10 @@ public class CenterPreloadAndCharge extends SequentialCommand {
             new ElevatorPresetCommand(elevator, Elevator.Preset.Stow, 1000),
             new WristPresetCommand(wrist, WristPreset.Stow, 10.0, 2000),
             new PathPlannerTrajectoryCommand(
-                drive,
-                TrajectoryManager.getPathSegment(TrajectoryManager.CenterPreloadAndCharge, 0))),
+                drive, TrajectoryManager.CenterPreloadAndCharge.getPathSegment(0))),
         new WaitCommand(1000),
         new PathPlannerTrajectoryCommand(
-            drive,
-            false,
-            TrajectoryManager.getPathSegment(TrajectoryManager.CenterPreloadAndCharge, 1)),
+            drive, false, TrajectoryManager.CenterPreloadAndCharge.getPathSegment(1)),
         new BalanceCommand(drive, 5000));
   }
 }

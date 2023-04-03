@@ -25,7 +25,7 @@ public class PreloadAndCharge extends SequentialCommand {
             new ElevatorPresetCommand(elevator, Elevator.Preset.Stow, 1000),
             new WristPresetCommand(wrist, WristPreset.Stow, 10.0, 2000),
             new PathPlannerTrajectoryCommand(
-                drive, TrajectoryManager.getPath(TrajectoryManager.PreloadAndCharge))),
+                drive, TrajectoryManager.PreloadAndCharge.getPathSegment(0))),
         new BalanceCommand(drive, 5000));
   }
 }

@@ -6,7 +6,6 @@ import java.util.Arrays;
 import java.util.HashSet;
 
 import frc.robot.AutoManager.AutoMode;
-import frc.robot.AutoManager.AutoSide;
 import frc.robot.subsystems.Superstructure.GamePiece;
 
 import edu.wpi.first.networktables.DoublePublisher;
@@ -33,49 +32,38 @@ public final class GreyDashClient {
   private static final NetworkTable m_gyroTable = m_devicesTable.getSubTable(GYRO_TABLE);
 
   // Auto Topics
-  private static final StringArrayPublisher m_availableAutoModes =
-      m_autoTable.getStringArrayTopic(AVAILABLE_AUTO_MODES_TOPIC).publish();
-  private static final StringSubscriber m_autoSelectedSubscriber =
-      m_autoTable.getStringTopic(AUTO_SELECTED_TOPIC).subscribe(AutoMode.NoAuto.toString());
-  private static final StringPublisher m_autoSelectedPublisher =
-      m_autoTable.getStringTopic(AUTO_SELECTED_TOPIC).publish();
+  private static final StringArrayPublisher m_availableAutoModes = m_autoTable
+      .getStringArrayTopic(AVAILABLE_AUTO_MODES_TOPIC).publish();
+  private static final StringSubscriber m_autoSelectedSubscriber = m_autoTable.getStringTopic(AUTO_SELECTED_TOPIC)
+      .subscribe(AutoMode.NoAuto.toString());
+  private static final StringPublisher m_autoSelectedPublisher = m_autoTable.getStringTopic(AUTO_SELECTED_TOPIC)
+      .publish();
 
-  private static final StringArrayPublisher m_availableGamePieces =
-      m_autoTable.getStringArrayTopic(AVAILABLE_GAME_PIECES_TOPIC).publish();
-  private static final StringSubscriber m_gamePieceSelectedSubscriber =
-      m_autoTable.getStringTopic(GAME_PIECE_SELECTED_TOPIC).subscribe(GamePiece.None.toString());
-  private static final StringPublisher m_gamePieceSelectedPublisher =
-      m_autoTable.getStringTopic(GAME_PIECE_SELECTED_TOPIC).publish();
+  private static final StringArrayPublisher m_availableGamePieces = m_autoTable
+      .getStringArrayTopic(AVAILABLE_GAME_PIECES_TOPIC).publish();
+  private static final StringSubscriber m_gamePieceSelectedSubscriber = m_autoTable
+      .getStringTopic(GAME_PIECE_SELECTED_TOPIC).subscribe(GamePiece.None.toString());
+  private static final StringPublisher m_gamePieceSelectedPublisher = m_autoTable
+      .getStringTopic(GAME_PIECE_SELECTED_TOPIC).publish();
 
-  private static final StringArrayPublisher m_availableAutoSides =
-      m_autoTable.getStringArrayTopic(AVAILABLE_AUTO_SIDES_TOPIC).publish();
-  private static final StringSubscriber m_autoSideSelectedSubscriber =
-      m_autoTable.getStringTopic(AUTO_SIDE_SELECTED_TOPIC).subscribe(AutoSide.Left.toString());
-  private static final StringPublisher m_autoSideSelectedPublisher =
-      m_autoTable.getStringTopic(AUTO_SIDE_SELECTED_TOPIC).publish();
-
-  private static final StringArraySubscriber m_stagingSelectionSubscriber =
-      m_autoTable.getStringArrayTopic(STAGING_SELECTION_TOPIC).subscribe(new String[0]);
-  private static final StringArrayPublisher m_stagingSelectionPublisher =
-      m_autoTable.getStringArrayTopic(STAGING_SELECTION_TOPIC).publish();
+  private static final StringArraySubscriber m_stagingSelectionSubscriber = m_autoTable
+      .getStringArrayTopic(STAGING_SELECTION_TOPIC).subscribe(new String[0]);
+  private static final StringArrayPublisher m_stagingSelectionPublisher = m_autoTable
+      .getStringArrayTopic(STAGING_SELECTION_TOPIC).publish();
 
   // Match Topics
-  private static final DoublePublisher m_matchTime =
-      m_matchTable.getDoubleTopic(MATCH_TIME_TOPIC).publish();
-  private static final StringPublisher m_matchMode =
-      m_matchTable.getStringTopic(MATCH_MODE_TOPIC).publish();
+  private static final DoublePublisher m_matchTime = m_matchTable.getDoubleTopic(MATCH_TIME_TOPIC).publish();
+  private static final StringPublisher m_matchMode = m_matchTable.getStringTopic(MATCH_MODE_TOPIC).publish();
 
   // Gyro Topics
-  private static final DoublePublisher m_gyroAngle =
-      m_gyroTable.getDoubleTopic(GYRO_ANGLE_TOPIC).publish();
+  private static final DoublePublisher m_gyroAngle = m_gyroTable.getDoubleTopic(GYRO_ANGLE_TOPIC).publish();
 
   public static void setGyroAngle(double angle) {
     m_gyroAngle.set(angle);
   }
 
   // Charts publisher
-  private static final StringArrayPublisher m_charts =
-      m_chartsTable.getStringArrayTopic(CHARTS_TOPIC).publish();
+  private static final StringArrayPublisher m_charts = m_chartsTable.getStringArrayTopic(CHARTS_TOPIC).publish();
   private static final HashSet<String> m_chartSet = new HashSet<>();
 
   /** Creates a new chart with the given name. */
@@ -101,7 +89,8 @@ public final class GreyDashClient {
   }
 
   /**
-   * Sets the selected auto to GreyDash from the Robot. Used to initialize the default dropdown
+   * Sets the selected auto to GreyDash from the Robot. Used to initialize the
+   * default dropdown
    * state.
    *
    * @param auto The default auto mode.
@@ -122,7 +111,8 @@ public final class GreyDashClient {
   }
 
   /**
-   * Sets the available game piece preload options in the dashboard's dropdown menu.
+   * Sets the available game piece preload options in the dashboard's dropdown
+   * menu.
    *
    * @param gamePieces The available game pieces.
    * @see #getSelectedGamePiece()
@@ -142,7 +132,8 @@ public final class GreyDashClient {
   }
 
   /**
-   * Sets the selected preload to GreyDash from the Robot. Used to initialize the default dropdown.
+   * Sets the selected preload to GreyDash from the Robot. Used to initialize the
+   * default dropdown.
    *
    * @param gamePiece The default preload.
    */
@@ -151,38 +142,8 @@ public final class GreyDashClient {
   }
 
   /**
-   * Sets the available auto side options in the dashboard's dropdown menu.
-   *
-   * @param autoSides The available auto sides.
-   * @see #getSelectedAutoSide()
-   */
-  public static void setAvailableAutoSides(final AutoSide... autoSides) {
-    m_availableAutoSides.set(
-        Arrays.stream(autoSides).map((side) -> side.toString()).toArray(String[]::new));
-  }
-
-  /**
-   * Gets the selected auto side from the dashboard's dropdown menu.
-   *
-   * @return The selected auto side.
-   * @see #setAvailableAutoSides(String...)
-   */
-  public static AutoSide getSelectedAutoSide() {
-    return AutoSide.valueOf(m_autoSideSelectedSubscriber.get());
-  }
-
-  /**
-   * Sets the selected auto side to GreyDash from the Robot. Used to initialize the default
-   * dropdown.
-   *
-   * @param autoSide The default auto side.
-   */
-  public static void setSelectedAutoSide(final AutoSide autoSide) {
-    m_autoSideSelectedPublisher.set(autoSide.toString());
-  }
-
-  /**
-   * Set the selected staging GamePieces to GreyDash from the Robot. Used to initialize the default
+   * Set the selected staging GamePieces to GreyDash from the Robot. Used to
+   * initialize the default
    * dropdown.
    */
   public static void setSelectedStagingGamePieces(final GamePiece... gamePieces) {
@@ -204,7 +165,10 @@ public final class GreyDashClient {
         .toArray(GamePiece[]::new);
   }
 
-  /** Periodic update method. This should be called periodically to update the dashboard. */
+  /**
+   * Periodic update method. This should be called periodically to update the
+   * dashboard.
+   */
   public static void update() {
     m_matchTime.set(DriverStation.getMatchTime());
     m_matchMode.set(getModeString());

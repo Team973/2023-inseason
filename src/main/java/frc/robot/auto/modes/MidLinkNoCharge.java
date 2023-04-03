@@ -30,7 +30,7 @@ public class MidLinkNoCharge extends SequentialCommand {
             new ElevatorPresetCommand(elevator, Elevator.Preset.Stow, 1000),
             new WristPresetCommand(wrist, WristPreset.Stow, 10.0, 2000),
             new PathPlannerTrajectoryCommand(
-                drive, TrajectoryManager.getPathSegment(TrajectoryManager.MidLinkNoCharge, 0)),
+                drive, TrajectoryManager.MidLinkNoCharge.getPathSegment(0)),
             new SequentialCommand(
                 new WaitCommand(1000),
                 new SetCurrentGamePieceCommand(GamePiece.Cube),
@@ -42,9 +42,7 @@ public class MidLinkNoCharge extends SequentialCommand {
             new ElevatorPresetCommand(elevator, Elevator.Preset.Stow, 1000),
             new WristPresetCommand(wrist, WristPreset.Stow, 10.0, 1000),
             new PathPlannerTrajectoryCommand(
-                drive,
-                false,
-                TrajectoryManager.getPathSegment(TrajectoryManager.MidLinkNoCharge, 1)),
+                drive, false, TrajectoryManager.MidLinkNoCharge.getPathSegment(1)),
             new SequentialCommand(
                 new WaitCommand(1500),
                 new ConcurrentCommand(
@@ -66,16 +64,12 @@ public class MidLinkNoCharge extends SequentialCommand {
                         new WristPresetCommand(wrist, WristPreset.Floor, 10.0, 1000),
                         new IntakeCommand(claw, IntakeState.In, 2000))),
                 new PathPlannerTrajectoryCommand(
-                    drive,
-                    false,
-                    TrajectoryManager.getPathSegment(TrajectoryManager.MidLinkNoCharge, 2)))),
+                    drive, false, TrajectoryManager.MidLinkNoCharge.getPathSegment(2)))),
         new ConcurrentCommand(
             new ElevatorPresetCommand(elevator, Elevator.Preset.Stow, 1000),
             new WristPresetCommand(wrist, WristPreset.Stow, 10.0, 1000),
             new PathPlannerTrajectoryCommand(
-                drive,
-                false,
-                TrajectoryManager.getPathSegment(TrajectoryManager.MidLinkNoCharge, 3)),
+                drive, false, TrajectoryManager.MidLinkNoCharge.getPathSegment(3)),
             new SequentialCommand(
                 new WaitCommand(1500),
                 new ConcurrentCommand(
