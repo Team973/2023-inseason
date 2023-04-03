@@ -11,8 +11,6 @@ public class ConcurrentCommand extends AutoCommand {
   private HashSet<AutoCommand> m_finishedCmds;
   private Double m_timeout = null;
 
-  private boolean m_cmdsNeedInit = true;
-
   /**
    * Constructor for concurrent command class.
    *

@@ -23,7 +23,8 @@ public class PreloadPickupCharge extends SequentialCommand {
 
   public PreloadPickupCharge(Drive drive, Claw claw, Elevator elevator, Wrist wrist) {
     super(
-        new ScorePreloadCommand(GamePiece.Cone, claw, wrist, elevator),
+        new ScorePreloadCommand(
+            GamePiece.Cone, Elevator.Preset.High, WristPreset.High, claw, wrist, elevator),
 
         // Drive to pickup
         new ConcurrentCommand(
@@ -33,7 +34,7 @@ public class PreloadPickupCharge extends SequentialCommand {
                 new ElevatorPresetCommand(elevator, Elevator.Preset.Stow, 1000),
                 new WristPresetCommand(wrist, WristPreset.Stow, 10.0, 2000)),
             new PathPlannerTrajectoryCommand(
-                drive, TrajectoryManager.getPathSegment(TrajectoryManager.PreloadPickupCharge, 0)),
+                drive, TrajectoryManager.PreloadPickupCharge.getPathSegment(0)),
             new SequentialCommand(
                 new WaitCommand(2000),
                 new SetCurrentGamePieceCommand(GamePiece.Cone),
@@ -49,9 +50,7 @@ public class PreloadPickupCharge extends SequentialCommand {
 
         // Balance
         new PathPlannerTrajectoryCommand(
-            drive,
-            false,
-            TrajectoryManager.getPathSegment(TrajectoryManager.PreloadPickupCharge, 1)),
+            drive, false, TrajectoryManager.PreloadPickupCharge.getPathSegment(1)),
         new BalanceCommand(drive, 5000));
   }
 }

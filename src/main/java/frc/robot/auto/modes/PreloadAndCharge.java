@@ -19,12 +19,13 @@ public class PreloadAndCharge extends SequentialCommand {
 
   public PreloadAndCharge(Drive drive, Claw claw, Elevator elevator, Wrist wrist) {
     super(
-        new ScorePreloadCommand(GamePiece.Cone, claw, wrist, elevator),
+        new ScorePreloadCommand(
+            GamePiece.Cone, Elevator.Preset.High, WristPreset.High, claw, wrist, elevator),
         new ConcurrentCommand(
             new ElevatorPresetCommand(elevator, Elevator.Preset.Stow, 1000),
             new WristPresetCommand(wrist, WristPreset.Stow, 10.0, 2000),
             new PathPlannerTrajectoryCommand(
-                drive, TrajectoryManager.getPath(TrajectoryManager.PreloadAndCharge))),
+                drive, TrajectoryManager.PreloadAndCharge.getPathSegment(0))),
         new BalanceCommand(drive, 5000));
   }
 }

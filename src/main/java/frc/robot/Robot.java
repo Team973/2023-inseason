@@ -12,7 +12,6 @@ import java.util.Arrays;
 import java.util.List;
 
 import frc.robot.AutoManager.AutoMode;
-import frc.robot.AutoManager.AutoSide;
 import frc.robot.greydash.GreyDashClient;
 import frc.robot.shared.Constants.GamePiece;
 import frc.robot.shared.LimelightHelpers;
@@ -44,17 +43,24 @@ import lombok.Setter;
 import lombok.experimental.Accessors;
 
 /**
- * The VM is configured to automatically run this class, and to call the functions corresponding to
- * each mode, as described in the TimedRobot documentation. If you change the name of this class or
- * the package after creating this project, you must also update the build.gradle file in the
+ * The VM is configured to automatically run this class, and to call the
+ * functions corresponding to
+ * each mode, as described in the TimedRobot documentation. If you change the
+ * name of this class or
+ * the package after creating this project, you must also update the
+ * build.gradle file in the
  * project.
  */
 @Accessors(prefix = "m_")
 public class Robot extends TimedRobot {
-  @Setter @Getter private static GamePiece m_currentGamePiece = GamePiece.None;
-  @Getter private static GamePiece m_preloadGamePiece = GamePiece.Cone;
+  @Setter
+  @Getter
+  private static GamePiece m_currentGamePiece = GamePiece.None;
+  @Getter
+  private static GamePiece m_preloadGamePiece = GamePiece.Cone;
 
-  @Getter private static boolean m_exceptionHappened = false;
+  @Getter
+  private static boolean m_exceptionHappened = false;
 
   private enum AutoSetupMode {
     AutoWaiting,
@@ -62,7 +68,8 @@ public class Robot extends TimedRobot {
     AutoSelected
   }
 
-  @Getter private static Alliance m_calculatedAlliance;
+  @Getter
+  private static Alliance m_calculatedAlliance;
 
   private static boolean m_autoRan = false;
   private static AutoMode m_autoSelected = AutoMode.NoAuto;
@@ -80,21 +87,17 @@ public class Robot extends TimedRobot {
 
   private final SlewRateLimiter m_rotLimiter = new SlewRateLimiter(3);
 
-  private final Compressor m_compressor =
-      new Compressor(COMPRESSOR_ID, PneumaticsModuleType.CTREPCM);
+  private final Compressor m_compressor = new Compressor(COMPRESSOR_ID, PneumaticsModuleType.CTREPCM);
 
-  private final List<AutoMode> m_availableAutoModes =
-      Arrays.asList(
-          AutoMode.PreloadPickupCharge,
-          AutoMode.Test,
-          AutoMode.PreloadAndCharge,
-          AutoMode.CenterPreloadAndCharge,
-          AutoMode.PreloadPickupScoreCharge,
-          AutoMode.NoAuto);
+  private final List<AutoMode> m_availableAutoModes = Arrays.asList(
+      AutoMode.PreloadPickupCharge,
+      AutoMode.Test,
+      AutoMode.PreloadAndCharge,
+      AutoMode.CenterPreloadAndCharge,
+      AutoMode.PreloadPickupScoreCharge,
+      AutoMode.NoAuto);
 
   private int m_selectedMode = 0;
-
-  private AutoSide m_selectedAutoSide = AutoSide.Left;
 
   private void logException(Exception e) {
     try {
@@ -143,7 +146,8 @@ public class Robot extends TimedRobot {
   }
 
   /**
-   * This function is run when the robot is first started up and should be used for any
+   * This function is run when the robot is first started up and should be used
+   * for any
    * initialization code.
    */
   @Override
@@ -162,10 +166,13 @@ public class Robot extends TimedRobot {
   }
 
   /**
-   * This function is called every 20 ms, no matter the mode. Use this for items like diagnostics
+   * This function is called every 20 ms, no matter the mode. Use this for items
+   * like diagnostics
    * that you want ran during disabled, autonomous, teleoperated and test.
    *
-   * <p>This runs after the mode specific periodic functions, but before LiveWindow and
+   * <p>
+   * This runs after the mode specific periodic functions, but before LiveWindow
+   * and
    * SmartDashboard integrated updating.
    */
   @Override
@@ -178,29 +185,7 @@ public class Robot extends TimedRobot {
       }
       dashboardUpdateSubsystems();
 
-      // Auto Selection
-      m_autoSelected = GreyDashClient.getAutoSelected();
-      m_autoManager.selectAuto(m_autoSelected);
-      AutoSide side = m_selectedAutoSide;
-      switch (DriverStation.getAlliance()) {
-        case Blue:
-          if (side == AutoSide.Left) {
-            m_calculatedAlliance = Alliance.Blue;
-          } else {
-            m_calculatedAlliance = Alliance.Red;
-          }
-          break;
-        case Red:
-          if (side == AutoSide.Left) {
-            m_calculatedAlliance = Alliance.Blue;
-          } else {
-            m_calculatedAlliance = Alliance.Red;
-          }
-          break;
-        case Invalid:
-          m_calculatedAlliance = Alliance.Blue;
-          break;
-      }
+      m_calculatedAlliance = DriverStation.getAlliance();
 
       // CANdle
       if (!m_exceptionHappened && !isDisabled()) {
@@ -212,13 +197,20 @@ public class Robot extends TimedRobot {
   }
 
   /**
-   * This autonomous (along with the chooser code above) shows how to select between different
-   * autonomous modes using the dashboard. The sendable chooser code works with the Java
-   * SmartDashboard. If you prefer the LabVIEW Dashboard, remove all of the chooser code and
-   * uncomment the getString line to get the auto name from the text box below the Gyro
+   * This autonomous (along with the chooser code above) shows how to select
+   * between different
+   * autonomous modes using the dashboard. The sendable chooser code works with
+   * the Java
+   * SmartDashboard. If you prefer the LabVIEW Dashboard, remove all of the
+   * chooser code and
+   * uncomment the getString line to get the auto name from the text box below the
+   * Gyro
    *
-   * <p>You can add additional auto modes by adding additional comparisons to the switch structure
-   * below with additional strings. If using the SendableChooser make sure to add them to the
+   * <p>
+   * You can add additional auto modes by adding additional comparisons to the
+   * switch structure
+   * below with additional strings. If using the SendableChooser make sure to add
+   * them to the
    * chooser code above as well.
    */
   @Override
@@ -227,7 +219,6 @@ public class Robot extends TimedRobot {
       LimelightHelpers.setPipelineIndex("", 1);
       m_compressor.enableDigital();
       m_autoManager.init();
-      m_autoRan = true;
     } catch (Exception e) {
       logException(e);
     }
@@ -267,15 +258,13 @@ public class Robot extends TimedRobot {
       final double xSpeed = -MathUtil.applyDeadband(m_driverStick.getRawAxis(1), 0.12);
       final double ySpeed = -MathUtil.applyDeadband(m_driverStick.getRawAxis(0), 0.12);
 
-      double rot =
-          -m_rotLimiter.calculate(MathUtil.applyDeadband(m_driverStick.getRawAxis(4), 0.09))
-              * DriveInfo.MAX_ANGULAR_VELOCITY_RADIANS_PER_SECOND;
+      double rot = -m_rotLimiter.calculate(MathUtil.applyDeadband(m_driverStick.getRawAxis(4), 0.09))
+          * DriveInfo.MAX_ANGULAR_VELOCITY_RADIANS_PER_SECOND;
       if (m_elevator.getHeight() > 15.0) {
         rot *= 0.5;
       }
 
-      Translation2d translation =
-          new Translation2d(xSpeed, ySpeed).times(DriveInfo.MAX_VELOCITY_METERS_PER_SECOND);
+      Translation2d translation = new Translation2d(xSpeed, ySpeed).times(DriveInfo.MAX_VELOCITY_METERS_PER_SECOND);
 
       m_drive.driveInput(translation, rot, true);
 
@@ -487,8 +476,6 @@ public class Robot extends TimedRobot {
           break;
       }
       SmartDashboard.putString("DB/String 0", m_autoManager.getSelectedMode().toString());
-      SmartDashboard.putString("DB/String 1", m_selectedAutoSide.toString());
-      SmartDashboard.putString("DB/String 2", m_preloadGamePiece.toString());
 
       if (m_driverStick.getAButton()) {
         m_drive.enableBrakeMode();
@@ -507,13 +494,6 @@ public class Robot extends TimedRobot {
           m_selectedMode = m_availableAutoModes.size() - 1;
         }
 
-        if (m_operatorStick.getXButtonPressed()) {
-          m_selectedAutoSide = AutoSide.Left;
-        }
-        if (m_operatorStick.getBButtonPressed()) {
-          m_selectedAutoSide = AutoSide.Right;
-        }
-
         if (m_operatorStick.getLeftBumperPressed()) {
           m_preloadGamePiece = GamePiece.Cone;
         }
@@ -523,8 +503,7 @@ public class Robot extends TimedRobot {
 
         SmartDashboard.putString(
             "DB/String 0", m_availableAutoModes.get(m_selectedMode).toString());
-        SmartDashboard.putString("DB/String 1", m_selectedAutoSide.toString());
-        SmartDashboard.putString("DB/String 2", m_preloadGamePiece.toString());
+        SmartDashboard.putString("DB/String 1", m_preloadGamePiece.toString());
 
         m_autoManager.selectAuto(m_availableAutoModes.get(m_selectedMode));
 
