@@ -74,7 +74,9 @@ public class Claw implements Subsystem {
     return m_coneSensor.get();
   }
 
-  public void dashboardUpdate() {
+  public void dashboardUpdate() {}
+
+  public void debugDashboardUpdate() {
     SmartDashboard.putNumber("Intake Stator", m_intakeStator);
     SmartDashboard.putNumber("Intake Supply", m_intakeMotor.getSupplyCurrent().getValue());
     SmartDashboard.putNumber("Intake Velocity", m_intakeMotor.getVelocity().getValue());
