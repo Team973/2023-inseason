@@ -5,11 +5,12 @@ import frc.robot.devices.GreyTalonFX.ControlMode;
 import frc.robot.devices.GreyTalonFXConfiguration;
 import frc.robot.shared.RobotInfo;
 import frc.robot.shared.RobotInfo.DriveInfo;
+import frc.robot.shared.SwerveMath;
 import frc.robot.shared.SwerveModuleConfig;
+import frc.robot.shared.SwerveModuleState2;
 import frc.robot.shared.mechanisms.GearedMechanism;
 import frc.robot.shared.mechanisms.LinearMechanism;
 
-import com.ctre.phoenixpro.BaseStatusSignalValue;
 import com.ctre.phoenixpro.configs.CANcoderConfiguration;
 import com.ctre.phoenixpro.hardware.CANcoder;
 import com.ctre.phoenixpro.signals.AbsoluteSensorRangeValue;
@@ -19,7 +20,7 @@ import com.ctre.phoenixpro.signals.SensorDirectionValue;
 import edu.wpi.first.math.controller.SimpleMotorFeedforward;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.kinematics.SwerveModulePosition;
-import edu.wpi.first.math.kinematics.SwerveModuleState;
+import edu.wpi.first.math.util.Units;
 
 public class SwerveModule {
   public final int moduleNumber;
@@ -30,7 +31,7 @@ public class SwerveModule {
   private final LinearMechanism m_driveMechanism =
       new LinearMechanism(DriveInfo.DRIVE_GEAR_RATIO, DriveInfo.WHEEL_DIAMETER_METERS);
   private final GearedMechanism m_angleMechanism = new GearedMechanism(DriveInfo.ANGLE_GEAR_RATIO);
-  private SwerveModuleState m_lastState;
+  private SwerveModuleState2 m_lastState;
 
   private final GreyTalonFXConfiguration m_driveMotorConfig;
 
@@ -54,7 +55,7 @@ public class SwerveModule {
     m_driveMotorConfig = m_driveMotor.getConfig();
     configDriveMotor();
 
-    BaseStatusSignalValue.waitForAll(0.5, m_angleEncoder.getAbsolutePosition());
+    m_angleEncoder.getAbsolutePosition().waitForUpdate(0.5);
     resetToAbsolute();
 
     m_lastState = getState();
@@ -114,12 +115,15 @@ public class SwerveModule {
     m_angleMotor.setRotorPositionRotation2d(getCanCoder().minus(m_angleOffset));
   }
 
-  public SwerveModuleState getState() {
+  public SwerveModuleState2 getState() {
     double velocityInMPS =
         m_driveMechanism.getOutputDistanceFromRotorRotation(
             m_driveMotor.getRotorVelocityRotation2d());
 
-    return new SwerveModuleState(velocityInMPS, getAngleMotorRotation2d());
+    double omegaInRPS =
+        Rotation2d.fromRotations(m_angleMotor.getRotorVelocity().getValue()).getRadians();
+
+    return new SwerveModuleState2(velocityInMPS, getAngleMotorRotation2d(), omegaInRPS);
   }
 
   public Rotation2d getAngleMotorRotation2d() {
@@ -141,7 +145,7 @@ public class SwerveModule {
    *
    * @param desiredState The desired state of the module.
    */
-  public void setDesiredState(SwerveModuleState desiredState) {
+  public void setDesiredState(SwerveModuleState2 desiredState) {
     setDesiredState(desiredState, false);
   }
 
@@ -152,10 +156,15 @@ public class SwerveModule {
    * @param force If true, the module will be set to the desired state regardless of the current
    *     state. Disables optimizations such as anti-jitter.
    */
-  public void setDesiredState(SwerveModuleState desiredState, boolean ignoreJitter) {
+  public void setDesiredState(SwerveModuleState2 desiredState, boolean force) {
     // Custom optimize command, since default WPILib optimize assumes continuous controller which
     // CTRE is not
-    desiredState = CTREModuleState.optimize(desiredState, getState().angle);
+    desiredState =
+        SwerveMath.optimize(
+            desiredState,
+            getState().angle,
+            Units.radiansToDegrees(m_lastState.omegaRadPerSecond * DriveInfo.ANGLE_KV)
+                * 0.065); // I am unsure of what the 0.065 represents
 
     Rotation2d desiredFalconVelocityInRPS =
         m_driveMechanism.getRotorRotationFromOutputDistance(desiredState.speedMetersPerSecond);
@@ -170,13 +179,10 @@ public class SwerveModule {
 
     Rotation2d angle = desiredState.angle;
 
-    // Prevent rotating module if speed is less then 1%. Prevents jittering.
-    if (!ignoreJitter) {
-      angle =
-          (Math.abs(desiredState.speedMetersPerSecond)
-                  <= (DriveInfo.MAX_VELOCITY_METERS_PER_SECOND * 0.01))
-              ? m_lastState.angle
-              : desiredState.angle;
+    // If we are forcing the angle
+    if (!force) {
+      // Prevent rotating module if speed is less than 1%. Prevents jittering.
+      SwerveMath.antiJitter(desiredState, m_lastState, DriveInfo.MAX_VELOCITY_METERS_PER_SECOND);
     }
 
     // Prevent module rotation if angle is the same as the previous angle.

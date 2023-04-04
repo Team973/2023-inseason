@@ -98,18 +98,18 @@ public class Robot extends TimedRobot {
   }
 
   private void debugDashboardUpdateSubsystems() {
-    m_elevator.dashboardUpdate();
-    m_wrist.dashboardUpdate();
-    m_claw.dashboardUpdate();
-    m_drive.dashboardUpdate();
-    m_candleManager.dashboardUpdate();
+    m_elevator.debugDashboardUpdate();
+    m_wrist.debugDashboardUpdate();
+    m_claw.debugDashboardUpdate();
+    m_drive.debugDashboardUpdate();
+    m_candleManager.debugDashboardUpdate();
   }
 
   /** Update subsystems. Called me when enabled. */
   private void updateSubsystems() {
-    m_elevator.update();
-    m_wrist.update();
-    m_claw.update();
+    // m_elevator.update();
+    // m_wrist.update();
+    // m_claw.update();
     m_drive.update();
   }
 

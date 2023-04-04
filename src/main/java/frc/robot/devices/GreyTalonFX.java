@@ -182,7 +182,7 @@ public class GreyTalonFX extends TalonFX {
    * @return A deep copy of the current configuration.
    */
   public GreyTalonFXConfiguration getConfig() {
-    return new GreyTalonFXConfiguration(m_currentConfig);
+    return m_currentConfig;
   }
 
   /**

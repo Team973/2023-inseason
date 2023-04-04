@@ -4,21 +4,25 @@ import frc.robot.devices.GreyPigeon;
 import frc.robot.greydash.GreyDashClient;
 import frc.robot.shared.RobotInfo.DriveInfo;
 import frc.robot.shared.Subsystem;
+import frc.robot.shared.SwerveModuleState2;
 import frc.robot.subsystems.swerve.SwerveModule;
 
 import com.google.common.collect.ImmutableList;
+import edu.wpi.first.math.Matrix;
+import edu.wpi.first.math.VecBuilder;
 import edu.wpi.first.math.controller.HolonomicDriveController;
 import edu.wpi.first.math.controller.PIDController;
 import edu.wpi.first.math.controller.ProfiledPIDController;
+import edu.wpi.first.math.estimator.SwerveDrivePoseEstimator;
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.geometry.Translation2d;
 import edu.wpi.first.math.geometry.Twist2d;
 import edu.wpi.first.math.kinematics.ChassisSpeeds;
 import edu.wpi.first.math.kinematics.SwerveDriveKinematics;
-import edu.wpi.first.math.kinematics.SwerveDriveOdometry;
 import edu.wpi.first.math.kinematics.SwerveModulePosition;
-import edu.wpi.first.math.kinematics.SwerveModuleState;
+import edu.wpi.first.math.numbers.N1;
+import edu.wpi.first.math.numbers.N3;
 import edu.wpi.first.math.trajectory.Trajectory.State;
 import edu.wpi.first.math.trajectory.TrapezoidProfile;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
@@ -28,13 +32,23 @@ import lombok.experimental.Accessors;
 
 @Accessors(prefix = "m_")
 public class Drive implements Subsystem {
-  private SwerveDriveOdometry m_swerveOdometry;
+  private SwerveDrivePoseEstimator swerveDrivePoseEstimator;
   private SwerveModule[] m_swerveModules;
   private ChassisSpeeds m_currentChassisSpeeds;
-
   @Getter private final GreyPigeon m_pigeon;
 
   @Setter private Rotation2d m_targetRobotAngle = new Rotation2d();
+
+  /**
+   * Trustworthiness of the internal model of how motors should be moving Measured in expected
+   * standard deviation (meters of position and degrees of rotation)
+   */
+  public Matrix<N3, N1> m_stateStdDevs = VecBuilder.fill(0.1, 0.1, 0.1);
+  /**
+   * Trustworthiness of the vision system Measured in expected standard deviation (meters of
+   * position and degrees of rotation)
+   */
+  public Matrix<N3, N1> m_visionMeasurementStdDevs = VecBuilder.fill(0.9, 0.9, 0.9);
 
   @Setter private RotationControl m_rotationControl = RotationControl.OpenLoop;
 
@@ -73,8 +87,14 @@ public class Drive implements Subsystem {
 
     m_currentChassisSpeeds = new ChassisSpeeds();
 
-    m_swerveOdometry =
-        new SwerveDriveOdometry(DriveInfo.SWERVE_KINEMATICS, m_pigeon.getYaw(), getPositions());
+    swerveDrivePoseEstimator =
+        new SwerveDrivePoseEstimator(
+            DriveInfo.SWERVE_KINEMATICS,
+            m_pigeon.getYaw(),
+            getPositions(),
+            new Pose2d(new Translation2d(0, 0), Rotation2d.fromDegrees(0)),
+            m_stateStdDevs,
+            m_visionMeasurementStdDevs);
 
     m_controller =
         new HolonomicDriveController(
@@ -86,40 +106,39 @@ public class Drive implements Subsystem {
                 0.0,
                 new TrapezoidProfile.Constraints(
                     DriveInfo.MAX_ANGULAR_VELOCITY_RADIANS_PER_SECOND, 7.0)));
+
+    // Used by balanceDrive() to keep the robot level on the charge station
+    m_balancePitchController.setSetpoint(0.0);
+    m_balanceRollController.setSetpoint(0.0);
+    m_balancePitchController.setTolerance(5.0);
+    m_balanceRollController.setTolerance(5.0);
   }
 
-  public void balanceDrivePitch() {
-    double pitch = m_pigeon.getPitch().getDegrees();
-    if (Math.abs(pitch) > 5.0) {
-      double pitchCorrection = m_balancePitchController.calculate(pitch, 0.0);
-      if (Math.abs(m_pigeon.getNormalizedYaw().getDegrees() - 180) < 30.0) {
-        pitchCorrection *= -1.0;
-      }
-      driveInput(new Translation2d(pitchCorrection, 0.0), 0.0, true);
-    } else {
-      m_currentChassisSpeeds = new ChassisSpeeds();
-      for (SwerveModule swerveModule : m_swerveModules) {
-        swerveModule.setDesiredState(new SwerveModuleState(0.0, Rotation2d.fromDegrees(90)), true);
-      }
-    }
+  /** Balance the robot on the charge station */
+  public void balanceDrive() {
+    // Calculate the pitch and roll angles in degrees
+    double pitch = m_pigeon.getRotation().getPitch().getDegrees();
+    double roll = m_pigeon.getRotation().getRoll().getDegrees();
+
+    // Calculate the output for the controllers. These have a baked in setpoint of 0.0 and a
+    // tolerance of 5.0 deg
+    double pitchOutput = m_balancePitchController.calculate(pitch);
+    double rollOutput = m_balanceRollController.calculate(roll);
+
+    // Create a translation in the direction of the incline
+    Translation2d translation = new Translation2d(rollOutput, pitchOutput);
+
+    // Apply the translation to the holonomic drive with a zero rotation value
+    driveInput(translation, 0.0, true);
   }
 
-  public void balanceDriveRoll() {
-    double roll = m_pigeon.getRoll().getDegrees();
-    if (Math.abs(roll) > 5.0) {
-      double rollCorrection = m_balanceRollController.calculate(roll, 0.0);
-      if (Math.abs(m_pigeon.getNormalizedYaw().getDegrees() - 270) < 30.0) {
-        rollCorrection *= -1.0;
-      }
-      driveInput(new Translation2d(rollCorrection, 0.0), 0.0, true);
-    } else {
-      m_currentChassisSpeeds = new ChassisSpeeds();
-      for (SwerveModule swerveModule : m_swerveModules) {
-        swerveModule.setDesiredState(new SwerveModuleState(0.0, Rotation2d.fromDegrees(0)), true);
-      }
-    }
-  }
-
+  /**
+   * Drive the robot using the given translation and rotation values
+   *
+   * @param translation The translation to drive in
+   * @param rotationVal The rotation to drive in
+   * @param fieldRelative Whether to drive in field relative mode
+   */
   public void driveInput(Translation2d translation, double rotationVal, boolean fieldRelative) {
     double rotation = rotationVal;
     final Rotation2d currentYaw = m_pigeon.getNormalizedYaw();
@@ -144,12 +163,22 @@ public class Drive implements Subsystem {
             : new ChassisSpeeds(translation.getX(), translation.getY(), rotation);
   }
 
+  /**
+   * Drive the robot using the given trajectory state and rotation values.
+   *
+   * @param state The trajectory state to drive in.
+   * @param rotation The rotation to drive in.
+   */
   public void driveInput(State state, Rotation2d rotation) {
     m_currentChassisSpeeds = m_controller.calculate(getPose(), state, rotation);
   }
 
-  /* Used by Auto */
-  public void setModuleStates(SwerveModuleState[] desiredStates) {
+  /**
+   * Set the desired module states to the swerve modules.
+   *
+   * @param desiredStates The desired module states.
+   */
+  public void setModuleStates(SwerveModuleState2[] desiredStates) {
     SwerveDriveKinematics.desaturateWheelSpeeds(
         desiredStates, DriveInfo.MAX_VELOCITY_METERS_PER_SECOND);
 
@@ -165,14 +194,50 @@ public class Drive implements Subsystem {
     SmartDashboard.putNumberArray("swerve/setpoints", states);
   }
 
+  /**
+   * Get the current robot pose estimation.
+   *
+   * @return The current robot pose.
+   */
   public Pose2d getPose() {
-    return m_swerveOdometry.getPoseMeters();
+    return swerveDrivePoseEstimator.getEstimatedPosition();
   }
 
+  /**
+   * Add a vision measurement to the {@link SwerveDrivePoseEstimator} and update the {@link
+   * SwerveIMU} gyro reading with the given timestamp of the vision measurement.
+   *
+   * @param robotPose Robot {@link Pose2d} as measured by vision.
+   * @param timestamp Timestamp the measurement was taken as time since startup, should be taken
+   *     from {@link Timer#getFPGATimestamp()} or similar sources.
+   * @param soft Add vision estimate using the {@link
+   *     SwerveDrivePoseEstimator#addVisionMeasurement(Pose2d, double)} function, or hard reset
+   *     odometry with the given position with {@link
+   *     edu.wpi.first.math.kinematics.SwerveDriveOdometry#resetPosition(Rotation2d,
+   *     SwerveModulePosition[], Pose2d)}.
+   * @param trustWorthiness Trust level of vision reading when using a soft measurement, used to
+   *     multiply the standard deviation. Set to 1 for full trust.
+   */
+  public void addVisionMeasurement(
+      Pose2d robotPose, double timestamp, boolean soft, double trustWorthiness) {
+    if (soft) {
+      swerveDrivePoseEstimator.addVisionMeasurement(
+          robotPose, timestamp, m_visionMeasurementStdDevs.times(1.0 / trustWorthiness));
+    } else {
+      swerveDrivePoseEstimator.resetPosition(robotPose.getRotation(), getPositions(), robotPose);
+    }
+  }
+
+  /**
+   * Reset the odometry to the specified pose.
+   *
+   * @param pose The pose to which to set the odometry.
+   */
   public void resetOdometry(Pose2d pose) {
-    m_swerveOdometry.resetPosition(m_pigeon.getYaw(), getPositions(), pose);
+    swerveDrivePoseEstimator.resetPosition(m_pigeon.getYaw(), getPositions(), pose);
   }
 
+  /** Reset the module encoders to the current absolute position. */
   public void resetModules() {
     for (SwerveModule mod : m_swerveModules) {
       mod.resetToAbsolute();
@@ -181,20 +246,20 @@ public class Drive implements Subsystem {
 
   private SwerveModulePosition[] getPositions() {
     var positions = new SwerveModulePosition[4];
-    for (var mod : m_swerveModules) {
+    for (SwerveModule mod : m_swerveModules) {
       positions[mod.moduleNumber] = mod.getPosition();
     }
     return positions;
   }
 
   public void enableBrakeMode() {
-    for (var mod : m_swerveModules) {
+    for (SwerveModule mod : m_swerveModules) {
       mod.driveBrake();
     }
   }
 
   public void disableBrakeMode() {
-    for (var mod : m_swerveModules) {
+    for (SwerveModule mod : m_swerveModules) {
       mod.driveNeutral();
     }
   }
@@ -231,7 +296,7 @@ public class Drive implements Subsystem {
   }
 
   public void update() {
-    m_swerveOdometry.update(m_pigeon.getYaw(), getPositions());
+    swerveDrivePoseEstimator.update(m_pigeon.getYaw(), getPositions());
 
     Pose2d robot_pose_vel =
         new Pose2d(
@@ -243,7 +308,7 @@ public class Drive implements Subsystem {
     ChassisSpeeds updated_chassis_speeds =
         new ChassisSpeeds(twist_vel.dx / 0.03, twist_vel.dy / 0.03, twist_vel.dtheta / 0.03);
 
-    SwerveModuleState[] swerveModuleStates =
+    SwerveModuleState2[] swerveModuleStates =
         DriveInfo.SWERVE_KINEMATICS.toSwerveModuleStates(updated_chassis_speeds);
 
     setModuleStates(swerveModuleStates);
