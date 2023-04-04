@@ -9,7 +9,6 @@ import static frc.robot.shared.RobotInfo.*;
 import java.io.FileWriter;
 import java.io.PrintWriter;
 
-import frc.robot.AutoManager.AutoSide;
 import frc.robot.shared.Constants.GamePiece;
 import frc.robot.shared.LimelightHelpers;
 import frc.robot.subsystems.CANdleManager;
@@ -69,8 +68,6 @@ public class Robot extends TimedRobot {
   private final Compressor m_compressor =
       new Compressor(COMPRESSOR_ID, PneumaticsModuleType.CTREPCM);
 
-  private AutoSide m_selectedAutoSide = AutoSide.Left;
-
   private void logException(Exception e) {
     try {
       m_exceptionHappened = true;
@@ -93,6 +90,14 @@ public class Robot extends TimedRobot {
   }
 
   private void dashboardUpdateSubsystems() {
+    m_elevator.dashboardUpdate();
+    m_wrist.dashboardUpdate();
+    m_claw.dashboardUpdate();
+    m_drive.dashboardUpdate();
+    m_candleManager.dashboardUpdate();
+  }
+
+  private void debugDashboardUpdateSubsystems() {
     m_elevator.dashboardUpdate();
     m_wrist.dashboardUpdate();
     m_claw.dashboardUpdate();
@@ -145,28 +150,14 @@ public class Robot extends TimedRobot {
       if (isEnabled()) {
         updateSubsystems();
       }
+
       dashboardUpdateSubsystems();
 
-      AutoSide side = m_selectedAutoSide;
-      switch (DriverStation.getAlliance()) {
-        case Blue:
-          if (side == AutoSide.Left) {
-            m_calculatedAlliance = Alliance.Blue;
-          } else {
-            m_calculatedAlliance = Alliance.Red;
-          }
-          break;
-        case Red:
-          if (side == AutoSide.Left) {
-            m_calculatedAlliance = Alliance.Blue;
-          } else {
-            m_calculatedAlliance = Alliance.Red;
-          }
-          break;
-        case Invalid:
-          m_calculatedAlliance = Alliance.Blue;
-          break;
+      if (!DriverStation.isFMSAttached()) {
+        debugDashboardUpdateSubsystems();
       }
+
+      m_calculatedAlliance = DriverStation.getAlliance();
 
       // CANdle
       if (!m_exceptionHappened
@@ -419,22 +410,8 @@ public class Robot extends TimedRobot {
         m_autoManager.decrement();
       }
 
-      if (m_operatorStick.getXButtonPressed()) {
-        m_selectedAutoSide = AutoSide.Left;
-      }
-      if (m_operatorStick.getBButtonPressed()) {
-        m_selectedAutoSide = AutoSide.Right;
-      }
-
       SmartDashboard.putString("DB/String 0", m_autoManager.getSelectedMode().toString());
-      SmartDashboard.putString("DB/String 1", m_selectedAutoSide.toString());
-      SmartDashboard.putString("DB/String 2", m_preloadGamePiece.toString());
 
-      if (m_driverStick.getAButton()) {
-        m_drive.enableBrakeMode();
-      } else {
-        m_drive.disableBrakeMode();
-      }
     } catch (Exception e) {
       logException(e);
     }

@@ -61,6 +61,8 @@ public class CANdleManager implements Subsystem {
 
   public void dashboardUpdate() {}
 
+  public void debugDashboardUpdate() {}
+
   public void update() {
     if (Robot.isExceptionHappened()) {
       m_lightState = LightState.Flash;

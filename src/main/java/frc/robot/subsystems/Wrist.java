@@ -26,7 +26,7 @@ public class Wrist implements Subsystem {
 
   private static final double STOW_OFFSET = 31.3;
   private static final double WRIST_FF = 0.4; // 0.4
-  private double ENCODER_OFFSET = 317.98;
+  private double ENCODER_OFFSET = 104.15;
 
   @Setter @Getter private WristState m_state = WristState.Manual;
   @Getter private WristPreset m_preset = WristPreset.Stow;
@@ -163,8 +163,9 @@ public class Wrist implements Subsystem {
     return Math.abs(getCurrentAngleDegrees() - m_targetAngle) < ANGLE_TOLERANCE;
   }
 
-  @Override
-  public void dashboardUpdate() {
+  public void dashboardUpdate() {}
+
+  public void debugDashboardUpdate() {
     SmartDashboard.putNumber("Wrist Angle", getCurrentAngleDegrees());
     SmartDashboard.putNumber("Wrist Angle Target", m_targetAngle);
     SmartDashboard.putString("Wrist Preset", m_preset.toString());

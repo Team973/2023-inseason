@@ -160,7 +160,9 @@ public class Elevator implements Subsystem {
     return isAtHeight(getHeightFromPosition(m_targetPosition));
   }
 
-  public void dashboardUpdate() {
+  public void dashboardUpdate() {}
+
+  public void debugDashboardUpdate() {
     SmartDashboard.putNumber("Elevator Position", getPosition());
     SmartDashboard.putNumber("Elevator Target Position", m_targetPosition);
     SmartDashboard.putNumber("Elevator Velocity", m_elevatorMotor.getRotorVelocity().getValue());

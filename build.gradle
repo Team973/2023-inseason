@@ -9,6 +9,7 @@ sourceCompatibility = JavaVersion.VERSION_17
 targetCompatibility = JavaVersion.VERSION_17
 
 def ROBOT_MAIN_CLASS = "frc.robot.Main"
+def TEAM_IP = "10.9.73.2"
 
 // Define my targets (RoboRIO) and artifacts (deployable files)
 // This is added by GradleRIO's backing project DeployUtils.
@@ -27,6 +28,18 @@ deploy {
                 // getTargetTypeClass is a shortcut to get the class type using a string
 
                 frcJava(getArtifactTypeClass('FRCJavaArtifact')) {
+                    project.logger.lifecycle('Checking if profile mode...')
+                    //Enter profile mode with ./gradlew deploy -PprofileMode
+                    if (frc.project.hasProperty("profileMode")) {
+                        project.logger.lifecycle('Debug mode enabled!')
+                        project.logger.lifecycle("Connect JMX client to ${TEAM_IP}:1099 for RoboRIO profiling with visualvm.")
+                        jvmArgs.add("-Dcom.sun.management.jmxremote=true")
+                        jvmArgs.add("-Dcom.sun.management.jmxremote.port=1099")
+                        jvmArgs.add("-Dcom.sun.management.jmxremote.local.only=false")
+                        jvmArgs.add("-Dcom.sun.management.jmxremote.ssl=false")
+                        jvmArgs.add("-Dcom.sun.management.jmxremote.authenticate=false")
+                        jvmArgs.add("-Djava.rmi.server.hostname=${TEAM_IP}")
+                    }
                 }
 
                 // Static files artifact
@@ -172,5 +185,4 @@ task deployGreyDash() {
 }
 
 project.compileJava.dependsOn spotlessApply
-
 project.compileJava.options.compilerArgs << "-Xlint:all" << "-Werror"
