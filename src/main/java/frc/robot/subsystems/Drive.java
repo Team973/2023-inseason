@@ -239,6 +239,9 @@ public class Drive implements Subsystem {
 
   public void dashboardUpdate() {
     GreyDashClient.setGyroAngle(getGyroscopeRotation().getDegrees());
+  }
+
+  public void debugDashboardUpdate() {
     double states[] = new double[8];
     int index = 0;
 

@@ -167,8 +167,9 @@ public class Wrist implements Subsystem {
     return Math.abs(getCurrentAngleDegrees() - m_targetAngle) < ANGLE_TOLERANCE;
   }
 
-  @Override
-  public void dashboardUpdate() {
+  public void dashboardUpdate() {}
+
+  public void debugDashboardUpdate() {
     SmartDashboard.putNumber("Wrist Angle", getCurrentAngleDegrees());
     SmartDashboard.putNumber("Wrist Angle Target", m_targetAngle);
     SmartDashboard.putString("Wrist Preset", m_preset.toString());

@@ -39,25 +39,25 @@ public final class RobotInfo {
     public static final int FRONT_LEFT_MODULE_DRIVE_MOTOR = 8;
     public static final int FRONT_LEFT_MODULE_STEER_MOTOR = 9;
     public static final int FRONT_LEFT_MODULE_STEER_ENCODER = 10;
-    public static final double FRONT_LEFT_MODULE_STEER_OFFSET = 324.31;
+    public static final double FRONT_LEFT_MODULE_STEER_OFFSET = 314.91;
 
     public static final int FRONT_RIGHT_MODULE_DRIVE_MOTOR = 5;
     public static final int FRONT_RIGHT_MODULE_STEER_MOTOR = 6;
     public static final int FRONT_RIGHT_MODULE_STEER_ENCODER = 7;
-    public static final double FRONT_RIGHT_MODULE_STEER_OFFSET = 304.189;
+    public static final double FRONT_RIGHT_MODULE_STEER_OFFSET = 91.58;
 
     public static final int BACK_LEFT_MODULE_DRIVE_MOTOR = 11;
     public static final int BACK_LEFT_MODULE_STEER_MOTOR = 12;
     public static final int BACK_LEFT_MODULE_STEER_ENCODER = 13;
-    public static final double BACK_LEFT_MODULE_STEER_OFFSET = 262.79;
+    public static final double BACK_LEFT_MODULE_STEER_OFFSET = 10.28;
 
     public static final int BACK_RIGHT_MODULE_DRIVE_MOTOR = 27;
     public static final int BACK_RIGHT_MODULE_STEER_MOTOR = 26;
     public static final int BACK_RIGHT_MODULE_STEER_ENCODER = 28;
-    public static final double BACK_RIGHT_MODULE_STEER_OFFSET = 80.94;
+    public static final double BACK_RIGHT_MODULE_STEER_OFFSET = 203.12;
 
     public static final double DRIVE_GEAR_RATIO =
-        1 / ((12.0 / 42.0) * (28.0 / 18.0) * (15.0 / 45.0)); // 6.75:1
+        1 / ((14.0 / 44.0) * (28.0 / 18.0) * (15.0 / 45.0)); // 6.06:1
     public static final double ANGLE_GEAR_RATIO = 1 / ((8.0 / 24.0) * (14.0 / 72.0)); // 15.43:1
 
     public static final double WHEEL_DIAMETER_METERS = 0.1016;
@@ -80,7 +80,7 @@ public final class RobotInfo {
     /* Angle Motor PID Values */
     public static final double ANGLE_KP = 0.3;
     public static final double ANGLE_KI = 0.0;
-    public static final double ANGLE_KD = 0.1;
+    public static final double ANGLE_KD = 0.0;
     public static final double ANGLE_KF = 0.0;
 
     /* Drive Motor PID Values */
@@ -102,8 +102,10 @@ public final class RobotInfo {
     /* Angle Encoder Invert */
     public static final boolean CANCODER_INVERT = false;
 
+    public static final double FALCON_TRAP_FREE_SPEED = 6380.0;
+
     public static final double MAX_VELOCITY_METERS_PER_SECOND =
-        8000.0 / 60.0 / DRIVE_GEAR_RATIO * WHEEL_DIAMETER_METERS * Math.PI;
+        FALCON_TRAP_FREE_SPEED / 60.0 / DRIVE_GEAR_RATIO * WHEEL_DIAMETER_METERS * Math.PI;
 
     public static final double MAX_ANGULAR_VELOCITY_RADIANS_PER_SECOND = 11.5;
 

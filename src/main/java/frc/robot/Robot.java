@@ -100,6 +100,14 @@ public class Robot extends TimedRobot {
     m_superstructure.dashboardUpdate();
   }
 
+  private void debugDashboardUpdateSubsystems() {
+    m_elevator.debugDashboardUpdate();
+    m_wrist.debugDashboardUpdate();
+    m_claw.debugDashboardUpdate();
+    m_drive.debugDashboardUpdate();
+    m_candleManager.debugDashboardUpdate();
+  }
+
   /** Update subsystems. Called me when enabled. */
   private void updateSubsystems() {
     m_elevator.update();
@@ -147,7 +155,12 @@ public class Robot extends TimedRobot {
       if (isEnabled()) {
         updateSubsystems();
       }
+
       dashboardUpdateSubsystems();
+
+      if (!DriverStation.isFMSAttached()) {
+        debugDashboardUpdateSubsystems();
+      }
 
       m_calculatedAlliance = DriverStation.getAlliance();
 
