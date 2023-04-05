@@ -108,7 +108,7 @@ public class Robot extends TimedRobot {
   /** Update subsystems. Called me when enabled. */
   private void updateSubsystems() {
     m_elevator.update();
-    // m_wrist.update();
+    m_wrist.update();
     m_claw.update();
     m_drive.update();
   }
