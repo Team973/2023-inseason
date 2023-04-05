@@ -151,7 +151,7 @@ public class Wrist implements Subsystem {
     return m_encoder.getAbsolutePosition().getValue() * 360.0;
   }
 
-  private void setTargetAngleDegrees(double angle) {
+  public void setTargetAngleDegrees(double angle) {
     m_targetAngle = angle;
   }
 

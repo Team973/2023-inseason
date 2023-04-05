@@ -1,9 +1,10 @@
 package frc.robot.subsystems;
 
 import frc.robot.shared.Subsystem;
-import frc.robot.subsystems.Elevator.Preset;
 import frc.robot.subsystems.Wrist.WristPreset;
+import frc.robot.subsystems.Wrist.WristState;
 
+import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
 import lombok.Setter;
@@ -30,11 +31,16 @@ public class Superstructure implements Subsystem {
   }
 
   @Getter @Setter private GlobalState m_globalState;
+  private GlobalState m_lastState = m_globalState;
   private final Elevator m_elevator;
   private final Wrist m_wrist;
 
   @Override
-  public void dashboardUpdate() {}
+  public void dashboardUpdate() {
+    SmartDashboard.putBoolean(
+        "Set Preset",
+        m_wrist.getPreset() != WristPreset.Manual && m_wrist.getState() == WristState.ClosedLoop);
+  }
 
   @Override
   public void update() {
@@ -43,31 +49,31 @@ public class Superstructure implements Subsystem {
 
     switch (m_globalState) {
       case ScoreHigh:
-        elevatorPreset = Preset.High;
+        elevatorPreset = Elevator.Preset.High;
         wristPreset = WristPreset.High;
         break;
       case ScoreMid:
-        elevatorPreset = Preset.Mid;
+        elevatorPreset = Elevator.Preset.Mid;
         wristPreset = WristPreset.Mid;
         break;
       case ScoreLow:
-        elevatorPreset = Preset.Hybrid;
+        elevatorPreset = Elevator.Preset.Hybrid;
         wristPreset = WristPreset.Hybrid;
         break;
       case Stow:
-        elevatorPreset = Preset.Stow;
+        elevatorPreset = Elevator.Preset.Stow;
         wristPreset = WristPreset.Stow;
         break;
       case HpLoad:
-        elevatorPreset = Preset.Hp;
+        elevatorPreset = Elevator.Preset.Hp;
         wristPreset = WristPreset.Hp;
         break;
       case FloorLoad:
-        elevatorPreset = Preset.Floor;
+        elevatorPreset = Elevator.Preset.Floor;
         wristPreset = WristPreset.Floor;
         break;
       default:
-        elevatorPreset = Preset.Stow;
+        elevatorPreset = Elevator.Preset.Stow;
         wristPreset = WristPreset.Stow;
         break;
     }
@@ -78,7 +84,15 @@ public class Superstructure implements Subsystem {
     }
 
     m_elevator.setPreset(elevatorPreset);
-    m_wrist.setPreset(wristPreset);
+    if (m_wrist.getPreset() != WristPreset.Manual && m_wrist.getState() == WristState.ClosedLoop) {
+      if (m_lastState != m_globalState) {
+        m_wrist.setPreset(wristPreset);
+      }
+    }
+
+    if (m_wrist.getState() == WristState.ClosedLoop) {
+      m_wrist.setPreset(WristPreset.High);
+    }
   }
 
   @Override
@@ -87,7 +101,5 @@ public class Superstructure implements Subsystem {
   }
 
   @Override
-  public void debugDashboardUpdate() {
-    throw new UnsupportedOperationException("Unimplemented method 'debugDashboardUpdate'");
-  }
+  public void debugDashboardUpdate() {}
 }

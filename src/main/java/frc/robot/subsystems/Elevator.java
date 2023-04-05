@@ -63,6 +63,7 @@ public class Elevator implements Subsystem {
     High(27.4),
     HighOffset(High.getValue() - 2.0),
     Stow(0.0),
+    Manual(0.0),
     MiniHp(21.5);
 
     private final double value;
@@ -108,6 +109,10 @@ public class Elevator implements Subsystem {
     m_elevatorFollowerMotor.setControl(new Follower(ElevatorInfo.FX_ID, false));
 
     m_elevatorMotor.setRotorPosition(0.0);
+  }
+
+  public void setTargetPosition(double target) {
+    m_targetPosition = target;
   }
 
   public void setElevatorOutput(double percent) {
