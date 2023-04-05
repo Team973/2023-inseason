@@ -168,7 +168,7 @@ public class StandardizedRotation3d extends Rotation3d {
 
   @Override
   public String toString() {
-    return String.format("Rotation3d2(%s)", getQuaternion());
+    return String.format("StandardizedRotation3d(%s)", getQuaternion());
   }
 
   @Override

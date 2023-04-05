@@ -24,21 +24,24 @@ public class GreyPigeon {
   }
 
   /**
-   * Returns a Rotation3d2 object containing the yaw, pitch, and roll from the Pigeon2.
+   * Returns a StandardizedRotation3d object containing the yaw, pitch, and roll from the Pigeon2.
    *
-   * @return A Rotation3d2 object containing the adjusted yaw, pitch, and roll from the Pigeon2.
+   * @return A StandardizedRotation3d object containing the adjusted yaw, pitch, and roll from the
+   *     Pigeon2.
    */
   public StandardizedRotation3d getRotation() {
     return getRawRotation().minus(m_offset);
   }
 
   /**
-   * Returns a Rotation3d2 object containing the raw yaw, pitch, and roll from the Pigeon2.
+   * Returns a StandardizedRotation3d object containing the raw yaw, pitch, and roll from the
+   * Pigeon2.
    *
-   * @return A Rotation3d2 object containing the raw yaw, pitch, and roll from the Pigeon2.
+   * @return A StandardizedRotation3d object containing the raw yaw, pitch, and roll from the
+   *     Pigeon2.
    */
   public StandardizedRotation3d getRawRotation() {
-    return new StandardizedRotation3d(getRawYaw(), getRawPitch(), getRawRoll());
+    return new StandardizedRotation3d(getRawRoll(), getRawPitch(), getRawYaw());
   }
 
   /**
