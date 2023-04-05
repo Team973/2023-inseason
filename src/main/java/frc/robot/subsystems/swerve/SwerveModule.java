@@ -21,12 +21,12 @@ import edu.wpi.first.math.kinematics.SwerveModulePosition;
 import edu.wpi.first.math.kinematics.SwerveModuleState;
 
 public class SwerveModule {
-  public int moduleNumber;
-  private Rotation2d angleOffset;
-  private GreyTalonFX m_angleMotor;
-  private GreyTalonFX m_driveMotor;
-  private CANcoder m_angleEncoder;
-  private Rotation2d lastAngle;
+  public final int moduleNumber;
+  private final Rotation2d m_angleOffset;
+  private final GreyTalonFX m_angleMotor;
+  private final GreyTalonFX m_driveMotor;
+  private final CANcoder m_angleEncoder;
+  private SwerveModuleState m_lastState;
 
   private final TalonFXConfiguration m_driveMotorConfig;
 
@@ -40,7 +40,7 @@ public class SwerveModule {
 
   public SwerveModule(int moduleNumber, SwerveModuleConfig moduleConfig) {
     this.moduleNumber = moduleNumber;
-    angleOffset = Rotation2d.fromDegrees(moduleConfig.angleOffset);
+    m_angleOffset = Rotation2d.fromDegrees(moduleConfig.angleOffset);
 
     /* Angle Encoder Config */
     m_angleEncoder = new CANcoder(moduleConfig.cancoderID, RobotInfo.CANIVORE_NAME);
@@ -58,7 +58,7 @@ public class SwerveModule {
     BaseStatusSignalValue.waitForAll(0.5, m_angleEncoder.getAbsolutePosition());
     resetToAbsolute();
 
-    lastAngle = getState().angle;
+    m_lastState = getState();
   }
 
   private void configAngleEncoder() {
@@ -113,7 +113,7 @@ public class SwerveModule {
 
   public void resetToAbsolute() {
     double absolutePosition =
-        (getCanCoder().minus(angleOffset).getRotations()) * DriveInfo.ANGLE_GEAR_RATIO;
+        (getCanCoder().minus(m_angleOffset).getRotations()) * DriveInfo.ANGLE_GEAR_RATIO;
     m_angleMotor.setRotorPosition(absolutePosition);
   }
 
@@ -157,20 +157,19 @@ public class SwerveModule {
             .withVelocity(desiredFalconVelocityInRPS)
             .withFeedForward(feedforward.calculate(desiredState.speedMetersPerSecond)));
 
-    Rotation2d angle = desiredState.angle;
-
     // Prevent rotating module if speed is less then 1%. Prevents jittering.
     if (!ignoreJitter) {
-      angle =
+      desiredState.angle =
           (Math.abs(desiredState.speedMetersPerSecond)
                   <= (DriveInfo.MAX_VELOCITY_METERS_PER_SECOND * 0.01))
-              ? lastAngle
+              ? m_lastState.angle
               : desiredState.angle;
     }
 
     m_angleMotor.setControl(
-        m_anglePosition.withPosition(angle.getRotations() * DriveInfo.ANGLE_GEAR_RATIO));
-    lastAngle = angle;
+        m_anglePosition.withPosition(
+            desiredState.angle.getRotations() * DriveInfo.ANGLE_GEAR_RATIO));
+    m_lastState = desiredState;
   }
 
   public void driveBrake() {
