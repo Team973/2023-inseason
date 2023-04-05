@@ -168,11 +168,9 @@ public class SwerveModule {
           m_feedforward.calculate(desiredState.speedMetersPerSecond));
     }
 
-    Rotation2d angle = desiredState.angle;
-
     // Prevent rotating module if speed is less then 1%. Prevents jittering.
     if (!ignoreJitter) {
-      angle =
+      desiredState.angle =
           (Math.abs(desiredState.speedMetersPerSecond)
                   <= (DriveInfo.MAX_VELOCITY_METERS_PER_SECOND * 0.01))
               ? m_lastState.angle
@@ -180,12 +178,12 @@ public class SwerveModule {
     }
 
     // Prevent module rotation if angle is the same as the previous angle.
-    if (angle != m_lastState.angle) {
+    if (desiredState.angle != m_lastState.angle) {
       m_angleMotor.setControl(
           ControlMode.PositionDutyCycle,
-          m_angleMechanism.getRotorRotationFromOutputRotation(angle).getRotations());
+          m_angleMechanism.getRotorRotationFromOutputRotation(desiredState.angle).getRotations());
     }
-    m_lastState = getState();
+    m_lastState = desiredState;
   }
 
   public void driveBrake() {
