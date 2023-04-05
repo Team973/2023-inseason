@@ -2,7 +2,6 @@ package frc.robot.subsystems.swerve;
 
 import frc.robot.devices.GreyTalonFX;
 import frc.robot.devices.GreyTalonFX.ControlMode;
-import frc.robot.devices.GreyTalonFXConfiguration;
 import frc.robot.shared.RobotInfo;
 import frc.robot.shared.RobotInfo.DriveInfo;
 import frc.robot.shared.SwerveModuleConfig;
@@ -11,12 +10,12 @@ import frc.robot.shared.mechanisms.LinearMechanism;
 
 import com.ctre.phoenixpro.BaseStatusSignalValue;
 import com.ctre.phoenixpro.configs.CANcoderConfiguration;
+import com.ctre.phoenixpro.configs.TalonFXConfiguration;
 import com.ctre.phoenixpro.hardware.CANcoder;
 import com.ctre.phoenixpro.signals.AbsoluteSensorRangeValue;
 import com.ctre.phoenixpro.signals.InvertedValue;
 import com.ctre.phoenixpro.signals.NeutralModeValue;
 import com.ctre.phoenixpro.signals.SensorDirectionValue;
-import edu.wpi.first.math.controller.SimpleMotorFeedforward;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.kinematics.SwerveModulePosition;
 import edu.wpi.first.math.kinematics.SwerveModuleState;
@@ -32,10 +31,7 @@ public class SwerveModule {
   private final GearedMechanism m_angleMechanism = new GearedMechanism(DriveInfo.ANGLE_GEAR_RATIO);
   private SwerveModuleState m_lastState;
 
-  private final GreyTalonFXConfiguration m_driveMotorConfig;
-
-  SimpleMotorFeedforward m_feedforward =
-      new SimpleMotorFeedforward(DriveInfo.DRIVE_KS, DriveInfo.DRIVE_KV, DriveInfo.DRIVE_KA);
+  private final TalonFXConfiguration m_driveMotorConfig;
 
   public SwerveModule(int moduleNumber, SwerveModuleConfig moduleConfig) {
     this.moduleNumber = moduleNumber;
@@ -162,10 +158,7 @@ public class SwerveModule {
 
     if (desiredState.speedMetersPerSecond != m_lastState.speedMetersPerSecond) {
       m_driveMotor.setControl(
-          ControlMode.VelocityDutyCycle,
-          desiredFalconVelocityInRPS.getRotations(),
-          true,
-          m_feedforward.calculate(desiredState.speedMetersPerSecond));
+          ControlMode.VelocityDutyCycle, desiredFalconVelocityInRPS.getRotations(), true);
     }
 
     // Prevent rotating module if speed is less then 1%. Prevents jittering.
