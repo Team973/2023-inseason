@@ -85,4 +85,9 @@ public class Superstructure implements Subsystem {
   public void reset() {
     setGlobalState(GlobalState.Stow);
   }
+
+  @Override
+  public void debugDashboardUpdate() {
+    throw new UnsupportedOperationException("Unimplemented method 'debugDashboardUpdate'");
+  }
 }
