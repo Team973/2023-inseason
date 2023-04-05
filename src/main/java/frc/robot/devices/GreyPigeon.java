@@ -50,7 +50,6 @@ public class GreyPigeon {
    * @return The yaw from the Pigeon2 with the offset applied.
    */
   public Rotation2d getYaw() {
-    System.out.println(m_offset.getYaw().getDegrees());
     return getRawYaw().minus(m_offset.getYaw());
   }
 
@@ -138,6 +137,5 @@ public class GreyPigeon {
   /** Resets the offset to the current yaw, pitch, and roll. */
   public void reset() {
     m_offset = getRawRotation();
-    System.out.println(m_offset);
   }
 }

@@ -5,21 +5,18 @@ import frc.robot.subsystems.Drive;
 import frc.robot.subsystems.Drive.RotationControl;
 
 import edu.wpi.first.math.geometry.Rotation2d;
+import lombok.AllArgsConstructor;
 
+@AllArgsConstructor
 public class SpinInPlaceCommand extends AutoCommand {
 
   private final Drive m_drive;
-  private final double m_angleDegrees;
-
-  public SpinInPlaceCommand(Drive drive, double angleDegrees) {
-    m_drive = drive;
-    m_angleDegrees = angleDegrees;
-  }
+  private final Rotation2d m_angle;
 
   @Override
   public void init() {
     m_drive.setRotationControl(RotationControl.ClosedLoop);
-    m_drive.setTargetRobotAngle(Rotation2d.fromDegrees(m_angleDegrees));
+    m_drive.setTargetRobotAngle(m_angle);
   }
 
   @Override
@@ -27,7 +24,7 @@ public class SpinInPlaceCommand extends AutoCommand {
 
   @Override
   public boolean isCompleted() {
-    return Math.abs(m_drive.getPigeon().getNormalizedYaw().getDegrees() - m_angleDegrees) <= 2.0;
+    return Math.abs(m_drive.getPigeon().getNormalizedYaw().minus(m_angle).getDegrees()) <= 2.0;
   }
 
   @Override
