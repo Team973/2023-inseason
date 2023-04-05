@@ -4,6 +4,8 @@ import frc.robot.shared.AutoCommand;
 import frc.robot.subsystems.Drive;
 import frc.robot.subsystems.Drive.RotationControl;
 
+import edu.wpi.first.math.geometry.Rotation2d;
+
 public class SpinInPlaceCommand extends AutoCommand {
 
   private final Drive m_drive;
@@ -17,7 +19,7 @@ public class SpinInPlaceCommand extends AutoCommand {
   @Override
   public void init() {
     m_drive.setRotationControl(RotationControl.ClosedLoop);
-    m_drive.setTargetRobotAngle(m_angleDegrees);
+    m_drive.setTargetRobotAngle(Rotation2d.fromDegrees(m_angleDegrees));
   }
 
   @Override
@@ -25,7 +27,7 @@ public class SpinInPlaceCommand extends AutoCommand {
 
   @Override
   public boolean isCompleted() {
-    return Math.abs(m_drive.getNormalizedGyroYaw() - m_angleDegrees) <= 2.0;
+    return Math.abs(m_drive.getPigeon().getNormalizedYaw().getDegrees() - m_angleDegrees) <= 2.0;
   }
 
   @Override
