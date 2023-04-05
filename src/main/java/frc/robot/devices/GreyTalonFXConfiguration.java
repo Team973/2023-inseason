@@ -13,14 +13,4 @@ public class GreyTalonFXConfiguration extends TalonFXConfiguration {
   public GreyTalonFXConfiguration() {
     super();
   }
-
-  /**
-   * Creates a new GreyTalonFXConfiguration by copying another.
-   *
-   * @param other The other GreyTalonFXConfiguration to copy.
-   */
-  public GreyTalonFXConfiguration(GreyTalonFXConfiguration other) {
-    super();
-    this.deserialize(other.serialize());
-  }
 }

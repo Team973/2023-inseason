@@ -22,6 +22,7 @@ import com.ctre.phoenixpro.signals.ReverseLimitTypeValue;
 import edu.wpi.first.math.geometry.Rotation2d;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
+import lombok.Getter;
 import lombok.experimental.Accessors;
 
 /** A GreyTalonFX is a TalonFX with a default configuration. */
@@ -81,7 +82,7 @@ public class GreyTalonFX extends TalonFX {
     factoryDefault();
   }
 
-  private GreyTalonFXConfiguration m_currentConfig;
+  @Getter private GreyTalonFXConfiguration m_currentConfig;
   private OutputParams m_lastOutputParams;
   private StatusCode m_lastControlCode;
 
@@ -174,15 +175,6 @@ public class GreyTalonFX extends TalonFX {
 
     // Apply configurator
     setConfig(motorConfig);
-  }
-
-  /**
-   * Get the current configuration of the TalonFX.
-   *
-   * @return A deep copy of the current configuration.
-   */
-  public GreyTalonFXConfiguration getConfig() {
-    return new GreyTalonFXConfiguration(m_currentConfig);
   }
 
   /**

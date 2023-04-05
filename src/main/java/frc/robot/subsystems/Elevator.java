@@ -83,7 +83,7 @@ public class Elevator implements Subsystem {
     m_topHall = new DigitalInput(ElevatorInfo.TOP_HALL_SENSOR_ID);
 
     // Factory Default
-    var motorConfig = m_elevatorMotor.getConfig();
+    var motorConfig = m_elevatorMotor.getCurrentConfig();
     // Motor Directions
     motorConfig.MotorOutput.Inverted = InvertedValue.Clockwise_Positive;
 

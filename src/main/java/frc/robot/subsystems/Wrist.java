@@ -88,7 +88,7 @@ public class Wrist implements Subsystem {
   }
 
   private void configWristMotor() {
-    var motorConfig = m_wristMotor.getConfig();
+    var motorConfig = m_wristMotor.getCurrentConfig();
 
     // Motor Directions
     motorConfig.MotorOutput.Inverted = InvertedValue.Clockwise_Positive;

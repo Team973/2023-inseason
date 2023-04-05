@@ -51,7 +51,7 @@ public class SwerveModule {
 
     /* Drive Motor Config */
     m_driveMotor = new GreyTalonFX(moduleConfig.driveMotorID, RobotInfo.CANIVORE_NAME);
-    m_driveMotorConfig = m_driveMotor.getConfig();
+    m_driveMotorConfig = m_driveMotor.getCurrentConfig();
     configDriveMotor();
 
     BaseStatusSignalValue.waitForAll(0.5, m_angleEncoder.getAbsolutePosition());
@@ -68,7 +68,7 @@ public class SwerveModule {
   }
 
   private void configAngleMotor() {
-    var motorConfig = m_angleMotor.getConfig();
+    var motorConfig = m_angleMotor.getCurrentConfig();
 
     motorConfig.MotorOutput.Inverted = InvertedValue.Clockwise_Positive;
     motorConfig.MotorOutput.NeutralMode = NeutralModeValue.Coast;
