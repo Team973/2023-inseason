@@ -157,11 +157,9 @@ public class SwerveModule {
             .withVelocity(desiredFalconVelocityInRPS)
             .withFeedForward(feedforward.calculate(desiredState.speedMetersPerSecond)));
 
-    Rotation2d angle = desiredState.angle;
-
     // Prevent rotating module if speed is less then 1%. Prevents jittering.
     if (!ignoreJitter) {
-      angle =
+      desiredState.angle =
           (Math.abs(desiredState.speedMetersPerSecond)
                   <= (DriveInfo.MAX_VELOCITY_METERS_PER_SECOND * 0.01))
               ? m_lastState.angle
@@ -169,7 +167,8 @@ public class SwerveModule {
     }
 
     m_angleMotor.setControl(
-        m_anglePosition.withPosition(angle.getRotations() * DriveInfo.ANGLE_GEAR_RATIO));
+        m_anglePosition.withPosition(
+            desiredState.angle.getRotations() * DriveInfo.ANGLE_GEAR_RATIO));
     m_lastState = desiredState;
   }
 
