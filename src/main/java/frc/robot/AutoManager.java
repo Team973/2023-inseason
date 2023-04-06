@@ -7,6 +7,8 @@ import frc.robot.auto.modes.CenterPreloadAndCharge;
 import frc.robot.auto.modes.MidLinkNoCharge;
 import frc.robot.auto.modes.NoAuto;
 import frc.robot.auto.modes.PreloadAndCharge;
+import frc.robot.auto.modes.PreloadDoubleShootClose;
+import frc.robot.auto.modes.PreloadDoubleShootFar;
 import frc.robot.auto.modes.PreloadPickupCharge;
 import frc.robot.auto.modes.PreloadPickupScoreCharge;
 import frc.robot.auto.modes.Test;
@@ -26,6 +28,8 @@ public class AutoManager {
           AutoMode.Test,
           AutoMode.PreloadAndCharge,
           AutoMode.CenterPreloadAndCharge,
+          AutoMode.PreloadDoubleShootFar,
+          AutoMode.PreloadDoubleShootClose,
           AutoMode.NoAuto);
   private int m_selectedMode = 0;
 
@@ -37,6 +41,8 @@ public class AutoManager {
     PreloadPickupScoreCharge,
     MidLinkNoCharge,
     NoAuto,
+    PreloadDoubleShootClose,
+    PreloadDoubleShootFar,
   }
 
   private final AutoCommand m_test;
@@ -46,6 +52,8 @@ public class AutoManager {
   private final AutoCommand m_noAuto;
   private final AutoCommand m_preloadPickupScoreCharge;
   private final AutoCommand m_midLinkNoCharge;
+  private final AutoCommand m_preloadDoubleShootFar;
+  private final AutoCommand m_preloadDoubleShootClose;
 
   public AutoManager(Claw claw, Elevator elevator, Drive drive, Wrist wrist) {
     m_test = new Test(claw, wrist, elevator);
@@ -55,6 +63,8 @@ public class AutoManager {
     m_preloadPickupScoreCharge = new PreloadPickupScoreCharge(drive, claw, elevator, wrist);
     m_midLinkNoCharge = new MidLinkNoCharge(drive, claw, elevator, wrist);
     m_noAuto = new NoAuto();
+    m_preloadDoubleShootFar = new PreloadDoubleShootFar(drive, claw, elevator, wrist);
+    m_preloadDoubleShootClose = new PreloadDoubleShootClose(drive, claw, elevator, wrist);
   }
 
   public void increment() {
@@ -106,6 +116,12 @@ public class AutoManager {
         break;
       case NoAuto:
         m_currentMode = m_noAuto;
+        break;
+      case PreloadDoubleShootFar:
+        m_currentMode = m_preloadDoubleShootFar;
+        break;
+      case PreloadDoubleShootClose:
+        m_currentMode = m_preloadDoubleShootClose;
         break;
     }
   }
