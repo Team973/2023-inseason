@@ -2,13 +2,12 @@ package frc.robot.subsystems;
 
 import static frc.robot.shared.RobotInfo.*;
 
-import frc.robot.shared.GreyTalonFX;
+import frc.robot.devices.GreyTalonFX;
+import frc.robot.devices.GreyTalonFX.ControlMode;
 import frc.robot.shared.RobotInfo;
 import frc.robot.shared.Subsystem;
 
-import com.ctre.phoenixpro.configs.TalonFXConfiguration;
 import com.ctre.phoenixpro.controls.Follower;
-import com.ctre.phoenixpro.controls.MotionMagicVoltage;
 import com.ctre.phoenixpro.signals.InvertedValue;
 import edu.wpi.first.wpilibj.DigitalInput;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
@@ -45,9 +44,6 @@ public class Elevator implements Subsystem {
   @Getter @Setter private ElevatorState m_elevatorState = ElevatorState.Manual;
   @Getter private Preset m_preset = Preset.Stow;
 
-  private final MotionMagicVoltage m_elevatorMotionMagic =
-      new MotionMagicVoltage(0.0, false, 0.04, 0, true);
-
   public enum ElevatorState {
     /** Manually control the motors with the joystick */
     Manual,
@@ -83,7 +79,7 @@ public class Elevator implements Subsystem {
     m_topHall = new DigitalInput(ElevatorInfo.TOP_HALL_SENSOR_ID);
 
     // Factory Default
-    var motorConfig = new TalonFXConfiguration();
+    var motorConfig = m_elevatorMotor.getCurrentConfig();
     // Motor Directions
     motorConfig.MotorOutput.Inverted = InvertedValue.Clockwise_Positive;
 
@@ -103,8 +99,7 @@ public class Elevator implements Subsystem {
     motorConfig.MotionMagic.MotionMagicAcceleration = 180.0;
 
     // Set motor to follow A
-    m_elevatorMotor.getConfigurator().apply(motorConfig, 0.2);
-    m_elevatorFollowerMotor.getConfigurator().apply(new TalonFXConfiguration());
+    m_elevatorMotor.setConfig(motorConfig);
     m_elevatorFollowerMotor.setControl(new Follower(ElevatorInfo.FX_ID, false));
 
     m_elevatorMotor.setRotorPosition(0.0);
@@ -160,7 +155,9 @@ public class Elevator implements Subsystem {
     return isAtHeight(getHeightFromPosition(m_targetPosition));
   }
 
-  public void dashboardUpdate() {
+  public void dashboardUpdate() {}
+
+  public void debugDashboardUpdate() {
     SmartDashboard.putNumber("Elevator Position", getPosition());
     SmartDashboard.putNumber("Elevator Target Position", m_targetPosition);
     SmartDashboard.putNumber("Elevator Velocity", m_elevatorMotor.getRotorVelocity().getValue());
@@ -193,13 +190,13 @@ public class Elevator implements Subsystem {
         } else {
           m_elevatorOutput = clamp(m_elevatorOutput, 0.2, -0.2);
         }
-        m_elevatorMotor.set(m_elevatorOutput);
+        m_elevatorMotor.setControl(ControlMode.DutyCycleOut, m_elevatorOutput);
 
         m_targetPosition = getPosition();
         break;
       case ClosedLoop:
         double motorPosition = m_targetPosition / SPROCKET_CIRCUMFERENCE / GEAR_RATIO;
-        m_elevatorMotor.setControl(m_elevatorMotionMagic.withPosition(motorPosition));
+        m_elevatorMotor.setControl(ControlMode.MotionMagicVoltage, motorPosition);
         break;
       default:
         break;

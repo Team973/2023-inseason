@@ -30,12 +30,11 @@ public class CANdleManager implements Subsystem {
     PreloadWaiting,
     AutoSelected,
     RainbowBarf,
-    Off, Balance
+    Off,
+    Balance
   }
 
-  @Setter
-  @Getter
-  private LightState m_lightState = LightState.Off;
+  @Setter @Getter private LightState m_lightState = LightState.Off;
   private final CANdle m_candle = new CANdle(CANdleInfo.ID, "rio");
 
   private boolean m_flashLEDsOn = false;
@@ -92,6 +91,8 @@ public class CANdleManager implements Subsystem {
   public void dashboardUpdate() {
     SmartDashboard.putString("Candle State", m_lightState.toString());
   }
+
+  public void debugDashboardUpdate() {}
 
   public void update() {
     if (Robot.isExceptionHappened()) {

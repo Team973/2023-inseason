@@ -3,12 +3,12 @@ package frc.robot.subsystems;
 import static frc.robot.shared.RobotInfo.*;
 
 import frc.robot.Robot;
+import frc.robot.devices.GreyTalonFX;
+import frc.robot.devices.GreyTalonFX.ControlMode;
 import frc.robot.shared.Constants.GamePiece;
-import frc.robot.shared.GreyTalonFX;
 import frc.robot.shared.RobotInfo;
 import frc.robot.shared.Subsystem;
 
-import com.ctre.phoenixpro.configs.TalonFXConfiguration;
 import edu.wpi.first.wpilibj.DigitalInput;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import lombok.Getter;
@@ -46,7 +46,7 @@ public class Claw implements Subsystem {
   }
 
   private void configIntakeMotor() {
-    var motorConfig = new TalonFXConfiguration();
+    var motorConfig = m_intakeMotor.getCurrentConfig();
 
     // Current limits
     motorConfig.CurrentLimits.SupplyCurrentLimit = m_supplyCurrentLimit;
@@ -54,7 +54,7 @@ public class Claw implements Subsystem {
     motorConfig.CurrentLimits.StatorCurrentLimit = m_statorCurrentLimit;
     motorConfig.CurrentLimits.StatorCurrentLimitEnable = true;
 
-    m_intakeMotor.getConfigurator().apply(motorConfig);
+    m_intakeMotor.setConfig(motorConfig);
   }
 
   private boolean checkForGamePiece() {
@@ -74,7 +74,9 @@ public class Claw implements Subsystem {
     return m_coneSensor.get();
   }
 
-  public void dashboardUpdate() {
+  public void dashboardUpdate() {}
+
+  public void debugDashboardUpdate() {
     SmartDashboard.putNumber("Intake Stator", m_intakeStator);
     SmartDashboard.putNumber("Intake Supply", m_intakeMotor.getSupplyCurrent().getValue());
     SmartDashboard.putNumber("Intake Velocity", m_intakeMotor.getVelocity().getValue());
@@ -120,7 +122,7 @@ public class Claw implements Subsystem {
         break;
     }
 
-    m_intakeMotor.set(m_intakeMotorOutput);
+    m_intakeMotor.setControl(ControlMode.DutyCycleOut, m_intakeMotorOutput);
 
     m_lastGamePiece = currentGamePiece;
   }
