@@ -4,6 +4,7 @@ import frc.robot.devices.GreyPigeon;
 import frc.robot.greydash.GreyDashClient;
 import frc.robot.shared.RobotInfo.DriveInfo;
 import frc.robot.shared.Subsystem;
+import frc.robot.shared.SwerveDriveKinematics2;
 import frc.robot.shared.SwerveModuleState2;
 import frc.robot.subsystems.swerve.SwerveModule;
 
@@ -19,7 +20,6 @@ import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.geometry.Translation2d;
 import edu.wpi.first.math.geometry.Twist2d;
 import edu.wpi.first.math.kinematics.ChassisSpeeds;
-import edu.wpi.first.math.kinematics.SwerveDriveKinematics;
 import edu.wpi.first.math.kinematics.SwerveModulePosition;
 import edu.wpi.first.math.numbers.N1;
 import edu.wpi.first.math.numbers.N3;
@@ -179,7 +179,7 @@ public class Drive implements Subsystem {
    * @param desiredStates The desired module states.
    */
   public void setModuleStates(SwerveModuleState2[] desiredStates) {
-    SwerveDriveKinematics.desaturateWheelSpeeds(
+    SwerveDriveKinematics2.desaturateWheelSpeeds(
         desiredStates, DriveInfo.MAX_VELOCITY_METERS_PER_SECOND);
 
     double states[] = new double[8];
@@ -190,8 +190,6 @@ public class Drive implements Subsystem {
       states[index + 1] = desiredStates[mod.moduleNumber].speedMetersPerSecond;
       index += 2;
     }
-
-    SmartDashboard.putNumberArray("swerve/setpoints", states);
   }
 
   /**
