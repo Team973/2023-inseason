@@ -107,7 +107,8 @@ public class SwerveModule {
   }
 
   public void resetToAbsolute() {
-    m_angleMotor.setRotorPositionRotation2d(getCanCoder().minus(m_angleOffset));
+    m_angleMotor.setRotorPositionRotation2d(
+        m_angleMechanism.getRotorRotationFromOutputRotation(getCanCoder().minus(m_angleOffset)));
   }
 
   public SwerveModuleState getState() {
@@ -120,7 +121,7 @@ public class SwerveModule {
 
   public Rotation2d getAngleMotorRotation2d() {
     return m_angleMechanism.getOutputRotationFromRotorRotation(
-        m_driveMotor.getRotorPositionRotation2d());
+        m_angleMotor.getRotorPositionRotation2d());
   }
 
   public double getDriveMotorMeters() {
