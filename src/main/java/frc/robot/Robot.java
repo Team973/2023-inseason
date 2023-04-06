@@ -212,7 +212,7 @@ public class Robot extends TimedRobot {
       LimelightHelpers.setPipelineIndex("", 0);
       m_compressor.enableDigital();
       m_wrist.setState(WristState.Manual);
-      m_drive.setTargetRobotAngle(m_drive.getNormalizedGyroYaw());
+      m_drive.setTargetRobotAngle(m_drive.getPigeon().getNormalizedYaw());
       m_drive.disableBrakeMode();
     } catch (Exception e) {
       logException(e);
@@ -260,7 +260,7 @@ public class Robot extends TimedRobot {
                 : Drive.AnglePresets.TOWARDS_WSR_BLUE);
       } else if (rot == 0.0) {
         if (m_driverStick.getYButtonReleased() || m_driverStick.getBButtonReleased()) {
-          m_drive.setTargetRobotAngle(m_drive.getNormalizedGyroYaw());
+          m_drive.setTargetRobotAngle(m_drive.getPigeon().getNormalizedYaw());
         }
         m_drive.setRotationControl(RotationControl.ClosedLoop);
       } else {
