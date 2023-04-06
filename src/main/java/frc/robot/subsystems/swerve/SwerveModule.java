@@ -126,30 +126,46 @@ public class SwerveModule {
     return m_angleMotor.getRotorPosition().getValue();
   }
 
-  public SwerveModulePosition getPosition() {
+  public double getDriveMotorMeters() {
     double wheelRotations = m_driveMotor.getRotorPosition().getValue() / DriveInfo.DRIVE_GEAR_RATIO;
-    double wheelDistanceMeters = wheelRotations * DriveInfo.WHEEL_CIRCUMFERENCE_METERS;
-    return new SwerveModulePosition(wheelDistanceMeters, getState().angle);
+    return wheelRotations * DriveInfo.WHEEL_CIRCUMFERENCE_METERS;
   }
 
+  public SwerveModulePosition getPosition() {
+    return new SwerveModulePosition(getDriveMotorMeters(), getState().angle);
+  }
+
+  /**
+   * Sets the desired state of the module.
+   *
+   * @param desiredState The desired state of the module.
+   */
   public void setDesiredState(SwerveModuleState desiredState) {
     setDesiredState(desiredState, false);
   }
 
+  /**
+   * Sets the desired state of the module.
+   *
+   * @param desiredState The desired state of the module.
+   * @param force If true, the module will be set to the desired state regardless of the current
+   *     state. Disables optimizations such as anti-jitter.
+   */
   public void setDesiredState(SwerveModuleState desiredState, boolean ignoreJitter) {
-    desiredState =
-        CTREModuleState.optimize(
-            desiredState,
-            getState().angle); // Custom optimize command, since default WPILib optimize assumes
-    // continuous controller which CTRE is not
+    // Custom optimize command, since default WPILib optimize assumes continuous controller which
+    // CTRE is not
+    desiredState = CTREModuleState.optimize(desiredState, getState().angle);
 
     double desiredWheelVelocityInRPS =
         desiredState.speedMetersPerSecond / DriveInfo.WHEEL_CIRCUMFERENCE_METERS;
     double desiredFalconVelocityInRPS = desiredWheelVelocityInRPS * DriveInfo.DRIVE_GEAR_RATIO;
-    m_driveMotor.setControl(
-        ControlMode.VelocityDutyCycle,
-        desiredFalconVelocityInRPS,
-        feedforward.calculate(desiredState.speedMetersPerSecond));
+
+    if (desiredState.speedMetersPerSecond != m_lastState.speedMetersPerSecond) {
+      m_driveMotor.setControl(
+          ControlMode.VelocityDutyCycle,
+          desiredFalconVelocityInRPS,
+          feedforward.calculate(desiredState.speedMetersPerSecond));
+    }
 
     // Prevent rotating module if speed is less then 1%. Prevents jittering.
     if (!ignoreJitter) {
@@ -160,9 +176,12 @@ public class SwerveModule {
               : desiredState.angle;
     }
 
-    m_angleMotor.setControl(
-        ControlMode.PositionDutyCycle,
-        desiredState.angle.getRotations() * DriveInfo.ANGLE_GEAR_RATIO);
+    if (desiredState.angle != m_lastState.angle) {
+      m_angleMotor.setControl(
+          ControlMode.PositionDutyCycle,
+          desiredState.angle.getRotations() * DriveInfo.ANGLE_GEAR_RATIO);
+    }
+
     m_lastState = desiredState;
   }
 
