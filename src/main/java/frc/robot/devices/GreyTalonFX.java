@@ -1,6 +1,7 @@
 package frc.robot.devices;
 
 import com.ctre.phoenixpro.StatusCode;
+import com.ctre.phoenixpro.configs.TalonFXConfiguration;
 import com.ctre.phoenixpro.configs.TalonFXConfigurator;
 import com.ctre.phoenixpro.controls.ControlRequest;
 import com.ctre.phoenixpro.controls.DutyCycleOut;
@@ -21,12 +22,11 @@ import com.ctre.phoenixpro.signals.ReverseLimitSourceValue;
 import com.ctre.phoenixpro.signals.ReverseLimitTypeValue;
 import edu.wpi.first.math.geometry.Rotation2d;
 import lombok.Data;
-import lombok.EqualsAndHashCode;
+import lombok.Getter;
 import lombok.experimental.Accessors;
 
 /** A GreyTalonFX is a TalonFX with a default configuration. */
 @Accessors(prefix = "m_")
-@EqualsAndHashCode(callSuper = true)
 public class GreyTalonFX extends TalonFX {
   // see:
   // https://docs.google.com/spreadsheets/d/1cdySrJRMEgjMhgvOm5zbGFtuejurvd-CIxzr0Xd3ua8/edit#gid=0
@@ -34,21 +34,13 @@ public class GreyTalonFX extends TalonFX {
   private boolean m_lastOptimizedFOC = true;
 
   public enum ControlMode {
-    PercentOutput,
     DutyCycleOut,
     MotionMagicDutyCycle,
-    MotionMagicTorqueCurrentFOC,
     MotionMagicVoltage,
-    NeutralOut,
     PositionDutyCycle,
-    PositionTorqueCurrentFOC,
     PositionVoltage,
-    StaticBrake,
-    TorqueCurrentFOC,
     VelocityDutyCycle,
-    VelocityTorqueCurrentFOC,
-    VelocityVoltage,
-    VoltageOut
+    VelocityVoltage
   }
 
   @Data
@@ -81,14 +73,14 @@ public class GreyTalonFX extends TalonFX {
     factoryDefault();
   }
 
-  private GreyTalonFXConfiguration m_currentConfig;
+  @Getter private TalonFXConfiguration m_currentConfig;
   private OutputParams m_lastOutputParams;
   private StatusCode m_lastControlCode;
 
   /** Factory default the TalonFX. */
   public void factoryDefault() {
     // Factory Default
-    var motorConfig = new GreyTalonFXConfiguration();
+    var motorConfig = new TalonFXConfiguration();
 
     // Audio Config
     motorConfig.Audio.BeepOnBoot = true;
@@ -105,8 +97,8 @@ public class GreyTalonFX extends TalonFX {
     // Neutral Mode
     motorConfig.MotorOutput.NeutralMode = NeutralModeValue.Brake;
     motorConfig.MotorOutput.DutyCycleNeutralDeadband = 0.0;
-    motorConfig.MotorOutput.PeakForwardDutyCycle = 0.0;
-    motorConfig.MotorOutput.PeakReverseDutyCycle = 0.0;
+    motorConfig.MotorOutput.PeakForwardDutyCycle = 1.0;
+    motorConfig.MotorOutput.PeakReverseDutyCycle = -1.0;
 
     // Current limits
     motorConfig.CurrentLimits.SupplyCurrentLimit = 0;
@@ -177,28 +169,18 @@ public class GreyTalonFX extends TalonFX {
   }
 
   /**
-   * Get the current configuration of the TalonFX.
-   *
-   * @return A deep copy of the current configuration.
-   */
-  public GreyTalonFXConfiguration getConfig() {
-    return m_currentConfig;
-  }
-
-  /**
    * Set the configuration of the TalonFX.
    *
    * @param config The configuration to apply.
    */
-  public void setConfig(GreyTalonFXConfiguration config) {
-    if (m_currentConfig == null || !m_currentConfig.equals(config)) {
-      this.getConfigurator().apply(config);
-      m_currentConfig = config;
-    }
+  public void setConfig(TalonFXConfiguration config) {
+    this.getConfigurator().apply(config);
+    m_currentConfig = config;
   }
 
   /**
-   * @deprecated Use {@link #getConfig()} and {@link #setConfig(GreyTalonFXConfiguration)} instead.
+   * @deprecated Use {@link #getCurrentConfig()} and {@link #setConfig(TalonFXConfiguration)}
+   *     instead.
    */
   @Deprecated
   public TalonFXConfigurator getConfigurator() {
@@ -378,7 +360,6 @@ public class GreyTalonFX extends TalonFX {
 
     if (m_lastOutputParams == null || !m_lastOutputParams.equals(currentOutputParams)) {
       switch (controlMode) {
-        case PercentOutput:
         case DutyCycleOut:
           motorOutput = new DutyCycleOut(demand, enableFOC, overrideBrakeDurNeutral);
           break;

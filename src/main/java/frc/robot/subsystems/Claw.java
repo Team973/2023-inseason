@@ -46,7 +46,7 @@ public class Claw implements Subsystem {
   }
 
   private void configIntakeMotor() {
-    var motorConfig = m_intakeMotor.getConfig();
+    var motorConfig = m_intakeMotor.getCurrentConfig();
 
     // Current limits
     motorConfig.CurrentLimits.SupplyCurrentLimit = m_supplyCurrentLimit;

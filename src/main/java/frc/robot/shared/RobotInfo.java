@@ -93,12 +93,6 @@ public final class RobotInfo {
     public static final double DRIVE_KD = 0.0;
     public static final double DRIVE_KF = 0.0;
 
-    /* Drive Motor Characterization Values */
-    // divide by 12 to convert from volts to percent output for CTRE
-    public static final double DRIVE_KS = (0.0 / 12);
-    public static final double DRIVE_KV = (0.0 / 12);
-    public static final double DRIVE_KA = (0.0 / 12);
-
     /* Motor Inverts */
     public static final boolean DRIVE_MOTOR_INVERT = true;
     public static final boolean ANGLE_MOTOR_INVERT = true;
@@ -107,7 +101,7 @@ public final class RobotInfo {
     public static final boolean CANCODER_INVERT = false;
 
     public static final double MAX_VELOCITY_METERS_PER_SECOND =
-        FALCON_TRAP_FREE_SPEED / 60.0 / DRIVE_GEAR_RATIO * WHEEL_DIAMETER_METERS * Math.PI;
+        FALCON_TRAP_FREE_SPEED / 60.0 * DRIVE_GEAR_RATIO * WHEEL_DIAMETER_METERS * Math.PI;
 
     public static final double MAX_ANGULAR_VELOCITY_RADIANS_PER_SECOND = 11.5;
 

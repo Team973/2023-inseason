@@ -2,7 +2,6 @@ package frc.robot.subsystems.swerve;
 
 import frc.robot.devices.GreyTalonFX;
 import frc.robot.devices.GreyTalonFX.ControlMode;
-import frc.robot.devices.GreyTalonFXConfiguration;
 import frc.robot.shared.RobotInfo;
 import frc.robot.shared.RobotInfo.DriveInfo;
 import frc.robot.shared.SwerveMath;
@@ -12,12 +11,12 @@ import frc.robot.shared.mechanisms.GearedMechanism;
 import frc.robot.shared.mechanisms.LinearMechanism;
 
 import com.ctre.phoenixpro.configs.CANcoderConfiguration;
+import com.ctre.phoenixpro.configs.TalonFXConfiguration;
 import com.ctre.phoenixpro.hardware.CANcoder;
 import com.ctre.phoenixpro.signals.AbsoluteSensorRangeValue;
 import com.ctre.phoenixpro.signals.InvertedValue;
 import com.ctre.phoenixpro.signals.NeutralModeValue;
 import com.ctre.phoenixpro.signals.SensorDirectionValue;
-import edu.wpi.first.math.controller.SimpleMotorFeedforward;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.kinematics.SwerveModulePosition;
 import edu.wpi.first.math.util.Units;
@@ -33,10 +32,7 @@ public class SwerveModule {
   private final GearedMechanism m_angleMechanism = new GearedMechanism(DriveInfo.ANGLE_GEAR_RATIO);
   private SwerveModuleState2 m_lastState;
 
-  private final GreyTalonFXConfiguration m_driveMotorConfig;
-
-  SimpleMotorFeedforward m_feedforward =
-      new SimpleMotorFeedforward(DriveInfo.DRIVE_KS, DriveInfo.DRIVE_KV, DriveInfo.DRIVE_KA);
+  private final TalonFXConfiguration m_driveMotorConfig;
 
   public SwerveModule(int moduleNumber, SwerveModuleConfig moduleConfig) {
     this.moduleNumber = moduleNumber;
@@ -52,7 +48,7 @@ public class SwerveModule {
 
     /* Drive Motor Config */
     m_driveMotor = new GreyTalonFX(moduleConfig.driveMotorID, RobotInfo.CANIVORE_NAME);
-    m_driveMotorConfig = m_driveMotor.getConfig();
+    m_driveMotorConfig = m_driveMotor.getCurrentConfig();
     configDriveMotor();
 
     m_angleEncoder.getAbsolutePosition().waitForUpdate(0.5);
@@ -69,7 +65,7 @@ public class SwerveModule {
   }
 
   private void configAngleMotor() {
-    var motorConfig = m_angleMotor.getConfig();
+    var motorConfig = m_angleMotor.getCurrentConfig();
 
     motorConfig.MotorOutput.Inverted = InvertedValue.Clockwise_Positive;
     motorConfig.MotorOutput.NeutralMode = NeutralModeValue.Coast;
@@ -112,7 +108,8 @@ public class SwerveModule {
   }
 
   public void resetToAbsolute() {
-    m_angleMotor.setRotorPositionRotation2d(getCanCoder().minus(m_angleOffset));
+    m_angleMotor.setRotorPositionRotation2d(
+        m_angleMechanism.getRotorRotationFromOutputRotation(getCanCoder().minus(m_angleOffset)));
   }
 
   public SwerveModuleState2 getState() {
@@ -128,7 +125,7 @@ public class SwerveModule {
 
   public Rotation2d getAngleMotorRotation2d() {
     return m_angleMechanism.getOutputRotationFromRotorRotation(
-        m_driveMotor.getRotorPositionRotation2d());
+        m_angleMotor.getRotorPositionRotation2d());
   }
 
   public double getDriveMotorMeters() {
@@ -171,13 +168,8 @@ public class SwerveModule {
 
     if (desiredState.speedMetersPerSecond != m_lastState.speedMetersPerSecond) {
       m_driveMotor.setControl(
-          ControlMode.VelocityDutyCycle,
-          desiredFalconVelocityInRPS.getRotations(),
-          true,
-          m_feedforward.calculate(desiredState.speedMetersPerSecond));
+          ControlMode.VelocityDutyCycle, desiredFalconVelocityInRPS.getRotations());
     }
-
-    Rotation2d angle = desiredState.angle;
 
     // If we are forcing the angle
     if (!force) {
@@ -186,12 +178,12 @@ public class SwerveModule {
     }
 
     // Prevent module rotation if angle is the same as the previous angle.
-    if (angle != m_lastState.angle) {
+    if (desiredState.angle != m_lastState.angle) {
       m_angleMotor.setControl(
           ControlMode.PositionDutyCycle,
-          m_angleMechanism.getRotorRotationFromOutputRotation(angle).getRotations());
+          m_angleMechanism.getRotorRotationFromOutputRotation(desiredState.angle).getRotations());
     }
-    m_lastState = getState();
+    m_lastState = desiredState;
   }
 
   public void driveBrake() {
