@@ -86,38 +86,30 @@ public class Drive implements Subsystem {
                 0.0,
                 new TrapezoidProfile.Constraints(
                     DriveInfo.MAX_ANGULAR_VELOCITY_RADIANS_PER_SECOND, 7.0)));
+
+    // Used by balanceDrive() to keep the robot level on the charge station
+    m_balancePitchController.setSetpoint(0.0);
+    m_balanceRollController.setSetpoint(0.0);
+    m_balancePitchController.setTolerance(5.0);
+    m_balanceRollController.setTolerance(5.0);
   }
 
-  public void balanceDrivePitch() {
-    double pitch = m_pigeon.getPitch().getDegrees();
-    if (Math.abs(pitch) > 5.0) {
-      double pitchCorrection = m_balancePitchController.calculate(pitch, 0.0);
-      if (Math.abs(m_pigeon.getNormalizedYaw().getDegrees() - 180) < 30.0) {
-        pitchCorrection *= -1.0;
-      }
-      driveInput(new Translation2d(pitchCorrection, 0.0), 0.0, true);
-    } else {
-      m_currentChassisSpeeds = new ChassisSpeeds();
-      for (SwerveModule swerveModule : m_swerveModules) {
-        swerveModule.setDesiredState(new SwerveModuleState(0.0, Rotation2d.fromDegrees(90)), true);
-      }
-    }
-  }
+  /** Balance the robot on the charge station */
+  public void balanceDrive() {
+    // Calculate the pitch and roll angles in degrees
+    double pitch = m_pigeon.getRotation().getPitch().getDegrees();
+    double roll = m_pigeon.getRotation().getRoll().getDegrees();
 
-  public void balanceDriveRoll() {
-    double roll = m_pigeon.getRoll().getDegrees();
-    if (Math.abs(roll) > 5.0) {
-      double rollCorrection = m_balanceRollController.calculate(roll, 0.0);
-      if (Math.abs(m_pigeon.getNormalizedYaw().getDegrees() - 270) < 30.0) {
-        rollCorrection *= -1.0;
-      }
-      driveInput(new Translation2d(rollCorrection, 0.0), 0.0, true);
-    } else {
-      m_currentChassisSpeeds = new ChassisSpeeds();
-      for (SwerveModule swerveModule : m_swerveModules) {
-        swerveModule.setDesiredState(new SwerveModuleState(0.0, Rotation2d.fromDegrees(0)), true);
-      }
-    }
+    // Calculate the output for the controllers. These have a baked in setpoint of 0.0 and a
+    // tolerance of 5.0 deg
+    double pitchOutput = m_balancePitchController.calculate(pitch);
+    double rollOutput = m_balanceRollController.calculate(roll);
+
+    // Create a translation in the direction of the incline
+    Translation2d translation = new Translation2d(rollOutput, pitchOutput);
+
+    // Apply the translation to the holonomic drive with a zero rotation value
+    driveInput(translation, 0.0, true);
   }
 
   public void driveInput(Translation2d translation, double rotationVal, boolean fieldRelative) {
