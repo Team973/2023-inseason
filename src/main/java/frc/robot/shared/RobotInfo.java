@@ -80,7 +80,7 @@ public final class RobotInfo {
     public static final double CLOSEDLOOP_RAMP = 0.0;
 
     /* Angle Motor PID Values */
-    public static final double ANGLE_KP = 0.3;
+    public static final double ANGLE_KP = 6.0;
     public static final double ANGLE_KI = 0.0;
     public static final double ANGLE_KD = 0.0;
     public static final double ANGLE_KF = 0.0;
@@ -88,10 +88,10 @@ public final class RobotInfo {
         SwerveMath.calculateAngleKV(12.0, FALCON_FOC_FREE_SPEED, 1 / ANGLE_GEAR_RATIO);
 
     /* Drive Motor PID Values */
-    public static final double DRIVE_KP = 0.0;
+    public static final double DRIVE_KP = 0.2;
     public static final double DRIVE_KI = 0.0;
     public static final double DRIVE_KD = 0.0;
-    public static final double DRIVE_KF = 0.0;
+    public static final double DRIVE_KF = 0.15;
 
     /* Motor Inverts */
     public static final boolean DRIVE_MOTOR_INVERT = true;
