@@ -24,6 +24,7 @@ import frc.robot.subsystems.Wrist.WristPreset;
 import frc.robot.subsystems.Wrist.WristState;
 
 import edu.wpi.first.math.MathUtil;
+import edu.wpi.first.math.controller.PIDController;
 import edu.wpi.first.math.filter.SlewRateLimiter;
 import edu.wpi.first.math.geometry.Translation2d;
 import edu.wpi.first.wpilibj.Compressor;
@@ -234,7 +235,19 @@ public class Robot extends TimedRobot {
       Translation2d translation =
           new Translation2d(xSpeed, ySpeed).times(DriveInfo.MAX_VELOCITY_METERS_PER_SECOND);
 
-      m_drive.driveInput(translation, rot, true);
+      boolean fieldRelative = true;
+
+      // Align with cone node
+      if (m_driverStick.getRightBumper()) {
+        var pose = LimelightHelpers.getTargetPose3d_CameraSpace("");
+        translation = new Translation2d(0.0, 0.0);
+        var pid = new PIDController(0.0, 0.0, 0.0);
+        pid.setSetpoint(pose.getRotation().getAngle());
+        rot = pid.getVelocityError();
+        fieldRelative = false;
+      }
+
+      m_drive.driveInput(translation, rot, fieldRelative);
 
       // Closed loop drive angle
       if (m_driverStick.getYButton()) {
