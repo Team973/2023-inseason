@@ -1,6 +1,7 @@
 package frc.robot.subsystems;
 
 import frc.robot.shared.Subsystem;
+import frc.robot.subsystems.Elevator.ElevatorState;
 import frc.robot.subsystems.Wrist.WristPreset;
 import frc.robot.subsystems.Wrist.WristState;
 
@@ -31,16 +32,13 @@ public class Superstructure implements Subsystem {
   }
 
   @Getter @Setter private GlobalState m_globalState;
-  private GlobalState m_lastState = m_globalState;
+  private GlobalState m_lastElevatorState = m_globalState;
+  private GlobalState m_lastWristState = m_globalState;
   private final Elevator m_elevator;
   private final Wrist m_wrist;
 
   @Override
-  public void dashboardUpdate() {
-    SmartDashboard.putBoolean(
-        "Set Preset",
-        m_wrist.getPreset() != WristPreset.Manual && m_wrist.getState() == WristState.ClosedLoop);
-  }
+  public void dashboardUpdate() {}
 
   @Override
   public void update() {
@@ -81,18 +79,20 @@ public class Superstructure implements Subsystem {
     if ((Math.abs(elevatorPreset.getValue() - m_elevator.getHeight()) >= 5.0)
         && (m_wrist.getCurrentAngleDegrees() > 0.0)) {
       wristPreset = WristPreset.PreStow;
-    }
-
-    m_elevator.setPreset(elevatorPreset);
-    if (m_wrist.getPreset() != WristPreset.Manual && m_wrist.getState() == WristState.ClosedLoop) {
-      if (m_lastState != m_globalState) {
+    } else if (m_globalState != m_lastWristState && m_wrist.getState() == WristState.ClosedLoop) {
+      m_wrist.setPreset(wristPreset);
+      m_lastWristState = m_globalState;
+    } /*else if (wristPreset != WristPreset.PreStow
+          && Math.abs(elevatorPreset.getValue() - m_elevator.getHeight()) < 5.0) {
         m_wrist.setPreset(wristPreset);
-      }
-    }
+      }*/
 
-    if (m_wrist.getState() == WristState.ClosedLoop) {
-      m_wrist.setPreset(WristPreset.High);
+    if (m_globalState != m_lastElevatorState
+        && m_elevator.getElevatorState() == ElevatorState.ClosedLoop) {
+      m_elevator.setPreset(elevatorPreset);
+      m_lastElevatorState = m_globalState;
     }
+    SmartDashboard.putString("Wrist preset", String.valueOf(wristPreset));
   }
 
   @Override

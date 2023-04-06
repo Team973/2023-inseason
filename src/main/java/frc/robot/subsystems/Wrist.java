@@ -29,11 +29,8 @@ public class Wrist implements Subsystem {
   private static final double WRIST_FF = 0.4; // 0.4
   private double ENCODER_OFFSET = 310.43 - STOW_OFFSET;
 
-  @Setter
-  @Getter
-  private WristState m_state = WristState.Manual;
-  @Getter
-  private WristPreset m_preset = WristPreset.Stow;
+  @Setter @Getter private WristState m_state = WristState.Manual;
+  @Getter private WristPreset m_preset = WristPreset.Stow;
 
   private final CANcoder m_encoder;
   private final GreyTalonFX m_wristMotor;
@@ -42,12 +39,12 @@ public class Wrist implements Subsystem {
 
   private double m_targetAngle = STOW_OFFSET;
 
-  @Setter
-  private double m_motorOutput = 0.0;
+  @Setter private double m_motorOutput = 0.0;
 
   private final double ANGLE_TOLERANCE = 1.0; // degrees
 
-  private final PositionVoltage m_wristPosition = new PositionVoltage((m_targetAngle + ENCODER_OFFSET) / 360.0);
+  private final PositionVoltage m_wristPosition =
+      new PositionVoltage((m_targetAngle + ENCODER_OFFSET) / 360.0);
 
   public enum WristState {
     Manual,
@@ -170,8 +167,7 @@ public class Wrist implements Subsystem {
     return Math.abs(getCurrentAngleDegrees() - m_targetAngle) < ANGLE_TOLERANCE;
   }
 
-  public void dashboardUpdate() {
-  }
+  public void dashboardUpdate() {}
 
   public void debugDashboardUpdate() {
     SmartDashboard.putNumber("Wrist Angle", getCurrentAngleDegrees());
