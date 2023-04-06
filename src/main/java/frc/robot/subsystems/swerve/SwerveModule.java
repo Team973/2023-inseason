@@ -10,6 +10,7 @@ import frc.robot.shared.SwerveModuleState2;
 import frc.robot.shared.mechanisms.GearedMechanism;
 import frc.robot.shared.mechanisms.LinearMechanism;
 
+import com.ctre.phoenixpro.BaseStatusSignalValue;
 import com.ctre.phoenixpro.configs.CANcoderConfiguration;
 import com.ctre.phoenixpro.configs.TalonFXConfiguration;
 import com.ctre.phoenixpro.hardware.CANcoder;
@@ -50,7 +51,7 @@ public class SwerveModule {
     m_driveMotorConfig = m_driveMotor.getCurrentConfig();
     configDriveMotor();
 
-    m_angleEncoder.getAbsolutePosition().waitForUpdate(0.5);
+    BaseStatusSignalValue.waitForAll(0.5, m_angleEncoder.getAbsolutePosition());
     resetToAbsolute();
 
     m_lastState = getState();

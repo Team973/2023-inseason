@@ -239,7 +239,7 @@ public class Drive implements Subsystem {
 
   /** Reset the module encoders to the current absolute position. */
   public void resetModules() {
-    for (SwerveModule mod : m_swerveModules) {
+    for (var mod : m_swerveModules) {
       mod.resetToAbsolute();
     }
   }
@@ -253,13 +253,13 @@ public class Drive implements Subsystem {
   }
 
   public void enableBrakeMode() {
-    for (SwerveModule mod : m_swerveModules) {
+    for (var mod : m_swerveModules) {
       mod.driveBrake();
     }
   }
 
   public void disableBrakeMode() {
-    for (SwerveModule mod : m_swerveModules) {
+    for (var mod : m_swerveModules) {
       mod.driveNeutral();
     }
   }
