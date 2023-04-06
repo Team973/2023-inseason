@@ -124,8 +124,8 @@ public class SwerveModule {
   }
 
   public double getDriveMotorMeters() {
-    return m_driveMechanism.getOutputDistanceFromRotorRotation(
-        m_driveMotor.getRotorPositionRotation2d());
+    double wheelRotations = m_driveMotor.getRotorPosition().getValue() / DriveInfo.DRIVE_GEAR_RATIO;
+    return wheelRotations * DriveInfo.WHEEL_CIRCUMFERENCE_METERS;
   }
 
   public SwerveModulePosition getPosition() {
@@ -158,7 +158,7 @@ public class SwerveModule {
 
     if (desiredState.speedMetersPerSecond != m_lastState.speedMetersPerSecond) {
       m_driveMotor.setControl(
-          ControlMode.VelocityDutyCycle, desiredFalconVelocityInRPS.getRotations(), true);
+          ControlMode.VelocityDutyCycle, desiredFalconVelocityInRPS.getRotations());
     }
 
     // Prevent rotating module if speed is less then 1%. Prevents jittering.
