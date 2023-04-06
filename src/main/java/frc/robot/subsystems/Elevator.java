@@ -198,9 +198,9 @@ public class Elevator implements Subsystem {
         m_targetPosition = getPosition();
         break;
       case ClosedLoop:
-        Rotation2d motorPosition = m_mechanism.getRotorRotationFromOutputDistance(getPosition());
+        Rotation2d motorPosition = m_mechanism.getRotorRotationFromOutputDistance(m_targetPosition);
         m_elevatorMotor.setControl(
-            ControlMode.MotionMagicVoltage, motorPosition.getRotations(), false, 0.04, 0, true);
+            ControlMode.MotionMagicVoltage, motorPosition.getRotations(), 0.04);
         break;
       default:
         break;

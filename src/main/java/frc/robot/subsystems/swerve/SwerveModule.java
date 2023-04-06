@@ -125,8 +125,8 @@ public class SwerveModule {
   }
 
   public double getDriveMotorMeters() {
-    double wheelRotations = m_driveMotor.getRotorPosition().getValue() / DriveInfo.DRIVE_GEAR_RATIO;
-    return wheelRotations * DriveInfo.WHEEL_CIRCUMFERENCE_METERS;
+    return m_driveMechanism.getOutputDistanceFromRotorRotation(
+        m_driveMotor.getRotorPositionRotation2d());
   }
 
   public SwerveModulePosition getPosition() {

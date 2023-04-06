@@ -100,7 +100,7 @@ public final class RobotInfo {
     public static final double FALCON_TRAP_FREE_SPEED = 6380.0;
 
     public static final double MAX_VELOCITY_METERS_PER_SECOND =
-        FALCON_TRAP_FREE_SPEED / 60.0 / DRIVE_GEAR_RATIO * WHEEL_DIAMETER_METERS * Math.PI;
+        FALCON_TRAP_FREE_SPEED / 60.0 * DRIVE_GEAR_RATIO * WHEEL_DIAMETER_METERS * Math.PI;
 
     public static final double MAX_ANGULAR_VELOCITY_RADIANS_PER_SECOND = 11.5;
 
