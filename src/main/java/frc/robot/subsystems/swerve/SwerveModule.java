@@ -88,10 +88,10 @@ public class SwerveModule {
   private void configDriveMotor() {
     m_driveMotorConfig.MotorOutput.Inverted = InvertedValue.Clockwise_Positive;
 
-    m_driveMotorConfig.Slot0.kP = 0.00973;
-    m_driveMotorConfig.Slot0.kI = 0.0;
-    m_driveMotorConfig.Slot0.kD = 0.0;
-    m_driveMotorConfig.Slot0.kV = 0.00973;
+    m_driveMotorConfig.Slot0.kP = DriveInfo.DRIVE_KP;
+    m_driveMotorConfig.Slot0.kI = DriveInfo.DRIVE_KI;
+    m_driveMotorConfig.Slot0.kD = DriveInfo.DRIVE_KD;
+    m_driveMotorConfig.Slot0.kV = DriveInfo.DRIVE_KF;
 
     m_driveMotorConfig.CurrentLimits.StatorCurrentLimit = 100.0;
     m_driveMotorConfig.CurrentLimits.StatorCurrentLimitEnable = true;
@@ -159,7 +159,7 @@ public class SwerveModule {
 
     if (desiredState.speedMetersPerSecond != m_lastState.speedMetersPerSecond) {
       m_driveMotor.setControl(
-          ControlMode.VelocityDutyCycle, desiredFalconVelocityInRPS.getRotations());
+          ControlMode.VelocityVoltage, desiredFalconVelocityInRPS.getRotations());
     }
 
     // Prevent rotating module if speed is less then 1%. Prevents jittering.
@@ -174,7 +174,7 @@ public class SwerveModule {
     // Prevent module rotation if angle is the same as the previous angle.
     if (desiredState.angle != m_lastState.angle) {
       m_angleMotor.setControl(
-          ControlMode.PositionDutyCycle,
+          ControlMode.PositionVoltage,
           m_angleMechanism.getRotorRotationFromOutputRotation(desiredState.angle).getRotations());
     }
     m_lastState = desiredState;
