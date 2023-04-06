@@ -31,26 +31,18 @@ public final class SwerveMath {
    * @return Optimized {@link SwerveModuleState2}
    */
   public static SwerveModuleState2 optimize(
-      SwerveModuleState2 desiredState, Rotation2d currentAngle, double secondOrderOffsetDegrees) {
+      SwerveModuleState2 desiredState, Rotation2d currentAngle, Rotation2d secondOrderOffset) {
     double targetAngle =
         SwerveMath.placeInAppropriate0To360Scope(
-            currentAngle.getDegrees(), desiredState.angle.getDegrees() + secondOrderOffsetDegrees);
+            currentAngle.getDegrees(), desiredState.angle.plus(secondOrderOffset).getDegrees());
     double targetSpeed = desiredState.speedMetersPerSecond;
     double delta = targetAngle - currentAngle.getDegrees();
     if (Math.abs(delta) > 90) {
       targetSpeed = -targetSpeed;
-      if (delta > 90) {
-        targetAngle -= 180;
-      } else {
-        targetAngle += 180;
-      }
-    }
-    // Ensure outputted angle is positive.
-    while (targetAngle < 0) {
-      targetAngle += 360;
+      targetAngle = delta > 90 ? (targetAngle -= 180) : (targetAngle += 180);
     }
     return new SwerveModuleState2(
-        targetSpeed, Rotation2d.fromDegrees(targetAngle), desiredState.omegaRadPerSecond);
+        targetSpeed, Rotation2d.fromDegrees(targetAngle), desiredState.omegaRotationPerSecond);
   }
 
   /**
@@ -99,7 +91,7 @@ public final class SwerveMath {
       SwerveModuleState2 moduleState, SwerveModuleState2 lastModuleState, double maxSpeed) {
     if (Math.abs(moduleState.speedMetersPerSecond) <= (maxSpeed * 0.01)) {
       moduleState.angle = lastModuleState.angle;
-      moduleState.omegaRadPerSecond = 0;
+      moduleState.omegaRotationPerSecond = new Rotation2d();
     }
   }
 }

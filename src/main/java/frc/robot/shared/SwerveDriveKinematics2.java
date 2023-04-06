@@ -256,7 +256,7 @@ public class SwerveDriveKinematics2 extends SwerveDriveKinematics {
       var omegaVector = trigThetaAngle.mult(accelVector);
 
       double omega = (omegaVector.get(1, 0) / speed) - chassisSpeeds.omegaRadiansPerSecond;
-      m_moduleStates[i] = new SwerveModuleState2(speed, angle, omega);
+      m_moduleStates[i] = new SwerveModuleState2(speed, angle, Rotation2d.fromRadians(omega));
     }
 
     return m_moduleStates;

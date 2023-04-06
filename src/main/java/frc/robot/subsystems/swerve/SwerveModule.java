@@ -19,7 +19,6 @@ import com.ctre.phoenixpro.signals.NeutralModeValue;
 import com.ctre.phoenixpro.signals.SensorDirectionValue;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.kinematics.SwerveModulePosition;
-import edu.wpi.first.math.util.Units;
 
 public class SwerveModule {
   public final int moduleNumber;
@@ -117,15 +116,18 @@ public class SwerveModule {
         m_driveMechanism.getOutputDistanceFromRotorRotation(
             m_driveMotor.getRotorVelocityRotation2d());
 
-    double omegaInRPS =
-        Rotation2d.fromRotations(m_angleMotor.getRotorVelocity().getValue()).getRadians();
-
-    return new SwerveModuleState2(velocityInMPS, getAngleMotorRotation2d(), omegaInRPS);
+    return new SwerveModuleState2(
+        velocityInMPS, getAngleMotorRotation2d(), getAngleMotorVelocityRotation2d());
   }
 
   public Rotation2d getAngleMotorRotation2d() {
     return m_angleMechanism.getOutputRotationFromRotorRotation(
         m_angleMotor.getRotorPositionRotation2d());
+  }
+
+  public Rotation2d getAngleMotorVelocityRotation2d() {
+    return m_angleMechanism.getOutputRotationFromRotorRotation(
+        m_angleMotor.getRotorVelocityRotation2d());
   }
 
   public double getDriveMotorMeters() {
@@ -160,8 +162,9 @@ public class SwerveModule {
         SwerveMath.optimize(
             desiredState,
             getState().angle,
-            Units.radiansToDegrees(m_lastState.omegaRadPerSecond * DriveInfo.ANGLE_KV)
-                * 0.065); // I am unsure of what the 0.065 represents
+            Rotation2d.fromRadians(
+                    m_lastState.omegaRotationPerSecond.getRadians() * DriveInfo.ANGLE_KV)
+                .times(1.0)); // 0.06 is a fudge number
 
     Rotation2d desiredFalconVelocityInRPS =
         m_driveMechanism.getRotorRotationFromOutputDistance(desiredState.speedMetersPerSecond);

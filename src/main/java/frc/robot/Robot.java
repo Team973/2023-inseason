@@ -107,9 +107,9 @@ public class Robot extends TimedRobot {
 
   /** Update subsystems. Called me when enabled. */
   private void updateSubsystems() {
-    // m_elevator.update();
-    // m_wrist.update();
-    // m_claw.update();
+    m_elevator.update();
+    m_wrist.update();
+    m_claw.update();
     m_drive.update();
   }
 
@@ -221,7 +221,10 @@ public class Robot extends TimedRobot {
       /////////////////////
       // DRIVER CONTROLS //
       /////////////////////
-      final double xSpeed = -MathUtil.applyDeadband(m_driverStick.getRawAxis(1), 0.12);
+      final double xSpeed =
+          m_driverStick.getBackButton()
+              ? 0.18
+              : -MathUtil.applyDeadband(m_driverStick.getRawAxis(1), 0.12);
       final double ySpeed = -MathUtil.applyDeadband(m_driverStick.getRawAxis(0), 0.12);
 
       double rot =
