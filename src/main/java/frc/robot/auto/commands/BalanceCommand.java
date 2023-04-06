@@ -25,7 +25,7 @@ public class BalanceCommand extends AutoCommand {
   }
 
   public void run() {
-    double yaw = m_drive.getNormalizedGyroYaw();
+    double yaw = m_drive.getPigeon().getNormalizedYaw().getDegrees();
     if (Math.abs(yaw - 90.0) < 30.0 || Math.abs(yaw - 270.0) < 30.0) {
       m_drive.balanceDriveRoll();
       m_direction = Direction.Roll;
@@ -39,10 +39,10 @@ public class BalanceCommand extends AutoCommand {
     boolean completed = false;
     switch (m_direction) {
       case Roll:
-        completed = Math.abs(m_drive.getGyroRoll()) < ANGLE_TOLERANCE_DEG;
+        completed = Math.abs(m_drive.getPigeon().getRoll().getDegrees()) < ANGLE_TOLERANCE_DEG;
         break;
       case Pitch:
-        completed = Math.abs(m_drive.getGyroPitch()) < ANGLE_TOLERANCE_DEG;
+        completed = Math.abs(m_drive.getPigeon().getPitch().getDegrees()) < ANGLE_TOLERANCE_DEG;
         break;
       default:
         break;
