@@ -28,19 +28,20 @@ import lombok.experimental.Accessors;
 
 @Accessors(prefix = "m_")
 public class Drive implements Subsystem {
-  private SwerveDriveOdometry m_swerveOdometry;
-  private SwerveModule[] m_swerveModules;
+  private static final Rotation2d BALANCE_CUTOFF_THRESHOLD = Rotation2d.fromDegrees(6.5);
+
+  private final SwerveDriveOdometry m_swerveOdometry;
+  private final SwerveModule[] m_swerveModules;
   private ChassisSpeeds m_currentChassisSpeeds;
 
   @Getter private final GreyPigeon m_pigeon;
 
   @Setter private Rotation2d m_targetRobotAngle = new Rotation2d();
-
   @Setter private RotationControl m_rotationControl = RotationControl.OpenLoop;
 
-  private PIDController m_rotationController = new PIDController(0.11, 0.0, 0.003);
-  private PIDController m_balancePitchController = new PIDController(0.045, 0.0, 0.007);
-  private PIDController m_balanceRollController = new PIDController(0.045, 0.0, 0.007);
+  private final PIDController m_rotationController = new PIDController(0.11, 0.0, 0.003);
+  private final PIDController m_balancePitchController = new PIDController(0.055, 0.0, 0.015);
+  private final PIDController m_balanceRollController = new PIDController(0.055, 0.0, 0.015);
 
   public enum RotationControl {
     OpenLoop,
@@ -86,30 +87,31 @@ public class Drive implements Subsystem {
                 0.0,
                 new TrapezoidProfile.Constraints(
                     DriveInfo.MAX_ANGULAR_VELOCITY_RADIANS_PER_SECOND, 7.0)));
-
-    // Used by balanceDrive() to keep the robot level on the charge station
-    m_balancePitchController.setSetpoint(0.0);
-    m_balanceRollController.setSetpoint(0.0);
-    m_balancePitchController.setTolerance(5.0);
-    m_balanceRollController.setTolerance(5.0);
   }
 
   /** Balance the robot on the charge station */
   public void balanceDrive() {
-    // Calculate the pitch and roll angles in degrees
-    double pitch = m_pigeon.getRotation().getPitch().getDegrees();
-    double roll = m_pigeon.getRotation().getRoll().getDegrees();
+    var pitch = m_pigeon.getPitch();
+    var roll = m_pigeon.getRoll();
+    var yaw = m_pigeon.getNormalizedYaw();
 
-    // Calculate the output for the controllers. These have a baked in setpoint of 0.0 and a
-    // tolerance of 5.0 deg
-    double pitchOutput = m_balancePitchController.calculate(pitch);
-    double rollOutput = m_balanceRollController.calculate(roll);
+    // Determine the sign for pitch and roll based on the yaw angle
+    double pitchSign = Math.signum(yaw.getCos());
+    double rollSign = Math.signum(yaw.getSin());
 
-    // Create a translation in the direction of the incline
-    Translation2d translation = new Translation2d(rollOutput, pitchOutput);
+    // Calculate the pitch and roll output using the determined signs
+    double pitchOutput =
+        m_pigeon.isLevel(BALANCE_CUTOFF_THRESHOLD)
+            ? m_balancePitchController.calculate(pitch.getDegrees(), 0.0) * pitchSign
+            : 0.0;
+
+    double rollOutput =
+        m_pigeon.isLevel(BALANCE_CUTOFF_THRESHOLD)
+            ? m_balanceRollController.calculate(roll.getDegrees(), 0.0) * rollSign
+            : 0.0;
 
     // Apply the translation to the holonomic drive with a zero rotation value
-    driveInput(translation, 0.0, true);
+    driveInput(new Translation2d(pitchOutput + rollOutput, 0.0), 0.0, true);
   }
 
   public void driveInput(Translation2d translation, double rotationVal, boolean fieldRelative) {
