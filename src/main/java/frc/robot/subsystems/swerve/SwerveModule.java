@@ -5,6 +5,8 @@ import frc.robot.devices.GreyTalonFX.ControlMode;
 import frc.robot.shared.RobotInfo;
 import frc.robot.shared.RobotInfo.DriveInfo;
 import frc.robot.shared.SwerveModuleConfig;
+import frc.robot.shared.mechanisms.GearedMechanism;
+import frc.robot.shared.mechanisms.LinearMechanism;
 
 import com.ctre.phoenixpro.BaseStatusSignalValue;
 import com.ctre.phoenixpro.configs.CANcoderConfiguration;
@@ -14,7 +16,6 @@ import com.ctre.phoenixpro.signals.AbsoluteSensorRangeValue;
 import com.ctre.phoenixpro.signals.InvertedValue;
 import com.ctre.phoenixpro.signals.NeutralModeValue;
 import com.ctre.phoenixpro.signals.SensorDirectionValue;
-import edu.wpi.first.math.controller.SimpleMotorFeedforward;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.kinematics.SwerveModulePosition;
 import edu.wpi.first.math.kinematics.SwerveModuleState;
@@ -25,12 +26,12 @@ public class SwerveModule {
   private final GreyTalonFX m_angleMotor;
   private final GreyTalonFX m_driveMotor;
   private final CANcoder m_angleEncoder;
+  private final LinearMechanism m_driveMechanism =
+      new LinearMechanism(DriveInfo.DRIVE_GEAR_RATIO, DriveInfo.WHEEL_DIAMETER_METERS);
+  private final GearedMechanism m_angleMechanism = new GearedMechanism(DriveInfo.ANGLE_GEAR_RATIO);
   private SwerveModuleState m_lastState;
 
   private final TalonFXConfiguration m_driveMotorConfig;
-
-  SimpleMotorFeedforward feedforward =
-      new SimpleMotorFeedforward(DriveInfo.driveKS, DriveInfo.driveKV, DriveInfo.driveKA);
 
   public SwerveModule(int moduleNumber, SwerveModuleConfig moduleConfig) {
     this.moduleNumber = moduleNumber;
@@ -87,10 +88,10 @@ public class SwerveModule {
   private void configDriveMotor() {
     m_driveMotorConfig.MotorOutput.Inverted = InvertedValue.Clockwise_Positive;
 
-    m_driveMotorConfig.Slot0.kP = 0.00973;
-    m_driveMotorConfig.Slot0.kI = 0.0;
-    m_driveMotorConfig.Slot0.kD = 0.0;
-    m_driveMotorConfig.Slot0.kV = 0.00973;
+    m_driveMotorConfig.Slot0.kP = DriveInfo.DRIVE_KP;
+    m_driveMotorConfig.Slot0.kI = DriveInfo.DRIVE_KI;
+    m_driveMotorConfig.Slot0.kD = DriveInfo.DRIVE_KD;
+    m_driveMotorConfig.Slot0.kV = DriveInfo.DRIVE_KF;
 
     m_driveMotorConfig.CurrentLimits.StatorCurrentLimit = 100.0;
     m_driveMotorConfig.CurrentLimits.StatorCurrentLimitEnable = true;
@@ -106,29 +107,26 @@ public class SwerveModule {
   }
 
   public void resetToAbsolute() {
-    double absolutePosition =
-        (getCanCoder().minus(m_angleOffset).getRotations()) * DriveInfo.ANGLE_GEAR_RATIO;
-    m_angleMotor.setRotorPosition(absolutePosition);
+    m_angleMotor.setRotorPositionRotation2d(
+        m_angleMechanism.getRotorRotationFromOutputRotation(getCanCoder().minus(m_angleOffset)));
   }
 
   public SwerveModuleState getState() {
-    double wheelRPS = m_driveMotor.getRotorVelocity().getValue() / DriveInfo.DRIVE_GEAR_RATIO;
-    double velocityInMPS = wheelRPS * DriveInfo.WHEEL_CIRCUMFERENCE_METERS;
+    double velocityInMPS =
+        m_driveMechanism.getOutputDistanceFromRotorRotation(
+            m_driveMotor.getRotorVelocityRotation2d());
 
-    Rotation2d angle =
-        Rotation2d.fromRotations(
-            m_angleMotor.getRotorPosition().getValue() / DriveInfo.ANGLE_GEAR_RATIO);
-
-    return new SwerveModuleState(velocityInMPS, angle);
+    return new SwerveModuleState(velocityInMPS, getAngleMotorRotation2d());
   }
 
-  public double getAngleRaw() {
-    return m_angleMotor.getRotorPosition().getValue();
+  public Rotation2d getAngleMotorRotation2d() {
+    return m_angleMechanism.getOutputRotationFromRotorRotation(
+        m_angleMotor.getRotorPositionRotation2d());
   }
 
   public double getDriveMotorMeters() {
-    double wheelRotations = m_driveMotor.getRotorPosition().getValue() / DriveInfo.DRIVE_GEAR_RATIO;
-    return wheelRotations * DriveInfo.WHEEL_CIRCUMFERENCE_METERS;
+    return m_driveMechanism.getOutputDistanceFromRotorRotation(
+        m_driveMotor.getRotorPositionRotation2d());
   }
 
   public SwerveModulePosition getPosition() {
@@ -156,15 +154,12 @@ public class SwerveModule {
     // CTRE is not
     desiredState = CTREModuleState.optimize(desiredState, getState().angle);
 
-    double desiredWheelVelocityInRPS =
-        desiredState.speedMetersPerSecond / DriveInfo.WHEEL_CIRCUMFERENCE_METERS;
-    double desiredFalconVelocityInRPS = desiredWheelVelocityInRPS * DriveInfo.DRIVE_GEAR_RATIO;
+    Rotation2d desiredFalconVelocityInRPS =
+        m_driveMechanism.getRotorRotationFromOutputDistance(desiredState.speedMetersPerSecond);
 
     if (desiredState.speedMetersPerSecond != m_lastState.speedMetersPerSecond) {
       m_driveMotor.setControl(
-          ControlMode.VelocityDutyCycle,
-          desiredFalconVelocityInRPS,
-          feedforward.calculate(desiredState.speedMetersPerSecond));
+          ControlMode.VelocityVoltage, desiredFalconVelocityInRPS.getRotations());
     }
 
     // Prevent rotating module if speed is less then 1%. Prevents jittering.
@@ -176,12 +171,12 @@ public class SwerveModule {
               : desiredState.angle;
     }
 
+    // Prevent module rotation if angle is the same as the previous angle.
     if (desiredState.angle != m_lastState.angle) {
       m_angleMotor.setControl(
-          ControlMode.PositionDutyCycle,
-          desiredState.angle.getRotations() * DriveInfo.ANGLE_GEAR_RATIO);
+          ControlMode.PositionVoltage,
+          m_angleMechanism.getRotorRotationFromOutputRotation(desiredState.angle).getRotations());
     }
-
     m_lastState = desiredState;
   }
 
