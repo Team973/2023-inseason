@@ -27,6 +27,7 @@ public class Superstructure implements Subsystem {
     Stow,
     LoadHp,
     LoadFloor,
+    Toss,
     Manual
   }
 
@@ -66,6 +67,10 @@ public class Superstructure implements Subsystem {
       case LoadFloor:
         elevatorPreset = Elevator.Preset.Floor;
         wristPreset = WristPreset.Floor;
+        break;
+      case Toss:
+        elevatorPreset = Elevator.Preset.Floor;
+        wristPreset = WristPreset.ConeRight;
         break;
       case Manual:
         elevatorPreset = Elevator.Preset.Manual;

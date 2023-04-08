@@ -275,7 +275,7 @@ public class Robot extends TimedRobot {
       // Score
       if (m_driverStick.getLeftBumper()) {
         if (m_claw.isHasGamePiece() && (m_wrist.getPreset() == WristPreset.Stow)) {
-          m_wrist.setPreset(WristPreset.ConeRight);
+          m_superstructure.setGlobalState(GlobalState.Toss);
         }
         m_claw.setIntakeState(IntakeState.Out);
       } else if (m_claw.getIntakeState() == IntakeState.Out) {
@@ -333,6 +333,10 @@ public class Robot extends TimedRobot {
           break;
         default:
           break;
+      }
+
+      if (m_operatorStick.getAButton()) {
+        m_superstructure.setGlobalState(GlobalState.Stow);
       }
 
       // Manual Elevator
