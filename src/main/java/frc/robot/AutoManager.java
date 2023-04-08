@@ -84,7 +84,7 @@ public class AutoManager {
     m_currentMode.init();
   }
 
-  public void selectAuto(AutoMode mode) {
+  private void selectAuto(AutoMode mode) {
     switch (mode) {
       case Test:
         m_currentMode = m_test;

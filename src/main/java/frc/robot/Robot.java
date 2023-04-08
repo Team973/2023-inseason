@@ -163,7 +163,8 @@ public class Robot extends TimedRobot {
       m_calculatedAlliance = DriverStation.getAlliance();
 
       // CANdle
-      if (!m_exceptionHappened && !isDisabled()) {
+      if (!m_exceptionHappened
+          || !isDisabled() && m_candleManager.getLightState() != LightState.GotIt) {
         m_candleManager.setLightWithGamePiece();
       }
     } catch (Exception e) {
