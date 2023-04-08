@@ -57,8 +57,8 @@ public final class RobotInfo {
     public static final double BACK_RIGHT_MODULE_STEER_OFFSET = 203.12;
 
     public static final double DRIVE_GEAR_RATIO =
-        1 / ((14.0 / 44.0) * (28.0 / 18.0) * (15.0 / 45.0)); // 6.06:1
-    public static final double ANGLE_GEAR_RATIO = 1 / ((8.0 / 24.0) * (14.0 / 72.0)); // 15.43:1
+        ((14.0 / 44.0) * (28.0 / 18.0) * (15.0 / 45.0)); // 1:6.06
+    public static final double ANGLE_GEAR_RATIO = ((8.0 / 24.0) * (14.0 / 72.0)); // 1:15.43
 
     public static final double WHEEL_DIAMETER_METERS = 0.1016;
     public static final double WHEEL_CIRCUMFERENCE_METERS = WHEEL_DIAMETER_METERS * Math.PI;
@@ -78,22 +78,17 @@ public final class RobotInfo {
     public static final double CLOSEDLOOP_RAMP = 0.0;
 
     /* Angle Motor PID Values */
-    public static final double ANGLE_KP = 0.3;
+    public static final double ANGLE_KP = 6.0;
     public static final double ANGLE_KI = 0.0;
     public static final double ANGLE_KD = 0.0;
     public static final double ANGLE_KF = 0.0;
+    public static final double ANGLE_KV = 0.0;
 
     /* Drive Motor PID Values */
-    public static final double DRIVE_KP = 0.0;
+    public static final double DRIVE_KP = 0.2;
     public static final double DRIVE_KI = 0.0;
     public static final double DRIVE_KD = 0.0;
-    public static final double DRIVE_KF = 0.0;
-
-    /* Drive Motor Characterization Values */
-    // divide by 12 to convert from volts to percent output for CTRE
-    public static final double driveKS = (0.0 / 12);
-    public static final double driveKV = (0.0 / 12);
-    public static final double driveKA = (0.0 / 12);
+    public static final double DRIVE_KF = 0.15;
 
     /* Motor Inverts */
     public static final boolean DRIVE_MOTOR_INVERT = true;
@@ -105,7 +100,7 @@ public final class RobotInfo {
     public static final double FALCON_TRAP_FREE_SPEED = 6380.0;
 
     public static final double MAX_VELOCITY_METERS_PER_SECOND =
-        FALCON_TRAP_FREE_SPEED / 60.0 / DRIVE_GEAR_RATIO * WHEEL_DIAMETER_METERS * Math.PI;
+        FALCON_TRAP_FREE_SPEED / 60.0 * DRIVE_GEAR_RATIO * WHEEL_DIAMETER_METERS * Math.PI;
 
     public static final double MAX_ANGULAR_VELOCITY_RADIANS_PER_SECOND = 11.5;
 

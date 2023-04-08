@@ -6,9 +6,11 @@ import frc.robot.devices.GreyTalonFX;
 import frc.robot.devices.GreyTalonFX.ControlMode;
 import frc.robot.shared.RobotInfo;
 import frc.robot.shared.Subsystem;
+import frc.robot.shared.mechanisms.LinearMechanism;
 
 import com.ctre.phoenixpro.controls.Follower;
 import com.ctre.phoenixpro.signals.InvertedValue;
+import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.wpilibj.DigitalInput;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import lombok.Getter;
@@ -27,11 +29,13 @@ public class Elevator implements Subsystem {
   private double m_elevatorOutput = 0.0;
   private double m_targetPosition = 0.0;
 
-  private static final double GEAR_RATIO = (11.0 / 72.0);
+  private static final double GEAR_RATIO = (11.0 / 72.0); // 1:6.545
   /** Pitch Diameter of sprocket in inches */
   private static final double SPROCKET_PD = 1.751;
-  /** Circumference of sprocket in inches */
-  private static final double SPROCKET_CIRCUMFERENCE = Math.PI * SPROCKET_PD;
+
+  /** The LinearMechanism that represents the elevator. */
+  private final LinearMechanism m_mechanism = new LinearMechanism(GEAR_RATIO, SPROCKET_PD);
+
   /** Degrees from floor */
   private static final double ANGLE = 51.519262;
   /** Sin of Elevator Angle. */
@@ -114,7 +118,8 @@ public class Elevator implements Subsystem {
   }
 
   public double getPosition() {
-    return m_elevatorMotor.getRotorPosition().getValue() * SPROCKET_CIRCUMFERENCE * GEAR_RATIO;
+    return m_mechanism.getOutputDistanceFromRotorRotation(
+        m_elevatorMotor.getRotorPositionRotation2d());
   }
 
   public void setHeight(double height) {
@@ -173,10 +178,9 @@ public class Elevator implements Subsystem {
 
   public void update() {
     if (getTopHall()) {
-      m_elevatorMotor.setRotorPosition(
-          getPositionFromHeight(Elevator.MAX_HEIGHT - STOW_OFFSET)
-              / SPROCKET_CIRCUMFERENCE
-              / GEAR_RATIO);
+      m_elevatorMotor.setRotorPositionRotation2d(
+          m_mechanism.getRotorRotationFromOutputDistance(
+              getPositionFromHeight(Elevator.MAX_HEIGHT - STOW_OFFSET)));
     } else if (getBottomHall()) {
       m_elevatorMotor.setRotorPosition(0.0);
     }
@@ -191,12 +195,12 @@ public class Elevator implements Subsystem {
           m_elevatorOutput = clamp(m_elevatorOutput, 0.2, -0.2);
         }
         m_elevatorMotor.setControl(ControlMode.DutyCycleOut, m_elevatorOutput);
-
         m_targetPosition = getPosition();
         break;
       case ClosedLoop:
-        double motorPosition = m_targetPosition / SPROCKET_CIRCUMFERENCE / GEAR_RATIO;
-        m_elevatorMotor.setControl(ControlMode.MotionMagicVoltage, motorPosition);
+        Rotation2d motorPosition = m_mechanism.getRotorRotationFromOutputDistance(m_targetPosition);
+        m_elevatorMotor.setControl(
+            ControlMode.MotionMagicVoltage, motorPosition.getRotations(), 0.04);
         break;
       default:
         break;
