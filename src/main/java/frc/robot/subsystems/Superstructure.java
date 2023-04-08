@@ -32,6 +32,7 @@ public class Superstructure implements Subsystem {
   }
 
   @Getter @Setter private GlobalState m_globalState = GlobalState.Stow;
+  @Getter @Setter private static GamePiece m_currentGamePiece;
   private final Elevator m_elevator;
   private final Wrist m_wrist;
 

@@ -37,7 +37,6 @@ import edu.wpi.first.wpilibj.TimedRobot;
 import edu.wpi.first.wpilibj.XboxController;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import lombok.Getter;
-import lombok.Setter;
 import lombok.experimental.Accessors;
 
 /**
@@ -48,7 +47,6 @@ import lombok.experimental.Accessors;
  */
 @Accessors(prefix = "m_")
 public class Robot extends TimedRobot {
-  @Setter @Getter private static GamePiece m_currentGamePiece = GamePiece.None;
   @Getter private static GamePiece m_preloadGamePiece = GamePiece.Cone;
 
   @Getter private static boolean m_exceptionHappened = false;
@@ -280,7 +278,7 @@ public class Robot extends TimedRobot {
         m_claw.setIntakeState(IntakeState.Out);
       } else if (m_claw.getIntakeState() == IntakeState.Out) {
         m_claw.setIntakeState(IntakeState.Neutral);
-        m_currentGamePiece = GamePiece.None;
+        Superstructure.setCurrentGamePiece(GamePiece.None);
         m_superstructure.setGlobalState(GlobalState.Stow);
       }
 
@@ -289,7 +287,7 @@ public class Robot extends TimedRobot {
         m_elevator.setElevatorState(ElevatorState.ClosedLoop);
         m_elevator.setPreset(Elevator.Preset.Floor);
         m_wrist.setState(WristState.ClosedLoop);
-        m_currentGamePiece = GamePiece.Cone;
+        Superstructure.setCurrentGamePiece(GamePiece.Cone);
         m_claw.setIntakeState(IntakeState.In);
         if (m_driverStick.getRightTriggerAxis() > 0.9) {
           m_wrist.setPreset(WristPreset.Floor);
@@ -329,7 +327,7 @@ public class Robot extends TimedRobot {
           break;
         case 270:
           m_superstructure.setGlobalState(GlobalState.LoadHp);
-          m_currentGamePiece = GamePiece.None;
+          Superstructure.setCurrentGamePiece(GamePiece.None);
           break;
         default:
           break;
@@ -350,10 +348,10 @@ public class Robot extends TimedRobot {
 
       // Intake
       if (m_operatorStick.getRightTriggerAxis() > 0.5) {
-        m_currentGamePiece = GamePiece.Cone;
+        Superstructure.setCurrentGamePiece(GamePiece.Cone);
         m_claw.setIntakeState(IntakeState.In);
       } else if (m_operatorStick.getLeftTriggerAxis() > 0.5) {
-        m_currentGamePiece = GamePiece.Cube;
+        Superstructure.setCurrentGamePiece(GamePiece.Cube);
         m_claw.setIntakeState(IntakeState.In);
       } else if (m_claw.getIntakeState() != IntakeState.Out
           && m_claw.getIntakeState() != IntakeState.Neutral

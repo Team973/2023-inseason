@@ -1,6 +1,5 @@
 package frc.robot.subsystems;
 
-import frc.robot.Robot;
 import frc.robot.devices.GreyTalonFX;
 import frc.robot.devices.GreyTalonFX.ControlMode;
 import frc.robot.shared.RobotInfo;
@@ -128,7 +127,7 @@ public class Wrist implements Subsystem {
   }
 
   public void setPreset(WristPreset nextPreset) {
-    GamePiece currentGamePiece = Robot.getCurrentGamePiece();
+    GamePiece currentGamePiece = Superstructure.getCurrentGamePiece();
     m_preset = nextPreset;
     // TODO handle cycle bug
     if (m_preset == WristPreset.Manual && m_state != WristState.ClosedLoop) {
@@ -181,7 +180,7 @@ public class Wrist implements Subsystem {
   }
 
   public void update() {
-    GamePiece currentGamePiece = Robot.getCurrentGamePiece();
+    GamePiece currentGamePiece = Superstructure.getCurrentGamePiece();
     if (m_preset == WristPreset.Manual && m_state != WristState.ClosedLoop) {
       setTargetAngleDegrees(getCurrentAngleDegrees());
     } else if (m_preset == WristPreset.Manual && m_state == WristState.ClosedLoop) {

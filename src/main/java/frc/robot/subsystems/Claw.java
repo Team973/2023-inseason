@@ -2,7 +2,6 @@ package frc.robot.subsystems;
 
 import static frc.robot.shared.RobotInfo.*;
 
-import frc.robot.Robot;
 import frc.robot.devices.GreyTalonFX;
 import frc.robot.devices.GreyTalonFX.ControlMode;
 import frc.robot.shared.RobotInfo;
@@ -59,16 +58,11 @@ public class Claw implements Subsystem {
 
   private boolean checkForGamePiece() {
     boolean atStatorLimit = Math.abs(m_intakeStator) > m_statorCurrentLimit - 15.0;
-    boolean check = false;
 
-    if (Robot.getCurrentGamePiece() == GamePiece.Cube) {
-      check = getGamePieceSensor() && atStatorLimit;
-    } else if (Robot.getCurrentGamePiece() == GamePiece.Cone) {
-      check = atStatorLimit;
-    }
-
-    if (check) {
-      m_hasGamePiece = true;
+    if (Superstructure.getCurrentGamePiece() == GamePiece.Cube) {
+      m_hasGamePiece = getGamePieceSensor() && atStatorLimit;
+    } else if (Superstructure.getCurrentGamePiece() == GamePiece.Cone) {
+      m_hasGamePiece = atStatorLimit;
     }
 
     return m_hasGamePiece;
@@ -89,7 +83,7 @@ public class Claw implements Subsystem {
   }
 
   public void update() {
-    GamePiece currentGamePiece = Robot.getCurrentGamePiece();
+    GamePiece currentGamePiece = Superstructure.getCurrentGamePiece();
     m_intakeStator = m_intakeMotor.getStatorCurrent().getValue();
     checkForGamePiece();
 
