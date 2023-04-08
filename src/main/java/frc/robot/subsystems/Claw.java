@@ -21,8 +21,7 @@ public class Claw implements Subsystem {
 
   private final GreyTalonFX m_intakeMotor;
 
-  private final DigitalInput m_coneSensor;
-  private final DigitalInput m_cubeSensor;
+  private final DigitalInput m_gamePieceSensor;
 
   private GamePiece m_lastGamePiece = GamePiece.None;
   @Getter private boolean m_hasGamePiece = false;
@@ -41,8 +40,7 @@ public class Claw implements Subsystem {
 
   public Claw() {
     m_intakeMotor = new GreyTalonFX(ClawInfo.INTAKE_FX_ID, RobotInfo.CANIVORE_NAME);
-    m_coneSensor = new DigitalInput(ClawInfo.CONE_SENSOR_ID);
-    m_cubeSensor = new DigitalInput(ClawInfo.CUBE_SENSOR_ID);
+    m_gamePieceSensor = new DigitalInput(ClawInfo.GAME_PIECE_SENSOR_ID);
 
     configIntakeMotor();
   }
@@ -61,25 +59,14 @@ public class Claw implements Subsystem {
 
   private boolean checkForGamePiece() {
     boolean atStatorLimit = Math.abs(m_intakeStator) > m_statorCurrentLimit - 10.0;
-    boolean check = atStatorLimit;
-    if (Robot.getCurrentGamePiece() == GamePiece.Cone) {
-      check = getConeSensor() && atStatorLimit;
-    } else if (Robot.getCurrentGamePiece() == GamePiece.Cube) {
-      check = getCubeSensor() && atStatorLimit;
-    }
 
-    if (check) {
-      m_hasGamePiece = true;
-    }
+    m_hasGamePiece = getGamePieceSensor() && atStatorLimit;
+
     return m_hasGamePiece;
   }
 
-  private boolean getConeSensor() {
-    return m_coneSensor.get();
-  }
-
-  private boolean getCubeSensor() {
-    return m_cubeSensor.get();
+  private boolean getGamePieceSensor() {
+    return m_gamePieceSensor.get();
   }
 
   public void dashboardUpdate() {}
@@ -89,8 +76,7 @@ public class Claw implements Subsystem {
     SmartDashboard.putNumber("Intake Supply", m_intakeMotor.getSupplyCurrent().getValue());
     SmartDashboard.putNumber("Intake Velocity", m_intakeMotor.getVelocity().getValue());
     SmartDashboard.putBoolean("Game Piece", m_hasGamePiece);
-    SmartDashboard.putBoolean("Cone Sensor", getConeSensor());
-    SmartDashboard.putBoolean("Cube Sensor", getCubeSensor());
+    SmartDashboard.putBoolean("Game Piece Sensor", getGamePieceSensor());
   }
 
   public void update() {
