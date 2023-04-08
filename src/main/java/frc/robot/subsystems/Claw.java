@@ -58,9 +58,15 @@ public class Claw implements Subsystem {
   }
 
   private boolean checkForGamePiece() {
-    boolean atStatorLimit = Math.abs(m_intakeStator) > m_statorCurrentLimit - 10.0;
+    boolean atStatorLimit = Math.abs(m_intakeStator) > m_statorCurrentLimit - 15.0;
 
-    m_hasGamePiece = getGamePieceSensor() && atStatorLimit;
+    if (Robot.getCurrentGamePiece() == GamePiece.Cube) {
+      m_hasGamePiece = getGamePieceSensor() && atStatorLimit;
+    } else if (Robot.getCurrentGamePiece() == GamePiece.Cone) {
+      m_hasGamePiece = atStatorLimit;
+    } else {
+      m_hasGamePiece = false;
+    }
 
     return m_hasGamePiece;
   }
