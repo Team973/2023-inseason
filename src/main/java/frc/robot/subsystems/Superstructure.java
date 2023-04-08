@@ -33,7 +33,7 @@ public class Superstructure implements Subsystem {
   }
 
   @Getter @Setter private GlobalState m_globalState = GlobalState.Stow;
-  @Getter @Setter private static GamePiece m_currentGamePiece;
+  @Getter @Setter private static GamePiece m_currentGamePiece = GamePiece.None;
   @Getter @Setter IntakeState m_desiredIntakeState = IntakeState.Neutral;
 
   private final Elevator m_elevator;
