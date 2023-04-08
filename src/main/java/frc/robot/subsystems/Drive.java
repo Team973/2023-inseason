@@ -28,19 +28,20 @@ import lombok.experimental.Accessors;
 
 @Accessors(prefix = "m_")
 public class Drive implements Subsystem {
-  private SwerveDriveOdometry m_swerveOdometry;
-  private SwerveModule[] m_swerveModules;
+  private static final Rotation2d BALANCE_CUTOFF_THRESHOLD = Rotation2d.fromDegrees(6.5);
+
+  private final SwerveDriveOdometry m_swerveOdometry;
+  private final SwerveModule[] m_swerveModules;
   private ChassisSpeeds m_currentChassisSpeeds;
 
   @Getter private final GreyPigeon m_pigeon;
 
   @Setter private Rotation2d m_targetRobotAngle = new Rotation2d();
-
   @Setter private RotationControl m_rotationControl = RotationControl.OpenLoop;
 
-  private PIDController m_rotationController = new PIDController(0.11, 0.0, 0.003);
-  private PIDController m_balancePitchController = new PIDController(0.045, 0.0, 0.007);
-  private PIDController m_balanceRollController = new PIDController(0.045, 0.0, 0.007);
+  private final PIDController m_rotationController = new PIDController(0.11, 0.0, 0.003);
+  private final PIDController m_balancePitchController = new PIDController(0.055, 0.0, 0.015);
+  private final PIDController m_balanceRollController = new PIDController(0.055, 0.0, 0.015);
 
   public enum RotationControl {
     OpenLoop,
@@ -88,36 +89,29 @@ public class Drive implements Subsystem {
                     DriveInfo.MAX_ANGULAR_VELOCITY_RADIANS_PER_SECOND, 7.0)));
   }
 
-  public void balanceDrivePitch() {
-    double pitch = m_pigeon.getPitch().getDegrees();
-    if (Math.abs(pitch) > 5.0) {
-      double pitchCorrection = m_balancePitchController.calculate(pitch, 0.0);
-      if (Math.abs(m_pigeon.getNormalizedYaw().getDegrees() - 180) < 30.0) {
-        pitchCorrection *= -1.0;
-      }
-      driveInput(new Translation2d(pitchCorrection, 0.0), 0.0, true);
-    } else {
-      m_currentChassisSpeeds = new ChassisSpeeds();
-      for (SwerveModule swerveModule : m_swerveModules) {
-        swerveModule.setDesiredState(new SwerveModuleState(0.0, Rotation2d.fromDegrees(90)), true);
-      }
-    }
-  }
+  /** Balance the robot on the charge station */
+  public void balanceDrive() {
+    var pitch = m_pigeon.getPitch();
+    var roll = m_pigeon.getRoll();
+    var yaw = m_pigeon.getNormalizedYaw();
 
-  public void balanceDriveRoll() {
-    double roll = m_pigeon.getRoll().getDegrees();
-    if (Math.abs(roll) > 5.0) {
-      double rollCorrection = m_balanceRollController.calculate(roll, 0.0);
-      if (Math.abs(m_pigeon.getNormalizedYaw().getDegrees() - 270) < 30.0) {
-        rollCorrection *= -1.0;
-      }
-      driveInput(new Translation2d(rollCorrection, 0.0), 0.0, true);
-    } else {
-      m_currentChassisSpeeds = new ChassisSpeeds();
-      for (SwerveModule swerveModule : m_swerveModules) {
-        swerveModule.setDesiredState(new SwerveModuleState(0.0, Rotation2d.fromDegrees(0)), true);
-      }
-    }
+    // Determine the sign for pitch and roll based on the yaw angle
+    double pitchSign = Math.signum(yaw.getCos());
+    double rollSign = Math.signum(yaw.getSin());
+
+    // Calculate the pitch and roll output using the determined signs
+    double pitchOutput =
+        !m_pigeon.isLevel(BALANCE_CUTOFF_THRESHOLD)
+            ? m_balancePitchController.calculate(pitch.getDegrees(), 0.0) * pitchSign
+            : 0.0;
+
+    double rollOutput =
+        !m_pigeon.isLevel(BALANCE_CUTOFF_THRESHOLD)
+            ? m_balanceRollController.calculate(roll.getDegrees(), 0.0) * rollSign
+            : 0.0;
+
+    // Apply the translation to the holonomic drive with a zero rotation value
+    driveInput(new Translation2d(pitchOutput + rollOutput, 0.0), 0.0, true);
   }
 
   public void driveInput(Translation2d translation, double rotationVal, boolean fieldRelative) {
