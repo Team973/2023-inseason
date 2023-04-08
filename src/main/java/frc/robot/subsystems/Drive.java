@@ -101,12 +101,12 @@ public class Drive implements Subsystem {
 
     // Calculate the pitch and roll output using the determined signs
     double pitchOutput =
-        m_pigeon.isLevel(BALANCE_CUTOFF_THRESHOLD)
+        !m_pigeon.isLevel(BALANCE_CUTOFF_THRESHOLD)
             ? m_balancePitchController.calculate(pitch.getDegrees(), 0.0) * pitchSign
             : 0.0;
 
     double rollOutput =
-        m_pigeon.isLevel(BALANCE_CUTOFF_THRESHOLD)
+        !m_pigeon.isLevel(BALANCE_CUTOFF_THRESHOLD)
             ? m_balanceRollController.calculate(roll.getDegrees(), 0.0) * rollSign
             : 0.0;
 
