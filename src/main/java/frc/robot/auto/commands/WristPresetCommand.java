@@ -29,7 +29,8 @@ public class WristPresetCommand extends AutoCommand {
   public void run() {}
 
   public boolean isCompleted() {
-    return m_wrist.isAtTargetAngle() && Math.abs(m_wrist.getVelocity()) < m_minAngleVelocity;
+    return m_wrist.isAtTargetAngle()
+        && Math.abs(m_wrist.getVelocity().getDegrees()) < m_minAngleVelocity;
   }
 
   public void postComplete(boolean interrupted) {}
