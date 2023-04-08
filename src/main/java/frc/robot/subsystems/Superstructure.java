@@ -40,9 +40,7 @@ public class Superstructure implements Subsystem {
   private final Wrist m_wrist;
   private final Claw m_claw;
 
-  public void dashboardUpdate() {
-    SmartDashboard.putString("globalState", String.valueOf(m_globalState));
-  }
+  public void dashboardUpdate() {}
 
   public void update() {
     Elevator.Preset elevatorPreset;
@@ -123,5 +121,8 @@ public class Superstructure implements Subsystem {
     setGlobalState(GlobalState.Stow);
   }
 
-  public void debugDashboardUpdate() {}
+  public void debugDashboardUpdate() {
+    SmartDashboard.putString("Global State", String.valueOf(m_globalState));
+    SmartDashboard.putString("Intake State", String.valueOf(m_desiredIntakeState));
+  }
 }

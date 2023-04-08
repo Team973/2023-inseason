@@ -104,6 +104,7 @@ public class Robot extends TimedRobot {
     m_claw.debugDashboardUpdate();
     m_drive.debugDashboardUpdate();
     m_candleManager.debugDashboardUpdate();
+    m_superstructure.debugDashboardUpdate();
   }
 
   /** Update subsystems. Called me when enabled. */
@@ -276,6 +277,10 @@ public class Robot extends TimedRobot {
           m_superstructure.setGlobalState(GlobalState.Toss);
         }
         m_superstructure.setDesiredIntakeState(IntakeState.Out);
+      } else if (m_superstructure.getGlobalState() != GlobalState.Toss
+          && m_superstructure.getDesiredIntakeState() == IntakeState.Out) {
+        Superstructure.setCurrentGamePiece(GamePiece.None);
+        m_superstructure.setDesiredIntakeState(IntakeState.Neutral);
       }
 
       // Right Cone
@@ -349,8 +354,7 @@ public class Robot extends TimedRobot {
       } else if (m_operatorStick.getLeftTriggerAxis() > 0.5) {
         Superstructure.setCurrentGamePiece(GamePiece.Cube);
         m_superstructure.setDesiredIntakeState(IntakeState.In);
-      } else if (m_claw.getIntakeState() != IntakeState.Out
-          && m_claw.getIntakeState() != IntakeState.Neutral
+      } else if (m_superstructure.getDesiredIntakeState() == IntakeState.In
           && m_driverStick.getRightTriggerAxis() < 0.1) {
         m_superstructure.setDesiredIntakeState(IntakeState.Hold);
       }
