@@ -1,6 +1,6 @@
 package frc.robot.subsystems.candle;
 
-import frc.robot.shared.Constants.GamePiece;
+import frc.robot.subsystems.Superstructure.GamePiece;
 
 public final class CANdleColors {
   public static final RGBColor cube = new RGBColor(170, 0, 255);

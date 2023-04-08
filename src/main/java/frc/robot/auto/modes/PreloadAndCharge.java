@@ -8,10 +8,10 @@ import frc.robot.auto.commands.ScorePreloadCommand;
 import frc.robot.auto.commands.WristPresetCommand;
 import frc.robot.auto.commands.util.ConcurrentCommand;
 import frc.robot.auto.commands.util.SequentialCommand;
-import frc.robot.shared.Constants.GamePiece;
 import frc.robot.subsystems.Claw;
 import frc.robot.subsystems.Drive;
 import frc.robot.subsystems.Elevator;
+import frc.robot.subsystems.Superstructure.GamePiece;
 import frc.robot.subsystems.Wrist;
 import frc.robot.subsystems.Wrist.WristPreset;
 
