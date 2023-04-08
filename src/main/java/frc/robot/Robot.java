@@ -161,7 +161,7 @@ public class Robot extends TimedRobot {
           AutoMode.Test, AutoMode.PreloadAndCharge, AutoMode.NoAuto);
       GreyDashClient.setAvailableGamePieces(GamePiece.Cone, GamePiece.Cube, GamePiece.None);
       GreyDashClient.setSelectedAuto(m_autoSelected);
-      GreyDashClient.setSelectedGamePiece(m_currentGamePiece);
+      GreyDashClient.setSelectedGamePiece(Superstructure.getCurrentGamePiece());
 
       this.resetSubsystems();
     } catch (Exception e) {
@@ -423,10 +423,6 @@ public class Robot extends TimedRobot {
   @Override
   public void disabledPeriodic() {
     try {
-      if (!m_autoRan) {
-        m_currentGamePiece = GreyDashClient.getSelectedGamePiece();
-      }
-
       if (m_operatorStick.getYButtonPressed()) {
         m_autoManager.increment();
       }
@@ -448,7 +444,7 @@ public class Robot extends TimedRobot {
           // Go back if we choose no auto, continue if we choose a game piece
           if (m_autoSelected == AutoMode.NoAuto) {
             m_autoSetupStep = AutoSetupMode.AutoWaiting;
-          } else if (m_currentGamePiece != GamePiece.None) {
+          } else if (Superstructure.getCurrentGamePiece() != GamePiece.None) {
             m_autoSetupStep = AutoSetupMode.AutoSelected;
           }
           break;
@@ -456,7 +452,8 @@ public class Robot extends TimedRobot {
           m_candleManager.setLightState(LightState.AutoSelected);
 
           // Go back if we lose the auto or the game piece
-          if (m_autoSelected == AutoMode.NoAuto || m_currentGamePiece == GamePiece.None) {
+          if (m_autoSelected == AutoMode.NoAuto
+              || Superstructure.getCurrentGamePiece() == GamePiece.None) {
             m_autoSetupStep = AutoSetupMode.AutoWaiting;
           }
           break;

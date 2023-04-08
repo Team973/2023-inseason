@@ -5,6 +5,7 @@ import static frc.robot.shared.RobotInfo.*;
 import frc.robot.Robot;
 import frc.robot.shared.Conversions;
 import frc.robot.shared.Subsystem;
+import frc.robot.subsystems.Superstructure;
 
 import com.ctre.phoenix.led.CANdle;
 import com.ctre.phoenix.led.CANdle.LEDStripType;
@@ -131,7 +132,8 @@ public class CANdleManager implements Subsystem {
         }
         break;
       case AutoSelected:
-        setFlashing(CANdleColors.getColorFromGamePiece(Robot.getCurrentGamePiece()), 1250.0);
+        setFlashing(
+            CANdleColors.getColorFromGamePiece(Superstructure.getCurrentGamePiece()), 1250.0);
         break;
       case PreloadWaiting:
         setAlternate(CANdleColors.cone, CANdleColors.cube, 1000.0);
