@@ -56,13 +56,14 @@ public class Elevator implements Subsystem {
   }
 
   public enum Preset {
-    Floor(9.25),
+    Floor(8.73),
     Hybrid(14.6),
     Mid(22.3),
     Hp(27.4),
     High(27.4),
     HighOffset(High.getValue() - 2.0),
     Stow(0.0),
+    Manual(0.0),
     MiniHp(21.5);
 
     private final double value;
@@ -129,7 +130,9 @@ public class Elevator implements Subsystem {
 
   public void setPreset(Preset preset) {
     m_preset = preset;
-    setHeight(preset.getValue());
+    if (m_preset != Preset.Manual) {
+      setHeight(preset.getValue());
+    }
   }
 
   private double getPositionFromHeight(double height) {

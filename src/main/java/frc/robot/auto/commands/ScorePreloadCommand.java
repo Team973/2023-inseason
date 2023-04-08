@@ -4,10 +4,10 @@ import frc.robot.auto.commands.util.ConcurrentCommand;
 import frc.robot.auto.commands.util.SequentialCommand;
 import frc.robot.auto.commands.util.WaitCommand;
 import frc.robot.shared.AutoCommand;
-import frc.robot.shared.Constants.GamePiece;
 import frc.robot.subsystems.Claw;
 import frc.robot.subsystems.Claw.IntakeState;
 import frc.robot.subsystems.Elevator;
+import frc.robot.subsystems.Superstructure.GamePiece;
 import frc.robot.subsystems.Wrist;
 import frc.robot.subsystems.Wrist.WristPreset;
 
@@ -26,7 +26,7 @@ public class ScorePreloadCommand extends AutoCommand {
             new SetCurrentGamePieceCommand(gamePiece),
             new IntakeCommand(claw, IntakeState.In, 4000),
             new SequentialCommand(
-                new WristPresetCommand(wrist, WristPreset.Offset, 10.0, 100),
+                new WristPresetCommand(wrist, WristPreset.PreStow, 10.0, 100),
                 new ElevatorPresetCommand(elevator, elevatorPreset, 2000),
                 new WristPresetCommand(wrist, wristPreset, 1.0, 2000),
                 new WaitCommand(800),

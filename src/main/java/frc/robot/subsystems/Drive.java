@@ -208,6 +208,10 @@ public class Drive implements Subsystem {
           "Mod " + mod.moduleNumber + " Integrated", mod.getState().angle.getDegrees());
       SmartDashboard.putNumber(
           "Mod " + mod.moduleNumber + " Velocity", mod.getState().speedMetersPerSecond);
+      SmartDashboard.putNumber(
+          "Mod " + mod.moduleNumber + " Drive Stator", mod.getDriveStatorCurrent());
+      SmartDashboard.putNumber(
+          "Mod " + mod.moduleNumber + " Drive Supply", mod.getDriveSupplyCurrent());
       states[index] = mod.getState().angle.getDegrees();
       states[index + 1] = mod.getState().speedMetersPerSecond;
       index += 2;

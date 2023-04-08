@@ -5,9 +5,9 @@ import static frc.robot.shared.RobotInfo.*;
 import frc.robot.Robot;
 import frc.robot.devices.GreyTalonFX;
 import frc.robot.devices.GreyTalonFX.ControlMode;
-import frc.robot.shared.Constants.GamePiece;
 import frc.robot.shared.RobotInfo;
 import frc.robot.shared.Subsystem;
+import frc.robot.subsystems.Superstructure.GamePiece;
 
 import edu.wpi.first.wpilibj.DigitalInput;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
