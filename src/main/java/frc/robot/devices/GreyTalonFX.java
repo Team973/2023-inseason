@@ -174,7 +174,19 @@ public class GreyTalonFX extends TalonFX {
    * @param config The configuration to apply.
    */
   public void setConfig(TalonFXConfiguration config) {
-    this.getConfigurator().apply(config);
+    StatusCode status = StatusCode.StatusCodeNotInitialized;
+
+    int retryCount = 0;
+    while (status != StatusCode.OK) {
+      if (retryCount > 10) {
+        // TODO: Log error and emergency lights
+        System.err.println("Failed to set TalonFX configuration to motor: " + getDeviceID());
+        break;
+      }
+      status = this.getConfigurator().apply(config, 0.2);
+      retryCount++;
+    }
+
     m_currentConfig = config;
   }
 
