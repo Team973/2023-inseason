@@ -18,7 +18,7 @@ public final class RobotInfo {
     public static final int INTAKE_FX_ID = 15;
     public static final int WRIST_HALL_ID = 5;
     public static final int WRIST_ENCODER_ID = 20;
-    public static final int CONE_SENSOR_ID = 4;
+    public static final int GAME_PIECE_SENSOR_ID = 4;
     public static final double GEAR_RATIO = (1.0 / 4.0) * (18.0 / 54.0) * (16.0 / 42.0);
   }
 
