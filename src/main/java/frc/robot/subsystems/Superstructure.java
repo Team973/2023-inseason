@@ -34,12 +34,10 @@ public class Superstructure implements Subsystem {
   private final Elevator m_elevator;
   private final Wrist m_wrist;
 
-  @Override
   public void dashboardUpdate() {
     SmartDashboard.putString("globalState", String.valueOf(m_globalState));
   }
 
-  @Override
   public void update() {
     Elevator.Preset elevatorPreset;
     WristPreset wristPreset;
@@ -104,11 +102,9 @@ public class Superstructure implements Subsystem {
     m_elevator.setPreset(elevatorPreset);
   }
 
-  @Override
   public void reset() {
     setGlobalState(GlobalState.Stow);
   }
 
-  @Override
   public void debugDashboardUpdate() {}
 }

@@ -180,7 +180,6 @@ public class Wrist implements Subsystem {
     SmartDashboard.putNumber("Wrist Raw Angle", getRawAngleDegrees());
   }
 
-  @Override
   public void update() {
     GamePiece currentGamePiece = Robot.getCurrentGamePiece();
     if (m_preset == WristPreset.Manual && m_state != WristState.ClosedLoop) {
@@ -210,7 +209,6 @@ public class Wrist implements Subsystem {
     }
   }
 
-  @Override
   public void reset() {
     setPreset(WristPreset.Stow);
   }
