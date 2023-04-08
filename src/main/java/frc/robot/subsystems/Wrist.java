@@ -200,7 +200,10 @@ public class Wrist implements Subsystem {
         break;
       case ClosedLoop:
         m_wristMotor.setControl(
-            ControlMode.PositionVoltage, (m_targetAngle + ENCODER_OFFSET) / 360.0, true,Math.sin(Math.toRadians(getCurrentAngleDegrees())) * -WRIST_FF);
+            ControlMode.PositionVoltage,
+            (m_targetAngle + ENCODER_OFFSET) / 360.0,
+            true,
+            Math.sin(Math.toRadians(getCurrentAngleDegrees())) * -WRIST_FF);
         break;
       default:
         break;
