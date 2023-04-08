@@ -110,10 +110,6 @@ public class Elevator implements Subsystem {
     m_elevatorMotor.setRotorPosition(0.0);
   }
 
-  public void setTargetPosition(double target) {
-    m_targetPosition = target;
-  }
-
   public void setElevatorOutput(double percent) {
     m_elevatorOutput = percent;
   }
