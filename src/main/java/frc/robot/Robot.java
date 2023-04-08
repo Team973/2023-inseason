@@ -59,7 +59,7 @@ public class Robot extends TimedRobot {
   private final Drive m_drive = new Drive();
   private final CANdleManager m_candleManager = new CANdleManager();
   private final AutoManager m_autoManager = new AutoManager(m_claw, m_elevator, m_drive, m_wrist);
-  private final Superstructure m_superstructure = new Superstructure(m_elevator, m_wrist);
+  private final Superstructure m_superstructure = new Superstructure(m_elevator, m_wrist, m_claw);
   private final XboxController m_driverStick = new XboxController(0);
   private final XboxController m_operatorStick = new XboxController(1);
 
@@ -275,11 +275,7 @@ public class Robot extends TimedRobot {
         if (m_claw.isHasGamePiece() && (m_wrist.getPreset() == WristPreset.Stow)) {
           m_superstructure.setGlobalState(GlobalState.Toss);
         }
-        m_claw.setIntakeState(IntakeState.Out);
-      } else if (m_claw.getIntakeState() == IntakeState.Out) {
-        m_claw.setIntakeState(IntakeState.Neutral);
-        Superstructure.setCurrentGamePiece(GamePiece.None);
-        m_superstructure.setGlobalState(GlobalState.Stow);
+        m_superstructure.setDesiredIntakeState(IntakeState.Out);
       }
 
       // Right Cone
@@ -288,7 +284,7 @@ public class Robot extends TimedRobot {
         m_elevator.setPreset(Elevator.Preset.Floor);
         m_wrist.setState(WristState.ClosedLoop);
         Superstructure.setCurrentGamePiece(GamePiece.Cone);
-        m_claw.setIntakeState(IntakeState.In);
+        m_superstructure.setDesiredIntakeState(IntakeState.In);
         if (m_driverStick.getRightTriggerAxis() > 0.9) {
           m_wrist.setPreset(WristPreset.Floor);
         } else {
@@ -349,14 +345,14 @@ public class Robot extends TimedRobot {
       // Intake
       if (m_operatorStick.getRightTriggerAxis() > 0.5) {
         Superstructure.setCurrentGamePiece(GamePiece.Cone);
-        m_claw.setIntakeState(IntakeState.In);
+        m_superstructure.setDesiredIntakeState(IntakeState.In);
       } else if (m_operatorStick.getLeftTriggerAxis() > 0.5) {
         Superstructure.setCurrentGamePiece(GamePiece.Cube);
-        m_claw.setIntakeState(IntakeState.In);
+        m_superstructure.setDesiredIntakeState(IntakeState.In);
       } else if (m_claw.getIntakeState() != IntakeState.Out
           && m_claw.getIntakeState() != IntakeState.Neutral
           && m_driverStick.getRightTriggerAxis() < 0.1) {
-        m_claw.setIntakeState(IntakeState.Hold);
+        m_superstructure.setDesiredIntakeState(IntakeState.Hold);
       }
 
       // Got it!

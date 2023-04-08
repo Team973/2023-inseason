@@ -1,6 +1,7 @@
 package frc.robot.subsystems;
 
 import frc.robot.shared.Subsystem;
+import frc.robot.subsystems.Claw.IntakeState;
 import frc.robot.subsystems.Wrist.WristPreset;
 
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
@@ -33,8 +34,11 @@ public class Superstructure implements Subsystem {
 
   @Getter @Setter private GlobalState m_globalState = GlobalState.Stow;
   @Getter @Setter private static GamePiece m_currentGamePiece;
+  @Getter @Setter IntakeState m_desiredIntakeState = IntakeState.Neutral;
+
   private final Elevator m_elevator;
   private final Wrist m_wrist;
+  private final Claw m_claw;
 
   public void dashboardUpdate() {
     SmartDashboard.putString("globalState", String.valueOf(m_globalState));
@@ -72,6 +76,12 @@ public class Superstructure implements Subsystem {
       case Toss:
         elevatorPreset = Elevator.Preset.Floor;
         wristPreset = WristPreset.ConeRight;
+
+        if (m_claw.getIntakeState() == IntakeState.Out) {
+          m_claw.setIntakeState(IntakeState.Neutral);
+          setCurrentGamePiece(GamePiece.None);
+          setGlobalState(GlobalState.Stow);
+        }
         break;
       case Manual:
         elevatorPreset = Elevator.Preset.Manual;
@@ -106,6 +116,7 @@ public class Superstructure implements Subsystem {
     }
     m_wrist.setPreset(wristPreset);
     m_elevator.setPreset(elevatorPreset);
+    m_claw.setIntakeState(m_desiredIntakeState);
   }
 
   public void reset() {
