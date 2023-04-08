@@ -89,11 +89,11 @@ public class CANdleManager implements Subsystem {
     m_candle.setLEDs(color.getRed(), color.getGreen(), color.getBlue());
   }
 
-  public void dashboardUpdate() {
+  public void dashboardUpdate() {}
+
+  public void debugDashboardUpdate() {
     SmartDashboard.putString("Candle State", m_lightState.toString());
   }
-
-  public void debugDashboardUpdate() {}
 
   public void update() {
     if (Robot.isExceptionHappened()) {

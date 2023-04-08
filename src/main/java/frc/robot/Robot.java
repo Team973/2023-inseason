@@ -8,11 +8,7 @@ import static frc.robot.shared.RobotInfo.*;
 
 import java.io.FileWriter;
 import java.io.PrintWriter;
-import java.util.Arrays;
-import java.util.List;
 
-import frc.robot.AutoManager.AutoMode;
-import frc.robot.greydash.GreyDashClient;
 import frc.robot.shared.LimelightHelpers;
 import frc.robot.subsystems.Claw;
 import frc.robot.subsystems.Claw.IntakeState;
@@ -55,16 +51,6 @@ public class Robot extends TimedRobot {
 
   @Getter private static boolean m_exceptionHappened = false;
 
-  private enum AutoSetupMode {
-    AutoWaiting,
-    PreloadWaiting,
-    AutoSelected
-  }
-
-  private static AutoMode m_autoSelected = AutoMode.NoAuto;
-  private static AutoSetupMode m_autoSetupStep = AutoSetupMode.AutoWaiting;
-  private static boolean m_autoRan = false;
-
   @Getter private static Alliance m_calculatedAlliance;
 
   private final Elevator m_elevator = new Elevator();
@@ -81,17 +67,6 @@ public class Robot extends TimedRobot {
 
   private final Compressor m_compressor =
       new Compressor(COMPRESSOR_ID, PneumaticsModuleType.CTREPCM);
-
-  private final List<AutoMode> m_availableAutoModes =
-      Arrays.asList(
-          AutoMode.PreloadPickupCharge,
-          AutoMode.Test,
-          AutoMode.PreloadAndCharge,
-          AutoMode.CenterPreloadAndCharge,
-          AutoMode.PreloadPickupScoreCharge,
-          AutoMode.NoAuto);
-
-  private int m_selectedMode = 0;
 
   private void logException(Exception e) {
     try {
@@ -157,12 +132,6 @@ public class Robot extends TimedRobot {
   @Override
   public void robotInit() {
     try {
-      GreyDashClient.setAvailableAutoModes(
-          AutoMode.Test, AutoMode.PreloadAndCharge, AutoMode.NoAuto);
-      GreyDashClient.setAvailableGamePieces(GamePiece.Cone, GamePiece.Cube, GamePiece.None);
-      GreyDashClient.setSelectedAuto(m_autoSelected);
-      GreyDashClient.setSelectedGamePiece(Superstructure.getCurrentGamePiece());
-
       this.resetSubsystems();
     } catch (Exception e) {
       logException(e);
@@ -429,64 +398,6 @@ public class Robot extends TimedRobot {
       if (m_operatorStick.getAButtonPressed()) {
         m_autoManager.decrement();
       }
-
-      switch (m_autoSetupStep) {
-        case AutoWaiting:
-          m_candleManager.setLightState(LightState.GotIt);
-
-          if (m_autoSelected != AutoMode.NoAuto) {
-            m_autoSetupStep = AutoSetupMode.PreloadWaiting;
-          }
-          break;
-        case PreloadWaiting:
-          m_candleManager.setLightState(LightState.PreloadWaiting);
-
-          // Go back if we choose no auto, continue if we choose a game piece
-          if (m_autoSelected == AutoMode.NoAuto) {
-            m_autoSetupStep = AutoSetupMode.AutoWaiting;
-          } else if (Superstructure.getCurrentGamePiece() != GamePiece.None) {
-            m_autoSetupStep = AutoSetupMode.AutoSelected;
-          }
-          break;
-        case AutoSelected:
-          m_candleManager.setLightState(LightState.AutoSelected);
-
-          // Go back if we lose the auto or the game piece
-          if (m_autoSelected == AutoMode.NoAuto
-              || Superstructure.getCurrentGamePiece() == GamePiece.None) {
-            m_autoSetupStep = AutoSetupMode.AutoWaiting;
-          }
-          break;
-        default:
-          break;
-      }
-      SmartDashboard.putString("DB/String 0", m_autoManager.getSelectedMode().toString());
-
-      m_candleManager.setLightState(LightState.RainbowBarf);
-      if (m_operatorStick.getYButtonPressed()) {
-        m_selectedMode += 1;
-      }
-      if (m_operatorStick.getAButtonPressed()) {
-        m_selectedMode -= 1;
-      }
-      if (m_selectedMode >= m_availableAutoModes.size()) {
-        m_selectedMode = 0;
-      }
-      if (m_selectedMode < 0) {
-        m_selectedMode = m_availableAutoModes.size() - 1;
-      }
-
-      if (m_operatorStick.getLeftBumperPressed()) {
-        m_preloadGamePiece = GamePiece.Cone;
-      }
-      if (m_operatorStick.getRightBumperPressed()) {
-        m_preloadGamePiece = GamePiece.Cube;
-      }
-
-      SmartDashboard.putString("DB/String 0", m_availableAutoModes.get(m_selectedMode).toString());
-      SmartDashboard.putString("DB/String 1", m_preloadGamePiece.toString());
-
-      m_autoManager.selectAuto(m_availableAutoModes.get(m_selectedMode));
 
       SmartDashboard.putString("DB/String 0", m_autoManager.getSelectedMode().toString());
 
