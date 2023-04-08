@@ -30,7 +30,7 @@ public class Superstructure implements Subsystem {
     Manual
   }
 
-  @Getter @Setter private GlobalState m_globalState;
+  @Getter @Setter private GlobalState m_globalState = GlobalState.Stow;
   private final Elevator m_elevator;
   private final Wrist m_wrist;
 
@@ -79,9 +79,27 @@ public class Superstructure implements Subsystem {
         break;
     }
 
-    /*   if () && (m_wrist.getCurrentAngleDegrees() > 0.0)) {
-      wristPreset = WristPreset.PreStow;
-    }*/
+    boolean wristInStowDangerZone =
+        wristPreset.getConePreset() > 0.0 || wristPreset.getCubePreset() > 0.0;
+    boolean elevatorInStowDangerZone =
+        (elevatorPreset.getValue() > 14.78 && m_elevator.getHeight() < 14.78)
+            || (elevatorPreset.getValue() < 14.78 && m_elevator.getHeight() > 14.78);
+
+    boolean wristInScoreDangerZone =
+        wristPreset.getConePreset() < -40.0 || wristPreset.getCubePreset() < -40.0;
+    boolean elevatorInScoreDangerZone =
+        (elevatorPreset.getValue() > 15.82 && m_elevator.getHeight() < 15.82)
+            || (elevatorPreset.getValue() < 22.59 && m_elevator.getHeight() > 22.59)
+            || (elevatorPreset.getValue() > 22.59 && m_elevator.getHeight() < 22.59)
+            || (elevatorPreset.getValue() < 15.82 && m_elevator.getHeight() > 15.82);
+
+    if (m_globalState != GlobalState.Manual) {
+      if (wristInStowDangerZone && elevatorInStowDangerZone) {
+        wristPreset = WristPreset.PreStow;
+      } else if (wristInScoreDangerZone && elevatorInScoreDangerZone) {
+        wristPreset = WristPreset.PreScore;
+      }
+    }
     m_wrist.setPreset(wristPreset);
     m_elevator.setPreset(elevatorPreset);
   }
