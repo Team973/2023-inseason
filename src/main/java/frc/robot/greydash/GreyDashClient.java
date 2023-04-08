@@ -6,7 +6,7 @@ import java.util.Arrays;
 import java.util.HashSet;
 
 import frc.robot.AutoManager.AutoMode;
-import frc.robot.shared.Constants.GamePiece;
+import frc.robot.subsystems.Superstructure.GamePiece;
 
 import edu.wpi.first.networktables.DoublePublisher;
 import edu.wpi.first.networktables.NetworkTable;

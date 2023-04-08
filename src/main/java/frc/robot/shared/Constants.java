@@ -2,13 +2,6 @@ package frc.robot.shared;
 
 /** A collection of constants. */
 public class Constants {
-  /** Game Piece options. */
-  public enum GamePiece {
-    Cube,
-    Cone,
-    None
-  }
-
   /** Integrate the output of helpers/PID. */
   public static final int PID_SPEED_CTRL = 0x00000001;
 

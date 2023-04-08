@@ -2,7 +2,7 @@ package frc.robot.auto.commands;
 
 import frc.robot.Robot;
 import frc.robot.shared.AutoCommand;
-import frc.robot.shared.Constants.GamePiece;
+import frc.robot.subsystems.Superstructure.GamePiece;
 
 import lombok.AllArgsConstructor;
 
