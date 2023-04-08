@@ -32,8 +32,10 @@ import lombok.experimental.Accessors;
 
 @Accessors(prefix = "m_")
 public class Drive implements Subsystem {
+  private static final Rotation2d BALANCE_CUTOFF_THRESHOLD = Rotation2d.fromDegrees(6.5);
+
   private SwerveDrivePoseEstimator swerveDrivePoseEstimator;
-  private SwerveModule[] m_swerveModules;
+  private final SwerveModule[] m_swerveModules;
   private ChassisSpeeds m_currentChassisSpeeds;
   @Getter private final GreyPigeon m_pigeon;
 
@@ -52,9 +54,9 @@ public class Drive implements Subsystem {
 
   @Setter private RotationControl m_rotationControl = RotationControl.OpenLoop;
 
-  private PIDController m_rotationController = new PIDController(0.11, 0.0, 0.003);
-  private PIDController m_balancePitchController = new PIDController(0.045, 0.0, 0.007);
-  private PIDController m_balanceRollController = new PIDController(0.045, 0.0, 0.007);
+  private final PIDController m_rotationController = new PIDController(0.11, 0.0, 0.003);
+  private final PIDController m_balancePitchController = new PIDController(0.055, 0.0, 0.015);
+  private final PIDController m_balanceRollController = new PIDController(0.055, 0.0, 0.015);
 
   public enum RotationControl {
     OpenLoop,
@@ -116,20 +118,27 @@ public class Drive implements Subsystem {
 
   /** Balance the robot on the charge station */
   public void balanceDrive() {
-    // Calculate the pitch and roll angles in degrees
-    double pitch = m_pigeon.getRotation().getPitch().getDegrees();
-    double roll = m_pigeon.getRotation().getRoll().getDegrees();
+    var pitch = m_pigeon.getPitch();
+    var roll = m_pigeon.getRoll();
+    var yaw = m_pigeon.getNormalizedYaw();
 
-    // Calculate the output for the controllers. These have a baked in setpoint of 0.0 and a
-    // tolerance of 5.0 deg
-    double pitchOutput = m_balancePitchController.calculate(pitch);
-    double rollOutput = m_balanceRollController.calculate(roll);
+    // Determine the sign for pitch and roll based on the yaw angle
+    double pitchSign = Math.signum(yaw.getCos());
+    double rollSign = Math.signum(yaw.getSin());
 
-    // Create a translation in the direction of the incline
-    Translation2d translation = new Translation2d(rollOutput, pitchOutput);
+    // Calculate the pitch and roll output using the determined signs
+    double pitchOutput =
+        !m_pigeon.isLevel(BALANCE_CUTOFF_THRESHOLD)
+            ? m_balancePitchController.calculate(pitch.getDegrees(), 0.0) * pitchSign
+            : 0.0;
+
+    double rollOutput =
+        !m_pigeon.isLevel(BALANCE_CUTOFF_THRESHOLD)
+            ? m_balanceRollController.calculate(roll.getDegrees(), 0.0) * rollSign
+            : 0.0;
 
     // Apply the translation to the holonomic drive with a zero rotation value
-    driveInput(translation, 0.0, true);
+    driveInput(new Translation2d(pitchOutput + rollOutput, 0.0), 0.0, true);
   }
 
   /**
@@ -277,6 +286,10 @@ public class Drive implements Subsystem {
           "Mod " + mod.moduleNumber + " Integrated", mod.getState().angle.getDegrees());
       SmartDashboard.putNumber(
           "Mod " + mod.moduleNumber + " Velocity", mod.getState().speedMetersPerSecond);
+      SmartDashboard.putNumber(
+          "Mod " + mod.moduleNumber + " Drive Stator", mod.getDriveStatorCurrent());
+      SmartDashboard.putNumber(
+          "Mod " + mod.moduleNumber + " Drive Supply", mod.getDriveSupplyCurrent());
       states[index] = mod.getState().angle.getDegrees();
       states[index + 1] = mod.getState().speedMetersPerSecond;
       index += 2;

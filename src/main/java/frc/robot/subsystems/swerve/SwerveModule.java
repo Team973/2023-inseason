@@ -94,9 +94,9 @@ public class SwerveModule {
     m_driveMotorConfig.Slot0.kD = DriveInfo.DRIVE_KD;
     m_driveMotorConfig.Slot0.kV = DriveInfo.DRIVE_KF;
 
-    m_driveMotorConfig.CurrentLimits.StatorCurrentLimit = 100.0;
+    m_driveMotorConfig.CurrentLimits.StatorCurrentLimit = 150.0;
     m_driveMotorConfig.CurrentLimits.StatorCurrentLimitEnable = true;
-    m_driveMotorConfig.CurrentLimits.SupplyCurrentLimit = 80.0;
+    m_driveMotorConfig.CurrentLimits.SupplyCurrentLimit = 100.0;
     m_driveMotorConfig.CurrentLimits.SupplyCurrentLimitEnable = true;
 
     m_driveMotor.setConfig(m_driveMotorConfig);
@@ -138,6 +138,14 @@ public class SwerveModule {
 
   public SwerveModulePosition getPosition() {
     return new SwerveModulePosition(getDriveMotorMeters(), getState().angle);
+  }
+
+  public double getDriveStatorCurrent() {
+    return m_driveMotor.getStatorCurrent().getValue();
+  }
+
+  public double getDriveSupplyCurrent() {
+    return m_driveMotor.getSupplyCurrent().getValue();
   }
 
   /**
