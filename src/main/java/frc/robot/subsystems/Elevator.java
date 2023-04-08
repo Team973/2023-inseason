@@ -129,7 +129,9 @@ public class Elevator implements Subsystem {
 
   public void setPreset(Preset preset) {
     m_preset = preset;
-    setHeight(preset.getValue());
+    if (m_preset != Preset.Manual) {
+      setHeight(preset.getValue());
+    }
   }
 
   private double getPositionFromHeight(double height) {

@@ -1,9 +1,7 @@
 package frc.robot.subsystems;
 
 import frc.robot.shared.Subsystem;
-import frc.robot.subsystems.Elevator.ElevatorState;
 import frc.robot.subsystems.Wrist.WristPreset;
-import frc.robot.subsystems.Wrist.WristState;
 
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import lombok.Getter;
@@ -27,18 +25,19 @@ public class Superstructure implements Subsystem {
     ScoreMid,
     ScoreLow,
     Stow,
-    HpLoad,
-    FloorLoad
+    LoadHp,
+    LoadFloor,
+    Manual
   }
 
   @Getter @Setter private GlobalState m_globalState;
-  private GlobalState m_lastElevatorState = m_globalState;
-  private GlobalState m_lastWristState = m_globalState;
   private final Elevator m_elevator;
   private final Wrist m_wrist;
 
   @Override
-  public void dashboardUpdate() {}
+  public void dashboardUpdate() {
+    SmartDashboard.putString("globalState", String.valueOf(m_globalState));
+  }
 
   @Override
   public void update() {
@@ -62,13 +61,17 @@ public class Superstructure implements Subsystem {
         elevatorPreset = Elevator.Preset.Stow;
         wristPreset = WristPreset.Stow;
         break;
-      case HpLoad:
+      case LoadHp:
         elevatorPreset = Elevator.Preset.Hp;
         wristPreset = WristPreset.Hp;
         break;
-      case FloorLoad:
+      case LoadFloor:
         elevatorPreset = Elevator.Preset.Floor;
         wristPreset = WristPreset.Floor;
+        break;
+      case Manual:
+        elevatorPreset = Elevator.Preset.Manual;
+        wristPreset = WristPreset.Manual;
         break;
       default:
         elevatorPreset = Elevator.Preset.Stow;
@@ -76,23 +79,11 @@ public class Superstructure implements Subsystem {
         break;
     }
 
-    if ((Math.abs(elevatorPreset.getValue() - m_elevator.getHeight()) >= 5.0)
-        && (m_wrist.getCurrentAngleDegrees() > 0.0)) {
+    /*   if () && (m_wrist.getCurrentAngleDegrees() > 0.0)) {
       wristPreset = WristPreset.PreStow;
-    } else if (m_globalState != m_lastWristState && m_wrist.getState() == WristState.ClosedLoop) {
-      m_wrist.setPreset(wristPreset);
-      m_lastWristState = m_globalState;
-    } /*else if (wristPreset != WristPreset.PreStow
-          && Math.abs(elevatorPreset.getValue() - m_elevator.getHeight()) < 5.0) {
-        m_wrist.setPreset(wristPreset);
-      }*/
-
-    if (m_globalState != m_lastElevatorState
-        && m_elevator.getElevatorState() == ElevatorState.ClosedLoop) {
-      m_elevator.setPreset(elevatorPreset);
-      m_lastElevatorState = m_globalState;
-    }
-    SmartDashboard.putString("Wrist preset", String.valueOf(wristPreset));
+    }*/
+    m_wrist.setPreset(wristPreset);
+    m_elevator.setPreset(elevatorPreset);
   }
 
   @Override

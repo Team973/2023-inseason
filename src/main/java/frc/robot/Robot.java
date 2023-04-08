@@ -324,11 +324,11 @@ public class Robot extends TimedRobot {
           if (m_claw.isHasGamePiece()) {
             m_superstructure.setGlobalState(GlobalState.ScoreLow);
           } else {
-            m_superstructure.setGlobalState(GlobalState.FloorLoad);
+            m_superstructure.setGlobalState(GlobalState.LoadFloor);
           }
           break;
         case 270:
-          m_superstructure.setGlobalState(GlobalState.HpLoad);
+          m_superstructure.setGlobalState(GlobalState.LoadHp);
           m_currentGamePiece = GamePiece.None;
           break;
         default:
@@ -339,6 +339,7 @@ public class Robot extends TimedRobot {
       if (operatorStickRightY != 0.0) {
         m_elevator.setElevatorState(ElevatorState.Manual);
         m_elevator.setElevatorOutput(operatorStickRightY);
+        m_superstructure.setGlobalState(GlobalState.Manual);
       } else {
         m_elevator.setElevatorState(ElevatorState.ClosedLoop);
       }
@@ -366,6 +367,7 @@ public class Robot extends TimedRobot {
       double wristJoystickInput = -MathUtil.applyDeadband(m_operatorStick.getLeftY(), 0.12) * 0.25;
       if (wristJoystickInput != 0.0 && m_driverStick.getRightTriggerAxis() <= 0.1) {
         m_wrist.setState(WristState.Manual);
+        m_superstructure.setGlobalState(GlobalState.Manual);
         m_wrist.setMotorOutput(wristJoystickInput);
       } else {
         m_wrist.setState(WristState.ClosedLoop);

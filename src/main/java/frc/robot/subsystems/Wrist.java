@@ -132,7 +132,11 @@ public class Wrist implements Subsystem {
     // TODO handle cycle bug
     if (m_preset == WristPreset.Manual && m_state != WristState.ClosedLoop) {
       setTargetAngleDegrees(getCurrentAngleDegrees());
+
+    } else if (m_preset == WristPreset.Manual && m_state == WristState.ClosedLoop) {
+      // Intentionally left blank
     } else if (currentGamePiece == GamePiece.Cube) {
+
       setTargetAngleDegrees(m_preset.getCubePreset());
     } else {
       setTargetAngleDegrees(m_preset.getConePreset());
