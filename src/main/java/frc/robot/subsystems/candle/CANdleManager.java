@@ -24,12 +24,8 @@ public class CANdleManager implements Subsystem {
   public enum LightState {
     Cube,
     Cone,
-    Flash,
     GotIt,
     Emergency,
-    AutoWaiting,
-    PreloadWaiting,
-    AutoSelected,
     RainbowBarf,
     Off,
     Balance
@@ -97,7 +93,7 @@ public class CANdleManager implements Subsystem {
 
   public void update() {
     if (Robot.isExceptionHappened()) {
-      m_lightState = LightState.Flash;
+      m_lightState = LightState.Emergency;
     }
 
     switch (m_lightState) {
@@ -107,42 +103,14 @@ public class CANdleManager implements Subsystem {
       case Cube:
         m_candle.setLEDs(170, 0, 255); // set the CANdle LEDs to purple
         break;
-      case Flash:
-        if (!m_flashLEDsOn
-            && Conversions.Time.getMsecTime() - m_flashStartTime >= FLASH_DELAY_MSEC) {
-          m_candle.setLEDs(255, 0, 0); // set the CANdle LEDs to red
-          m_flashStartTime = Conversions.Time.getMsecTime();
-          m_flashLEDsOn = true;
-        } else if (Conversions.Time.getMsecTime() - m_flashStartTime >= FLASH_DELAY_MSEC) {
-          m_candle.setLEDs(0, 0, 0);
-          m_flashStartTime = Conversions.Time.getMsecTime();
-          m_flashLEDsOn = false;
-        }
+      case Emergency:
+        setFlashing(CANdleColors.emergency, FLASH_DELAY_MSEC);
         break;
       case GotIt:
-        if (!m_flashLEDsOn
-            && Conversions.Time.getMsecTime() - m_flashStartTime >= GOTIT_DELAY_MSEC) {
-          m_candle.setLEDs(0, 255, 0); // set the CANdle LEDs to red
-          m_flashStartTime = Conversions.Time.getMsecTime();
-          m_flashLEDsOn = true;
-        } else if (Conversions.Time.getMsecTime() - m_flashStartTime >= GOTIT_DELAY_MSEC) {
-          m_candle.setLEDs(0, 0, 0);
-          m_flashStartTime = Conversions.Time.getMsecTime();
-          m_flashLEDsOn = false;
-        }
-        break;
-      case AutoSelected:
-        setFlashing(
-            CANdleColors.getColorFromGamePiece(Superstructure.getCurrentGamePiece()), 1250.0);
-        break;
-      case PreloadWaiting:
-        setAlternate(CANdleColors.cone, CANdleColors.cube, 1000.0);
+        setFlashing(CANdleColors.gotIt, GOTIT_DELAY_MSEC);
         break;
       case RainbowBarf:
         m_candle.animate(new RainbowAnimation(1, 100.0, NUM_LEDS));
-        break;
-      case AutoWaiting:
-        setFlashing(CANdleColors.autoWaiting, 1250.0);
         break;
       case Balance:
         setColor(CANdleColors.balance);
