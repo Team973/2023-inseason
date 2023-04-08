@@ -9,7 +9,6 @@ import static frc.robot.shared.RobotInfo.*;
 import java.io.FileWriter;
 import java.io.PrintWriter;
 
-import frc.robot.AutoManager.AutoSide;
 import frc.robot.shared.Constants.GamePiece;
 import frc.robot.shared.LimelightHelpers;
 import frc.robot.subsystems.CANdleManager;
@@ -54,8 +53,6 @@ public class Robot extends TimedRobot {
 
   @Getter private static Alliance m_calculatedAlliance;
 
-  private static boolean m_autoRan = false;
-
   private final Elevator m_elevator = new Elevator();
   private final Wrist m_wrist = new Wrist();
   private final Claw m_claw = new Claw();
@@ -70,8 +67,6 @@ public class Robot extends TimedRobot {
 
   private final Compressor m_compressor =
       new Compressor(COMPRESSOR_ID, PneumaticsModuleType.CTREPCM);
-
-  private AutoSide m_selectedAutoSide = AutoSide.Left;
 
   private void logException(Exception e) {
     try {
@@ -100,6 +95,14 @@ public class Robot extends TimedRobot {
     m_claw.dashboardUpdate();
     m_drive.dashboardUpdate();
     m_candleManager.dashboardUpdate();
+  }
+
+  private void debugDashboardUpdateSubsystems() {
+    m_elevator.debugDashboardUpdate();
+    m_wrist.debugDashboardUpdate();
+    m_claw.debugDashboardUpdate();
+    m_drive.debugDashboardUpdate();
+    m_candleManager.debugDashboardUpdate();
   }
 
   /** Update subsystems. Called me when enabled. */
@@ -147,28 +150,14 @@ public class Robot extends TimedRobot {
       if (isEnabled()) {
         updateSubsystems();
       }
+
       dashboardUpdateSubsystems();
 
-      AutoSide side = m_selectedAutoSide;
-      switch (DriverStation.getAlliance()) {
-        case Blue:
-          if (side == AutoSide.Left) {
-            m_calculatedAlliance = Alliance.Blue;
-          } else {
-            m_calculatedAlliance = Alliance.Red;
-          }
-          break;
-        case Red:
-          if (side == AutoSide.Left) {
-            m_calculatedAlliance = Alliance.Blue;
-          } else {
-            m_calculatedAlliance = Alliance.Red;
-          }
-          break;
-        case Invalid:
-          m_calculatedAlliance = Alliance.Blue;
-          break;
+      if (!DriverStation.isFMSAttached()) {
+        debugDashboardUpdateSubsystems();
       }
+
+      m_calculatedAlliance = DriverStation.getAlliance();
 
       // CANdle
       if (!m_exceptionHappened
@@ -196,7 +185,6 @@ public class Robot extends TimedRobot {
       LimelightHelpers.setPipelineIndex("", 1);
       m_compressor.enableDigital();
       m_autoManager.init();
-      m_autoRan = true;
     } catch (Exception e) {
       logException(e);
     }
@@ -219,7 +207,7 @@ public class Robot extends TimedRobot {
       LimelightHelpers.setPipelineIndex("", 0);
       m_compressor.enableDigital();
       m_wrist.setState(WristState.Manual);
-      m_drive.setTargetRobotAngle(m_drive.getNormalizedGyroYaw());
+      m_drive.setTargetRobotAngle(m_drive.getPigeon().getNormalizedYaw());
       m_drive.disableBrakeMode();
     } catch (Exception e) {
       logException(e);
@@ -267,7 +255,7 @@ public class Robot extends TimedRobot {
                 : Drive.AnglePresets.TOWARDS_WSR_BLUE);
       } else if (rot == 0.0) {
         if (m_driverStick.getYButtonReleased() || m_driverStick.getBButtonReleased()) {
-          m_drive.setTargetRobotAngle(m_drive.getNormalizedGyroYaw());
+          m_drive.setTargetRobotAngle(m_drive.getPigeon().getNormalizedYaw());
         }
         m_drive.setRotationControl(RotationControl.ClosedLoop);
       } else {
@@ -422,22 +410,8 @@ public class Robot extends TimedRobot {
         m_autoManager.decrement();
       }
 
-      if (m_operatorStick.getXButtonPressed()) {
-        m_selectedAutoSide = AutoSide.Left;
-      }
-      if (m_operatorStick.getBButtonPressed()) {
-        m_selectedAutoSide = AutoSide.Right;
-      }
-
       SmartDashboard.putString("DB/String 0", m_autoManager.getSelectedMode().toString());
-      SmartDashboard.putString("DB/String 1", m_selectedAutoSide.toString());
-      SmartDashboard.putString("DB/String 2", m_preloadGamePiece.toString());
 
-      if (m_driverStick.getAButton()) {
-        m_drive.enableBrakeMode();
-      } else {
-        m_drive.disableBrakeMode();
-      }
     } catch (Exception e) {
       logException(e);
     }

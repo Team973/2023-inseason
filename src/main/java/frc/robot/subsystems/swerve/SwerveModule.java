@@ -1,46 +1,41 @@
 package frc.robot.subsystems.swerve;
 
-import frc.robot.shared.GreyTalonFX;
+import frc.robot.devices.GreyTalonFX;
+import frc.robot.devices.GreyTalonFX.ControlMode;
 import frc.robot.shared.RobotInfo;
 import frc.robot.shared.RobotInfo.DriveInfo;
 import frc.robot.shared.SwerveModuleConfig;
+import frc.robot.shared.mechanisms.GearedMechanism;
+import frc.robot.shared.mechanisms.LinearMechanism;
 
 import com.ctre.phoenixpro.BaseStatusSignalValue;
 import com.ctre.phoenixpro.configs.CANcoderConfiguration;
 import com.ctre.phoenixpro.configs.TalonFXConfiguration;
-import com.ctre.phoenixpro.controls.PositionDutyCycle;
-import com.ctre.phoenixpro.controls.VelocityDutyCycle;
 import com.ctre.phoenixpro.hardware.CANcoder;
 import com.ctre.phoenixpro.signals.AbsoluteSensorRangeValue;
 import com.ctre.phoenixpro.signals.InvertedValue;
 import com.ctre.phoenixpro.signals.NeutralModeValue;
 import com.ctre.phoenixpro.signals.SensorDirectionValue;
-import edu.wpi.first.math.controller.SimpleMotorFeedforward;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.kinematics.SwerveModulePosition;
 import edu.wpi.first.math.kinematics.SwerveModuleState;
 
 public class SwerveModule {
-  public int moduleNumber;
-  private Rotation2d angleOffset;
-  private GreyTalonFX m_angleMotor;
-  private GreyTalonFX m_driveMotor;
-  private CANcoder m_angleEncoder;
-  private Rotation2d lastAngle;
+  public final int moduleNumber;
+  private final Rotation2d m_angleOffset;
+  private final GreyTalonFX m_angleMotor;
+  private final GreyTalonFX m_driveMotor;
+  private final CANcoder m_angleEncoder;
+  private final LinearMechanism m_driveMechanism =
+      new LinearMechanism(DriveInfo.DRIVE_GEAR_RATIO, DriveInfo.WHEEL_DIAMETER_METERS);
+  private final GearedMechanism m_angleMechanism = new GearedMechanism(DriveInfo.ANGLE_GEAR_RATIO);
+  private SwerveModuleState m_lastState;
 
   private final TalonFXConfiguration m_driveMotorConfig;
 
-  SimpleMotorFeedforward feedforward =
-      new SimpleMotorFeedforward(DriveInfo.driveKS, DriveInfo.driveKV, DriveInfo.driveKA);
-
-  private PositionDutyCycle m_anglePosition = new PositionDutyCycle(0.0);
-
-  private VelocityDutyCycle m_driveVelocity =
-      new VelocityDutyCycle(0.0, true, feedforward.calculate(0.0), 0, false);
-
   public SwerveModule(int moduleNumber, SwerveModuleConfig moduleConfig) {
     this.moduleNumber = moduleNumber;
-    angleOffset = Rotation2d.fromDegrees(moduleConfig.angleOffset);
+    m_angleOffset = Rotation2d.fromDegrees(moduleConfig.angleOffset);
 
     /* Angle Encoder Config */
     m_angleEncoder = new CANcoder(moduleConfig.cancoderID, RobotInfo.CANIVORE_NAME);
@@ -52,13 +47,13 @@ public class SwerveModule {
 
     /* Drive Motor Config */
     m_driveMotor = new GreyTalonFX(moduleConfig.driveMotorID, RobotInfo.CANIVORE_NAME);
-    m_driveMotorConfig = new TalonFXConfiguration();
+    m_driveMotorConfig = m_driveMotor.getCurrentConfig();
     configDriveMotor();
 
     BaseStatusSignalValue.waitForAll(0.5, m_angleEncoder.getAbsolutePosition());
     resetToAbsolute();
 
-    lastAngle = getState().angle;
+    m_lastState = getState();
   }
 
   private void configAngleEncoder() {
@@ -69,7 +64,7 @@ public class SwerveModule {
   }
 
   private void configAngleMotor() {
-    var motorConfig = new TalonFXConfiguration();
+    var motorConfig = m_angleMotor.getCurrentConfig();
 
     motorConfig.MotorOutput.Inverted = InvertedValue.Clockwise_Positive;
     motorConfig.MotorOutput.NeutralMode = NeutralModeValue.Coast;
@@ -85,7 +80,7 @@ public class SwerveModule {
     motorConfig.CurrentLimits.SupplyCurrentLimit = 150.0;
     motorConfig.CurrentLimits.SupplyCurrentLimitEnable = true;
 
-    m_angleMotor.getConfigurator().apply(motorConfig);
+    m_angleMotor.setConfig(motorConfig);
 
     resetToAbsolute();
   }
@@ -93,17 +88,17 @@ public class SwerveModule {
   private void configDriveMotor() {
     m_driveMotorConfig.MotorOutput.Inverted = InvertedValue.Clockwise_Positive;
 
-    m_driveMotorConfig.Slot0.kP = 0.00973;
-    m_driveMotorConfig.Slot0.kI = 0.0;
-    m_driveMotorConfig.Slot0.kD = 0.0;
-    m_driveMotorConfig.Slot0.kV = 0.00973;
+    m_driveMotorConfig.Slot0.kP = DriveInfo.DRIVE_KP;
+    m_driveMotorConfig.Slot0.kI = DriveInfo.DRIVE_KI;
+    m_driveMotorConfig.Slot0.kD = DriveInfo.DRIVE_KD;
+    m_driveMotorConfig.Slot0.kV = DriveInfo.DRIVE_KF;
 
-    m_driveMotorConfig.CurrentLimits.StatorCurrentLimit = 100.0;
+    m_driveMotorConfig.CurrentLimits.StatorCurrentLimit = 150.0;
     m_driveMotorConfig.CurrentLimits.StatorCurrentLimitEnable = true;
-    m_driveMotorConfig.CurrentLimits.SupplyCurrentLimit = 80.0;
+    m_driveMotorConfig.CurrentLimits.SupplyCurrentLimit = 100.0;
     m_driveMotorConfig.CurrentLimits.SupplyCurrentLimitEnable = true;
 
-    m_driveMotor.getConfigurator().apply(m_driveMotorConfig);
+    m_driveMotor.setConfig(m_driveMotorConfig);
     m_driveMotor.setRotorPosition(0.0);
   }
 
@@ -112,74 +107,94 @@ public class SwerveModule {
   }
 
   public void resetToAbsolute() {
-    double absolutePosition =
-        (getCanCoder().minus(angleOffset).getRotations()) * DriveInfo.ANGLE_GEAR_RATIO;
-    m_angleMotor.setRotorPosition(absolutePosition);
+    m_angleMotor.setRotorPositionRotation2d(
+        m_angleMechanism.getRotorRotationFromOutputRotation(getCanCoder().minus(m_angleOffset)));
   }
 
   public SwerveModuleState getState() {
-    double wheelRPS = m_driveMotor.getRotorVelocity().getValue() / DriveInfo.DRIVE_GEAR_RATIO;
-    double velocityInMPS = wheelRPS * DriveInfo.WHEEL_CIRCUMFERENCE_METERS;
+    double velocityInMPS =
+        m_driveMechanism.getOutputDistanceFromRotorRotation(
+            m_driveMotor.getRotorVelocityRotation2d());
 
-    Rotation2d angle =
-        Rotation2d.fromRotations(
-            m_angleMotor.getRotorPosition().getValue() / DriveInfo.ANGLE_GEAR_RATIO);
-
-    return new SwerveModuleState(velocityInMPS, angle);
+    return new SwerveModuleState(velocityInMPS, getAngleMotorRotation2d());
   }
 
-  public double getAngleRaw() {
-    return m_angleMotor.getRotorPosition().getValue();
+  public Rotation2d getAngleMotorRotation2d() {
+    return m_angleMechanism.getOutputRotationFromRotorRotation(
+        m_angleMotor.getRotorPositionRotation2d());
+  }
+
+  public double getDriveMotorMeters() {
+    return m_driveMechanism.getOutputDistanceFromRotorRotation(
+        m_driveMotor.getRotorPositionRotation2d());
   }
 
   public SwerveModulePosition getPosition() {
-    double wheelRotations = m_driveMotor.getRotorPosition().getValue() / DriveInfo.DRIVE_GEAR_RATIO;
-    double wheelDistanceMeters = wheelRotations * DriveInfo.WHEEL_CIRCUMFERENCE_METERS;
-    return new SwerveModulePosition(wheelDistanceMeters, getState().angle);
+    return new SwerveModulePosition(getDriveMotorMeters(), getState().angle);
   }
 
+  public double getDriveStatorCurrent() {
+    return m_driveMotor.getStatorCurrent().getValue();
+  }
+
+  public double getDriveSupplyCurrent() {
+    return m_driveMotor.getSupplyCurrent().getValue();
+  }
+
+  /**
+   * Sets the desired state of the module.
+   *
+   * @param desiredState The desired state of the module.
+   */
   public void setDesiredState(SwerveModuleState desiredState) {
     setDesiredState(desiredState, false);
   }
 
+  /**
+   * Sets the desired state of the module.
+   *
+   * @param desiredState The desired state of the module.
+   * @param force If true, the module will be set to the desired state regardless of the current
+   *     state. Disables optimizations such as anti-jitter.
+   */
   public void setDesiredState(SwerveModuleState desiredState, boolean ignoreJitter) {
-    desiredState =
-        CTREModuleState.optimize(
-            desiredState,
-            getState().angle); // Custom optimize command, since default WPILib optimize assumes
-    // continuous controller which CTRE is not
+    // Custom optimize command, since default WPILib optimize assumes continuous controller which
+    // CTRE is not
+    desiredState = CTREModuleState.optimize(desiredState, getState().angle);
 
-    double desiredWheelVelocityInRPS =
-        desiredState.speedMetersPerSecond / DriveInfo.WHEEL_CIRCUMFERENCE_METERS;
-    double desiredFalconVelocityInRPS = desiredWheelVelocityInRPS * DriveInfo.DRIVE_GEAR_RATIO;
-    m_driveMotor.setControl(
-        m_driveVelocity
-            .withVelocity(desiredFalconVelocityInRPS)
-            .withFeedForward(feedforward.calculate(desiredState.speedMetersPerSecond)));
+    Rotation2d desiredFalconVelocityInRPS =
+        m_driveMechanism.getRotorRotationFromOutputDistance(desiredState.speedMetersPerSecond);
 
-    Rotation2d angle = desiredState.angle;
+    if (desiredState.speedMetersPerSecond != m_lastState.speedMetersPerSecond) {
+      m_driveMotor.setControl(
+          ControlMode.VelocityVoltage, desiredFalconVelocityInRPS.getRotations());
+    }
 
     // Prevent rotating module if speed is less then 1%. Prevents jittering.
     if (!ignoreJitter) {
-      angle =
+      desiredState.angle =
           (Math.abs(desiredState.speedMetersPerSecond)
                   <= (DriveInfo.MAX_VELOCITY_METERS_PER_SECOND * 0.01))
-              ? lastAngle
+              ? m_lastState.angle
               : desiredState.angle;
     }
 
-    m_angleMotor.setControl(
-        m_anglePosition.withPosition(angle.getRotations() * DriveInfo.ANGLE_GEAR_RATIO));
-    lastAngle = angle;
+    // Prevent module rotation if angle is the same as the previous angle.
+    if (desiredState.angle != m_lastState.angle) {
+      m_angleMotor.setControl(
+          ControlMode.PositionVoltage,
+          m_angleMechanism.getRotorRotationFromOutputRotation(desiredState.angle).getRotations());
+    }
+    m_lastState = desiredState;
   }
 
   public void driveBrake() {
     m_driveMotorConfig.MotorOutput.NeutralMode = NeutralModeValue.Brake;
-    m_driveMotor.getConfigurator().apply(m_driveMotorConfig);
+    m_driveMotor.setConfig(m_driveMotorConfig);
   }
 
   public void driveNeutral() {
     m_driveMotorConfig.MotorOutput.NeutralMode = NeutralModeValue.Coast;
-    m_driveMotor.getConfigurator().apply(m_driveMotorConfig);
+    m_driveMotor.setConfig(m_driveMotorConfig);
   }
 }
