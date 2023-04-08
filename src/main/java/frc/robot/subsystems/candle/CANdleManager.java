@@ -143,7 +143,7 @@ public class CANdleManager implements Subsystem {
         setFlashing(CANdleColors.autoWaiting, 1250.0);
         break;
       case Balance:
-        m_candle.setLEDs(255, 140, 0);
+        setColor(CANdleColors.balance);
         break;
       case Off:
         setColor(CANdleColors.off);

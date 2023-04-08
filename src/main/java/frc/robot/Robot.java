@@ -467,42 +467,32 @@ public class Robot extends TimedRobot {
       }
       SmartDashboard.putString("DB/String 0", m_autoManager.getSelectedMode().toString());
 
-      if (m_driverStick.getAButton()) {
-        m_drive.enableBrakeMode();
-      } else {
-        m_candleManager.setLightState(LightState.RainbowBarf);
-        if (m_operatorStick.getYButtonPressed()) {
-          m_selectedMode += 1;
-        }
-        if (m_operatorStick.getAButtonPressed()) {
-          m_selectedMode -= 1;
-        }
-        if (m_selectedMode >= m_availableAutoModes.size()) {
-          m_selectedMode = 0;
-        }
-        if (m_selectedMode < 0) {
-          m_selectedMode = m_availableAutoModes.size() - 1;
-        }
-
-        if (m_operatorStick.getLeftBumperPressed()) {
-          m_preloadGamePiece = GamePiece.Cone;
-        }
-        if (m_operatorStick.getRightBumperPressed()) {
-          m_preloadGamePiece = GamePiece.Cube;
-        }
-
-        SmartDashboard.putString(
-            "DB/String 0", m_availableAutoModes.get(m_selectedMode).toString());
-        SmartDashboard.putString("DB/String 1", m_preloadGamePiece.toString());
-
-        m_autoManager.selectAuto(m_availableAutoModes.get(m_selectedMode));
-
-        if (m_driverStick.getAButton()) {
-          m_drive.enableBrakeMode();
-        } else {
-          m_drive.disableBrakeMode();
-        }
+      m_candleManager.setLightState(LightState.RainbowBarf);
+      if (m_operatorStick.getYButtonPressed()) {
+        m_selectedMode += 1;
       }
+      if (m_operatorStick.getAButtonPressed()) {
+        m_selectedMode -= 1;
+      }
+      if (m_selectedMode >= m_availableAutoModes.size()) {
+        m_selectedMode = 0;
+      }
+      if (m_selectedMode < 0) {
+        m_selectedMode = m_availableAutoModes.size() - 1;
+      }
+
+      if (m_operatorStick.getLeftBumperPressed()) {
+        m_preloadGamePiece = GamePiece.Cone;
+      }
+      if (m_operatorStick.getRightBumperPressed()) {
+        m_preloadGamePiece = GamePiece.Cube;
+      }
+
+      SmartDashboard.putString("DB/String 0", m_availableAutoModes.get(m_selectedMode).toString());
+      SmartDashboard.putString("DB/String 1", m_preloadGamePiece.toString());
+
+      m_autoManager.selectAuto(m_availableAutoModes.get(m_selectedMode));
+
       SmartDashboard.putString("DB/String 0", m_autoManager.getSelectedMode().toString());
 
     } catch (Exception e) {
