@@ -1,5 +1,6 @@
 package frc.robot.subsystems;
 
+import frc.robot.devices.GreyPigeon;
 import frc.robot.devices.GreyTalonFX;
 import frc.robot.devices.GreyTalonFX.ControlMode;
 import frc.robot.shared.RobotInfo;
@@ -22,7 +23,6 @@ import lombok.experimental.Accessors;
 
 @Accessors(prefix = "m_")
 public class Wrist implements Subsystem {
-
   private static final double STOW_OFFSET = 32.25;
   private static final double WRIST_FF = 0.45;
   private static final double ENCODER_OFFSET = 304.189 - STOW_OFFSET;
@@ -30,6 +30,7 @@ public class Wrist implements Subsystem {
   @Setter @Getter private WristState m_state = WristState.Manual;
   @Getter private WristPreset m_preset = WristPreset.Stow;
 
+  private final GreyPigeon m_pigeon;
   private final CANcoder m_encoder;
   private final GreyTalonFX m_wristMotor;
 
@@ -77,7 +78,8 @@ public class Wrist implements Subsystem {
     }
   }
 
-  public Wrist() {
+  public Wrist(GreyPigeon pigeon) {
+    m_pigeon = pigeon;
     m_encoder = new CANcoder(ClawInfo.WRIST_ENCODER_ID, RobotInfo.CANIVORE_NAME);
     configEncoder();
 
@@ -116,6 +118,9 @@ public class Wrist implements Subsystem {
     motorConfig.Slot0.kD = 0.0;
     motorConfig.Slot0.kS = 0.0;
 
+    // Motion Magic
+    motorConfig.MotionMagic.MotionMagicAcceleration = 9;
+    motorConfig.MotionMagic.MotionMagicCruiseVelocity = 30;
     m_wristMotor.setConfig(motorConfig);
   }
 
@@ -198,9 +203,16 @@ public class Wrist implements Subsystem {
         m_wristMotor.setControl(ControlMode.DutyCycleOut, m_motorOutput);
         break;
       case ClosedLoop:
+        // If the original target angle is > 0, then don't gimbal. Make the max gimbaled angle 0
+        var angle = m_targetAngle;
+        if (m_targetAngle < 0) {
+          SmartDashboard.putNumber("wrist comp", m_targetAngle + m_pigeon.getPitch().getDegrees());
+          angle = Math.min(0, m_targetAngle + m_pigeon.getPitch().getDegrees());
+        }
+
         m_wristMotor.setControl(
-            ControlMode.PositionVoltage,
-            (m_targetAngle + ENCODER_OFFSET) / 360.0,
+            ControlMode.MotionMagicVoltage,
+            (angle + ENCODER_OFFSET) / 360.0,
             true,
             Math.sin(Math.toRadians(getCurrentAngleDegrees())) * -WRIST_FF);
         break;
