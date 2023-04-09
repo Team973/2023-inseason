@@ -98,10 +98,10 @@ public class CANdleManager implements Subsystem {
 
     switch (m_lightState) {
       case Cone:
-        m_candle.setLEDs(255, 150, 0); // set the CANdle LEDs to yellow
+        setColor(CANdleColors.cone);
         break;
       case Cube:
-        m_candle.setLEDs(170, 0, 255); // set the CANdle LEDs to purple
+        setColor(CANdleColors.cube);
         break;
       case Emergency:
         setFlashing(CANdleColors.emergency, FLASH_DELAY_MSEC);
