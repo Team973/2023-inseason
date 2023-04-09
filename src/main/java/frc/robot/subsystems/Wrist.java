@@ -50,12 +50,12 @@ public class Wrist implements Subsystem {
 
   @Accessors(prefix = "m_")
   public enum WristPreset {
-    Floor(-104.59, -96.77),
-    Hybrid(-161.9, -163.9),
+    Floor(-107.59, -96.77),
+    Hybrid(-44.6, -44.6),
     Mid(-118.22, -110.79),
     High(-111.09, -96.39),
     HighBack(-101.09, -74.39),
-    Hp(-106.84, -103.91),
+    Hp(-106.84, -95.36),
     Stow(STOW_OFFSET, STOW_OFFSET),
     ConeRight(-71.0, -74.0),
     MiniHp(-89.5, -86.0),
@@ -99,9 +99,9 @@ public class Wrist implements Subsystem {
     motorConfig.MotorOutput.NeutralMode = NeutralModeValue.Brake;
 
     // Current limits
-    motorConfig.CurrentLimits.SupplyCurrentLimit = 40;
+    motorConfig.CurrentLimits.SupplyCurrentLimit = 50;
     motorConfig.CurrentLimits.SupplyCurrentLimitEnable = true;
-    motorConfig.CurrentLimits.StatorCurrentLimit = 80;
+    motorConfig.CurrentLimits.StatorCurrentLimit = 120;
     motorConfig.CurrentLimits.StatorCurrentLimitEnable = true;
 
     // Motor feedback
@@ -176,6 +176,7 @@ public class Wrist implements Subsystem {
     SmartDashboard.putBoolean("Wrist Sensor", getWristHall());
     SmartDashboard.putNumber("Wrist Absolute Encoder", m_encoder.getAbsolutePosition().getValue());
     SmartDashboard.putNumber("Wrist Raw Angle", getRawAngle().getDegrees());
+    SmartDashboard.putNumber("Wrist Velocity", getVelocity().getDegrees());
   }
 
   public void update() {
