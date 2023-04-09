@@ -6,10 +6,8 @@ package frc.robot;
 
 import static frc.robot.shared.RobotInfo.*;
 
-import java.io.FileWriter;
-import java.io.PrintWriter;
-
 import frc.robot.devices.GreyPigeon;
+import frc.robot.shared.CrashTracker;
 import frc.robot.shared.LimelightHelpers;
 import frc.robot.subsystems.CANdleManager;
 import frc.robot.subsystems.CANdleManager.LightState;
@@ -33,7 +31,6 @@ import edu.wpi.first.wpilibj.Compressor;
 import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.DriverStation.Alliance;
 import edu.wpi.first.wpilibj.PneumaticsModuleType;
-import edu.wpi.first.wpilibj.RobotBase;
 import edu.wpi.first.wpilibj.TimedRobot;
 import edu.wpi.first.wpilibj.XboxController;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
@@ -49,8 +46,6 @@ import lombok.experimental.Accessors;
 @Accessors(prefix = "m_")
 public class Robot extends TimedRobot {
   @Getter private static GamePiece m_preloadGamePiece = GamePiece.Cone;
-
-  @Getter private static boolean m_exceptionHappened = false;
 
   @Getter private static Alliance m_calculatedAlliance;
 
@@ -69,27 +64,6 @@ public class Robot extends TimedRobot {
 
   private final Compressor m_compressor =
       new Compressor(COMPRESSOR_ID, PneumaticsModuleType.CTREPCM);
-
-  private void logException(Exception e) {
-    try {
-      m_exceptionHappened = true;
-      if (!RobotBase.isSimulation()) {
-        FileWriter fileWriter = new FileWriter("/home/lvuser/exception_log.txt", true);
-        PrintWriter printWriter = new PrintWriter(fileWriter);
-        e.printStackTrace(printWriter);
-        printWriter.close();
-        fileWriter.close();
-      }
-
-      System.err.println(e);
-
-      if (isSimulation()) {
-        throw e;
-      }
-    } catch (Exception ie) {
-      throw new RuntimeException("Could not write to exception log file", ie);
-    }
-  }
 
   private void dashboardUpdateSubsystems() {
     m_elevator.dashboardUpdate();
@@ -135,9 +109,10 @@ public class Robot extends TimedRobot {
   @Override
   public void robotInit() {
     try {
+      CrashTracker.logRobotInit();
       this.resetSubsystems();
     } catch (Exception e) {
-      logException(e);
+      CrashTracker.logThrowableCrash(e);
     }
   }
 
@@ -161,17 +136,19 @@ public class Robot extends TimedRobot {
 
       if (!DriverStation.isFMSAttached()) {
         debugDashboardUpdateSubsystems();
+      } else {
+        CrashTracker.logFMSData();
       }
 
       m_calculatedAlliance = DriverStation.getAlliance();
 
       // CANdle
-      if (!m_exceptionHappened
+      if (!CrashTracker.isExceptionHappened()
           || !isDisabled() && m_candleManager.getLightState() != LightState.GotIt) {
         m_candleManager.setLightWithGamePiece();
       }
     } catch (Exception e) {
-      logException(e);
+      CrashTracker.logThrowableCrash(e);
     }
   }
 
@@ -188,11 +165,12 @@ public class Robot extends TimedRobot {
   @Override
   public void autonomousInit() {
     try {
+      CrashTracker.logAutoInit();
       LimelightHelpers.setPipelineIndex("", 1);
       m_compressor.enableDigital();
       m_autoManager.init();
     } catch (Exception e) {
-      logException(e);
+      CrashTracker.logThrowableCrash(e);
     }
   }
 
@@ -202,7 +180,7 @@ public class Robot extends TimedRobot {
     try {
       m_autoManager.run();
     } catch (Exception e) {
-      logException(e);
+      CrashTracker.logThrowableCrash(e);
     }
   }
 
@@ -210,13 +188,14 @@ public class Robot extends TimedRobot {
   @Override
   public void teleopInit() {
     try {
+      CrashTracker.logTeleopInit();
       LimelightHelpers.setPipelineIndex("", 0);
       m_compressor.enableDigital();
       m_wrist.setState(WristState.Manual);
       m_drive.setTargetRobotAngle(m_drive.getPigeon().getNormalizedYaw());
       m_drive.disableBrakeMode();
     } catch (Exception e) {
-      logException(e);
+      CrashTracker.logThrowableCrash(e);
     }
   }
 
@@ -382,7 +361,7 @@ public class Robot extends TimedRobot {
         m_claw.reset();
       }
     } catch (Exception e) {
-      logException(e);
+      CrashTracker.logThrowableCrash(e);
     }
   }
 
@@ -390,9 +369,10 @@ public class Robot extends TimedRobot {
   @Override
   public void disabledInit() {
     try {
+      CrashTracker.logDisabledInit();
       m_compressor.disable();
     } catch (Exception e) {
-      logException(e);
+      CrashTracker.logThrowableCrash(e);
     }
   }
 
@@ -410,7 +390,7 @@ public class Robot extends TimedRobot {
       SmartDashboard.putString("DB/String 0", m_autoManager.getSelectedMode().toString());
 
     } catch (Exception e) {
-      logException(e);
+      CrashTracker.logThrowableCrash(e);
     }
   }
 
@@ -418,8 +398,9 @@ public class Robot extends TimedRobot {
   @Override
   public void testInit() {
     try {
+      CrashTracker.logTestInit();
     } catch (Exception e) {
-      logException(e);
+      CrashTracker.logThrowableCrash(e);
     }
   }
 
@@ -428,7 +409,7 @@ public class Robot extends TimedRobot {
   public void testPeriodic() {
     try {
     } catch (Exception e) {
-      logException(e);
+      CrashTracker.logThrowableCrash(e);
     }
   }
 
@@ -437,7 +418,7 @@ public class Robot extends TimedRobot {
   public void simulationInit() {
     try {
     } catch (Exception e) {
-      logException(e);
+      CrashTracker.logThrowableCrash(e);
     }
   }
 
@@ -446,7 +427,7 @@ public class Robot extends TimedRobot {
   public void simulationPeriodic() {
     try {
     } catch (Exception e) {
-      logException(e);
+      CrashTracker.logThrowableCrash(e);
     }
   }
 }
