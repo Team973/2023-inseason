@@ -1,6 +1,5 @@
 package frc.robot.subsystems;
 
-import frc.robot.Robot;
 import frc.robot.devices.GreyTalonFX;
 import frc.robot.devices.GreyTalonFX.ControlMode;
 import frc.robot.shared.RobotInfo;
@@ -48,12 +47,12 @@ public class Wrist implements Subsystem {
   }
 
   public enum WristPreset {
-    Floor(-104.59, -96.77),
-    Hybrid(-161.9, -163.9),
+    Floor(-107.59, -96.77),
+    Hybrid(-44.6, -44.6),
     Mid(-118.22, -110.79),
     High(-111.09, -96.39),
     HighBack(-101.09, -74.39),
-    Hp(-106.84, -103.91),
+    Hp(-106.84, -95.36),
     Stow(STOW_OFFSET, STOW_OFFSET),
     ConeRight(-71.0, -74.0),
     MiniHp(-89.5, -86.0),
@@ -98,9 +97,9 @@ public class Wrist implements Subsystem {
     motorConfig.MotorOutput.NeutralMode = NeutralModeValue.Brake;
 
     // Current limits
-    motorConfig.CurrentLimits.SupplyCurrentLimit = 40;
+    motorConfig.CurrentLimits.SupplyCurrentLimit = 50;
     motorConfig.CurrentLimits.SupplyCurrentLimitEnable = true;
-    motorConfig.CurrentLimits.StatorCurrentLimit = 80;
+    motorConfig.CurrentLimits.StatorCurrentLimit = 120;
     motorConfig.CurrentLimits.StatorCurrentLimitEnable = true;
 
     // Motor feedback
@@ -128,7 +127,7 @@ public class Wrist implements Subsystem {
   }
 
   public void setPreset(WristPreset nextPreset) {
-    GamePiece currentGamePiece = Robot.getCurrentGamePiece();
+    GamePiece currentGamePiece = Superstructure.getCurrentGamePiece();
     m_preset = nextPreset;
     // TODO handle cycle bug
     if (m_preset == WristPreset.Manual && m_state != WristState.ClosedLoop) {
@@ -178,10 +177,11 @@ public class Wrist implements Subsystem {
     SmartDashboard.putBoolean("Wrist Sensor", getWristHall());
     SmartDashboard.putNumber("Wrist Absolute Encoder", m_encoder.getAbsolutePosition().getValue());
     SmartDashboard.putNumber("Wrist Raw Angle", getRawAngleDegrees());
+    SmartDashboard.putNumber("Wrist Velocity", getVelocity());
   }
 
   public void update() {
-    GamePiece currentGamePiece = Robot.getCurrentGamePiece();
+    GamePiece currentGamePiece = Superstructure.getCurrentGamePiece();
     if (m_preset == WristPreset.Manual && m_state != WristState.ClosedLoop) {
       setTargetAngleDegrees(getCurrentAngleDegrees());
     } else if (m_preset == WristPreset.Manual && m_state == WristState.ClosedLoop) {

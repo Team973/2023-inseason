@@ -46,7 +46,7 @@ public class CANdleManager implements Subsystem {
   }
 
   public void setLightWithGamePiece() {
-    switch (Robot.getCurrentGamePiece()) {
+    switch (Superstructure.getCurrentGamePiece()) {
       case Cube:
         setLightState(LightState.Cube);
         break;

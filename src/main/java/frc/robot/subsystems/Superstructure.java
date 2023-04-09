@@ -1,6 +1,7 @@
 package frc.robot.subsystems;
 
 import frc.robot.shared.Subsystem;
+import frc.robot.subsystems.Claw.IntakeState;
 import frc.robot.subsystems.Wrist.WristPreset;
 
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
@@ -27,20 +28,25 @@ public class Superstructure implements Subsystem {
     Stow,
     LoadHp,
     LoadFloor,
+    Toss,
+    Score,
+    PostScore,
     Manual
   }
 
   @Getter @Setter private GlobalState m_globalState = GlobalState.Stow;
+  @Getter @Setter private static GamePiece m_currentGamePiece = GamePiece.None;
+  @Getter @Setter IntakeState m_desiredIntakeState = IntakeState.Neutral;
+
   private final Elevator m_elevator;
   private final Wrist m_wrist;
+  private final Claw m_claw;
 
-  public void dashboardUpdate() {
-    SmartDashboard.putString("globalState", String.valueOf(m_globalState));
-  }
+  public void dashboardUpdate() {}
 
   public void update() {
-    Elevator.Preset elevatorPreset;
-    WristPreset wristPreset;
+    Elevator.Preset elevatorPreset = m_elevator.getPreset();
+    WristPreset wristPreset = m_wrist.getPreset();
 
     switch (m_globalState) {
       case ScoreHigh:
@@ -66,6 +72,24 @@ public class Superstructure implements Subsystem {
       case LoadFloor:
         elevatorPreset = Elevator.Preset.Floor;
         wristPreset = WristPreset.Floor;
+        break;
+      case Toss:
+        elevatorPreset = Elevator.Preset.Floor;
+        wristPreset = WristPreset.Hybrid;
+
+        if (Math.abs(m_wrist.getVelocity()) > 80.0) {
+          setDesiredIntakeState(IntakeState.Out);
+        } else if (m_claw.getIntakeState() == IntakeState.Out) {
+          setGlobalState(GlobalState.PostScore);
+        }
+        break;
+      case Score:
+        setDesiredIntakeState(IntakeState.Out);
+        break;
+      case PostScore:
+        setDesiredIntakeState(IntakeState.Neutral);
+        setCurrentGamePiece(GamePiece.None);
+        setGlobalState(GlobalState.Stow);
         break;
       case Manual:
         elevatorPreset = Elevator.Preset.Manual;
@@ -100,11 +124,15 @@ public class Superstructure implements Subsystem {
     }
     m_wrist.setPreset(wristPreset);
     m_elevator.setPreset(elevatorPreset);
+    m_claw.setIntakeState(m_desiredIntakeState);
   }
 
   public void reset() {
     setGlobalState(GlobalState.Stow);
   }
 
-  public void debugDashboardUpdate() {}
+  public void debugDashboardUpdate() {
+    SmartDashboard.putString("Global State", String.valueOf(m_globalState));
+    SmartDashboard.putString("Intake State", String.valueOf(m_desiredIntakeState));
+  }
 }
