@@ -95,7 +95,7 @@ public class Elevator implements Subsystem {
     motorConfig.CurrentLimits.StatorCurrentLimitEnable = true;
 
     // Position PID Parameters
-    motorConfig.Slot0.kP = 5.4;
+    motorConfig.Slot0.kP = 6.0;
     motorConfig.Slot0.kI = 0.0;
     motorConfig.Slot0.kD = 0.0;
     motorConfig.Slot0.kS = 0.0;
@@ -203,7 +203,7 @@ public class Elevator implements Subsystem {
       case ClosedLoop:
         Rotation2d motorPosition = m_mechanism.getRotorRotationFromOutputDistance(m_targetPosition);
         m_elevatorMotor.setControl(
-            ControlMode.MotionMagicVoltage, motorPosition.getRotations(), 0.04);
+            ControlMode.MotionMagicVoltage, motorPosition.getRotations(), 0.43);
         break;
       default:
         break;

@@ -61,8 +61,8 @@ public class Drive implements Subsystem {
 
   private final HolonomicDriveController m_controller;
 
-  public Drive() {
-    m_pigeon = new GreyPigeon();
+  public Drive(GreyPigeon pigeon) {
+    m_pigeon = pigeon;
 
     m_swerveModules =
         new SwerveModule[] {
