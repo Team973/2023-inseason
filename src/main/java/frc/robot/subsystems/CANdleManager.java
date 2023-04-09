@@ -2,7 +2,6 @@ package frc.robot.subsystems;
 
 import static frc.robot.shared.RobotInfo.*;
 
-import frc.robot.Robot;
 import frc.robot.shared.Conversions;
 import frc.robot.shared.CrashTracker;
 import frc.robot.shared.Subsystem;
