@@ -48,7 +48,7 @@ public class Wrist implements Subsystem {
 
   public enum WristPreset {
     Floor(-107.59, -96.77),
-    Hybrid(-161.9, -163.9),
+    Hybrid(-44.6, -44.6),
     Mid(-118.22, -110.79),
     High(-111.09, -96.39),
     HighBack(-101.09, -74.39),
@@ -177,6 +177,7 @@ public class Wrist implements Subsystem {
     SmartDashboard.putBoolean("Wrist Sensor", getWristHall());
     SmartDashboard.putNumber("Wrist Absolute Encoder", m_encoder.getAbsolutePosition().getValue());
     SmartDashboard.putNumber("Wrist Raw Angle", getRawAngleDegrees());
+    SmartDashboard.putNumber("Wrist Velocity", getVelocity());
   }
 
   public void update() {

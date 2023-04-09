@@ -57,7 +57,7 @@ public class Elevator implements Subsystem {
 
   public enum Preset {
     Floor(8.73),
-    Hybrid(14.6),
+    Hybrid(0.0),
     Mid(22.3),
     Hp(27.4),
     High(27.4),

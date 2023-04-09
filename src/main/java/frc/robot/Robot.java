@@ -273,14 +273,15 @@ public class Robot extends TimedRobot {
 
       // Score
       if (m_driverStick.getLeftBumper()) {
-        if (m_claw.isHasGamePiece() && (m_wrist.getPreset() == WristPreset.Stow)) {
+        if (m_claw.isHasGamePiece()
+            && (m_superstructure.getGlobalState() == GlobalState.Stow
+                || m_superstructure.getGlobalState() == GlobalState.Toss)) {
           m_superstructure.setGlobalState(GlobalState.Toss);
+        } else {
+          m_superstructure.setGlobalState(GlobalState.Score);
         }
-        m_superstructure.setDesiredIntakeState(IntakeState.Out);
-      } else if (m_superstructure.getGlobalState() != GlobalState.Toss
-          && m_superstructure.getDesiredIntakeState() == IntakeState.Out) {
-        Superstructure.setCurrentGamePiece(GamePiece.None);
-        m_superstructure.setDesiredIntakeState(IntakeState.Neutral);
+      } else if (m_superstructure.getGlobalState() == GlobalState.Score) {
+        m_superstructure.setGlobalState(GlobalState.PostScore);
       }
 
       // Right Cone

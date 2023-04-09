@@ -29,6 +29,8 @@ public class Superstructure implements Subsystem {
     LoadHp,
     LoadFloor,
     Toss,
+    Score,
+    PostScore,
     Manual
   }
 
@@ -43,8 +45,8 @@ public class Superstructure implements Subsystem {
   public void dashboardUpdate() {}
 
   public void update() {
-    Elevator.Preset elevatorPreset;
-    WristPreset wristPreset;
+    Elevator.Preset elevatorPreset = m_elevator.getPreset();
+    WristPreset wristPreset = m_wrist.getPreset();
 
     switch (m_globalState) {
       case ScoreHigh:
@@ -73,13 +75,21 @@ public class Superstructure implements Subsystem {
         break;
       case Toss:
         elevatorPreset = Elevator.Preset.Floor;
-        wristPreset = WristPreset.ConeRight;
+        wristPreset = WristPreset.Hybrid;
 
-        if (m_claw.getIntakeState() == IntakeState.Out) {
-          m_claw.setIntakeState(IntakeState.Neutral);
-          setCurrentGamePiece(GamePiece.None);
-          setGlobalState(GlobalState.Stow);
+        if (Math.abs(m_wrist.getVelocity()) > 80.0) {
+          setDesiredIntakeState(IntakeState.Out);
+        } else if (m_claw.getIntakeState() == IntakeState.Out) {
+          setGlobalState(GlobalState.PostScore);
         }
+        break;
+      case Score:
+        setDesiredIntakeState(IntakeState.Out);
+        break;
+      case PostScore:
+        setDesiredIntakeState(IntakeState.Neutral);
+        setCurrentGamePiece(GamePiece.None);
+        setGlobalState(GlobalState.Stow);
         break;
       case Manual:
         elevatorPreset = Elevator.Preset.Manual;
