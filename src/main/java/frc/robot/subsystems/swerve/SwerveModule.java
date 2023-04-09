@@ -171,9 +171,8 @@ public class SwerveModule {
         SwerveMath.optimize(
             desiredState,
             getState().angle,
-            Rotation2d.fromRadians(
-                    m_lastState.omegaRotationPerSecond.getRadians() * DriveInfo.ANGLE_KV)
-                .times(1.0)); // 0.06 is a fudge number
+            m_lastState,
+            DriveInfo.ANGLE_KV); // 0.06 is a fudge number
 
     Rotation2d desiredFalconVelocityInRPS =
         m_driveMechanism.getRotorRotationFromOutputDistance(desiredState.speedMetersPerSecond);

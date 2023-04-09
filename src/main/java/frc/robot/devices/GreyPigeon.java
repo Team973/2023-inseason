@@ -1,5 +1,6 @@
 package frc.robot.devices;
 
+import frc.robot.shared.Conversions;
 import frc.robot.shared.RobotInfo;
 import frc.robot.shared.RobotInfo.DriveInfo;
 import frc.robot.shared.StandardizedRotation3d;
@@ -104,12 +105,7 @@ public class GreyPigeon {
    * @return The normalized yaw from the Pigeon2 with the offset applied.
    */
   public Rotation2d getNormalizedYaw() {
-    double rawYaw = getYaw().getDegrees();
-    double normalizedYaw = Math.IEEEremainder(rawYaw, 360.0);
-    if (normalizedYaw < 0) {
-      normalizedYaw += 360.0;
-    }
-    return Rotation2d.fromDegrees(normalizedYaw);
+    return Conversions.Angles.normalizeAngle(getYaw());
   }
 
   /**

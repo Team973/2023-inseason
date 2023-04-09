@@ -1,5 +1,6 @@
 package frc.robot.shared;
 
+import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.wpilibj.RobotController;
 
 public class Conversions {
@@ -60,6 +61,18 @@ public class Conversions {
     public static final double METERS_PER_FOOT = 1.0 / FEET_PER_METER;
     /** m/in. */
     public static final double METERS_PER_INCH = 1.0 / INCHES_PER_METER;
+  }
+
+  public static class Angles {
+    /**
+     * Normalize an angle to be within 0 to 360, or 0 to 2pi.
+     *
+     * @param angle Rotation2d angle to be normalized.
+     * @return Normalized angle.
+     */
+    public static Rotation2d normalizeAngle(Rotation2d angle) {
+      return new Rotation2d(angle.getCos(), angle.getSin());
+    }
   }
 
   public static class MathHelpers {
