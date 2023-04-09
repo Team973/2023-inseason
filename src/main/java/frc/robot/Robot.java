@@ -6,6 +6,7 @@ package frc.robot;
 
 import static frc.robot.shared.RobotInfo.*;
 
+import frc.robot.devices.GreyPigeon;
 import frc.robot.shared.CrashTracker;
 import frc.robot.shared.LimelightHelpers;
 import frc.robot.subsystems.CANdleManager;
@@ -48,10 +49,11 @@ public class Robot extends TimedRobot {
 
   @Getter private static Alliance m_calculatedAlliance;
 
+  private final GreyPigeon m_pigeon = new GreyPigeon();
   private final Elevator m_elevator = new Elevator();
-  private final Wrist m_wrist = new Wrist();
+  private final Wrist m_wrist = new Wrist(m_pigeon);
   private final Claw m_claw = new Claw();
-  private final Drive m_drive = new Drive();
+  private final Drive m_drive = new Drive(m_pigeon);
   private final CANdleManager m_candleManager = new CANdleManager();
   private final AutoManager m_autoManager = new AutoManager(m_claw, m_elevator, m_drive, m_wrist);
   private final Superstructure m_superstructure = new Superstructure(m_elevator, m_wrist, m_claw);
@@ -288,7 +290,7 @@ public class Robot extends TimedRobot {
       ////////////////////////
       // CO-DRIVER CONTROLS //
       ////////////////////////
-      double operatorStickRightY = -MathUtil.applyDeadband(m_operatorStick.getRawAxis(5), 0.1);
+      double operatorStickRightY = -MathUtil.applyDeadband(m_operatorStick.getRawAxis(5), 0.12);
 
       // Elevator height preset
       switch (m_operatorStick.getPOV()) {
