@@ -2,8 +2,8 @@ package frc.robot.subsystems.candle;
 
 import static frc.robot.shared.RobotInfo.*;
 
-import frc.robot.Robot;
 import frc.robot.shared.Conversions;
+import frc.robot.shared.CrashTracker;
 import frc.robot.shared.Subsystem;
 import frc.robot.subsystems.Superstructure;
 
@@ -92,7 +92,7 @@ public class CANdleManager implements Subsystem {
   }
 
   public void update() {
-    if (Robot.isExceptionHappened()) {
+    if (CrashTracker.isExceptionHappened()) {
       m_lightState = LightState.Emergency;
     }
 

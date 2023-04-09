@@ -1,5 +1,7 @@
 package frc.robot.devices;
 
+import frc.robot.shared.CrashTracker;
+
 import com.ctre.phoenixpro.StatusCode;
 import com.ctre.phoenixpro.configs.TalonFXConfiguration;
 import com.ctre.phoenixpro.configs.TalonFXConfigurator;
@@ -179,8 +181,8 @@ public class GreyTalonFX extends TalonFX {
     int retryCount = 0;
     while (status != StatusCode.OK) {
       if (retryCount > 10) {
-        // TODO: Log error and emergency lights
-        System.err.println("Failed to set TalonFX configuration to motor: " + getDeviceID());
+        CrashTracker.logThrowableCrash(
+            new Throwable("Failed to set TalonFX configuration to motor: " + getDeviceID()));
         break;
       }
       status = this.getConfigurator().apply(config, 0.2);
