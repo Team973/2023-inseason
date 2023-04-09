@@ -206,7 +206,6 @@ public class Wrist implements Subsystem {
         // If the original target angle is > 0, then don't gimbal. Make the max gimbaled angle 0
         var angle = m_targetAngle;
         if (m_targetAngle < 0) {
-          SmartDashboard.putNumber("wrist comp", m_targetAngle + m_pigeon.getPitch().getDegrees());
           angle = Math.min(0, m_targetAngle + m_pigeon.getPitch().getDegrees());
         }
 
