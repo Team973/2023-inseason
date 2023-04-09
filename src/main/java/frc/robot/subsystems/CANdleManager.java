@@ -2,8 +2,8 @@ package frc.robot.subsystems;
 
 import static frc.robot.shared.RobotInfo.*;
 
-import frc.robot.Robot;
 import frc.robot.shared.Conversions;
+import frc.robot.shared.CrashTracker;
 import frc.robot.shared.Subsystem;
 
 import com.ctre.phoenix.led.CANdle;
@@ -45,7 +45,7 @@ public class CANdleManager implements Subsystem {
   }
 
   public void setLightWithGamePiece() {
-    switch (Robot.getCurrentGamePiece()) {
+    switch (Superstructure.getCurrentGamePiece()) {
       case Cube:
         setLightState(LightState.Cube);
         break;
@@ -64,7 +64,7 @@ public class CANdleManager implements Subsystem {
   public void debugDashboardUpdate() {}
 
   public void update() {
-    if (Robot.isExceptionHappened()) {
+    if (CrashTracker.isExceptionHappened()) {
       m_lightState = LightState.Flash;
     }
 

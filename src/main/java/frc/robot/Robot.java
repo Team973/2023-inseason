@@ -6,9 +6,8 @@ package frc.robot;
 
 import static frc.robot.shared.RobotInfo.*;
 
-import java.io.FileWriter;
-import java.io.PrintWriter;
-
+import frc.robot.devices.GreyPigeon;
+import frc.robot.shared.CrashTracker;
 import frc.robot.shared.LimelightHelpers;
 import frc.robot.subsystems.CANdleManager;
 import frc.robot.subsystems.CANdleManager.LightState;
@@ -32,12 +31,10 @@ import edu.wpi.first.wpilibj.Compressor;
 import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.DriverStation.Alliance;
 import edu.wpi.first.wpilibj.PneumaticsModuleType;
-import edu.wpi.first.wpilibj.RobotBase;
 import edu.wpi.first.wpilibj.TimedRobot;
 import edu.wpi.first.wpilibj.XboxController;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import lombok.Getter;
-import lombok.Setter;
 import lombok.experimental.Accessors;
 
 /**
@@ -48,20 +45,18 @@ import lombok.experimental.Accessors;
  */
 @Accessors(prefix = "m_")
 public class Robot extends TimedRobot {
-  @Setter @Getter private static GamePiece m_currentGamePiece = GamePiece.None;
   @Getter private static GamePiece m_preloadGamePiece = GamePiece.Cone;
-
-  @Getter private static boolean m_exceptionHappened = false;
 
   @Getter private static Alliance m_calculatedAlliance;
 
+  private final GreyPigeon m_pigeon = new GreyPigeon();
   private final Elevator m_elevator = new Elevator();
-  private final Wrist m_wrist = new Wrist();
+  private final Wrist m_wrist = new Wrist(m_pigeon);
   private final Claw m_claw = new Claw();
-  private final Drive m_drive = new Drive();
+  private final Drive m_drive = new Drive(m_pigeon);
   private final CANdleManager m_candleManager = new CANdleManager();
   private final AutoManager m_autoManager = new AutoManager(m_claw, m_elevator, m_drive, m_wrist);
-  private final Superstructure m_superstructure = new Superstructure(m_elevator, m_wrist);
+  private final Superstructure m_superstructure = new Superstructure(m_elevator, m_wrist, m_claw);
   private final XboxController m_driverStick = new XboxController(0);
   private final XboxController m_operatorStick = new XboxController(1);
 
@@ -69,27 +64,6 @@ public class Robot extends TimedRobot {
 
   private final Compressor m_compressor =
       new Compressor(COMPRESSOR_ID, PneumaticsModuleType.CTREPCM);
-
-  private void logException(Exception e) {
-    try {
-      m_exceptionHappened = true;
-      if (!RobotBase.isSimulation()) {
-        FileWriter fileWriter = new FileWriter("/home/lvuser/exception_log.txt", true);
-        PrintWriter printWriter = new PrintWriter(fileWriter);
-        e.printStackTrace(printWriter);
-        printWriter.close();
-        fileWriter.close();
-      }
-
-      System.err.println(e);
-
-      if (isSimulation()) {
-        throw e;
-      }
-    } catch (Exception ie) {
-      throw new RuntimeException("Could not write to exception log file", ie);
-    }
-  }
 
   private void dashboardUpdateSubsystems() {
     m_elevator.dashboardUpdate();
@@ -106,6 +80,7 @@ public class Robot extends TimedRobot {
     m_claw.debugDashboardUpdate();
     m_drive.debugDashboardUpdate();
     m_candleManager.debugDashboardUpdate();
+    m_superstructure.debugDashboardUpdate();
   }
 
   /** Update subsystems. Called me when enabled. */
@@ -134,9 +109,10 @@ public class Robot extends TimedRobot {
   @Override
   public void robotInit() {
     try {
+      CrashTracker.logRobotInit();
       this.resetSubsystems();
     } catch (Exception e) {
-      logException(e);
+      CrashTracker.logThrowableCrash(e);
     }
   }
 
@@ -160,17 +136,19 @@ public class Robot extends TimedRobot {
 
       if (!DriverStation.isFMSAttached()) {
         debugDashboardUpdateSubsystems();
+      } else {
+        CrashTracker.logFMSData();
       }
 
       m_calculatedAlliance = DriverStation.getAlliance();
 
       // CANdle
-      if (!m_exceptionHappened
+      if (!CrashTracker.isExceptionHappened()
           || !isDisabled() && m_candleManager.getLightState() != LightState.GotIt) {
         m_candleManager.setLightWithGamePiece();
       }
     } catch (Exception e) {
-      logException(e);
+      CrashTracker.logThrowableCrash(e);
     }
   }
 
@@ -187,11 +165,12 @@ public class Robot extends TimedRobot {
   @Override
   public void autonomousInit() {
     try {
+      CrashTracker.logAutoInit();
       LimelightHelpers.setPipelineIndex("", 1);
       m_compressor.enableDigital();
       m_autoManager.init();
     } catch (Exception e) {
-      logException(e);
+      CrashTracker.logThrowableCrash(e);
     }
   }
 
@@ -201,7 +180,7 @@ public class Robot extends TimedRobot {
     try {
       m_autoManager.run();
     } catch (Exception e) {
-      logException(e);
+      CrashTracker.logThrowableCrash(e);
     }
   }
 
@@ -209,13 +188,14 @@ public class Robot extends TimedRobot {
   @Override
   public void teleopInit() {
     try {
+      CrashTracker.logTeleopInit();
       LimelightHelpers.setPipelineIndex("", 0);
       m_compressor.enableDigital();
       m_wrist.setState(WristState.Manual);
       m_drive.setTargetRobotAngle(m_drive.getPigeon().getNormalizedYaw());
       m_drive.disableBrakeMode();
     } catch (Exception e) {
-      logException(e);
+      CrashTracker.logThrowableCrash(e);
     }
   }
 
@@ -277,14 +257,15 @@ public class Robot extends TimedRobot {
 
       // Score
       if (m_driverStick.getLeftBumper()) {
-        if (m_claw.isHasGamePiece() && (m_wrist.getPreset() == WristPreset.Stow)) {
-          m_wrist.setPreset(WristPreset.ConeRight);
+        if (m_claw.isHasGamePiece()
+            && (m_superstructure.getGlobalState() == GlobalState.Stow
+                || m_superstructure.getGlobalState() == GlobalState.Toss)) {
+          m_superstructure.setGlobalState(GlobalState.Toss);
+        } else {
+          m_superstructure.setGlobalState(GlobalState.Score);
         }
-        m_claw.setIntakeState(IntakeState.Out);
-      } else if (m_claw.getIntakeState() == IntakeState.Out) {
-        m_claw.setIntakeState(IntakeState.Neutral);
-        m_currentGamePiece = GamePiece.None;
-        m_superstructure.setGlobalState(GlobalState.Stow);
+      } else if (m_superstructure.getGlobalState() == GlobalState.Score) {
+        m_superstructure.setGlobalState(GlobalState.PostScore);
       }
 
       // Right Cone
@@ -292,8 +273,8 @@ public class Robot extends TimedRobot {
         m_elevator.setElevatorState(ElevatorState.ClosedLoop);
         m_elevator.setPreset(Elevator.Preset.Floor);
         m_wrist.setState(WristState.ClosedLoop);
-        m_currentGamePiece = GamePiece.Cone;
-        m_claw.setIntakeState(IntakeState.In);
+        Superstructure.setCurrentGamePiece(GamePiece.Cone);
+        m_superstructure.setDesiredIntakeState(IntakeState.In);
         if (m_driverStick.getRightTriggerAxis() > 0.9) {
           m_wrist.setPreset(WristPreset.Floor);
         } else {
@@ -312,7 +293,7 @@ public class Robot extends TimedRobot {
       ////////////////////////
       // CO-DRIVER CONTROLS //
       ////////////////////////
-      double operatorStickRightY = -MathUtil.applyDeadband(m_operatorStick.getRawAxis(5), 0.1);
+      double operatorStickRightY = -MathUtil.applyDeadband(m_operatorStick.getRawAxis(5), 0.12);
 
       // Elevator height preset
       switch (m_operatorStick.getPOV()) {
@@ -332,10 +313,14 @@ public class Robot extends TimedRobot {
           break;
         case 270:
           m_superstructure.setGlobalState(GlobalState.LoadHp);
-          m_currentGamePiece = GamePiece.None;
+          Superstructure.setCurrentGamePiece(GamePiece.None);
           break;
         default:
           break;
+      }
+
+      if (m_operatorStick.getAButton()) {
+        m_superstructure.setGlobalState(GlobalState.Stow);
       }
 
       // Manual Elevator
@@ -349,15 +334,14 @@ public class Robot extends TimedRobot {
 
       // Intake
       if (m_operatorStick.getRightTriggerAxis() > 0.5) {
-        m_currentGamePiece = GamePiece.Cone;
-        m_claw.setIntakeState(IntakeState.In);
+        Superstructure.setCurrentGamePiece(GamePiece.Cone);
+        m_superstructure.setDesiredIntakeState(IntakeState.In);
       } else if (m_operatorStick.getLeftTriggerAxis() > 0.5) {
-        m_currentGamePiece = GamePiece.Cube;
-        m_claw.setIntakeState(IntakeState.In);
-      } else if (m_claw.getIntakeState() != IntakeState.Out
-          && m_claw.getIntakeState() != IntakeState.Neutral
+        Superstructure.setCurrentGamePiece(GamePiece.Cube);
+        m_superstructure.setDesiredIntakeState(IntakeState.In);
+      } else if (m_superstructure.getDesiredIntakeState() == IntakeState.In
           && m_driverStick.getRightTriggerAxis() < 0.1) {
-        m_claw.setIntakeState(IntakeState.Hold);
+        m_superstructure.setDesiredIntakeState(IntakeState.Hold);
       }
 
       // Got it!
@@ -380,7 +364,7 @@ public class Robot extends TimedRobot {
         m_claw.reset();
       }
     } catch (Exception e) {
-      logException(e);
+      CrashTracker.logThrowableCrash(e);
     }
   }
 
@@ -388,9 +372,10 @@ public class Robot extends TimedRobot {
   @Override
   public void disabledInit() {
     try {
+      CrashTracker.logDisabledInit();
       m_compressor.disable();
     } catch (Exception e) {
-      logException(e);
+      CrashTracker.logThrowableCrash(e);
     }
   }
 
@@ -408,7 +393,7 @@ public class Robot extends TimedRobot {
       SmartDashboard.putString("DB/String 0", m_autoManager.getSelectedMode().toString());
 
     } catch (Exception e) {
-      logException(e);
+      CrashTracker.logThrowableCrash(e);
     }
   }
 
@@ -416,8 +401,9 @@ public class Robot extends TimedRobot {
   @Override
   public void testInit() {
     try {
+      CrashTracker.logTestInit();
     } catch (Exception e) {
-      logException(e);
+      CrashTracker.logThrowableCrash(e);
     }
   }
 
@@ -426,7 +412,7 @@ public class Robot extends TimedRobot {
   public void testPeriodic() {
     try {
     } catch (Exception e) {
-      logException(e);
+      CrashTracker.logThrowableCrash(e);
     }
   }
 
@@ -435,7 +421,7 @@ public class Robot extends TimedRobot {
   public void simulationInit() {
     try {
     } catch (Exception e) {
-      logException(e);
+      CrashTracker.logThrowableCrash(e);
     }
   }
 
@@ -444,7 +430,7 @@ public class Robot extends TimedRobot {
   public void simulationPeriodic() {
     try {
     } catch (Exception e) {
-      logException(e);
+      CrashTracker.logThrowableCrash(e);
     }
   }
 }
