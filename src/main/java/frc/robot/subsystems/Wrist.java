@@ -14,6 +14,7 @@ import com.ctre.phoenixpro.signals.FeedbackSensorSourceValue;
 import com.ctre.phoenixpro.signals.InvertedValue;
 import com.ctre.phoenixpro.signals.NeutralModeValue;
 import com.ctre.phoenixpro.signals.SensorDirectionValue;
+import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.wpilibj.DigitalInput;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import lombok.Getter;
@@ -23,9 +24,10 @@ import lombok.experimental.Accessors;
 @Accessors(prefix = "m_")
 public class Wrist implements Subsystem {
 
-  private static final double STOW_OFFSET = 32.25;
+  private static final Rotation2d STOW_OFFSET = Rotation2d.fromDegrees(32.25);
   private static final double WRIST_FF = 0.45;
-  private static final double ENCODER_OFFSET = 304.189 - STOW_OFFSET;
+  private static final Rotation2d ENCODER_OFFSET =
+      Rotation2d.fromDegrees(304.189).minus(STOW_OFFSET);
 
   @Setter @Getter private WristState m_state = WristState.Manual;
   @Getter private WristPreset m_preset = WristPreset.Stow;
@@ -35,17 +37,18 @@ public class Wrist implements Subsystem {
 
   private final DigitalInput m_wristHall;
 
-  @Getter private double m_targetAngle = STOW_OFFSET;
+  @Getter @Setter private Rotation2d m_targetAngle = STOW_OFFSET;
 
   @Setter private double m_motorOutput = 0.0;
 
-  private final double ANGLE_TOLERANCE = 1.0; // degrees
+  private final Rotation2d ANGLE_TOLERANCE = Rotation2d.fromDegrees(1.0);
 
   public enum WristState {
     Manual,
     ClosedLoop
   }
 
+  @Accessors(prefix = "m_")
   public enum WristPreset {
     Floor(-107.59, -96.77),
     Hybrid(-44.6, -44.6),
@@ -58,22 +61,21 @@ public class Wrist implements Subsystem {
     MiniHp(-89.5, -86.0),
     PreScore(0.0, 0.0),
     Manual(0.0, 0.0),
-    PreStow(STOW_OFFSET - 25, STOW_OFFSET - 25);
+    PreStow(
+        STOW_OFFSET.minus(Rotation2d.fromDegrees(25)),
+        STOW_OFFSET.minus(Rotation2d.fromDegrees(25)));
 
-    private final double cube;
-    private final double cone;
+    @Getter private final Rotation2d m_cubePreset;
+    @Getter private final Rotation2d m_conePreset;
 
-    WristPreset(double cube, double cone) {
-      this.cube = cube;
-      this.cone = cone;
+    WristPreset(Rotation2d cube, Rotation2d cone) {
+      m_cubePreset = cube;
+      m_conePreset = cone;
     }
 
-    public double getCubePreset() {
-      return this.cube;
-    }
-
-    public double getConePreset() {
-      return this.cone;
+    WristPreset(double cubeDegrees, double coneDegrees) {
+      m_cubePreset = Rotation2d.fromDegrees(cubeDegrees);
+      m_conePreset = Rotation2d.fromDegrees(coneDegrees);
     }
   }
 
@@ -131,32 +133,28 @@ public class Wrist implements Subsystem {
     m_preset = nextPreset;
     // TODO handle cycle bug
     if (m_preset == WristPreset.Manual && m_state != WristState.ClosedLoop) {
-      setTargetAngleDegrees(getCurrentAngleDegrees());
+      setTargetAngle(getCurrentAngle());
 
     } else if (m_preset == WristPreset.Manual && m_state == WristState.ClosedLoop) {
       // Intentionally left blank
     } else if (currentGamePiece == GamePiece.Cube) {
 
-      setTargetAngleDegrees(m_preset.getCubePreset());
+      setTargetAngle(m_preset.getCubePreset());
     } else {
-      setTargetAngleDegrees(m_preset.getConePreset());
+      setTargetAngle(m_preset.getConePreset());
     }
   }
 
-  public double getCurrentAngleDegrees() {
-    return (m_encoder.getAbsolutePosition().getValue() * 360.0) - ENCODER_OFFSET;
+  public Rotation2d getCurrentAngle() {
+    return getRawAngle().minus(ENCODER_OFFSET);
   }
 
-  private double getRawAngleDegrees() {
-    return m_encoder.getAbsolutePosition().getValue() * 360.0;
+  private Rotation2d getRawAngle() {
+    return Rotation2d.fromRotations(m_encoder.getAbsolutePosition().getValue());
   }
 
-  public void setTargetAngleDegrees(double angle) {
-    m_targetAngle = angle;
-  }
-
-  public double getVelocity() {
-    return m_encoder.getVelocity().getValue() * 360.0;
+  public Rotation2d getVelocity() {
+    return Rotation2d.fromRotations(m_encoder.getVelocity().getValue());
   }
 
   public boolean getWristHall() {
@@ -164,32 +162,33 @@ public class Wrist implements Subsystem {
   }
 
   public boolean isAtTargetAngle() {
-    return Math.abs(getCurrentAngleDegrees() - m_targetAngle) < ANGLE_TOLERANCE;
+    return Math.abs(getCurrentAngle().minus(m_targetAngle).getDegrees())
+        < ANGLE_TOLERANCE.getDegrees();
   }
 
   public void dashboardUpdate() {}
 
   public void debugDashboardUpdate() {
-    SmartDashboard.putNumber("Wrist Angle", getCurrentAngleDegrees());
-    SmartDashboard.putNumber("Wrist Angle Target", m_targetAngle);
+    SmartDashboard.putNumber("Wrist Angle", getCurrentAngle().getDegrees());
+    SmartDashboard.putNumber("Wrist Angle Target", m_targetAngle.getDegrees());
     SmartDashboard.putString("Wrist Preset", m_preset.toString());
     SmartDashboard.putNumber("Wrist Stator", m_wristMotor.getStatorCurrent().getValue());
     SmartDashboard.putBoolean("Wrist Sensor", getWristHall());
     SmartDashboard.putNumber("Wrist Absolute Encoder", m_encoder.getAbsolutePosition().getValue());
-    SmartDashboard.putNumber("Wrist Raw Angle", getRawAngleDegrees());
-    SmartDashboard.putNumber("Wrist Velocity", getVelocity());
+    SmartDashboard.putNumber("Wrist Raw Angle", getRawAngle().getDegrees());
+    SmartDashboard.putNumber("Wrist Velocity", getVelocity().getDegrees());
   }
 
   public void update() {
     GamePiece currentGamePiece = Superstructure.getCurrentGamePiece();
     if (m_preset == WristPreset.Manual && m_state != WristState.ClosedLoop) {
-      setTargetAngleDegrees(getCurrentAngleDegrees());
+      setTargetAngle(getCurrentAngle());
     } else if (m_preset == WristPreset.Manual && m_state == WristState.ClosedLoop) {
       // Intentionally left blank
     } else if (currentGamePiece == GamePiece.Cube) {
-      setTargetAngleDegrees(m_preset.getCubePreset());
+      setTargetAngle(m_preset.getCubePreset());
     } else {
-      setTargetAngleDegrees(m_preset.getConePreset());
+      setTargetAngle(m_preset.getConePreset());
     }
 
     switch (m_state) {
@@ -200,9 +199,9 @@ public class Wrist implements Subsystem {
       case ClosedLoop:
         m_wristMotor.setControl(
             ControlMode.PositionVoltage,
-            (m_targetAngle + ENCODER_OFFSET) / 360.0,
+            m_targetAngle.plus(ENCODER_OFFSET).getRotations(),
             true,
-            Math.sin(Math.toRadians(getCurrentAngleDegrees())) * -WRIST_FF);
+            getCurrentAngle().getSin() * -WRIST_FF);
         break;
       default:
         break;

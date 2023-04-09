@@ -4,6 +4,7 @@ import frc.robot.shared.Subsystem;
 import frc.robot.subsystems.Claw.IntakeState;
 import frc.robot.subsystems.Wrist.WristPreset;
 
+import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
@@ -13,6 +14,9 @@ import lombok.experimental.Accessors;
 @Accessors(prefix = "m_")
 @RequiredArgsConstructor
 public class Superstructure implements Subsystem {
+  private static final Rotation2d STOW_DANGER_ANGLE = Rotation2d.fromDegrees(0.0);
+  private static final Rotation2d SCORE_DANGER_ANGLE = Rotation2d.fromDegrees(-40.0);
+
   /** Game Piece options. */
   public enum GamePiece {
     Cube,
@@ -77,7 +81,7 @@ public class Superstructure implements Subsystem {
         elevatorPreset = Elevator.Preset.Floor;
         wristPreset = WristPreset.Hybrid;
 
-        if (Math.abs(m_wrist.getVelocity()) > 80.0) {
+        if (Math.abs(m_wrist.getVelocity().getDegrees()) > 80.0) {
           setDesiredIntakeState(IntakeState.Out);
         } else if (m_claw.getIntakeState() == IntakeState.Out) {
           setGlobalState(GlobalState.PostScore);
@@ -102,13 +106,15 @@ public class Superstructure implements Subsystem {
     }
 
     boolean wristInStowDangerZone =
-        wristPreset.getConePreset() > 0.0 || wristPreset.getCubePreset() > 0.0;
+        wristPreset.getConePreset().getDegrees() > STOW_DANGER_ANGLE.getDegrees()
+            || wristPreset.getCubePreset().getDegrees() > STOW_DANGER_ANGLE.getDegrees();
     boolean elevatorInStowDangerZone =
         (elevatorPreset.getValue() > 14.78 && m_elevator.getHeight() < 14.78)
             || (elevatorPreset.getValue() < 14.78 && m_elevator.getHeight() > 14.78);
 
     boolean wristInScoreDangerZone =
-        wristPreset.getConePreset() < -40.0 || wristPreset.getCubePreset() < -40.0;
+        wristPreset.getConePreset().getDegrees() < SCORE_DANGER_ANGLE.getDegrees()
+            || wristPreset.getCubePreset().getDegrees() < SCORE_DANGER_ANGLE.getDegrees();
     boolean elevatorInScoreDangerZone =
         (elevatorPreset.getValue() > 15.82 && m_elevator.getHeight() < 15.82)
             || (elevatorPreset.getValue() < 22.59 && m_elevator.getHeight() > 22.59)
