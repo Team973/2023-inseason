@@ -18,12 +18,7 @@ public class IntakeCommand extends AutoCommand {
   @Override
   public void init() {
     setTargetMsec(m_timeout);
-
-    if (m_state == IntakeState.Out) {
-      m_superstructure.setGlobalState(GlobalState.Score);
-    } else {
-      m_superstructure.setDesiredIntakeState(m_state);
-    }
+    m_superstructure.setDesiredIntakeState(m_state);
   }
 
   @Override
