@@ -131,6 +131,14 @@ public class Superstructure implements Subsystem {
     setGlobalState(GlobalState.Stow);
   }
 
+  public boolean isAtTarget() {
+    return m_elevator.isAtTargetHeight() && m_wrist.isAtTargetAngle();
+  }
+
+  public boolean isHasGamePiece() {
+    return m_claw.isHasGamePiece();
+  }
+
   public void debugDashboardUpdate() {
     SmartDashboard.putString("Global State", String.valueOf(m_globalState));
     SmartDashboard.putString("Intake State", String.valueOf(m_desiredIntakeState));

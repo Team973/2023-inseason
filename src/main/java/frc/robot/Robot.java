@@ -55,8 +55,8 @@ public class Robot extends TimedRobot {
   private final Claw m_claw = new Claw();
   private final Drive m_drive = new Drive(m_pigeon);
   private final CANdleManager m_candleManager = new CANdleManager();
-  private final AutoManager m_autoManager = new AutoManager(m_claw, m_elevator, m_drive, m_wrist);
   private final Superstructure m_superstructure = new Superstructure(m_elevator, m_wrist, m_claw);
+  private final AutoManager m_autoManager = new AutoManager(m_drive, m_superstructure);
   private final XboxController m_driverStick = new XboxController(0);
   private final XboxController m_operatorStick = new XboxController(1);
 
