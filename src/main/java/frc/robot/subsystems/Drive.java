@@ -43,6 +43,13 @@ public class Drive implements Subsystem {
   private final PIDController m_balancePitchController = new PIDController(0.055, 0.0, 0.015);
   private final PIDController m_balanceRollController = new PIDController(0.055, 0.0, 0.015);
 
+  private final Translation2d[] m_moduleLocations = {
+    new Translation2d(DriveInfo.TRACKWIDTH_METERS / 2.0, DriveInfo.WHEELBASE_METERS / 2.0),
+    new Translation2d(DriveInfo.TRACKWIDTH_METERS / 2.0, -DriveInfo.WHEELBASE_METERS / 2.0),
+    new Translation2d(-DriveInfo.TRACKWIDTH_METERS / 2.0, DriveInfo.WHEELBASE_METERS / 2.0),
+    new Translation2d(-DriveInfo.TRACKWIDTH_METERS / 2.0, -DriveInfo.WHEELBASE_METERS / 2.0)
+  };
+
   public enum RotationControl {
     OpenLoop,
     ClosedLoop,
@@ -140,6 +147,18 @@ public class Drive implements Subsystem {
 
   public void driveInput(State state, Rotation2d rotation) {
     m_currentChassisSpeeds = m_controller.calculate(getPose(), state, rotation);
+  }
+
+  public void xOutModules() {
+    // Side effect: any drive input that goes above the anti-jitter threshold overrides this
+    int index = 0;
+    for (SwerveModule mod : m_swerveModules) {
+      double angleToCenter =
+          Math.atan2(m_moduleLocations[index].getY(), m_moduleLocations[index].getX());
+      index++;
+
+      mod.setDesiredState(new SwerveModuleState(0.0, Rotation2d.fromRadians(angleToCenter)), true);
+    }
   }
 
   /* Used by Auto */
