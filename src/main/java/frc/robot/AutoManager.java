@@ -3,6 +3,7 @@ package frc.robot;
 import java.util.Arrays;
 import java.util.List;
 
+import frc.robot.auto.modes.BumpPreloadPickupCharge;
 import frc.robot.auto.modes.CenterPreloadAndCharge;
 import frc.robot.auto.modes.MidLinkNoCharge;
 import frc.robot.auto.modes.NoAuto;
@@ -21,6 +22,7 @@ public class AutoManager {
           AutoMode.PreloadPickupScoreCharge,
           AutoMode.MidLinkNoCharge,
           AutoMode.PreloadPickupCharge,
+          AutoMode.BumpPreloadPickupCharge,
           AutoMode.Test,
           AutoMode.PreloadAndCharge,
           AutoMode.CenterPreloadAndCharge,
@@ -31,6 +33,7 @@ public class AutoManager {
     Test,
     PreloadAndCharge,
     PreloadPickupCharge,
+    BumpPreloadPickupCharge,
     CenterPreloadAndCharge,
     PreloadPickupScoreCharge,
     MidLinkNoCharge,
@@ -40,6 +43,7 @@ public class AutoManager {
   private final AutoCommand m_test;
   private final AutoCommand m_preloadAndCharge;
   private final AutoCommand m_preloadPickupCharge;
+  private final AutoCommand m_bumpPreloadPickupCharge;
   private final AutoCommand m_centerPreloadAndCharge;
   private final AutoCommand m_noAuto;
   private final AutoCommand m_preloadPickupScoreCharge;
@@ -49,6 +53,7 @@ public class AutoManager {
     m_test = new Test(superstructure);
     m_preloadAndCharge = new PreloadAndCharge(drive, superstructure);
     m_preloadPickupCharge = new PreloadPickupCharge(drive, superstructure);
+    m_bumpPreloadPickupCharge = new BumpPreloadPickupCharge(drive, superstructure);
     m_centerPreloadAndCharge = new CenterPreloadAndCharge(drive, superstructure);
     m_preloadPickupScoreCharge = new PreloadPickupScoreCharge(drive, superstructure);
     m_midLinkNoCharge = new MidLinkNoCharge(drive, superstructure);
@@ -92,6 +97,9 @@ public class AutoManager {
         break;
       case PreloadPickupCharge:
         m_currentMode = m_preloadPickupCharge;
+        break;
+      case BumpPreloadPickupCharge:
+        m_currentMode = m_bumpPreloadPickupCharge;
         break;
       case CenterPreloadAndCharge:
         m_currentMode = m_centerPreloadAndCharge;
