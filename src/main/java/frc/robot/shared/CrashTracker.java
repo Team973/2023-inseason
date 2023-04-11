@@ -80,6 +80,8 @@ public class CrashTracker {
           writer.print(", ");
           e.printStackTrace(writer);
         }
+
+        writer.println();
       } catch (IOException ie) {
         ie.printStackTrace();
       }

@@ -8,7 +8,6 @@ import static frc.robot.shared.RobotInfo.*;
 
 import frc.robot.devices.GreyPigeon;
 import frc.robot.shared.CrashTracker;
-import frc.robot.shared.LimelightHelpers;
 import frc.robot.subsystems.CANdleManager;
 import frc.robot.subsystems.CANdleManager.LightState;
 import frc.robot.subsystems.Claw;
@@ -27,10 +26,8 @@ import frc.robot.subsystems.Wrist.WristState;
 import edu.wpi.first.math.MathUtil;
 import edu.wpi.first.math.filter.SlewRateLimiter;
 import edu.wpi.first.math.geometry.Translation2d;
-import edu.wpi.first.wpilibj.Compressor;
 import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.DriverStation.Alliance;
-import edu.wpi.first.wpilibj.PneumaticsModuleType;
 import edu.wpi.first.wpilibj.TimedRobot;
 import edu.wpi.first.wpilibj.XboxController;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
@@ -61,9 +58,6 @@ public class Robot extends TimedRobot {
   private final XboxController m_operatorStick = new XboxController(1);
 
   private final SlewRateLimiter m_rotLimiter = new SlewRateLimiter(3);
-
-  private final Compressor m_compressor =
-      new Compressor(COMPRESSOR_ID, PneumaticsModuleType.CTREPCM);
 
   private void dashboardUpdateSubsystems() {
     m_elevator.dashboardUpdate();
@@ -166,8 +160,6 @@ public class Robot extends TimedRobot {
   public void autonomousInit() {
     try {
       CrashTracker.logAutoInit();
-      LimelightHelpers.setPipelineIndex("", 1);
-      m_compressor.enableDigital();
       m_autoManager.init();
     } catch (Exception e) {
       CrashTracker.logThrowableCrash(e);
@@ -189,9 +181,6 @@ public class Robot extends TimedRobot {
   public void teleopInit() {
     try {
       CrashTracker.logTeleopInit();
-      LimelightHelpers.setPipelineIndex("", 0);
-      m_compressor.enableDigital();
-      m_wrist.setState(WristState.Manual);
       m_drive.setTargetRobotAngle(m_drive.getPigeon().getNormalizedYaw());
       m_drive.disableBrakeMode();
     } catch (Exception e) {
@@ -370,7 +359,6 @@ public class Robot extends TimedRobot {
   public void disabledInit() {
     try {
       CrashTracker.logDisabledInit();
-      m_compressor.disable();
     } catch (Exception e) {
       CrashTracker.logThrowableCrash(e);
     }

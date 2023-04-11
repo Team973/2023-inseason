@@ -27,7 +27,7 @@ public class Wrist implements Subsystem {
   private static final double WRIST_FF = 0.45;
   private static final double ENCODER_OFFSET = 304.189 - STOW_OFFSET;
 
-  @Setter @Getter private WristState m_state = WristState.Manual;
+  @Setter @Getter private WristState m_state = WristState.ClosedLoop;
   @Getter private WristPreset m_preset = WristPreset.Stow;
 
   private final GreyPigeon m_pigeon;
