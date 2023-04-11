@@ -7,6 +7,7 @@ package frc.robot;
 import static frc.robot.shared.RobotInfo.*;
 
 import frc.robot.devices.GreyPigeon;
+import frc.robot.shared.Conversions.MathHelpers;
 import frc.robot.shared.CrashTracker;
 import frc.robot.subsystems.CANdleManager;
 import frc.robot.subsystems.CANdleManager.LightState;
@@ -195,8 +196,10 @@ public class Robot extends TimedRobot {
       /////////////////////
       // DRIVER CONTROLS //
       /////////////////////
-      final double xSpeed = -MathUtil.applyDeadband(m_driverStick.getRawAxis(1), 0.12);
-      final double ySpeed = -MathUtil.applyDeadband(m_driverStick.getRawAxis(0), 0.12);
+      final double xSpeed =
+          MathHelpers.signSquare(-MathUtil.applyDeadband(m_driverStick.getRawAxis(1), 0.12));
+      final double ySpeed =
+          MathHelpers.signSquare(-MathUtil.applyDeadband(m_driverStick.getRawAxis(0), 0.12));
 
       double rot =
           -m_rotLimiter.calculate(MathUtil.applyDeadband(m_driverStick.getRawAxis(4), 0.09))
@@ -208,6 +211,16 @@ public class Robot extends TimedRobot {
       Translation2d translation =
           new Translation2d(xSpeed, ySpeed).times(DriveInfo.MAX_VELOCITY_METERS_PER_SECOND);
 
+      SmartDashboard.putNumber("Unscaled Drive X", translation.getX());
+      SmartDashboard.putNumber("Unscaled Drive Y", translation.getY());
+
+      if (m_driverStick.getXButton()) {
+        translation = translation.times(m_elevator.getMinimumToCurrentHeightRatio());
+      }
+
+      SmartDashboard.putNumber("Scaled Drive X", translation.getX());
+      SmartDashboard.putNumber("Scaled Drive Y", translation.getY());
+
       m_drive.driveInput(translation, rot, true);
 
       // Closed loop drive angle
@@ -217,16 +230,6 @@ public class Robot extends TimedRobot {
       } else if (m_driverStick.getBButton()) {
         m_drive.setRotationControl(RotationControl.ClosedLoop);
         m_drive.setTargetRobotAngle(Drive.AnglePresets.TOWARDS_HP);
-      } else if (m_driverStick.getAButton()) {
-        m_drive.setTargetRobotAngle(
-            DriverStation.getAlliance() == Alliance.Red
-                ? Drive.AnglePresets.TOWARDS_WS_RED
-                : Drive.AnglePresets.TOWARDS_WS_BLUE);
-      } else if (m_driverStick.getXButton()) {
-        m_drive.setTargetRobotAngle(
-            DriverStation.getAlliance() == Alliance.Red
-                ? Drive.AnglePresets.TOWARDS_WSR_RED
-                : Drive.AnglePresets.TOWARDS_WSR_BLUE);
       } else if (rot == 0.0) {
         if (m_driverStick.getYButtonReleased() || m_driverStick.getBButtonReleased()) {
           m_drive.setTargetRobotAngle(m_drive.getPigeon().getNormalizedYaw());
