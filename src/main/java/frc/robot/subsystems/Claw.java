@@ -56,7 +56,7 @@ public class Claw implements Subsystem {
     m_intakeMotor.setConfig(motorConfig);
   }
 
-  private boolean checkForGamePiece() {
+  public boolean checkForGamePiece() {
     boolean atStatorLimit = Math.abs(m_intakeStator) > m_statorCurrentLimit - 15.0;
     boolean check = false;
 

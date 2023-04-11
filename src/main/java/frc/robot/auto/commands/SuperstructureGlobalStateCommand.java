@@ -15,7 +15,7 @@ public class SuperstructureGlobalStateCommand extends AutoCommand {
   @Override
   public void init() {
     setTargetMsec(m_timeout);
-    m_superstructure.setGlobalState(m_globalState);
+    m_superstructure.setDesiredGlobalState(m_globalState);
   }
 
   @Override

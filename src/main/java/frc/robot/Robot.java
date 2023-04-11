@@ -8,7 +8,6 @@ import static frc.robot.shared.RobotInfo.*;
 
 import frc.robot.devices.GreyPigeon;
 import frc.robot.shared.CrashTracker;
-import frc.robot.shared.LimelightHelpers;
 import frc.robot.subsystems.CANdleManager;
 import frc.robot.subsystems.CANdleManager.LightState;
 import frc.robot.subsystems.Claw;
@@ -27,10 +26,8 @@ import frc.robot.subsystems.Wrist.WristState;
 import edu.wpi.first.math.MathUtil;
 import edu.wpi.first.math.filter.SlewRateLimiter;
 import edu.wpi.first.math.geometry.Translation2d;
-import edu.wpi.first.wpilibj.Compressor;
 import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.DriverStation.Alliance;
-import edu.wpi.first.wpilibj.PneumaticsModuleType;
 import edu.wpi.first.wpilibj.TimedRobot;
 import edu.wpi.first.wpilibj.XboxController;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
@@ -61,9 +58,6 @@ public class Robot extends TimedRobot {
   private final XboxController m_operatorStick = new XboxController(1);
 
   private final SlewRateLimiter m_rotLimiter = new SlewRateLimiter(3);
-
-  private final Compressor m_compressor =
-      new Compressor(COMPRESSOR_ID, PneumaticsModuleType.CTREPCM);
 
   private void dashboardUpdateSubsystems() {
     m_elevator.dashboardUpdate();
@@ -166,8 +160,6 @@ public class Robot extends TimedRobot {
   public void autonomousInit() {
     try {
       CrashTracker.logAutoInit();
-      LimelightHelpers.setPipelineIndex("", 1);
-      m_compressor.enableDigital();
       m_autoManager.init();
     } catch (Exception e) {
       CrashTracker.logThrowableCrash(e);
@@ -189,9 +181,6 @@ public class Robot extends TimedRobot {
   public void teleopInit() {
     try {
       CrashTracker.logTeleopInit();
-      LimelightHelpers.setPipelineIndex("", 0);
-      m_compressor.enableDigital();
-      m_wrist.setState(WristState.Manual);
       m_drive.setTargetRobotAngle(m_drive.getPigeon().getNormalizedYaw());
       m_drive.disableBrakeMode();
     } catch (Exception e) {
@@ -255,14 +244,14 @@ public class Robot extends TimedRobot {
       // Score
       if (m_driverStick.getLeftBumper()) {
         if (m_claw.isHasGamePiece()
-            && (m_superstructure.getGlobalState() == GlobalState.Stow
-                || m_superstructure.getGlobalState() == GlobalState.Toss)) {
-          m_superstructure.setGlobalState(GlobalState.Toss);
+            && (m_superstructure.getCurrentGlobalState() == GlobalState.Stow
+                || m_superstructure.getCurrentGlobalState() == GlobalState.Toss)) {
+          m_superstructure.setDesiredGlobalState(GlobalState.Toss);
         } else {
-          m_superstructure.setGlobalState(GlobalState.Score);
+          m_superstructure.setDesiredGlobalState(GlobalState.Score);
         }
-      } else if (m_superstructure.getGlobalState() == GlobalState.Score) {
-        m_superstructure.setGlobalState(GlobalState.PostScore);
+      } else if (m_superstructure.getCurrentGlobalState() == GlobalState.Score) {
+        m_superstructure.setDesiredGlobalState(GlobalState.PostScore);
       }
 
       // Right Cone
@@ -284,7 +273,7 @@ public class Robot extends TimedRobot {
       //////////
       // Stow elevator/wrist
       if (m_driverStick.getLeftTriggerAxis() > 0.5) {
-        m_superstructure.setGlobalState(GlobalState.Stow);
+        m_superstructure.setDesiredGlobalState(GlobalState.Stow);
       }
 
       ////////////////////////
@@ -295,21 +284,21 @@ public class Robot extends TimedRobot {
       // Elevator height preset
       switch (m_operatorStick.getPOV()) {
         case 0:
-          m_superstructure.setGlobalState(GlobalState.ScoreHigh);
+          m_superstructure.setDesiredGlobalState(GlobalState.ScoreHigh);
           break;
         case 90:
-          m_superstructure.setGlobalState(GlobalState.ScoreMid);
+          m_superstructure.setDesiredGlobalState(GlobalState.ScoreMid);
           break;
         case 180:
           // If we have a game piece, go to hybrid, otherwise go to floor
           if (m_claw.isHasGamePiece()) {
-            m_superstructure.setGlobalState(GlobalState.ScoreLow);
+            m_superstructure.setDesiredGlobalState(GlobalState.ScoreLow);
           } else {
-            m_superstructure.setGlobalState(GlobalState.LoadFloor);
+            m_superstructure.setDesiredGlobalState(GlobalState.LoadFloor);
           }
           break;
         case 270:
-          m_superstructure.setGlobalState(GlobalState.LoadHp);
+          m_superstructure.setDesiredGlobalState(GlobalState.LoadHp);
           Superstructure.setCurrentGamePiece(GamePiece.None);
           break;
         default:
@@ -317,14 +306,14 @@ public class Robot extends TimedRobot {
       }
 
       if (m_operatorStick.getAButton()) {
-        m_superstructure.setGlobalState(GlobalState.Stow);
+        m_superstructure.setDesiredGlobalState(GlobalState.Stow);
       }
 
       // Manual Elevator
       if (operatorStickRightY != 0.0) {
         m_elevator.setElevatorState(ElevatorState.Manual);
         m_elevator.setElevatorOutput(operatorStickRightY);
-        m_superstructure.setGlobalState(GlobalState.Manual);
+        m_superstructure.setDesiredGlobalState(GlobalState.Manual);
       } else {
         m_elevator.setElevatorState(ElevatorState.ClosedLoop);
       }
@@ -344,14 +333,14 @@ public class Robot extends TimedRobot {
       // Got it!
       if (m_claw.getIntakeState() == IntakeState.In && m_claw.isHasGamePiece()) {
         m_candleManager.setLightState(LightState.GotIt);
-        m_superstructure.setGlobalState(GlobalState.Stow);
+        m_superstructure.setDesiredGlobalState(GlobalState.Stow);
       }
 
       // Manually Control Wrist
       double wristJoystickInput = -MathUtil.applyDeadband(m_operatorStick.getLeftY(), 0.12) * 0.25;
       if (wristJoystickInput != 0.0 && m_driverStick.getRightTriggerAxis() <= 0.1) {
         m_wrist.setState(WristState.Manual);
-        m_superstructure.setGlobalState(GlobalState.Manual);
+        m_superstructure.setDesiredGlobalState(GlobalState.Manual);
         m_wrist.setMotorOutput(wristJoystickInput);
       } else {
         m_wrist.setState(WristState.ClosedLoop);
@@ -370,7 +359,6 @@ public class Robot extends TimedRobot {
   public void disabledInit() {
     try {
       CrashTracker.logDisabledInit();
-      m_compressor.disable();
     } catch (Exception e) {
       CrashTracker.logThrowableCrash(e);
     }

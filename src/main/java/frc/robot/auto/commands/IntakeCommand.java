@@ -26,17 +26,27 @@ public class IntakeCommand extends AutoCommand {
 
   @Override
   public boolean isCompleted() {
+    if (hasElapsed()) {
+      return true;
+    }
+
     if (m_state == IntakeState.In) {
       return m_superstructure.isHasGamePiece();
     }
-    return hasElapsed();
+
+    // TODO: Enable once we have a cone banner sensor
+    // else if (m_state == IntakeState.Out) {
+    //   return !m_superstructure.isHasGamePiece();
+    // }
+
+    return false;
   }
 
   @Override
   public void postComplete(boolean interrupted) {
     if (m_state == IntakeState.Out) {
       if (m_autoStow) {
-        m_superstructure.setGlobalState(GlobalState.PostScore);
+        m_superstructure.setDesiredGlobalState(GlobalState.PostScore);
       } else {
         m_superstructure.setDesiredIntakeState(IntakeState.Neutral);
         Superstructure.setCurrentGamePiece(GamePiece.None);
@@ -44,7 +54,7 @@ public class IntakeCommand extends AutoCommand {
     } else if (m_state == IntakeState.In) {
       m_superstructure.setDesiredIntakeState(IntakeState.Hold);
       if (m_autoStow) {
-        m_superstructure.setGlobalState(GlobalState.Stow);
+        m_superstructure.setDesiredGlobalState(GlobalState.Stow);
       }
     }
   }
