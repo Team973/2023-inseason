@@ -41,6 +41,7 @@ public class CrashTracker {
 
   public static void logThrowableCrash(Throwable e) {
     // TODO: emergency lights
+    m_exceptionHappened = true;
     logMarker("Exception", e);
   }
 
@@ -66,7 +67,6 @@ public class CrashTracker {
   }
 
   private static void logMarker(String mark, Throwable e) {
-    m_exceptionHappened = true;
     if (!RobotBase.isSimulation()) {
       try (PrintWriter writer =
           new PrintWriter(new FileWriter("/home/lvuser/exception_log.txt", true))) {
