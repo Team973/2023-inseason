@@ -20,6 +20,9 @@ public class TrajectoryManager {
   public static final TrajectoryPair PreloadPickupCharge =
       new TrajectoryPair("PreloadPickupCharge", true, false, new PathConstraints(4, 3));
 
+  public static final TrajectoryPair BumpPreloadPickupCharge =
+      new TrajectoryPair("BumpPreloadPickupCharge", true, false, new PathConstraints(4, 3));
+
   public static final TrajectoryPair CenterPreloadAndPickup =
       new TrajectoryPair("CenterPreloadAndPickup", true, false, new PathConstraints(1, 2));
 
