@@ -11,10 +11,8 @@ import frc.robot.auto.modes.PreloadPickupCharge;
 import frc.robot.auto.modes.PreloadPickupScoreCharge;
 import frc.robot.auto.modes.Test;
 import frc.robot.shared.AutoCommand;
-import frc.robot.subsystems.Claw;
 import frc.robot.subsystems.Drive;
-import frc.robot.subsystems.Elevator;
-import frc.robot.subsystems.Wrist;
+import frc.robot.subsystems.Superstructure;
 
 public class AutoManager {
   private AutoCommand m_currentMode;
@@ -47,13 +45,13 @@ public class AutoManager {
   private final AutoCommand m_preloadPickupScoreCharge;
   private final AutoCommand m_midLinkNoCharge;
 
-  public AutoManager(Claw claw, Elevator elevator, Drive drive, Wrist wrist) {
-    m_test = new Test(claw, wrist, elevator);
-    m_preloadAndCharge = new PreloadAndCharge(drive, claw, elevator, wrist);
-    m_preloadPickupCharge = new PreloadPickupCharge(drive, claw, elevator, wrist);
-    m_centerPreloadAndCharge = new CenterPreloadAndCharge(drive, claw, elevator, wrist);
-    m_preloadPickupScoreCharge = new PreloadPickupScoreCharge(drive, claw, elevator, wrist);
-    m_midLinkNoCharge = new MidLinkNoCharge(drive, claw, elevator, wrist);
+  public AutoManager(Drive drive, Superstructure superstructure) {
+    m_test = new Test(superstructure);
+    m_preloadAndCharge = new PreloadAndCharge(drive, superstructure);
+    m_preloadPickupCharge = new PreloadPickupCharge(drive, superstructure);
+    m_centerPreloadAndCharge = new CenterPreloadAndCharge(drive, superstructure);
+    m_preloadPickupScoreCharge = new PreloadPickupScoreCharge(drive, superstructure);
+    m_midLinkNoCharge = new MidLinkNoCharge(drive, superstructure);
     m_noAuto = new NoAuto();
   }
 

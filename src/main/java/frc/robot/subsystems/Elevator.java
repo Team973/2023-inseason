@@ -19,7 +19,6 @@ import lombok.experimental.Accessors;
 
 @Accessors(prefix = "m_")
 public class Elevator implements Subsystem {
-
   private final GreyTalonFX m_elevatorMotor;
   private final GreyTalonFX m_elevatorFollowerMotor;
 
@@ -42,8 +41,8 @@ public class Elevator implements Subsystem {
   private static final double SIN_OF_ANGLE = Math.sin(Math.toRadians(ANGLE));
 
   private static final double STOW_OFFSET = 7.628;
-
   private static final double MAX_HEIGHT = 27.58;
+  private static final double POSITION_TARGET_TOLERANCE = 0.5;
 
   @Getter @Setter private ElevatorState m_elevatorState = ElevatorState.ClosedLoop;
   @Getter private Preset m_preset = Preset.Stow;
@@ -156,11 +155,11 @@ public class Elevator implements Subsystem {
   }
 
   public boolean isAtHeight(double height) {
-    return Math.abs(height - getHeight()) < 0.5;
+    return Math.abs(height - getHeight()) < POSITION_TARGET_TOLERANCE;
   }
 
-  public boolean isAtTargetHeight() {
-    return isAtHeight(getHeightFromPosition(m_targetPosition));
+  public boolean isAtTarget() {
+    return Math.abs(getPosition() - m_targetPosition) < POSITION_TARGET_TOLERANCE;
   }
 
   public void dashboardUpdate() {}

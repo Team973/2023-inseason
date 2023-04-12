@@ -52,8 +52,8 @@ public class Robot extends TimedRobot {
   private final Claw m_claw = new Claw();
   private final Drive m_drive = new Drive(m_pigeon);
   private final CANdleManager m_candleManager = new CANdleManager();
-  private final AutoManager m_autoManager = new AutoManager(m_claw, m_elevator, m_drive, m_wrist);
   private final Superstructure m_superstructure = new Superstructure(m_elevator, m_wrist, m_claw);
+  private final AutoManager m_autoManager = new AutoManager(m_drive, m_superstructure);
   private final XboxController m_driverStick = new XboxController(0);
   private final XboxController m_operatorStick = new XboxController(1);
 
@@ -244,14 +244,14 @@ public class Robot extends TimedRobot {
       // Score
       if (m_driverStick.getLeftBumper()) {
         if (m_claw.isHasGamePiece()
-            && (m_superstructure.getGlobalState() == GlobalState.Stow
-                || m_superstructure.getGlobalState() == GlobalState.Toss)) {
-          m_superstructure.setGlobalState(GlobalState.Toss);
+            && (m_superstructure.getCurrentGlobalState() == GlobalState.Stow
+                || m_superstructure.getCurrentGlobalState() == GlobalState.Toss)) {
+          m_superstructure.setDesiredGlobalState(GlobalState.Toss);
         } else {
-          m_superstructure.setGlobalState(GlobalState.Score);
+          m_superstructure.setDesiredGlobalState(GlobalState.Score);
         }
-      } else if (m_superstructure.getGlobalState() == GlobalState.Score) {
-        m_superstructure.setGlobalState(GlobalState.PostScore);
+      } else if (m_superstructure.getCurrentGlobalState() == GlobalState.Score) {
+        m_superstructure.setDesiredGlobalState(GlobalState.PostScore);
       }
 
       // Right Cone
@@ -273,7 +273,7 @@ public class Robot extends TimedRobot {
       //////////
       // Stow elevator/wrist
       if (m_driverStick.getLeftTriggerAxis() > 0.5) {
-        m_superstructure.setGlobalState(GlobalState.Stow);
+        m_superstructure.setDesiredGlobalState(GlobalState.Stow);
       }
 
       ////////////////////////
@@ -284,21 +284,21 @@ public class Robot extends TimedRobot {
       // Elevator height preset
       switch (m_operatorStick.getPOV()) {
         case 0:
-          m_superstructure.setGlobalState(GlobalState.ScoreHigh);
+          m_superstructure.setDesiredGlobalState(GlobalState.ScoreHigh);
           break;
         case 90:
-          m_superstructure.setGlobalState(GlobalState.ScoreMid);
+          m_superstructure.setDesiredGlobalState(GlobalState.ScoreMid);
           break;
         case 180:
           // If we have a game piece, go to hybrid, otherwise go to floor
           if (m_claw.isHasGamePiece()) {
-            m_superstructure.setGlobalState(GlobalState.ScoreLow);
+            m_superstructure.setDesiredGlobalState(GlobalState.ScoreLow);
           } else {
-            m_superstructure.setGlobalState(GlobalState.LoadFloor);
+            m_superstructure.setDesiredGlobalState(GlobalState.LoadFloor);
           }
           break;
         case 270:
-          m_superstructure.setGlobalState(GlobalState.LoadHp);
+          m_superstructure.setDesiredGlobalState(GlobalState.LoadHp);
           Superstructure.setCurrentGamePiece(GamePiece.None);
           break;
         default:
@@ -306,14 +306,14 @@ public class Robot extends TimedRobot {
       }
 
       if (m_operatorStick.getAButton()) {
-        m_superstructure.setGlobalState(GlobalState.Stow);
+        m_superstructure.setDesiredGlobalState(GlobalState.Stow);
       }
 
       // Manual Elevator
       if (operatorStickRightY != 0.0) {
         m_elevator.setElevatorState(ElevatorState.Manual);
         m_elevator.setElevatorOutput(operatorStickRightY);
-        m_superstructure.setGlobalState(GlobalState.Manual);
+        m_superstructure.setDesiredGlobalState(GlobalState.Manual);
       } else {
         m_elevator.setElevatorState(ElevatorState.ClosedLoop);
       }
@@ -333,14 +333,14 @@ public class Robot extends TimedRobot {
       // Got it!
       if (m_claw.getIntakeState() == IntakeState.In && m_claw.isHasGamePiece()) {
         m_candleManager.setLightState(LightState.GotIt);
-        m_superstructure.setGlobalState(GlobalState.Stow);
+        m_superstructure.setDesiredGlobalState(GlobalState.Stow);
       }
 
       // Manually Control Wrist
       double wristJoystickInput = -MathUtil.applyDeadband(m_operatorStick.getLeftY(), 0.12) * 0.25;
       if (wristJoystickInput != 0.0 && m_driverStick.getRightTriggerAxis() <= 0.1) {
         m_wrist.setState(WristState.Manual);
-        m_superstructure.setGlobalState(GlobalState.Manual);
+        m_superstructure.setDesiredGlobalState(GlobalState.Manual);
         m_wrist.setMotorOutput(wristJoystickInput);
       } else {
         m_wrist.setState(WristState.ClosedLoop);
