@@ -45,7 +45,7 @@ public class Elevator implements Subsystem {
 
   private static final double MAX_HEIGHT = 27.58;
 
-  @Getter @Setter private ElevatorState m_elevatorState = ElevatorState.Manual;
+  @Getter @Setter private ElevatorState m_elevatorState = ElevatorState.ClosedLoop;
   @Getter private Preset m_preset = Preset.Stow;
 
   public enum ElevatorState {
