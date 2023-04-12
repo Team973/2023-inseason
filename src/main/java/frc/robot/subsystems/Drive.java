@@ -46,7 +46,7 @@ public class Drive implements Subsystem {
   @Setter private Rotation2d m_targetRobotAngle = new Rotation2d();
   @Setter private RotationControl m_rotationControl = RotationControl.OpenLoop;
 
-  private final PIDController m_rotationController = new PIDController(0.11, 0.0, 0.003);
+  private final PIDController m_rotationController = new PIDController(0.15, 0.0, 0.005);
   private final PIDController m_balancePitchController = new PIDController(0.055, 0.0, 0.015);
   private final PIDController m_balanceRollController = new PIDController(0.055, 0.0, 0.015);
 
@@ -245,6 +245,9 @@ public class Drive implements Subsystem {
                 getPose().getTranslation().getY(),
                 getPose().getRotation().getDegrees())
             .toArray(Double[]::new));
+
+    SmartDashboard.putNumber("Drive Angle Target", m_targetRobotAngle.getDegrees());
+    SmartDashboard.putNumber("Drive Angle", m_pigeon.getYaw().getDegrees());
   }
 
   public void update() {

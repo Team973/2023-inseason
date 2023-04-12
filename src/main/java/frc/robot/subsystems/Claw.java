@@ -33,6 +33,7 @@ public class Claw implements Subsystem {
   public enum IntakeState {
     In,
     Out,
+    Toss,
     Hold,
     Neutral
   }
@@ -110,6 +111,13 @@ public class Claw implements Subsystem {
           m_intakeMotorOutput = 0.3;
         } else {
           m_intakeMotorOutput = -1.0;
+        }
+        break;
+      case Toss:
+        if (currentGamePiece == GamePiece.Cube) {
+          m_intakeMotorOutput = 1.0;
+        } else {
+          m_intakeMotorOutput = -0.5;
         }
         break;
       case Hold:

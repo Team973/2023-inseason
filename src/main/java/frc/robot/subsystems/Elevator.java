@@ -162,6 +162,10 @@ public class Elevator implements Subsystem {
     return Math.abs(getPosition() - m_targetPosition) < POSITION_TARGET_TOLERANCE;
   }
 
+  public double getMinimumToCurrentHeightRatio() {
+    return STOW_OFFSET / getHeight();
+  }
+
   public void dashboardUpdate() {}
 
   public void debugDashboardUpdate() {
@@ -172,6 +176,7 @@ public class Elevator implements Subsystem {
     SmartDashboard.putNumber("Elevator Position", getPosition());
     SmartDashboard.putBoolean("Elevator Bottom Hall", getBottomHall());
     SmartDashboard.putBoolean("Elevator Top Hall", getTopHall());
+    SmartDashboard.putNumber("Elevator Ratio", getMinimumToCurrentHeightRatio());
     SmartDashboard.putNumber(
         "Elevator Supply Current", m_elevatorMotor.getSupplyCurrent().getValue());
     SmartDashboard.putNumber(

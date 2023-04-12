@@ -78,9 +78,11 @@ public class Superstructure implements Subsystem {
         elevatorPreset = Elevator.Preset.Floor;
         wristPreset = WristPreset.Hybrid;
 
-        if (Math.abs(m_wrist.getVelocity()) > 80.0) {
-          setDesiredIntakeState(IntakeState.Out);
-        } else if (m_claw.getIntakeState() == IntakeState.Out) {
+        double releaseVelocity = m_currentGamePiece == GamePiece.Cone ? 100.0 : 80.0;
+
+        if (Math.abs(m_wrist.getVelocity()) > releaseVelocity) {
+          setDesiredIntakeState(IntakeState.Toss);
+        } else if (m_claw.getIntakeState() == IntakeState.Toss) {
           setDesiredGlobalState(GlobalState.PostScore);
         }
         break;
