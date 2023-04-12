@@ -211,15 +211,9 @@ public class Robot extends TimedRobot {
       Translation2d translation =
           new Translation2d(xSpeed, ySpeed).times(DriveInfo.MAX_VELOCITY_METERS_PER_SECOND);
 
-      SmartDashboard.putNumber("Unscaled Drive X", translation.getX());
-      SmartDashboard.putNumber("Unscaled Drive Y", translation.getY());
-
       if (m_driverStick.getXButton()) {
         translation = translation.times(m_elevator.getMinimumToCurrentHeightRatio());
       }
-
-      SmartDashboard.putNumber("Scaled Drive X", translation.getX());
-      SmartDashboard.putNumber("Scaled Drive Y", translation.getY());
 
       m_drive.driveInput(translation, rot, true);
 
