@@ -30,6 +30,13 @@ import lombok.experimental.Accessors;
 public class Drive implements Subsystem {
   private static final Rotation2d BALANCE_CUTOFF_THRESHOLD = Rotation2d.fromDegrees(6.5);
 
+  private static final Translation2d[] MODULE_LOCATIONS = {
+    new Translation2d(DriveInfo.TRACKWIDTH_METERS / 2.0, DriveInfo.WHEELBASE_METERS / 2.0),
+    new Translation2d(DriveInfo.TRACKWIDTH_METERS / 2.0, -DriveInfo.WHEELBASE_METERS / 2.0),
+    new Translation2d(-DriveInfo.TRACKWIDTH_METERS / 2.0, DriveInfo.WHEELBASE_METERS / 2.0),
+    new Translation2d(-DriveInfo.TRACKWIDTH_METERS / 2.0, -DriveInfo.WHEELBASE_METERS / 2.0)
+  };
+
   private final SwerveDriveOdometry m_swerveOdometry;
   private final SwerveModule[] m_swerveModules;
   private ChassisSpeeds m_currentChassisSpeeds;
@@ -140,6 +147,18 @@ public class Drive implements Subsystem {
 
   public void driveInput(State state, Rotation2d rotation) {
     m_currentChassisSpeeds = m_controller.calculate(getPose(), state, rotation);
+  }
+
+  public void xOutModules() {
+    // Side effect: any drive input that goes above the anti-jitter threshold overrides this
+    int index = 0;
+    for (SwerveModule mod : m_swerveModules) {
+      double angleToCenter =
+          Math.atan2(MODULE_LOCATIONS[index].getY(), MODULE_LOCATIONS[index].getX());
+      index++;
+
+      mod.setDesiredState(new SwerveModuleState(0.0, Rotation2d.fromRadians(angleToCenter)), true);
+    }
   }
 
   /* Used by Auto */
