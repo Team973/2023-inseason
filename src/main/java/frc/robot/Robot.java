@@ -9,8 +9,6 @@ import static frc.robot.shared.RobotInfo.*;
 import frc.robot.devices.GreyPigeon;
 import frc.robot.shared.Conversions.MathHelpers;
 import frc.robot.shared.CrashTracker;
-import frc.robot.subsystems.CANdleManager;
-import frc.robot.subsystems.CANdleManager.LightState;
 import frc.robot.subsystems.Claw;
 import frc.robot.subsystems.Claw.IntakeState;
 import frc.robot.subsystems.Drive;
@@ -23,6 +21,8 @@ import frc.robot.subsystems.Superstructure.GlobalState;
 import frc.robot.subsystems.Wrist;
 import frc.robot.subsystems.Wrist.WristPreset;
 import frc.robot.subsystems.Wrist.WristState;
+import frc.robot.subsystems.candle.CANdleManager;
+import frc.robot.subsystems.candle.CANdleManager.LightState;
 
 import edu.wpi.first.math.MathUtil;
 import edu.wpi.first.math.filter.SlewRateLimiter;

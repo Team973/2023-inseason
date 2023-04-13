@@ -1,28 +1,34 @@
-package frc.robot.subsystems;
+package frc.robot.subsystems.candle;
 
 import static frc.robot.shared.RobotInfo.*;
 
 import frc.robot.shared.Conversions;
 import frc.robot.shared.CrashTracker;
 import frc.robot.shared.Subsystem;
+import frc.robot.subsystems.Superstructure;
 
 import com.ctre.phoenix.led.CANdle;
 import com.ctre.phoenix.led.CANdle.LEDStripType;
 import com.ctre.phoenix.led.CANdle.VBatOutputMode;
 import com.ctre.phoenix.led.CANdleConfiguration;
+import com.ctre.phoenix.led.RainbowAnimation;
+import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import lombok.Getter;
 import lombok.Setter;
 import lombok.experimental.Accessors;
 
 @Accessors(prefix = "m_")
 public class CANdleManager implements Subsystem {
+  private static final int NUM_LEDS = 8 + 17 + 14 + 17;
+
   public enum LightState {
     Cube,
     Cone,
-    Flash,
     GotIt,
-    Balance,
-    Off
+    Emergency,
+    RainbowBarf,
+    Off,
+    Balance
   }
 
   @Setter @Getter private LightState m_lightState = LightState.Off;
@@ -59,51 +65,58 @@ public class CANdleManager implements Subsystem {
     }
   }
 
+  private void setAlternate(RGBColor color1, RGBColor color2, double timeOut) {
+    if (!m_flashLEDsOn && Conversions.Time.getMsecTime() - m_flashStartTime >= timeOut) {
+      setColor(color1);
+      m_flashStartTime = Conversions.Time.getMsecTime();
+      m_flashLEDsOn = true;
+    } else if (Conversions.Time.getMsecTime() - m_flashStartTime >= timeOut) {
+      setColor(color2);
+      m_flashStartTime = Conversions.Time.getMsecTime();
+      m_flashLEDsOn = false;
+    }
+  }
+
+  private void setFlashing(RGBColor color, double timeOut) {
+    setAlternate(color, CANdleColors.off, timeOut);
+  }
+
+  private void setColor(RGBColor color) {
+    m_candle.setLEDs(color.getRed(), color.getGreen(), color.getBlue());
+  }
+
   public void dashboardUpdate() {}
 
-  public void debugDashboardUpdate() {}
+  public void debugDashboardUpdate() {
+    SmartDashboard.putString("Candle State", m_lightState.toString());
+  }
 
   public void update() {
     if (CrashTracker.isExceptionHappened()) {
-      m_lightState = LightState.Flash;
+      m_lightState = LightState.Emergency;
     }
 
     switch (m_lightState) {
       case Cone:
-        m_candle.setLEDs(255, 150, 0); // set the CANdle LEDs to yellow
+        setColor(CANdleColors.cone);
         break;
       case Cube:
-        m_candle.setLEDs(170, 0, 255); // set the CANdle LEDs to purple
+        setColor(CANdleColors.cube);
         break;
-      case Flash:
-        if (!m_flashLEDsOn
-            && Conversions.Time.getMsecTime() - m_flashStartTime >= FLASH_DELAY_MSEC) {
-          m_candle.setLEDs(255, 0, 0); // set the CANdle LEDs to red
-          m_flashStartTime = Conversions.Time.getMsecTime();
-          m_flashLEDsOn = true;
-        } else if (Conversions.Time.getMsecTime() - m_flashStartTime >= FLASH_DELAY_MSEC) {
-          m_candle.setLEDs(0, 0, 0);
-          m_flashStartTime = Conversions.Time.getMsecTime();
-          m_flashLEDsOn = false;
-        }
+      case Emergency:
+        setFlashing(CANdleColors.emergency, FLASH_DELAY_MSEC);
         break;
       case GotIt:
-        if (!m_flashLEDsOn
-            && Conversions.Time.getMsecTime() - m_flashStartTime >= GOTIT_DELAY_MSEC) {
-          m_candle.setLEDs(0, 255, 0); // set the CANdle LEDs to red
-          m_flashStartTime = Conversions.Time.getMsecTime();
-          m_flashLEDsOn = true;
-        } else if (Conversions.Time.getMsecTime() - m_flashStartTime >= GOTIT_DELAY_MSEC) {
-          m_candle.setLEDs(0, 0, 0);
-          m_flashStartTime = Conversions.Time.getMsecTime();
-          m_flashLEDsOn = false;
-        }
+        setFlashing(CANdleColors.gotIt, GOTIT_DELAY_MSEC);
+        break;
+      case RainbowBarf:
+        m_candle.animate(new RainbowAnimation(1, 100.0, NUM_LEDS));
         break;
       case Balance:
-        m_candle.setLEDs(255, 140, 0);
+        setColor(CANdleColors.balance);
         break;
       case Off:
-        m_candle.setLEDs(0, 0, 0); // set the CANdle LEDs to be offs
+        setColor(CANdleColors.off);
         break;
       default:
         break;
