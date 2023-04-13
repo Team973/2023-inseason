@@ -30,6 +30,13 @@ import lombok.experimental.Accessors;
 public class Drive implements Subsystem {
   private static final Rotation2d BALANCE_CUTOFF_THRESHOLD = Rotation2d.fromDegrees(6.5);
 
+  private static final Translation2d[] MODULE_LOCATIONS = {
+    new Translation2d(DriveInfo.TRACKWIDTH_METERS / 2.0, DriveInfo.WHEELBASE_METERS / 2.0),
+    new Translation2d(DriveInfo.TRACKWIDTH_METERS / 2.0, -DriveInfo.WHEELBASE_METERS / 2.0),
+    new Translation2d(-DriveInfo.TRACKWIDTH_METERS / 2.0, DriveInfo.WHEELBASE_METERS / 2.0),
+    new Translation2d(-DriveInfo.TRACKWIDTH_METERS / 2.0, -DriveInfo.WHEELBASE_METERS / 2.0)
+  };
+
   private final SwerveDriveOdometry m_swerveOdometry;
   private final SwerveModule[] m_swerveModules;
   private ChassisSpeeds m_currentChassisSpeeds;
@@ -39,7 +46,7 @@ public class Drive implements Subsystem {
   @Setter private Rotation2d m_targetRobotAngle = new Rotation2d();
   @Setter private RotationControl m_rotationControl = RotationControl.OpenLoop;
 
-  private final PIDController m_rotationController = new PIDController(0.11, 0.0, 0.003);
+  private final PIDController m_rotationController = new PIDController(0.15, 0.0, 0.005);
   private final PIDController m_balancePitchController = new PIDController(0.055, 0.0, 0.015);
   private final PIDController m_balanceRollController = new PIDController(0.055, 0.0, 0.015);
 
@@ -142,6 +149,18 @@ public class Drive implements Subsystem {
     m_currentChassisSpeeds = m_controller.calculate(getPose(), state, rotation);
   }
 
+  public void xOutModules() {
+    // Side effect: any drive input that goes above the anti-jitter threshold overrides this
+    int index = 0;
+    for (SwerveModule mod : m_swerveModules) {
+      double angleToCenter =
+          Math.atan2(MODULE_LOCATIONS[index].getY(), MODULE_LOCATIONS[index].getX());
+      index++;
+
+      mod.setDesiredState(new SwerveModuleState(0.0, Rotation2d.fromRadians(angleToCenter)), true);
+    }
+  }
+
   /* Used by Auto */
   public void setModuleStates(SwerveModuleState[] desiredStates) {
     SwerveDriveKinematics.desaturateWheelSpeeds(
@@ -226,6 +245,9 @@ public class Drive implements Subsystem {
                 getPose().getTranslation().getY(),
                 getPose().getRotation().getDegrees())
             .toArray(Double[]::new));
+
+    SmartDashboard.putNumber("Drive Angle Target", m_targetRobotAngle.getDegrees());
+    SmartDashboard.putNumber("Drive Angle", m_pigeon.getYaw().getDegrees());
   }
 
   public void update() {
