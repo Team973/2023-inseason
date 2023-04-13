@@ -20,7 +20,8 @@ public class Claw implements Subsystem {
 
   private final GreyTalonFX m_intakeMotor;
 
-  private final DigitalInput m_gamePieceSensor;
+  private final DigitalInput m_cubeSensor;
+  private final DigitalInput m_coneSensor;
 
   private GamePiece m_lastGamePiece = GamePiece.None;
   @Getter private boolean m_hasGamePiece = false;
@@ -40,7 +41,8 @@ public class Claw implements Subsystem {
 
   public Claw() {
     m_intakeMotor = new GreyTalonFX(ClawInfo.INTAKE_FX_ID, RobotInfo.CANIVORE_NAME);
-    m_gamePieceSensor = new DigitalInput(ClawInfo.GAME_PIECE_SENSOR_ID);
+    m_cubeSensor = new DigitalInput(ClawInfo.CUBE_SENSOR_ID);
+    m_coneSensor = new DigitalInput(ClawInfo.CONE_SENSOR_ID);
 
     configIntakeMotor();
   }
@@ -62,9 +64,9 @@ public class Claw implements Subsystem {
     boolean check = false;
 
     if (Superstructure.getCurrentGamePiece() == GamePiece.Cube) {
-      check = getGamePieceSensor() && atStatorLimit;
+      check = getCubeSensor() && atStatorLimit;
     } else if (Superstructure.getCurrentGamePiece() == GamePiece.Cone) {
-      check = atStatorLimit;
+      check = getConeSensor() && atStatorLimit;
     }
 
     if (check) {
@@ -74,8 +76,12 @@ public class Claw implements Subsystem {
     return m_hasGamePiece;
   }
 
-  private boolean getGamePieceSensor() {
-    return m_gamePieceSensor.get();
+  private boolean getCubeSensor() {
+    return m_cubeSensor.get();
+  }
+
+  private boolean getConeSensor() {
+    return m_coneSensor.get();
   }
 
   public void dashboardUpdate() {}
@@ -85,7 +91,8 @@ public class Claw implements Subsystem {
     SmartDashboard.putNumber("Intake Supply", m_intakeMotor.getSupplyCurrent().getValue());
     SmartDashboard.putNumber("Intake Velocity", m_intakeMotor.getVelocity().getValue());
     SmartDashboard.putBoolean("Game Piece", m_hasGamePiece);
-    SmartDashboard.putBoolean("Game Piece Sensor", getGamePieceSensor());
+    SmartDashboard.putBoolean("Cube Sensor", getCubeSensor());
+    SmartDashboard.putBoolean("Cone Sensor", getConeSensor());
   }
 
   public void update() {
