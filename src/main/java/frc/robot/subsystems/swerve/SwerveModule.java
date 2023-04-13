@@ -4,7 +4,9 @@ import frc.robot.devices.GreyTalonFX;
 import frc.robot.devices.GreyTalonFX.ControlMode;
 import frc.robot.shared.RobotInfo;
 import frc.robot.shared.RobotInfo.DriveInfo;
+import frc.robot.shared.SwerveMath;
 import frc.robot.shared.SwerveModuleConfig;
+import frc.robot.shared.SwerveModuleState2;
 import frc.robot.shared.mechanisms.GearedMechanism;
 import frc.robot.shared.mechanisms.LinearMechanism;
 
@@ -18,7 +20,6 @@ import com.ctre.phoenixpro.signals.NeutralModeValue;
 import com.ctre.phoenixpro.signals.SensorDirectionValue;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.kinematics.SwerveModulePosition;
-import edu.wpi.first.math.kinematics.SwerveModuleState;
 
 public class SwerveModule {
   public final int moduleNumber;
@@ -29,7 +30,7 @@ public class SwerveModule {
   private final LinearMechanism m_driveMechanism =
       new LinearMechanism(DriveInfo.DRIVE_GEAR_RATIO, DriveInfo.WHEEL_DIAMETER_METERS);
   private final GearedMechanism m_angleMechanism = new GearedMechanism(DriveInfo.ANGLE_GEAR_RATIO);
-  private SwerveModuleState m_lastState;
+  private SwerveModuleState2 m_lastState;
 
   private final TalonFXConfiguration m_driveMotorConfig;
 
@@ -111,17 +112,23 @@ public class SwerveModule {
         m_angleMechanism.getRotorRotationFromOutputRotation(getCanCoder().minus(m_angleOffset)));
   }
 
-  public SwerveModuleState getState() {
+  public SwerveModuleState2 getState() {
     double velocityInMPS =
         m_driveMechanism.getOutputDistanceFromRotorRotation(
             m_driveMotor.getRotorVelocityRotation2d());
 
-    return new SwerveModuleState(velocityInMPS, getAngleMotorRotation2d());
+    return new SwerveModuleState2(
+        velocityInMPS, getAngleMotorRotation2d(), getAngleMotorVelocityRotation2d());
   }
 
   public Rotation2d getAngleMotorRotation2d() {
     return m_angleMechanism.getOutputRotationFromRotorRotation(
         m_angleMotor.getRotorPositionRotation2d());
+  }
+
+  public Rotation2d getAngleMotorVelocityRotation2d() {
+    return m_angleMechanism.getOutputRotationFromRotorRotation(
+        m_angleMotor.getRotorVelocityRotation2d());
   }
 
   public double getDriveMotorMeters() {
@@ -146,7 +153,7 @@ public class SwerveModule {
    *
    * @param desiredState The desired state of the module.
    */
-  public void setDesiredState(SwerveModuleState desiredState) {
+  public void setDesiredState(SwerveModuleState2 desiredState) {
     setDesiredState(desiredState, false);
   }
 
@@ -157,10 +164,15 @@ public class SwerveModule {
    * @param force If true, the module will be set to the desired state regardless of the current
    *     state. Disables optimizations such as anti-jitter.
    */
-  public void setDesiredState(SwerveModuleState desiredState, boolean ignoreJitter) {
+  public void setDesiredState(SwerveModuleState2 desiredState, boolean force) {
     // Custom optimize command, since default WPILib optimize assumes continuous controller which
     // CTRE is not
-    desiredState = CTREModuleState.optimize(desiredState, getState().angle);
+    desiredState =
+        SwerveMath.optimize(
+            desiredState,
+            getState().angle,
+            m_lastState,
+            DriveInfo.ANGLE_KV); // 0.06 is a fudge number
 
     Rotation2d desiredFalconVelocityInRPS =
         m_driveMechanism.getRotorRotationFromOutputDistance(desiredState.speedMetersPerSecond);
@@ -170,13 +182,10 @@ public class SwerveModule {
           ControlMode.VelocityVoltage, desiredFalconVelocityInRPS.getRotations());
     }
 
-    // Prevent rotating module if speed is less then 1%. Prevents jittering.
-    if (!ignoreJitter) {
-      desiredState.angle =
-          (Math.abs(desiredState.speedMetersPerSecond)
-                  <= (DriveInfo.MAX_VELOCITY_METERS_PER_SECOND * 0.01))
-              ? m_lastState.angle
-              : desiredState.angle;
+    // If we are forcing the angle
+    if (!force) {
+      // Prevent rotating module if speed is less than 1%. Prevents jittering.
+      SwerveMath.antiJitter(desiredState, m_lastState, DriveInfo.MAX_VELOCITY_METERS_PER_SECOND);
     }
 
     // Prevent module rotation if angle is the same as the previous angle.

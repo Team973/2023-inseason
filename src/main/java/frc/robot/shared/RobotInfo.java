@@ -1,13 +1,15 @@
 package frc.robot.shared;
 
 import edu.wpi.first.math.geometry.Translation2d;
-import edu.wpi.first.math.kinematics.SwerveDriveKinematics;
 
 /** Robot info, specs, dimensions. */
 public final class RobotInfo {
   public static final String CANIVORE_NAME = "Canivore";
 
   public static final int COMPRESSOR_ID = 0;
+
+  public static final double FALCON_TRAP_FREE_SPEED = 6380.0;
+  public static final double FALCON_FOC_FREE_SPEED = 6080.0;
 
   public static class IntakeInfo {
     public static final int FX_ID = 14;
@@ -83,7 +85,8 @@ public final class RobotInfo {
     public static final double ANGLE_KI = 0.0;
     public static final double ANGLE_KD = 0.0;
     public static final double ANGLE_KF = 0.0;
-    public static final double ANGLE_KV = 0.0;
+    public static final double ANGLE_KV =
+        SwerveMath.calculateAngleKV(12.0, FALCON_FOC_FREE_SPEED, 1 / ANGLE_GEAR_RATIO);
 
     /* Drive Motor PID Values */
     public static final double DRIVE_KP = 0.2;
@@ -97,8 +100,6 @@ public final class RobotInfo {
 
     /* Angle Encoder Invert */
     public static final boolean CANCODER_INVERT = false;
-
-    public static final double FALCON_TRAP_FREE_SPEED = 6380.0;
 
     public static final double MAX_VELOCITY_METERS_PER_SECOND =
         FALCON_TRAP_FREE_SPEED / 60.0 * DRIVE_GEAR_RATIO * WHEEL_DIAMETER_METERS * Math.PI;
@@ -130,8 +131,8 @@ public final class RobotInfo {
             BACK_RIGHT_MODULE_STEER_ENCODER,
             BACK_RIGHT_MODULE_STEER_OFFSET);
 
-    public static final SwerveDriveKinematics SWERVE_KINEMATICS =
-        new SwerveDriveKinematics(
+    public static final SwerveDriveKinematics2 SWERVE_KINEMATICS =
+        new SwerveDriveKinematics2(
             new Translation2d(TRACKWIDTH_METERS / 2.0, WHEELBASE_METERS / 2.0),
             new Translation2d(TRACKWIDTH_METERS / 2.0, -WHEELBASE_METERS / 2.0),
             new Translation2d(-TRACKWIDTH_METERS / 2.0, WHEELBASE_METERS / 2.0),

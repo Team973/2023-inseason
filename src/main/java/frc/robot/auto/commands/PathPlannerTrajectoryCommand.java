@@ -49,6 +49,6 @@ public class PathPlannerTrajectoryCommand extends AutoCommand {
   }
 
   public void postComplete(boolean interrupted) {
-    m_drive.driveInput(new Translation2d(0.0, 0.0), 0.0, true);
+    m_drive.driveInput(new Translation2d(0.0, 0.0), 0.0);
   }
 }

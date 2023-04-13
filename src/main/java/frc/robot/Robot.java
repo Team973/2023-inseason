@@ -197,7 +197,9 @@ public class Robot extends TimedRobot {
       // DRIVER CONTROLS //
       /////////////////////
       final double xSpeed =
-          MathHelpers.signSquare(-MathUtil.applyDeadband(m_driverStick.getRawAxis(1), 0.12));
+          m_driverStick.getBackButton()
+              ? 0.18
+              : MathHelpers.signSquare(-MathUtil.applyDeadband(m_driverStick.getRawAxis(1), 0.12));
       final double ySpeed =
           MathHelpers.signSquare(-MathUtil.applyDeadband(m_driverStick.getRawAxis(0), 0.12));
 
@@ -215,7 +217,7 @@ public class Robot extends TimedRobot {
         translation = translation.times(m_elevator.getMinimumToCurrentHeightRatio());
       }
 
-      m_drive.driveInput(translation, rot, true);
+      m_drive.driveInput(translation, rot);
 
       // Closed loop drive angle
       if (m_driverStick.getYButton()) {
