@@ -40,7 +40,6 @@ public class CrashTracker {
   }
 
   public static void logThrowableCrash(Throwable e) {
-    // TODO: emergency lights
     m_exceptionHappened = true;
     logMarker("Exception", e);
   }
