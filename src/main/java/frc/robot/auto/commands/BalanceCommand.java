@@ -23,5 +23,7 @@ public class BalanceCommand extends AutoCommand {
     return m_drive.getPigeon().isLevel();
   }
 
-  public void postComplete(boolean interrupted) {}
+  public void postComplete(boolean interrupted) {
+    m_drive.xOutModules();
+  }
 }

@@ -40,7 +40,6 @@ public class CrashTracker {
   }
 
   public static void logThrowableCrash(Throwable e) {
-    // TODO: emergency lights
     m_exceptionHappened = true;
     logMarker("Exception", e);
   }
@@ -80,6 +79,8 @@ public class CrashTracker {
           writer.print(", ");
           e.printStackTrace(writer);
         }
+
+        writer.println();
       } catch (IOException ie) {
         ie.printStackTrace();
       }

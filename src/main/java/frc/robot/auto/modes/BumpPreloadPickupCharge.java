@@ -16,27 +16,26 @@ import frc.robot.subsystems.Superstructure;
 import frc.robot.subsystems.Superstructure.GamePiece;
 import frc.robot.subsystems.Superstructure.GlobalState;
 
-public class PreloadPickupCharge extends SequentialCommand {
-
-  public PreloadPickupCharge(Drive drive, Superstructure superstructure) {
+public class BumpPreloadPickupCharge extends SequentialCommand {
+  public BumpPreloadPickupCharge(Drive drive, Superstructure superstructure) {
     super(
         new ScorePreloadCommand(GamePiece.Cone, GlobalState.ScoreHigh, superstructure),
 
         // Drive to pickup
         new ConcurrentCommand(
             new PathPlannerTrajectoryCommand(
-                drive, TrajectoryManager.PreloadPickupCharge.getPathSegment(0)),
+                drive, TrajectoryManager.BumpPreloadPickupCharge.getPathSegment(0)),
             new SequentialCommand(
-                new WaitCommand(2000),
+                new WaitCommand(1700),
                 new SetCurrentGamePieceCommand(GamePiece.Cube),
                 new ConcurrentCommand(
                     new SuperstructureGlobalStateCommand(
                         superstructure, GlobalState.LoadFloor, 4000),
-                    new IntakeCommand(superstructure, IntakeState.In, true, 1000)))),
+                    new IntakeCommand(superstructure, IntakeState.In, true, 2000)))),
 
         // Balance
         new PathPlannerTrajectoryCommand(
-            drive, false, TrajectoryManager.PreloadPickupCharge.getPathSegment(1)),
+            drive, false, TrajectoryManager.BumpPreloadPickupCharge.getPathSegment(1)),
         new BalanceCommand(drive, 5000));
   }
 }

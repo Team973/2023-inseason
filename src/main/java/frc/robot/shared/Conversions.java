@@ -84,11 +84,7 @@ public class Conversions {
      * @return The value squared with the orignal sign.
      */
     public static double signSquare(double value) {
-      if (value < 0.0) {
-        return -Math.pow(value, 2);
-      } else {
-        return Math.pow(value, 2);
-      }
+      return Math.pow(value, 2) * Math.signum(value);
     }
   }
 }

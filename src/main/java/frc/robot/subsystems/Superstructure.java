@@ -34,7 +34,8 @@ public class Superstructure implements Subsystem {
     Manual
   }
 
-  @Getter @Setter private GlobalState m_globalState = GlobalState.Stow;
+  @Getter @Setter private GlobalState m_desiredGlobalState = GlobalState.Stow;
+  @Getter private GlobalState m_currentGlobalState;
   @Getter @Setter private static GamePiece m_currentGamePiece = GamePiece.None;
   @Getter @Setter IntakeState m_desiredIntakeState = IntakeState.Neutral;
 
@@ -48,7 +49,7 @@ public class Superstructure implements Subsystem {
     Elevator.Preset elevatorPreset = m_elevator.getPreset();
     WristPreset wristPreset = m_wrist.getPreset();
 
-    switch (m_globalState) {
+    switch (m_desiredGlobalState) {
       case ScoreHigh:
         elevatorPreset = Elevator.Preset.High;
         wristPreset = WristPreset.High;
@@ -77,10 +78,12 @@ public class Superstructure implements Subsystem {
         elevatorPreset = Elevator.Preset.Floor;
         wristPreset = WristPreset.Hybrid;
 
-        if (Math.abs(m_wrist.getVelocity()) > 80.0) {
-          setDesiredIntakeState(IntakeState.Out);
-        } else if (m_claw.getIntakeState() == IntakeState.Out) {
-          setGlobalState(GlobalState.PostScore);
+        double releaseVelocity = m_currentGamePiece == GamePiece.Cone ? 100.0 : 80.0;
+
+        if (Math.abs(m_wrist.getVelocity()) > releaseVelocity) {
+          setDesiredIntakeState(IntakeState.Toss);
+        } else if (m_claw.getIntakeState() == IntakeState.Toss) {
+          setDesiredGlobalState(GlobalState.PostScore);
         }
         break;
       case Score:
@@ -89,7 +92,7 @@ public class Superstructure implements Subsystem {
       case PostScore:
         setDesiredIntakeState(IntakeState.Neutral);
         setCurrentGamePiece(GamePiece.None);
-        setGlobalState(GlobalState.Stow);
+        setDesiredGlobalState(GlobalState.Stow);
         break;
       case Manual:
         elevatorPreset = Elevator.Preset.Manual;
@@ -115,7 +118,7 @@ public class Superstructure implements Subsystem {
             || (elevatorPreset.getValue() > 22.59 && m_elevator.getHeight() < 22.59)
             || (elevatorPreset.getValue() < 15.82 && m_elevator.getHeight() > 15.82);
 
-    if (m_globalState != GlobalState.Manual) {
+    if (m_desiredGlobalState != GlobalState.Manual) {
       if (wristInStowDangerZone && elevatorInStowDangerZone) {
         wristPreset = WristPreset.PreStow;
       } else if (wristInScoreDangerZone && elevatorInScoreDangerZone) {
@@ -125,14 +128,28 @@ public class Superstructure implements Subsystem {
     m_wrist.setPreset(wristPreset);
     m_elevator.setPreset(elevatorPreset);
     m_claw.setIntakeState(m_desiredIntakeState);
+
+    m_currentGlobalState = m_desiredGlobalState;
   }
 
   public void reset() {
-    setGlobalState(GlobalState.Stow);
+    setDesiredGlobalState(GlobalState.Stow);
+  }
+
+  public boolean isAtTarget() {
+    return m_elevator.isAtTarget()
+        && m_wrist.isAtTargetAngle()
+        && m_desiredGlobalState == m_currentGlobalState;
+  }
+
+  public boolean isHasGamePiece() {
+    // For auto: we want the most realtime state
+    m_claw.checkForGamePiece();
+    return m_claw.isHasGamePiece();
   }
 
   public void debugDashboardUpdate() {
-    SmartDashboard.putString("Global State", String.valueOf(m_globalState));
+    SmartDashboard.putString("Desired Global State", m_desiredGlobalState.toString());
     SmartDashboard.putString("Intake State", String.valueOf(m_desiredIntakeState));
   }
 }
