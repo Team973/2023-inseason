@@ -6,6 +6,7 @@ import frc.robot.auto.commands.PathPlannerTrajectoryCommand;
 import frc.robot.auto.commands.ScorePreloadCommand;
 import frc.robot.auto.commands.SetCurrentGamePieceCommand;
 import frc.robot.auto.commands.SuperstructureGlobalStateCommand;
+import frc.robot.auto.commands.TossCommand;
 import frc.robot.auto.commands.util.ConcurrentCommand;
 import frc.robot.auto.commands.util.SequentialCommand;
 import frc.robot.auto.commands.util.WaitCommand;
@@ -36,22 +37,24 @@ public class Bump3 extends SequentialCommand {
             new PathPlannerTrajectoryCommand(
                 drive, false, TrajectoryManager.Bump3.getPathSegment(1)),
             new SequentialCommand(
-                new WaitCommand(3000),
+                new WaitCommand(2400),
                 new SequentialCommand(
                     new SuperstructureGlobalStateCommand(
                         superstructure, GlobalState.ScoreMid, 4000),
-                    new IntakeCommand(superstructure, IntakeState.Out, true, 520)))),
+                    new IntakeCommand(superstructure, IntakeState.Out, true, 250)))),
 
         // drive to pick up
-        new PathPlannerTrajectoryCommand(drive, false, TrajectoryManager.Bump3.getPathSegment(2)),
-        new SequentialCommand(
-            new WaitCommand(2000),
-            new SetCurrentGamePieceCommand(GamePiece.Cone),
-            new ConcurrentCommand(
-                new SuperstructureGlobalStateCommand(superstructure, GlobalState.LoadFloor, 4000),
-                new IntakeCommand(superstructure, IntakeState.In, true, 2000))),
-
-        // drive to score
-        new PathPlannerTrajectoryCommand(drive, false, TrajectoryManager.Bump3.getPathSegment(3)));
+        new ConcurrentCommand(
+            new PathPlannerTrajectoryCommand(
+                drive, false, TrajectoryManager.Bump3.getPathSegment(2)),
+            new SequentialCommand(
+                new WaitCommand(2000),
+                new SetCurrentGamePieceCommand(GamePiece.Cone),
+                new ConcurrentCommand(
+                    new SuperstructureGlobalStateCommand(
+                        superstructure, GlobalState.LoadFloor, 4500),
+                    new IntakeCommand(superstructure, IntakeState.In, true, 2000)),
+                new WaitCommand(1600),
+                new TossCommand(superstructure, 10000))));
   }
 }

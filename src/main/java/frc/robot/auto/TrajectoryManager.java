@@ -27,7 +27,7 @@ public class TrajectoryManager {
       new TrajectoryPair("Bump2", true, false, new PathConstraints(4, 3));
 
   public static final TrajectoryPair Bump3 =
-      new TrajectoryPair("Bump3", true, false, new PathConstraints(4, 3));
+      new TrajectoryPair("Bump3", true, false, new PathConstraints(4, 3.5));
 
   public static final TrajectoryPair Bump2Charge =
       new TrajectoryPair("Bump2Charge", true, false, new PathConstraints(4, 3));
