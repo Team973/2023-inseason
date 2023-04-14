@@ -123,6 +123,15 @@ public class GreyPigeon {
   }
 
   /**
+   * Returns the angular velocity of the Pigeon2.
+   *
+   * @return The angular velocity of the Pigeon2.
+   */
+  public Rotation2d getAngularVelocity() {
+    return Rotation2d.fromDegrees(m_pigeon.getRate());
+  }
+
+  /**
    * Returns whether the Pigeon2 is level.
    *
    * @return Whether the Pigeon2 is level.

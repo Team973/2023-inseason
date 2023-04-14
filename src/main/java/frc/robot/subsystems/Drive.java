@@ -46,7 +46,7 @@ public class Drive implements Subsystem {
   @Setter private Rotation2d m_targetRobotAngle = new Rotation2d();
   @Setter private RotationControl m_rotationControl = RotationControl.OpenLoop;
 
-  private final PIDController m_rotationController = new PIDController(0.15, 0.0, 0.005);
+  private final PIDController m_rotationController = new PIDController(0.0973, 0.0, 0.001);
   private final PIDController m_balancePitchController = new PIDController(0.055, 0.0, 0.015);
   private final PIDController m_balanceRollController = new PIDController(0.055, 0.0, 0.015);
 
@@ -134,8 +134,8 @@ public class Drive implements Subsystem {
 
       rotation =
           m_rotationController.calculate(currentYaw.getDegrees(), currentYaw.getDegrees() + diff);
-    } else if (rotation != 0.0) {
-      m_targetRobotAngle = m_pigeon.getNormalizedYaw();
+    } else {
+      m_targetRobotAngle = currentYaw.minus(m_pigeon.getAngularVelocity().times(0.05));
     }
 
     m_currentChassisSpeeds =

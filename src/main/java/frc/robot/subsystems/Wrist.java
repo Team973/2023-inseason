@@ -113,13 +113,13 @@ public class Wrist implements Subsystem {
     motorConfig.ClosedLoopRamps.DutyCycleClosedLoopRampPeriod = 0.0;
 
     // Position PID Parameters
-    motorConfig.Slot0.kP = 50.0; // 84.0;
+    motorConfig.Slot0.kP = 43.0;
     motorConfig.Slot0.kI = 0.0;
     motorConfig.Slot0.kD = 0.0;
     motorConfig.Slot0.kS = 0.0;
 
     // Motion Magic
-    motorConfig.MotionMagic.MotionMagicAcceleration = 9;
+    motorConfig.MotionMagic.MotionMagicAcceleration = 12;
     motorConfig.MotionMagic.MotionMagicCruiseVelocity = 30;
     m_wristMotor.setConfig(motorConfig);
   }
@@ -141,7 +141,6 @@ public class Wrist implements Subsystem {
     } else if (m_preset == WristPreset.Manual && m_state == WristState.ClosedLoop) {
       // Intentionally left blank
     } else if (currentGamePiece == GamePiece.Cube) {
-
       setTargetAngleDegrees(m_preset.getCubePreset());
     } else {
       setTargetAngleDegrees(m_preset.getConePreset());

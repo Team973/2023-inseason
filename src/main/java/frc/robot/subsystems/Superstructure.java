@@ -105,10 +105,10 @@ public class Superstructure implements Subsystem {
     }
 
     boolean wristInStowDangerZone =
-        wristPreset.getConePreset() > 0.0 || wristPreset.getCubePreset() > 0.0;
+        m_wrist.getTargetAngle() > 0.0 || m_wrist.getCurrentAngleDegrees() > 0.0;
     boolean elevatorInStowDangerZone =
-        (elevatorPreset.getValue() > 14.78 && m_elevator.getHeight() < 14.78)
-            || (elevatorPreset.getValue() < 14.78 && m_elevator.getHeight() > 14.78);
+        (m_elevator.getTargetHeight() > 14.78 && m_elevator.getHeight() < 14.78)
+            || (m_elevator.getTargetHeight() < 14.78 && m_elevator.getHeight() > 14.78);
 
     boolean wristInScoreDangerZone =
         wristPreset.getConePreset() < -40.0 || wristPreset.getCubePreset() < -40.0;
