@@ -28,7 +28,7 @@ import lombok.experimental.Accessors;
 
 @Accessors(prefix = "m_")
 public class Drive implements Subsystem {
-  private static final Rotation2d BALANCE_CUTOFF_THRESHOLD = Rotation2d.fromDegrees(6.5);
+  private static final Rotation2d BALANCE_CUTOFF_THRESHOLD = Rotation2d.fromDegrees(6.0);
 
   private static final Translation2d[] MODULE_LOCATIONS = {
     new Translation2d(DriveInfo.TRACKWIDTH_METERS / 2.0, DriveInfo.WHEELBASE_METERS / 2.0),
@@ -47,8 +47,8 @@ public class Drive implements Subsystem {
   @Setter private RotationControl m_rotationControl = RotationControl.OpenLoop;
 
   private final PIDController m_rotationController = new PIDController(0.0973, 0.0, 0.001);
-  private final PIDController m_balancePitchController = new PIDController(0.055, 0.0, 0.015);
-  private final PIDController m_balanceRollController = new PIDController(0.055, 0.0, 0.015);
+  private final PIDController m_balancePitchController = new PIDController(0.05, 0.0, 0.015);
+  private final PIDController m_balanceRollController = new PIDController(0.05, 0.0, 0.015);
 
   public enum RotationControl {
     OpenLoop,

@@ -4,6 +4,8 @@ import java.util.Arrays;
 import java.util.List;
 
 import frc.robot.auto.modes.Bump1HoldCharge;
+import frc.robot.auto.modes.Bump2;
+import frc.robot.auto.modes.Bump2Charge;
 import frc.robot.auto.modes.Center1Charge;
 import frc.robot.auto.modes.Flat1Charge;
 import frc.robot.auto.modes.Flat1HoldCharge;
@@ -23,6 +25,8 @@ public class AutoManager {
           AutoMode.Flat3,
           AutoMode.Flat1HoldCharge,
           AutoMode.Bump1HoldCharge,
+          AutoMode.Bump2,
+          AutoMode.Bump2Charge,
           AutoMode.Test,
           AutoMode.Flat1Charge,
           AutoMode.Center1Charge,
@@ -34,6 +38,8 @@ public class AutoManager {
     Flat1Charge,
     Flat1HoldCharge,
     Bump1HoldCharge,
+    Bump2,
+    Bump2Charge,
     Center1Charge,
     Flat2Charge,
     Flat3,
@@ -44,6 +50,8 @@ public class AutoManager {
   private final AutoCommand m_flat1Charge;
   private final AutoCommand m_flat1HoldCharge;
   private final AutoCommand m_bump1HoldCharge;
+  private final AutoCommand m_bump2;
+  private final AutoCommand m_bump2Charge;
   private final AutoCommand m_center1Charge;
   private final AutoCommand m_noAuto;
   private final AutoCommand m_flat2Charge;
@@ -54,6 +62,8 @@ public class AutoManager {
     m_flat1Charge = new Flat1Charge(drive, superstructure);
     m_flat1HoldCharge = new Flat1HoldCharge(drive, superstructure);
     m_bump1HoldCharge = new Bump1HoldCharge(drive, superstructure);
+    m_bump2 = new Bump2(drive, superstructure);
+    m_bump2Charge = new Bump2Charge(drive, superstructure);
     m_center1Charge = new Center1Charge(drive, superstructure);
     m_flat2Charge = new Flat2Charge(drive, superstructure);
     m_flat3 = new Flat3(drive, superstructure);
@@ -100,6 +110,12 @@ public class AutoManager {
         break;
       case Bump1HoldCharge:
         m_currentMode = m_bump1HoldCharge;
+        break;
+      case Bump2:
+        m_currentMode = m_bump2;
+        break;
+      case Bump2Charge:
+        m_currentMode = m_bump2Charge;
         break;
       case Center1Charge:
         m_currentMode = m_center1Charge;

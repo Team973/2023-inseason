@@ -80,7 +80,7 @@ public class Claw implements Subsystem {
     return m_cubeSensor.get();
   }
 
-  private boolean getConeSensor() {
+  public boolean getConeSensor() {
     return m_coneSensor.get();
   }
 
