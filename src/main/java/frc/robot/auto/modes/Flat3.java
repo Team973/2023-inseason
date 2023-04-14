@@ -15,17 +15,16 @@ import frc.robot.subsystems.Superstructure;
 import frc.robot.subsystems.Superstructure.GamePiece;
 import frc.robot.subsystems.Superstructure.GlobalState;
 
-public class MidLinkNoCharge extends SequentialCommand {
+public class Flat3 extends SequentialCommand {
 
-  public MidLinkNoCharge(Drive drive, Superstructure superstructure) {
+  public Flat3(Drive drive, Superstructure superstructure) {
     super(
         // Score preload
         new ScorePreloadCommand(GamePiece.Cone, GlobalState.ScoreMid, superstructure),
 
         // Drive to pickup
         new ConcurrentCommand(
-            new PathPlannerTrajectoryCommand(
-                drive, TrajectoryManager.MidLinkNoCharge.getPathSegment(0)),
+            new PathPlannerTrajectoryCommand(drive, TrajectoryManager.Flat3.getPathSegment(0)),
             new SequentialCommand(
                 new WaitCommand(1000),
                 new SetCurrentGamePieceCommand(GamePiece.Cube),
@@ -37,7 +36,7 @@ public class MidLinkNoCharge extends SequentialCommand {
         // Score cube
         new ConcurrentCommand(
             new PathPlannerTrajectoryCommand(
-                drive, false, TrajectoryManager.MidLinkNoCharge.getPathSegment(1)),
+                drive, false, TrajectoryManager.Flat3.getPathSegment(1)),
             new SequentialCommand(
                 new WaitCommand(1500),
                 new SuperstructureGlobalStateCommand(superstructure, GlobalState.ScoreMid, 1000))),
@@ -56,13 +55,13 @@ public class MidLinkNoCharge extends SequentialCommand {
                         superstructure, GlobalState.LoadFloor, 1000),
                     new IntakeCommand(superstructure, IntakeState.In, false, 1000))),
             new PathPlannerTrajectoryCommand(
-                drive, false, TrajectoryManager.MidLinkNoCharge.getPathSegment(2))),
+                drive, false, TrajectoryManager.Flat3.getPathSegment(2))),
 
         // Score cone
         new ConcurrentCommand(
             new SuperstructureGlobalStateCommand(superstructure, GlobalState.Stow, 1000),
             new PathPlannerTrajectoryCommand(
-                drive, false, TrajectoryManager.MidLinkNoCharge.getPathSegment(3)),
+                drive, false, TrajectoryManager.Flat3.getPathSegment(3)),
             new SequentialCommand(
                 new WaitCommand(1500),
                 new SuperstructureGlobalStateCommand(superstructure, GlobalState.ScoreMid, 1000),
