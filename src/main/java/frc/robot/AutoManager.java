@@ -3,13 +3,13 @@ package frc.robot;
 import java.util.Arrays;
 import java.util.List;
 
-import frc.robot.auto.modes.BumpPreloadPickupCharge;
-import frc.robot.auto.modes.CenterPreloadAndCharge;
-import frc.robot.auto.modes.MidLinkNoCharge;
+import frc.robot.auto.modes.Bump1HoldCharge;
+import frc.robot.auto.modes.Center1Charge;
+import frc.robot.auto.modes.Flat1Charge;
+import frc.robot.auto.modes.Flat1HoldCharge;
+import frc.robot.auto.modes.Flat2Charge;
+import frc.robot.auto.modes.Flat3;
 import frc.robot.auto.modes.NoAuto;
-import frc.robot.auto.modes.PreloadAndCharge;
-import frc.robot.auto.modes.PreloadPickupCharge;
-import frc.robot.auto.modes.PreloadPickupScoreCharge;
 import frc.robot.auto.modes.Test;
 import frc.robot.shared.AutoCommand;
 import frc.robot.subsystems.Drive;
@@ -19,44 +19,44 @@ public class AutoManager {
   private AutoCommand m_currentMode;
   private final List<AutoMode> m_availableAutoModes =
       Arrays.asList(
-          AutoMode.PreloadPickupScoreCharge,
-          AutoMode.MidLinkNoCharge,
-          AutoMode.PreloadPickupCharge,
-          AutoMode.BumpPreloadPickupCharge,
+          AutoMode.Flat2Charge,
+          AutoMode.Flat3,
+          AutoMode.Flat1HoldCharge,
+          AutoMode.Bump1HoldCharge,
           AutoMode.Test,
-          AutoMode.PreloadAndCharge,
-          AutoMode.CenterPreloadAndCharge,
+          AutoMode.Flat1Charge,
+          AutoMode.Center1Charge,
           AutoMode.NoAuto);
   private int m_selectedMode = 0;
 
   public enum AutoMode {
     Test,
-    PreloadAndCharge,
-    PreloadPickupCharge,
-    BumpPreloadPickupCharge,
-    CenterPreloadAndCharge,
-    PreloadPickupScoreCharge,
-    MidLinkNoCharge,
+    Flat1Charge,
+    Flat1HoldCharge,
+    Bump1HoldCharge,
+    Center1Charge,
+    Flat2Charge,
+    Flat3,
     NoAuto,
   }
 
   private final AutoCommand m_test;
-  private final AutoCommand m_preloadAndCharge;
-  private final AutoCommand m_preloadPickupCharge;
-  private final AutoCommand m_bumpPreloadPickupCharge;
-  private final AutoCommand m_centerPreloadAndCharge;
+  private final AutoCommand m_flat1Charge;
+  private final AutoCommand m_flat1HoldCharge;
+  private final AutoCommand m_bump1HoldCharge;
+  private final AutoCommand m_center1Charge;
   private final AutoCommand m_noAuto;
-  private final AutoCommand m_preloadPickupScoreCharge;
-  private final AutoCommand m_midLinkNoCharge;
+  private final AutoCommand m_flat2Charge;
+  private final AutoCommand m_flat3;
 
   public AutoManager(Drive drive, Superstructure superstructure) {
     m_test = new Test(superstructure);
-    m_preloadAndCharge = new PreloadAndCharge(drive, superstructure);
-    m_preloadPickupCharge = new PreloadPickupCharge(drive, superstructure);
-    m_bumpPreloadPickupCharge = new BumpPreloadPickupCharge(drive, superstructure);
-    m_centerPreloadAndCharge = new CenterPreloadAndCharge(drive, superstructure);
-    m_preloadPickupScoreCharge = new PreloadPickupScoreCharge(drive, superstructure);
-    m_midLinkNoCharge = new MidLinkNoCharge(drive, superstructure);
+    m_flat1Charge = new Flat1Charge(drive, superstructure);
+    m_flat1HoldCharge = new Flat1HoldCharge(drive, superstructure);
+    m_bump1HoldCharge = new Bump1HoldCharge(drive, superstructure);
+    m_center1Charge = new Center1Charge(drive, superstructure);
+    m_flat2Charge = new Flat2Charge(drive, superstructure);
+    m_flat3 = new Flat3(drive, superstructure);
     m_noAuto = new NoAuto();
   }
 
@@ -92,23 +92,23 @@ public class AutoManager {
       case Test:
         m_currentMode = m_test;
         break;
-      case PreloadAndCharge:
-        m_currentMode = m_preloadAndCharge;
+      case Flat1Charge:
+        m_currentMode = m_flat1Charge;
         break;
-      case PreloadPickupCharge:
-        m_currentMode = m_preloadPickupCharge;
+      case Flat1HoldCharge:
+        m_currentMode = m_flat1HoldCharge;
         break;
-      case BumpPreloadPickupCharge:
-        m_currentMode = m_bumpPreloadPickupCharge;
+      case Bump1HoldCharge:
+        m_currentMode = m_bump1HoldCharge;
         break;
-      case CenterPreloadAndCharge:
-        m_currentMode = m_centerPreloadAndCharge;
+      case Center1Charge:
+        m_currentMode = m_center1Charge;
         break;
-      case PreloadPickupScoreCharge:
-        m_currentMode = m_preloadPickupScoreCharge;
+      case Flat2Charge:
+        m_currentMode = m_flat2Charge;
         break;
-      case MidLinkNoCharge:
-        m_currentMode = m_midLinkNoCharge;
+      case Flat3:
+        m_currentMode = m_flat3;
         break;
       case NoAuto:
         m_currentMode = m_noAuto;

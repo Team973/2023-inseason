@@ -146,6 +146,10 @@ public class Elevator implements Subsystem {
     return Math.min(max, Math.max(num, min));
   }
 
+  public double getTargetHeight() {
+    return getHeightFromPosition(m_targetPosition);
+  }
+
   public boolean getTopHall() {
     return !m_topHall.get();
   }

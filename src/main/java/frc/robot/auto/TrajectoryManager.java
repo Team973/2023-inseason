@@ -11,26 +11,26 @@ import com.pathplanner.lib.PathPlannerTrajectory;
 
 public class TrajectoryManager {
 
-  public static final TrajectoryPair PreloadAndCharge =
-      new TrajectoryPair("PreloadAndCharge", true, new PathConstraints(4, 3));
+  public static final TrajectoryPair Flat1Charge =
+      new TrajectoryPair("Flat1Charge", true, new PathConstraints(4, 3));
 
-  public static final TrajectoryPair CenterPreloadAndCharge =
-      new TrajectoryPair("CenterPreloadAndCharge", true, true, new PathConstraints(4, 3));
+  public static final TrajectoryPair Center1Charge =
+      new TrajectoryPair("Center1Charge", true, true, new PathConstraints(4, 3));
 
-  public static final TrajectoryPair PreloadPickupCharge =
-      new TrajectoryPair("PreloadPickupCharge", true, false, new PathConstraints(4, 3));
+  public static final TrajectoryPair Flat1HoldCharge =
+      new TrajectoryPair("Flat1HoldCharge", true, false, new PathConstraints(4, 3));
 
-  public static final TrajectoryPair BumpPreloadPickupCharge =
-      new TrajectoryPair("BumpPreloadPickupCharge", true, false, new PathConstraints(4, 3));
+  public static final TrajectoryPair Bump1HoldCharge =
+      new TrajectoryPair("Bump1HoldCharge", true, false, new PathConstraints(4, 3));
 
-  public static final TrajectoryPair CenterPreloadAndPickup =
-      new TrajectoryPair("CenterPreloadAndPickup", true, false, new PathConstraints(1, 2));
+  public static final TrajectoryPair Center1Hold =
+      new TrajectoryPair("Center1Hold", true, false, new PathConstraints(1, 2));
 
-  public static final TrajectoryPair PreloadPickupScoreCharge =
-      new TrajectoryPair("PreloadPickupScoreCharge", true, false, new PathConstraints(4, 3));
+  public static final TrajectoryPair Flat2Charge =
+      new TrajectoryPair("Flat2Charge", true, false, new PathConstraints(4, 3));
 
-  public static final TrajectoryPair MidLinkNoCharge =
-      new TrajectoryPair("LinkMid", true, false, new PathConstraints(4, 3));
+  public static final TrajectoryPair Flat3 =
+      new TrajectoryPair("Flat3", true, false, new PathConstraints(4, 3));
 
   public static class TrajectoryPair {
 
