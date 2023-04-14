@@ -183,6 +183,7 @@ public class Drive implements Subsystem {
   }
 
   public void resetOdometry(Pose2d pose) {
+    m_pigeon.setYawOffset(pose.getRotation());
     m_swerveOdometry.resetPosition(m_pigeon.getYaw(), getPositions(), pose);
   }
 

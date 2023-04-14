@@ -7,11 +7,15 @@ import frc.robot.shared.StandardizedRotation3d;
 import com.ctre.phoenixpro.configs.Pigeon2Configuration;
 import com.ctre.phoenixpro.hardware.Pigeon2;
 import edu.wpi.first.math.geometry.Rotation2d;
+import lombok.Getter;
+import lombok.Setter;
+import lombok.experimental.Accessors;
 
 /** GreyPigeon - Pigeon2 wrapper class */
+@Accessors(prefix = "m_")
 public class GreyPigeon {
   private final Pigeon2 m_pigeon;
-  private StandardizedRotation3d m_offset;
+  @Setter @Getter private StandardizedRotation3d m_offset;
 
   private static final Rotation2d DEFAULT_LEVEL_TOLERANCE = Rotation2d.fromDegrees(2.0);
 
@@ -129,6 +133,13 @@ public class GreyPigeon {
    */
   public Rotation2d getAngularVelocity() {
     return Rotation2d.fromDegrees(m_pigeon.getRate());
+  }
+
+  public void setYawOffset(Rotation2d newYaw) {
+    var currentOffset = getOffset();
+    m_offset =
+        new StandardizedRotation3d(
+            currentOffset.getX(), currentOffset.getY(), currentOffset.getZ() + newYaw.getRadians());
   }
 
   /**
