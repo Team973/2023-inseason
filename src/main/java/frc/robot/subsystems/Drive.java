@@ -89,7 +89,7 @@ public class Drive implements Subsystem {
             new PIDController(1.3, 0.0, 0.0),
             new PIDController(1.3, 0.0, 0.0),
             new ProfiledPIDController(
-                10.0,
+                8.0,
                 0.0,
                 0.0,
                 new TrapezoidProfile.Constraints(
@@ -146,6 +146,7 @@ public class Drive implements Subsystem {
   }
 
   public void driveInput(State state, Rotation2d rotation) {
+    SmartDashboard.putNumber("traj deg", rotation.getDegrees());
     m_currentChassisSpeeds = m_controller.calculate(getPose(), state, rotation);
   }
 

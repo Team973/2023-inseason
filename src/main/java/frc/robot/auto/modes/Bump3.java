@@ -54,7 +54,7 @@ public class Bump3 extends SequentialCommand {
                     new SuperstructureGlobalStateCommand(
                         superstructure, GlobalState.LoadFloor, 4500),
                     new IntakeCommand(superstructure, IntakeState.In, true, 2000)),
-                new WaitCommand(1600),
+                new WaitCommand(1450),
                 new TossCommand(superstructure, 10000))));
   }
 }

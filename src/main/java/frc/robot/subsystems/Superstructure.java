@@ -1,5 +1,6 @@
 package frc.robot.subsystems;
 
+import frc.robot.shared.Conversions.Time;
 import frc.robot.shared.Subsystem;
 import frc.robot.subsystems.Claw.IntakeState;
 import frc.robot.subsystems.Wrist.WristPreset;
@@ -43,6 +44,8 @@ public class Superstructure implements Subsystem {
   private final Wrist m_wrist;
   private final Claw m_claw;
 
+  private double m_tossTimer = 0.0;
+
   public void dashboardUpdate() {}
 
   public void update() {
@@ -82,7 +85,9 @@ public class Superstructure implements Subsystem {
 
         if (Math.abs(m_wrist.getVelocity()) > releaseVelocity) {
           setDesiredIntakeState(IntakeState.Toss);
-        } else if (m_claw.getIntakeState() == IntakeState.Toss) {
+          m_tossTimer = Time.getMsecTime();
+        } else if (m_claw.getIntakeState() == IntakeState.Toss
+            && Time.getMsecTime() - m_tossTimer >= 100) {
           setDesiredGlobalState(GlobalState.PostScore);
         }
         break;
