@@ -104,8 +104,7 @@ public class Superstructure implements Subsystem {
         break;
     }
 
-    boolean wristInStowDangerZone =
-        m_wrist.getTargetAngle() > 0.0 || m_wrist.getCurrentAngleDegrees() > 0.0;
+    boolean wristInStowDangerZone = m_wrist.getTargetAngle() > 0.0;
     boolean elevatorInStowDangerZone =
         (m_elevator.getTargetHeight() > 14.78 && m_elevator.getHeight() < 14.78)
             || (m_elevator.getTargetHeight() < 14.78 && m_elevator.getHeight() > 14.78);
