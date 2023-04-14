@@ -16,37 +16,27 @@ import frc.robot.subsystems.Superstructure;
 import frc.robot.subsystems.Superstructure.GamePiece;
 import frc.robot.subsystems.Superstructure.GlobalState;
 
-public class PreloadPickupScoreCharge extends SequentialCommand {
+public class Flat1HoldCharge extends SequentialCommand {
 
-  public PreloadPickupScoreCharge(Drive drive, Superstructure superstructure) {
+  public Flat1HoldCharge(Drive drive, Superstructure superstructure) {
     super(
-        // Score preload
         new ScorePreloadCommand(GamePiece.Cone, GlobalState.ScoreHigh, superstructure),
 
         // Drive to pickup
         new ConcurrentCommand(
             new PathPlannerTrajectoryCommand(
-                drive, TrajectoryManager.PreloadPickupScoreCharge.getPathSegment(0)),
+                drive, TrajectoryManager.Flat1HoldCharge.getPathSegment(0)),
             new SequentialCommand(
-                new WaitCommand(1000),
+                new WaitCommand(2000),
                 new SetCurrentGamePieceCommand(GamePiece.Cube),
                 new ConcurrentCommand(
                     new SuperstructureGlobalStateCommand(
-                        superstructure, GlobalState.LoadFloor, 1000),
-                    new IntakeCommand(superstructure, IntakeState.In, true, 2000)))),
+                        superstructure, GlobalState.LoadFloor, 4000),
+                    new IntakeCommand(superstructure, IntakeState.In, true, 1000)))),
 
-        // Score cube
-        new ConcurrentCommand(
-            new PathPlannerTrajectoryCommand(
-                drive, false, TrajectoryManager.PreloadPickupScoreCharge.getPathSegment(1)),
-            new SequentialCommand(
-                new WaitCommand(1500),
-                new SuperstructureGlobalStateCommand(superstructure, GlobalState.ScoreHigh, 1000))),
-        new IntakeCommand(superstructure, IntakeState.Out, true, 500),
-
-        // Go balance
+        // Balance
         new PathPlannerTrajectoryCommand(
-            drive, false, TrajectoryManager.PreloadPickupScoreCharge.getPathSegment(2)),
+            drive, false, TrajectoryManager.Flat1HoldCharge.getPathSegment(1)),
         new BalanceCommand(drive, 5000));
   }
 }
