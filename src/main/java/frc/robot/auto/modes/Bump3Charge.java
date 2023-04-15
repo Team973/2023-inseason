@@ -1,6 +1,7 @@
 package frc.robot.auto.modes;
 
 import frc.robot.auto.TrajectoryManager;
+import frc.robot.auto.commands.BalanceCommand;
 import frc.robot.auto.commands.IntakeCommand;
 import frc.robot.auto.commands.PathPlannerTrajectoryCommand;
 import frc.robot.auto.commands.ScorePreloadCommand;
@@ -17,8 +18,8 @@ import frc.robot.subsystems.Superstructure;
 import frc.robot.subsystems.Superstructure.GamePiece;
 import frc.robot.subsystems.Superstructure.GlobalState;
 
-public class Bump3 extends SequentialCommand {
-  public Bump3(Drive drive, Superstructure superstructure) {
+public class Bump3Charge extends SequentialCommand {
+  public Bump3Charge(Drive drive, Superstructure superstructure) {
     super(
         new LambdaCommand(() -> drive.enableBrakeMode()),
         new ScorePreloadCommand(GamePiece.Cone, GlobalState.ScoreMid, superstructure),
@@ -26,7 +27,8 @@ public class Bump3 extends SequentialCommand {
 
         // Drive to pickup/score
         new ConcurrentCommand(
-            new PathPlannerTrajectoryCommand(drive, TrajectoryManager.Bump3.getPathSegment(0)),
+            new PathPlannerTrajectoryCommand(
+                drive, TrajectoryManager.Bump3Charge.getPathSegment(0)),
             new SequentialCommand(
                 new WaitCommand(2000),
                 new SetCurrentGamePieceCommand(GamePiece.Cube),
@@ -45,15 +47,18 @@ public class Bump3 extends SequentialCommand {
         // drive to pick up/toss/balance
         new ConcurrentCommand(
             new PathPlannerTrajectoryCommand(
-                drive, false, TrajectoryManager.Bump3.getPathSegment(1)),
+                drive, false, TrajectoryManager.Bump3Charge.getPathSegment(1)),
             new SequentialCommand(
                 new WaitCommand(2000),
                 new SetCurrentGamePieceCommand(GamePiece.Cone),
                 new ConcurrentCommand(
                     new SuperstructureGlobalStateCommand(
                         superstructure, GlobalState.LoadFloor, 4500),
-                    new IntakeCommand(superstructure, IntakeState.In, true, 2000)),
-                new WaitCommand(1450),
-                new TossCommand(superstructure, 10000))));
+                    new IntakeCommand(superstructure, IntakeState.In, true, 2000)))),
+
+        // Balance and toss
+        new ConcurrentCommand(
+            new SequentialCommand(new WaitCommand(300), new TossCommand(superstructure, 10000)),
+            new BalanceCommand(drive, 5000)));
   }
 }

@@ -14,6 +14,8 @@ import lombok.experimental.Accessors;
 @Accessors(prefix = "m_")
 @RequiredArgsConstructor
 public class Superstructure implements Subsystem {
+  private static final double TOSS_TIMEOUT_MS = 100.0;
+
   /** Game Piece options. */
   public enum GamePiece {
     Cube,
@@ -87,7 +89,7 @@ public class Superstructure implements Subsystem {
           setDesiredIntakeState(IntakeState.Toss);
           m_tossTimer = Time.getMsecTime();
         } else if (m_claw.getIntakeState() == IntakeState.Toss
-            && Time.getMsecTime() - m_tossTimer >= 100) {
+            && Time.getMsecTime() - m_tossTimer >= TOSS_TIMEOUT_MS) {
           setDesiredGlobalState(GlobalState.PostScore);
         }
         break;
