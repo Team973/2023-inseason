@@ -1,5 +1,6 @@
 package frc.robot.subsystems;
 
+import frc.robot.shared.Conversions.Time;
 import frc.robot.shared.Subsystem;
 import frc.robot.subsystems.Claw.IntakeState;
 import frc.robot.subsystems.Wrist.WristPreset;
@@ -13,6 +14,8 @@ import lombok.experimental.Accessors;
 @Accessors(prefix = "m_")
 @RequiredArgsConstructor
 public class Superstructure implements Subsystem {
+  private static final double TOSS_TIMEOUT_MS = 100.0;
+
   /** Game Piece options. */
   public enum GamePiece {
     Cube,
@@ -42,6 +45,8 @@ public class Superstructure implements Subsystem {
   private final Elevator m_elevator;
   private final Wrist m_wrist;
   private final Claw m_claw;
+
+  private double m_tossTimer = 0.0;
 
   public void dashboardUpdate() {}
 
@@ -82,7 +87,9 @@ public class Superstructure implements Subsystem {
 
         if (Math.abs(m_wrist.getVelocity()) > releaseVelocity) {
           setDesiredIntakeState(IntakeState.Toss);
-        } else if (m_claw.getIntakeState() == IntakeState.Toss) {
+          m_tossTimer = Time.getMsecTime();
+        } else if (m_claw.getIntakeState() == IntakeState.Toss
+            && Time.getMsecTime() - m_tossTimer >= TOSS_TIMEOUT_MS) {
           setDesiredGlobalState(GlobalState.PostScore);
         }
         break;
@@ -104,8 +111,7 @@ public class Superstructure implements Subsystem {
         break;
     }
 
-    boolean wristInStowDangerZone =
-        m_wrist.getTargetAngle() > 0.0 || m_wrist.getCurrentAngleDegrees() > 0.0;
+    boolean wristInStowDangerZone = m_wrist.getTargetAngle() > 0.0;
     boolean elevatorInStowDangerZone =
         (m_elevator.getTargetHeight() > 14.78 && m_elevator.getHeight() < 14.78)
             || (m_elevator.getTargetHeight() < 14.78 && m_elevator.getHeight() > 14.78);

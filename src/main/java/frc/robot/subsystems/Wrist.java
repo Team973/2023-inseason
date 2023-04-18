@@ -40,7 +40,7 @@ public class Wrist implements Subsystem {
 
   @Setter private double m_motorOutput = 0.0;
 
-  private final double ANGLE_TOLERANCE = 1.0; // degrees
+  private final double ANGLE_TOLERANCE = 3.0; // degrees
 
   public enum WristState {
     Manual,

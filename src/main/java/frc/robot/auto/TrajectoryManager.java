@@ -23,6 +23,18 @@ public class TrajectoryManager {
   public static final TrajectoryPair Bump1HoldCharge =
       new TrajectoryPair("Bump1HoldCharge", true, false, new PathConstraints(4, 3));
 
+  public static final TrajectoryPair Bump2 =
+      new TrajectoryPair("Bump2", true, false, new PathConstraints(4, 3));
+
+  public static final TrajectoryPair Bump3 =
+      new TrajectoryPair("Bump3", true, false, new PathConstraints(4, 3.5));
+
+  public static final TrajectoryPair Bump3Charge =
+      new TrajectoryPair("Bump3Charge", true, false, new PathConstraints(4, 3.5));
+
+  public static final TrajectoryPair Bump2Charge =
+      new TrajectoryPair("Bump2Charge", true, false, new PathConstraints(4, 3));
+
   public static final TrajectoryPair Center1Hold =
       new TrajectoryPair("Center1Hold", true, false, new PathConstraints(1, 2));
 
