@@ -146,7 +146,6 @@ public class Drive implements Subsystem {
   }
 
   public void driveInput(State state, Rotation2d rotation) {
-    SmartDashboard.putNumber("traj deg", rotation.getDegrees());
     m_currentChassisSpeeds = m_controller.calculate(getPose(), state, rotation);
   }
 
