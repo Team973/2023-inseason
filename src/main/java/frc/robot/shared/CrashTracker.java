@@ -84,7 +84,7 @@ public class CrashTracker {
       } catch (IOException ie) {
         ie.printStackTrace();
       }
-    } else {
+    } else if (e != null) {
       throw new RuntimeException(e);
     }
   }
