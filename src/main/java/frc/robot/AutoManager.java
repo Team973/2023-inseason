@@ -24,15 +24,8 @@ public class AutoManager {
   private final List<AutoMode> m_availableAutoModes =
       Arrays.asList(
           AutoMode.Flat2Charge,
-          AutoMode.Flat3,
-          AutoMode.Flat1HoldCharge,
-          AutoMode.Bump1HoldCharge,
-          AutoMode.Bump2,
           AutoMode.Bump2Charge,
           AutoMode.Bump3,
-          AutoMode.Bump3Charge,
-          AutoMode.Test,
-          AutoMode.Flat1Charge,
           AutoMode.Center1Charge,
           AutoMode.NoAuto);
   private int m_selectedMode = 0;

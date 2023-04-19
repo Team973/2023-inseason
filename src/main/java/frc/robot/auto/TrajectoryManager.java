@@ -36,7 +36,7 @@ public class TrajectoryManager {
       new TrajectoryPair("Bump2Charge", true, false, new PathConstraints(4, 3));
 
   public static final TrajectoryPair Center1Hold =
-      new TrajectoryPair("Center1Hold", true, false, new PathConstraints(1, 2));
+      new TrajectoryPair("Center1HoldCharge", true, false, new PathConstraints(1, 2));
 
   public static final TrajectoryPair Flat2Charge =
       new TrajectoryPair("Flat2Charge", true, false, new PathConstraints(4, 3));
