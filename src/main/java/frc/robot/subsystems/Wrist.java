@@ -23,7 +23,7 @@ import lombok.experimental.Accessors;
 
 @Accessors(prefix = "m_")
 public class Wrist implements Subsystem {
-  private static final double STOW_OFFSET = 32.25;
+  private static final double STOW_OFFSET = 32.25 + 5.0; // +elevator slop
   private static final double WRIST_FF = 0.45;
   private static final double ENCODER_OFFSET = 304.189 - STOW_OFFSET;
 

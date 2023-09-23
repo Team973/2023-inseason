@@ -7,7 +7,6 @@ package frc.robot;
 import static frc.robot.shared.RobotInfo.*;
 
 import frc.robot.devices.GreyPigeon;
-import frc.robot.shared.Conversions.MathHelpers;
 import frc.robot.shared.CrashTracker;
 import frc.robot.subsystems.Claw;
 import frc.robot.subsystems.Claw.IntakeState;
@@ -19,13 +18,13 @@ import frc.robot.subsystems.Superstructure;
 import frc.robot.subsystems.Superstructure.GamePiece;
 import frc.robot.subsystems.Superstructure.GlobalState;
 import frc.robot.subsystems.Wrist;
-import frc.robot.subsystems.Wrist.WristPreset;
 import frc.robot.subsystems.Wrist.WristState;
 import frc.robot.subsystems.candle.CANdleManager;
 import frc.robot.subsystems.candle.CANdleManager.LightState;
 
 import edu.wpi.first.math.MathUtil;
 import edu.wpi.first.math.filter.SlewRateLimiter;
+import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.geometry.Translation2d;
 import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.DriverStation.Alliance;
@@ -57,6 +56,7 @@ public class Robot extends TimedRobot {
   private final AutoManager m_autoManager = new AutoManager(m_drive, m_superstructure);
   private final XboxController m_driverStick = new XboxController(0);
   private final XboxController m_operatorStick = new XboxController(1);
+  private final XboxController m_sickStick = new XboxController(2);
 
   private final SlewRateLimiter m_rotLimiter = new SlewRateLimiter(3);
 
@@ -193,39 +193,125 @@ public class Robot extends TimedRobot {
   @Override
   public void teleopPeriodic() {
     try {
-      /////////////////////
-      // DRIVER CONTROLS //
-      /////////////////////
-      final double xSpeed =
-          MathHelpers.signSquare(-MathUtil.applyDeadband(m_driverStick.getRawAxis(1), 0.12));
-      final double ySpeed =
-          MathHelpers.signSquare(-MathUtil.applyDeadband(m_driverStick.getRawAxis(0), 0.12));
+      /*
+            /////////////////////
+            // DRIVER CONTROLS //
+            /////////////////////
+            final double xSpeed = -MathUtil.applyDeadband(m_driverStick.getRawAxis(1), 0.12);
+            final double ySpeed = -MathUtil.applyDeadband(m_driverStick.getRawAxis(0), 0.12);
 
-      double rot =
-          -m_rotLimiter.calculate(MathUtil.applyDeadband(m_driverStick.getRawAxis(4), 0.09))
+            //final double xSpeed =
+            //    MathHelpers.signSquare(-MathUtil.applyDeadband(m_driverStick.getRawAxis(1), 0.12));
+            //final double ySpeed =
+            //    MathHelpers.signSquare(-MathUtil.applyDeadband(m_driverStick.getRawAxis(0), 0.12));
+
+            double rot =
+                -m_rotLimiter.calculate(MathUtil.applyDeadband(m_driverStick.getRawAxis(4), 0.09))
+                    * DriveInfo.MAX_ANGULAR_VELOCITY_RADIANS_PER_SECOND;
+            if (m_elevator.getHeight() > 15.0) {
+              rot *= 0.5;
+            }
+
+            Translation2d translation =
+                new Translation2d(xSpeed, ySpeed).times(DriveInfo.MAX_VELOCITY_METERS_PER_SECOND);
+
+            if (m_driverStick.getXButton()) {
+              translation = translation.times(m_elevator.getMinimumToCurrentHeightRatio());
+            }
+
+            m_drive.driveInput(translation, rot, true);
+
+            // Closed loop drive angle
+            if (m_driverStick.getYButton()) {
+              m_drive.setRotationControl(RotationControl.ClosedLoop);
+              m_drive.setTargetRobotAngle(Drive.AnglePresets.TOWARDS_HP);
+            } else if (m_driverStick.getXButton()) {
+              m_drive.setRotationControl(RotationControl.ClosedLoop);
+              m_drive.setTargetRobotAngle(Drive.AnglePresets.TOWARDS_DS);
+            } else if (rot == 0.0) {
+              if (m_driverStick.getYButtonReleased() || m_driverStick.getXButtonReleased()) {
+                m_drive.setTargetRobotAngle(m_drive.getPigeon().getNormalizedYaw());
+              }
+              m_drive.setRotationControl(RotationControl.ClosedLoop);
+            } else {
+              m_drive.setRotationControl(RotationControl.OpenLoop);
+            }
+
+            // Reset Drive
+            if (m_driverStick.getStartButton()) {
+              m_drive.reset();
+            }
+
+            // Score
+            if (m_driverStick.getLeftBumper()) {
+              if (m_claw.isHasGamePiece()
+                  && (m_superstructure.getCurrentGlobalState() == GlobalState.Stow
+                      || m_superstructure.getCurrentGlobalState() == GlobalState.Toss)) {
+                m_superstructure.setDesiredGlobalState(GlobalState.Toss);
+              } else {
+                m_superstructure.setDesiredGlobalState(GlobalState.Score);
+              }
+            } else if (m_superstructure.getCurrentGlobalState() == GlobalState.Score) {
+              m_superstructure.setDesiredGlobalState(GlobalState.PostScore);
+            }
+
+            // Right Cone
+            if (m_driverStick.getRightTriggerAxis() > 0.1) {
+              m_elevator.setElevatorState(ElevatorState.ClosedLoop);
+              m_elevator.setPreset(Elevator.Preset.Floor);
+              m_wrist.setState(WristState.ClosedLoop);
+              Superstructure.setCurrentGamePiece(GamePiece.Cone);
+              m_superstructure.setDesiredIntakeState(IntakeState.In);
+              if (m_driverStick.getRightTriggerAxis() > 0.9) {
+                m_wrist.setPreset(WristPreset.Floor);
+              } else {
+                m_wrist.setPreset(WristPreset.ConeRight);
+              }
+            }
+
+            // Stow elevator/wrist
+            if (m_driverStick.getLeftTriggerAxis() > 0.5) {
+              m_superstructure.setDesiredGlobalState(GlobalState.Stow);
+            }
+      */
+
+      ///////////////////////////////////
+      // DRIVER CONTROLS - Sick Sticks //
+      ///////////////////////////////////
+      final double xSpeedSS = -MathUtil.applyDeadband(m_sickStick.getRawAxis(1), 0.1);
+      final double ySpeedSS = -MathUtil.applyDeadband(m_sickStick.getRawAxis(0), 0.1);
+
+      Rotation2d rotAngle =
+          new Rotation2d(Math.atan2(-m_sickStick.getRawAxis(2), -m_sickStick.getRawAxis(3)));
+      final double rotMagnitude =
+          Math.sqrt(
+              Math.pow(m_sickStick.getRawAxis(2), 2.0) + Math.pow(m_sickStick.getRawAxis(3), 2.0));
+      SmartDashboard.putNumber("rotMag", rotMagnitude);
+
+      double rotSS =
+          -m_rotLimiter.calculate(MathUtil.applyDeadband(m_sickStick.getRawAxis(2), 0.09))
               * DriveInfo.MAX_ANGULAR_VELOCITY_RADIANS_PER_SECOND;
       if (m_elevator.getHeight() > 15.0) {
-        rot *= 0.5;
+        rotSS *= 0.5;
       }
 
-      Translation2d translation =
-          new Translation2d(xSpeed, ySpeed).times(DriveInfo.MAX_VELOCITY_METERS_PER_SECOND);
+      Translation2d translationSS =
+          new Translation2d(xSpeedSS, ySpeedSS).times(DriveInfo.MAX_VELOCITY_METERS_PER_SECOND);
 
-      if (m_driverStick.getXButton()) {
-        translation = translation.times(m_elevator.getMinimumToCurrentHeightRatio());
-      }
+      translationSS = translationSS.times(m_elevator.getMinimumToCurrentHeightRatio());
 
-      m_drive.driveInput(translation, rot, true);
+      m_drive.driveInput(translationSS, rotSS, true);
 
       // Closed loop drive angle
-      if (m_driverStick.getYButton()) {
-        m_drive.setRotationControl(RotationControl.ClosedLoop);
-        m_drive.setTargetRobotAngle(Drive.AnglePresets.TOWARDS_DS);
-      } else if (m_driverStick.getBButton()) {
+      m_drive.setRotationControl(RotationControl.ClosedLoop);
+      if (m_sickStick.getRawButton(6)) {
         m_drive.setRotationControl(RotationControl.ClosedLoop);
         m_drive.setTargetRobotAngle(Drive.AnglePresets.TOWARDS_HP);
-      } else if (rot == 0.0) {
-        if (m_driverStick.getYButtonReleased() || m_driverStick.getBButtonReleased()) {
+      } else if (m_sickStick.getRawButton(8)) {
+        m_drive.setRotationControl(RotationControl.ClosedLoop);
+        m_drive.setTargetRobotAngle(Drive.AnglePresets.TOWARDS_DS);
+      } else if (rotSS == 0.0) {
+        if (m_driverStick.getYButtonReleased() || m_driverStick.getXButtonReleased()) {
           m_drive.setTargetRobotAngle(m_drive.getPigeon().getNormalizedYaw());
         }
         m_drive.setRotationControl(RotationControl.ClosedLoop);
@@ -233,13 +319,8 @@ public class Robot extends TimedRobot {
         m_drive.setRotationControl(RotationControl.OpenLoop);
       }
 
-      // Reset Drive
-      if (m_driverStick.getStartButton()) {
-        m_drive.reset();
-      }
-
       // Score
-      if (m_driverStick.getLeftBumper()) {
+      if (m_sickStick.getRawButton(7)) {
         if (m_claw.isHasGamePiece()
             && (m_superstructure.getCurrentGlobalState() == GlobalState.Stow
                 || m_superstructure.getCurrentGlobalState() == GlobalState.Toss)) {
@@ -251,25 +332,8 @@ public class Robot extends TimedRobot {
         m_superstructure.setDesiredGlobalState(GlobalState.PostScore);
       }
 
-      // Right Cone
-      if (m_driverStick.getRightTriggerAxis() > 0.1) {
-        m_elevator.setElevatorState(ElevatorState.ClosedLoop);
-        m_elevator.setPreset(Elevator.Preset.Floor);
-        m_wrist.setState(WristState.ClosedLoop);
-        Superstructure.setCurrentGamePiece(GamePiece.Cone);
-        m_superstructure.setDesiredIntakeState(IntakeState.In);
-        if (m_driverStick.getRightTriggerAxis() > 0.9) {
-          m_wrist.setPreset(WristPreset.Floor);
-        } else {
-          m_wrist.setPreset(WristPreset.ConeRight);
-        }
-      }
-
-      //////////
-      // BOTH //
-      //////////
       // Stow elevator/wrist
-      if (m_driverStick.getLeftTriggerAxis() > 0.5) {
+      if (m_sickStick.getRawButton(5)) {
         m_superstructure.setDesiredGlobalState(GlobalState.Stow);
       }
 
