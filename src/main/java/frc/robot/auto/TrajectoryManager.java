@@ -35,6 +35,9 @@ public class TrajectoryManager {
   public static final TrajectoryPair Bump2Charge =
       new TrajectoryPair("Bump2Charge", true, false, new PathConstraints(4, 3));
 
+  public static final TrajectoryPair ChezyBump2Charge =
+      new TrajectoryPair("ChezyBump2Charge", true, false, new PathConstraints(4, 3));
+
   public static final TrajectoryPair Center1Hold =
       new TrajectoryPair("Center1HoldCharge", true, false, new PathConstraints(1, 2));
 

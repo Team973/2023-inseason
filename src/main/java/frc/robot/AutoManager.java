@@ -9,6 +9,7 @@ import frc.robot.auto.modes.Bump2Charge;
 import frc.robot.auto.modes.Bump3;
 import frc.robot.auto.modes.Bump3Charge;
 import frc.robot.auto.modes.Center1Charge;
+import frc.robot.auto.modes.ChezyBump2Charge;
 import frc.robot.auto.modes.Flat1Charge;
 import frc.robot.auto.modes.Flat1HoldCharge;
 import frc.robot.auto.modes.Flat2Charge;
@@ -25,6 +26,7 @@ public class AutoManager {
       Arrays.asList(
           AutoMode.Flat2Charge,
           AutoMode.Bump2Charge,
+          AutoMode.ChezyBump2Charge,
           AutoMode.Bump3,
           AutoMode.Center1Charge,
           AutoMode.NoAuto);
@@ -37,6 +39,7 @@ public class AutoManager {
     Bump1HoldCharge,
     Bump2,
     Bump2Charge,
+    ChezyBump2Charge,
     Bump3Charge,
     Center1Charge,
     Flat2Charge,
@@ -51,6 +54,7 @@ public class AutoManager {
   private final AutoCommand m_bump1HoldCharge;
   private final AutoCommand m_bump2;
   private final AutoCommand m_bump2Charge;
+  private final AutoCommand m_chezyBump2Charge;
   private final AutoCommand m_bump3;
   private final AutoCommand m_bump3Charge;
   private final AutoCommand m_center1Charge;
@@ -65,6 +69,7 @@ public class AutoManager {
     m_bump1HoldCharge = new Bump1HoldCharge(drive, superstructure);
     m_bump2 = new Bump2(drive, superstructure);
     m_bump2Charge = new Bump2Charge(drive, superstructure);
+    m_chezyBump2Charge = new ChezyBump2Charge(drive, superstructure);
     m_center1Charge = new Center1Charge(drive, superstructure);
     m_flat2Charge = new Flat2Charge(drive, superstructure);
     m_flat3 = new Flat3(drive, superstructure);
@@ -119,6 +124,9 @@ public class AutoManager {
         break;
       case Bump2Charge:
         m_currentMode = m_bump2Charge;
+        break;
+      case ChezyBump2Charge:
+        m_currentMode = m_chezyBump2Charge;
         break;
       case Bump3:
         m_currentMode = m_bump3;
