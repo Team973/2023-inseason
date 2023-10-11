@@ -29,6 +29,9 @@ public class TrajectoryManager {
   public static final TrajectoryPair Bump3 =
       new TrajectoryPair("Bump3", true, false, new PathConstraints(4, 3.5));
 
+  public static final TrajectoryPair ChezyBump3 =
+      new TrajectoryPair("ChezyBump3", true, false, new PathConstraints(4, 3.5));
+
   public static final TrajectoryPair Bump3Charge =
       new TrajectoryPair("Bump3Charge", true, false, new PathConstraints(4, 3.5));
 
