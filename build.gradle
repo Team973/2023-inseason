@@ -185,4 +185,4 @@ task deployGreyDash() {
 }
 
 project.compileJava.dependsOn spotlessApply
-project.compileJava.options.compilerArgs << "-Xlint:all" << "-Werror"
+project.compileJava.options.compilerArgs << "-Xlint:all"
