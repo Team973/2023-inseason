@@ -13,6 +13,7 @@ import frc.robot.auto.modes.ChezyBump2Charge;
 import frc.robot.auto.modes.ChezyBump3;
 import frc.robot.auto.modes.Flat1Charge;
 import frc.robot.auto.modes.Flat1HoldCharge;
+import frc.robot.auto.modes.Flat2;
 import frc.robot.auto.modes.Flat2Charge;
 import frc.robot.auto.modes.Flat3;
 import frc.robot.auto.modes.NoAuto;
@@ -31,7 +32,8 @@ public class AutoManager {
           AutoMode.Bump3,
           AutoMode.ChezyBump3,
           AutoMode.Center1Charge,
-          AutoMode.NoAuto);
+          AutoMode.NoAuto,
+          AutoMode.Flat2);
   private int m_selectedMode = 0;
 
   public enum AutoMode {
@@ -47,6 +49,7 @@ public class AutoManager {
     Center1Charge,
     Flat2Charge,
     Flat3,
+    Flat2,
     NoAuto,
     Bump3
   }
@@ -65,9 +68,10 @@ public class AutoManager {
   private final AutoCommand m_noAuto;
   private final AutoCommand m_flat2Charge;
   private final AutoCommand m_flat3;
+  private final AutoCommand m_flat2;
 
   public AutoManager(Drive drive, Superstructure superstructure) {
-    m_test = new Test(superstructure);
+    m_test = new Test(drive);
     m_flat1Charge = new Flat1Charge(drive, superstructure);
     m_flat1HoldCharge = new Flat1HoldCharge(drive, superstructure);
     m_bump1HoldCharge = new Bump1HoldCharge(drive, superstructure);
@@ -81,6 +85,7 @@ public class AutoManager {
     m_bump3 = new Bump3(drive, superstructure);
     m_chezyBump3 = new ChezyBump3(drive, superstructure);
     m_bump3Charge = new Bump3Charge(drive, superstructure);
+    m_flat2 = new Flat2(drive, superstructure);
   }
 
   public void increment() {
@@ -150,6 +155,9 @@ public class AutoManager {
         break;
       case Flat3:
         m_currentMode = m_flat3;
+        break;
+      case Flat2:
+        m_currentMode = m_flat2;
         break;
       case NoAuto:
         m_currentMode = m_noAuto;

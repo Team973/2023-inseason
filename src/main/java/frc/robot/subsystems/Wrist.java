@@ -48,12 +48,12 @@ public class Wrist implements Subsystem {
   }
 
   public enum WristPreset {
-    Floor(-107.59, -96.77),
+    Floor(-103.59, -96.77),
     Hybrid(-44.6, -44.6),
     Mid(-118.22, -110.79),
     High(-111.09, -96.39),
     HighBack(-101.09, -74.39),
-    Hp(-106.84, -95.36),
+    Hp(-106.84, -93.36),
     Stow(STOW_OFFSET, STOW_OFFSET),
     ConeRight(-71.0, -74.0),
     MiniHp(-89.5, -86.0),
@@ -202,7 +202,8 @@ public class Wrist implements Subsystem {
         m_wristMotor.setControl(ControlMode.DutyCycleOut, m_motorOutput);
         break;
       case ClosedLoop:
-        // If the original target angle is > 0, then don't gimbal. Make the max gimbaled angle 0
+        // If the original target angle is > 0, then don't gimbal. Make the max gimbaled
+        // angle 0
         var angle = m_targetAngle;
         if (m_targetAngle < 0) {
           angle = Math.min(0, m_targetAngle + m_pigeon.getPitch().getDegrees());
