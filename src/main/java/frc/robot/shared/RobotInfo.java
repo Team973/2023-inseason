@@ -37,15 +37,15 @@ public final class RobotInfo {
   public static class DriveInfo {
     public static final int PIGEON_ID = 1;
 
-    public static final int FRONT_LEFT_MODULE_DRIVE_MOTOR = 8;
-    public static final int FRONT_LEFT_MODULE_STEER_MOTOR = 9;
-    public static final int FRONT_LEFT_MODULE_STEER_ENCODER = 10;
-    public static final double FRONT_LEFT_MODULE_STEER_OFFSET = 179.2;
+    public static final int FRONT_LEFT_MODULE_DRIVE_MOTOR = 5;
+    public static final int FRONT_LEFT_MODULE_STEER_MOTOR = 6;
+    public static final int FRONT_LEFT_MODULE_STEER_ENCODER = 7;
+    public static final double FRONT_LEFT_MODULE_STEER_OFFSET = 4.13;
 
-    public static final int FRONT_RIGHT_MODULE_DRIVE_MOTOR = 5;
-    public static final int FRONT_RIGHT_MODULE_STEER_MOTOR = 6;
-    public static final int FRONT_RIGHT_MODULE_STEER_ENCODER = 7;
-    public static final double FRONT_RIGHT_MODULE_STEER_OFFSET = 91.58;
+    public static final int FRONT_RIGHT_MODULE_DRIVE_MOTOR = 8;
+    public static final int FRONT_RIGHT_MODULE_STEER_MOTOR = 9;
+    public static final int FRONT_RIGHT_MODULE_STEER_ENCODER = 10;
+    public static final double FRONT_RIGHT_MODULE_STEER_OFFSET = 270.08;
 
     public static final int BACK_LEFT_MODULE_DRIVE_MOTOR = 11;
     public static final int BACK_LEFT_MODULE_STEER_MOTOR = 12;
