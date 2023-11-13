@@ -48,7 +48,7 @@ public class Wrist implements Subsystem {
   }
 
   public enum WristPreset {
-    Floor(-103.59, -96.77),
+    Floor(-100.0, -96.77),
     Hybrid(-44.6, -44.6),
     Mid(-118.22, -110.79),
     High(-111.09, -96.39),
