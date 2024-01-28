@@ -29,6 +29,7 @@ import edu.wpi.first.math.geometry.Translation2d;
 import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.DriverStation.Alliance;
 import edu.wpi.first.wpilibj.TimedRobot;
+import edu.wpi.first.wpilibj.Timer;
 import edu.wpi.first.wpilibj.XboxController;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import lombok.Getter;
@@ -57,6 +58,8 @@ public class Robot extends TimedRobot {
   private final XboxController m_driverStick = new XboxController(0);
   private final XboxController m_operatorStick = new XboxController(1);
   private final XboxController m_sickStick = new XboxController(2);
+
+  private final Timer m_candleTimer = new Timer();
 
   private final SlewRateLimiter m_rotLimiter = new SlewRateLimiter(3);
 
@@ -144,6 +147,18 @@ public class Robot extends TimedRobot {
       }
     } catch (Exception e) {
       CrashTracker.logThrowableCrash(e);
+    }
+    if (m_candleTimer.get() == 0.0) {
+      m_candleTimer.start();
+    }
+    if (m_candleTimer.get() <= 3.0) {
+      m_candleManager.setLightState(LightState.Red);
+    } else if (m_candleTimer.get() <= 6.0) {
+      m_candleManager.setLightState(LightState.Green);
+    } else if (m_candleTimer.get() <= 9.0) {
+      m_candleManager.setLightState(LightState.White);
+    } else if (m_candleTimer.get() > 9.0) {
+      m_candleTimer.reset();
     }
   }
 
@@ -278,8 +293,8 @@ public class Robot extends TimedRobot {
       ///////////////////////////////////
       // DRIVER CONTROLS - Sick Sticks //
       ///////////////////////////////////
-      final double xSpeedSS = -MathUtil.applyDeadband(m_sickStick.getRawAxis(1), 0.1);
-      final double ySpeedSS = -MathUtil.applyDeadband(m_sickStick.getRawAxis(0), 0.1);
+      final double xSpeedSS = -MathUtil.applyDeadband(m_sickStick.getRawAxis(1), 0.1) * .2;
+      final double ySpeedSS = -MathUtil.applyDeadband(m_sickStick.getRawAxis(0), 0.1) * .2;
 
       Rotation2d rotAngle =
           new Rotation2d(Math.atan2(-m_sickStick.getRawAxis(2), -m_sickStick.getRawAxis(3)));

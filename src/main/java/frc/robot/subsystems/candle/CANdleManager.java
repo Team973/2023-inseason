@@ -28,7 +28,10 @@ public class CANdleManager implements Subsystem {
     Emergency,
     RainbowBarf,
     Off,
-    Balance
+    Balance,
+    Red,
+    Green,
+    White
   }
 
   @Setter @Getter private LightState m_lightState = LightState.Off;
@@ -117,6 +120,15 @@ public class CANdleManager implements Subsystem {
         break;
       case Off:
         setColor(CANdleColors.off);
+        break;
+      case Red:
+        setColor(CANdleColors.red);
+        break;
+      case Green:
+        setColor(CANdleColors.green);
+        break;
+      case White:
+        setColor(CANdleColors.white);
         break;
       default:
         break;
